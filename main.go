@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -99,6 +100,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	//Map Zebedee response data to new page model
 	var templateData datasetLandingPageStatic.Page
 	templateData.Type = pageJSON.Type
+	templateData.URI = pageJSON.URI
 	templateData.Metadata.Title = pageJSON.Description.Title
 	templateData.Metadata.Description = pageJSON.Description.Summary
 	templateData.DatasetLandingPage.Related.Datasets = pageJSON.RelatedDatasets
@@ -252,6 +254,7 @@ func getDatasetDetails(req *http.Request, uri string) datasetLandingPageStatic.D
 		dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
 			URI:       value.File,
 			Extension: filepath.Ext(value.File),
+			Size:      getFileSize(req, uri+"/"+value.File),
 		})
 	}
 	dataset.Title = pageJSON.Description.Edition
@@ -262,9 +265,41 @@ func getDatasetDetails(req *http.Request, uri string) datasetLandingPageStatic.D
 		dataset.HasVersions = true
 	}
 
+	dataset.URI = pageJSON.URI
+
 	return dataset
 }
 
-// func getFileSize(req *http.Request, uri string) {
+type fileSize struct {
+	Size int `json:"fileSize"`
+}
 
-// }
+func getFileSize(req *http.Request, uri string) string {
+	res, err := client.Get(cfg.ZebedeeURL + "/filesize?uri=" + uri)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return ""
+	}
+
+	defer res.Body.Close()
+
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return ""
+	}
+
+	var fileSizeJSON fileSize
+	err = json.Unmarshal(b, &fileSizeJSON)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return ""
+	}
+
+	var size string
+	if fileSizeJSON.Size < 1000000 {
+		size = strconv.Itoa(fileSizeJSON.Size/1000) + " kb"
+	}
+
+	return size
+}
