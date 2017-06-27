@@ -1,0 +1,31 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "/GegMNoiC/YuJWTnc1orin6QuVM=",
+			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic",
+			"revision": "2a87999024de0394caaab1484bb133127b2d61d3",
+			"revisionTime": "2017-06-22T16:06:32Z"
+		},
+		{
+			"checksumSHA1": "nVbb+x6nwEFqcpNDF+aw8WHy+k4=",
+			"path": "github.com/ONSdigital/go-ns/log",
+			"revision": "ae107e4a7eaa4c2a26069c95387a67eb4753c8c5",
+			"revisionTime": "2017-04-25T15:41:18Z"
+		},
+		{
+			"checksumSHA1": "7Gnowh+J328u02q/Ph03VIw2fGI=",
+			"path": "github.com/ONSdigital/go-ns/server",
+			"revision": "ae107e4a7eaa4c2a26069c95387a67eb4753c8c5",
+			"revisionTime": "2017-04-25T15:41:18Z"
+		},
+		{
+			"checksumSHA1": "41syjEeyv9W/6j89XArd1yyWNBU=",
+			"path": "github.com/gorilla/pat",
+			"revision": "cf955c3d1f2c27ee96f93e9738085c762ff5f49d",
+			"revisionTime": "2016-04-13T04:16:32Z"
+		}
+	],
+	"rootPath": "github.com/ONSdigital/dp-frontend-dataset-controller"
+}
