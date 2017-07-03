@@ -340,7 +340,6 @@ func getBreadcrumb(req *http.Request, uri string) []model.TaxonomyNode {
 		parents = append(parents, model.TaxonomyNode{
 			Title: value.Description.Title,
 			URI:   value.URI,
-			Type:  value.Type,
 		})
 	}
 
