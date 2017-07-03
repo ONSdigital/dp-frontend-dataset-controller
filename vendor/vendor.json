@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "/GegMNoiC/YuJWTnc1orin6QuVM=",
+			"checksumSHA1": "bbYjwyIiBDLw39gk418sOcSvISs=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic",
-			"revision": "2a87999024de0394caaab1484bb133127b2d61d3",
-			"revisionTime": "2017-06-22T16:06:32Z"
+			"revision": "af2f635c2d3ed5d0ba5c3d116f88b3b9db066420",
+			"revisionTime": "2017-06-27T10:09:33Z"
 		},
 		{
 			"checksumSHA1": "nVbb+x6nwEFqcpNDF+aw8WHy+k4=",

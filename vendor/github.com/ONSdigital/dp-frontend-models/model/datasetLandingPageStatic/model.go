@@ -23,6 +23,7 @@ type DatasetLandingPage struct {
 	IsTimeseries        bool      `json:"is_timeseries"`
 	Corrections         []Message `json:"corrections"`
 	Notices             []Message `json:"notices"`
+	ParentPath          string    `json:"parent-path"`
 }
 
 //Related content (split by type) to this page
@@ -35,12 +36,11 @@ type Related struct {
 
 //Dataset has the file and title information for an individual dataset
 type Dataset struct {
-	Title                 string              `json:"title"`
-	Downloads             []Download          `json:"downloads"`
-	URI                   string              `json:"uri"`
-	HasVersions           bool                `json:"has_versions"`
-	HasSupplementaryFiles bool                `json:"has_supplementary_files"`
-	SupplementaryFiles    []SupplementaryFile `json:"supplementary_files"`
+	Title              string              `json:"title"`
+	Downloads          []Download          `json:"downloads"`
+	URI                string              `json:"uri"`
+	HasVersions        bool                `json:"has_versions"`
+	SupplementaryFiles []SupplementaryFile `json:"supplementary_files"`
 
 	IsLast bool `json:"is_last"`
 }

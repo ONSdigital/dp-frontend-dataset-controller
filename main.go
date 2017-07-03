@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -115,6 +116,8 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	templateData.DatasetLandingPage.ReleaseDate = pageJSON.Description.ReleaseDate
 	templateData.DatasetLandingPage.NextRelease = pageJSON.Description.NextRelease
 	templateData.DatasetLandingPage.Notes = pageJSON.Section.Markdown
+	templateData.Page.Breadcrumb = getBreadcrumb(req, pageJSON.URI)
+	templateData.DatasetLandingPage.ParentPath = templateData.Breadcrumb[len(templateData.Breadcrumb)-1].Title
 
 	for index, value := range pageJSON.Datasets {
 		dataset := getDatasetDetails(req, value.URI)
@@ -253,14 +256,19 @@ func getDatasetDetails(req *http.Request, uri string) datasetLandingPageStatic.D
 	for _, value := range pageJSON.Downloads {
 		dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
 			URI:       value.File,
-			Extension: filepath.Ext(value.File),
+			Extension: getFileExtension(value.File),
+			Size:      getFileSize(req, uri+"/"+value.File),
+		})
+	}
+	for _, value := range pageJSON.SupplementaryFiles {
+		dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
+			Title:     value.Title,
+			URI:       value.File,
+			Extension: getFileExtension(value.File),
 			Size:      getFileSize(req, uri+"/"+value.File),
 		})
 	}
 	dataset.Title = pageJSON.Description.Edition
-	if len(pageJSON.SupplementaryFiles) > 0 {
-		dataset.HasSupplementaryFiles = true
-	}
 	if len(pageJSON.Versions) > 0 {
 		dataset.HasVersions = true
 	}
@@ -268,6 +276,10 @@ func getDatasetDetails(req *http.Request, uri string) datasetLandingPageStatic.D
 	dataset.URI = pageJSON.URI
 
 	return dataset
+}
+
+func getFileExtension(fileName string) string {
+	return strings.TrimPrefix(filepath.Ext(fileName), ".")
 }
 
 type fileSize struct {
@@ -296,10 +308,41 @@ func getFileSize(req *http.Request, uri string) string {
 		return ""
 	}
 
-	var size string
-	if fileSizeJSON.Size < 1000000 {
-		size = strconv.Itoa(fileSizeJSON.Size/1000) + " kb"
-	}
+	size := strconv.Itoa(fileSizeJSON.Size/1000) + "kb"
 
 	return size
+}
+
+func getBreadcrumb(req *http.Request, uri string) []model.TaxonomyNode {
+	res, err := client.Get(cfg.ZebedeeURL + "/parents?uri=" + uri)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return []model.TaxonomyNode{}
+	}
+
+	defer res.Body.Close()
+
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return []model.TaxonomyNode{}
+	}
+
+	var parentsJSON []zebedeeModels.TaxonomyNode
+	err = json.Unmarshal(b, &parentsJSON)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		return []model.TaxonomyNode{}
+	}
+
+	var parents []model.TaxonomyNode
+	for _, value := range parentsJSON {
+		parents = append(parents, model.TaxonomyNode{
+			Title: value.Description.Title,
+			URI:   value.URI,
+			Type:  value.Type,
+		})
+	}
+
+	return parents
 }
