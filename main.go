@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
+	"github.com/c2h5oh/datasize"
 	"github.com/gorilla/pat"
 )
 
@@ -308,9 +308,13 @@ func getFileSize(req *http.Request, uri string) string {
 		return ""
 	}
 
-	size := strconv.Itoa(fileSizeJSON.Size/1000) + "kb"
+	// size := bytefmt.ByteSize(uint64(fileSizeJSON.Size))
+	var size datasize.ByteSize
+	size = datasize.ByteSize(fileSizeJSON.Size)
 
-	return size
+	humanReadableSize := size.HR()
+
+	return humanReadableSize
 }
 
 func getBreadcrumb(req *http.Request, uri string) []model.TaxonomyNode {
