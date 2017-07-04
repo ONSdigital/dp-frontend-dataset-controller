@@ -15,6 +15,18 @@
 			"revisionTime": "2017-07-03T13:55:43Z"
 		},
 		{
+			"checksumSHA1": "J9OiPnhPHFPhQ+R+dq6LFj+dTxE=",
+			"path": "github.com/ONSdigital/go-ns/handlers/requestID",
+			"revision": "ae107e4a7eaa4c2a26069c95387a67eb4753c8c5",
+			"revisionTime": "2017-04-25T15:41:18Z"
+		},
+		{
+			"checksumSHA1": "HgL/HLG5D1WNPb1lrb/hpywtm9o=",
+			"path": "github.com/ONSdigital/go-ns/handlers/timeout",
+			"revision": "ae107e4a7eaa4c2a26069c95387a67eb4753c8c5",
+			"revisionTime": "2017-04-25T15:41:18Z"
+		},
+		{
 			"checksumSHA1": "nVbb+x6nwEFqcpNDF+aw8WHy+k4=",
 			"path": "github.com/ONSdigital/go-ns/log",
 			"revision": "ae107e4a7eaa4c2a26069c95387a67eb4753c8c5",
@@ -27,10 +39,76 @@
 			"revisionTime": "2017-04-25T15:41:18Z"
 		},
 		{
+			"checksumSHA1": "jQ7JB1XsEO3528jVoX9wKM/9wWU=",
+			"path": "github.com/c2h5oh/datasize",
+			"revision": "54516c931ae99c3c74637b9ea2390cf9a6327f26",
+			"revisionTime": "2017-05-19T14:33:21Z"
+		},
+		{
+			"checksumSHA1": "g/V4qrXjUGG9B+e3hB+4NAYJ5Gs=",
+			"path": "github.com/gorilla/context",
+			"revision": "08b5f424b9271eedf6f9f0ce86cb9396ed337a42",
+			"revisionTime": "2016-08-17T18:46:32Z"
+		},
+		{
+			"checksumSHA1": "zmCk+lgIeiOf0Ng9aFP9aFy8ksE=",
+			"path": "github.com/gorilla/mux",
+			"revision": "ad4ce0eb1694e1a48fd8e2e764dd0e1aec118326",
+			"revisionTime": "2017-02-28T03:44:49Z"
+		},
+		{
 			"checksumSHA1": "41syjEeyv9W/6j89XArd1yyWNBU=",
 			"path": "github.com/gorilla/pat",
 			"revision": "cf955c3d1f2c27ee96f93e9738085c762ff5f49d",
 			"revisionTime": "2016-04-13T04:16:32Z"
+		},
+		{
+			"checksumSHA1": "jOXIxsHHi2+Kq4evLnADdtynshs=",
+			"path": "github.com/ian-kent/envconf",
+			"revision": "c19809918c02ab33dc8635d68c77649313185275",
+			"revisionTime": "2014-10-26T12:11:21Z"
+		},
+		{
+			"checksumSHA1": "Ai1Jq30ypG7ElmWWLmnj39u2CSc=",
+			"path": "github.com/ian-kent/gofigure",
+			"revision": "c9dc3a1359affde410a8d90e28132a1126604270",
+			"revisionTime": "2017-05-02T19:22:41Z"
+		},
+		{
+			"checksumSHA1": "TTOVXrBTt7rBkKDInYkI4wHLxV8=",
+			"path": "github.com/ian-kent/gofigure/sources",
+			"revision": "c9dc3a1359affde410a8d90e28132a1126604270",
+			"revisionTime": "2017-05-02T19:22:41Z"
+		},
+		{
+			"checksumSHA1": "OBvAHqWjdI4NQVAqTkcQAdTuCFY=",
+			"path": "github.com/justinas/alice",
+			"revision": "1051eaf52fcafdd87ead59d28b065f1fcb8274ec",
+			"revisionTime": "2016-09-10T10:38:22Z"
+		},
+		{
+			"checksumSHA1": "QPtwwLkTyoqQoigevgprwudIdXk=",
+			"path": "github.com/mattn/go-colorable",
+			"revision": "d898aa9fb31c91f35dd28ca75db377eff023c076",
+			"revisionTime": "2017-02-21T00:41:37Z"
+		},
+		{
+			"checksumSHA1": "xZuhljnmBysJPta/lMyYmJdujCg=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "30a891c33c7cde7b02a981314b4228ec99380cca",
+			"revisionTime": "2016-11-23T14:36:37Z"
+		},
+		{
+			"checksumSHA1": "CIK3BBNX3nuUQCmNqTQydNfMNKI=",
+			"path": "github.com/mgutz/ansi",
+			"revision": "9520e82c474b0a04dd04f8a40959027271bab992",
+			"revisionTime": "2017-02-06T15:57:36Z"
+		},
+		{
+			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
+			"revisionTime": "2016-12-14T18:38:57Z"
 		}
 	],
 	"rootPath": "github.com/ONSdigital/dp-frontend-dataset-controller"

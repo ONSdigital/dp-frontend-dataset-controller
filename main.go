@@ -48,7 +48,6 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, req *http.Request) {
-	//FIXME need to do NewRequest and RawQuery
 	res, err := http.Get(cfg.ZebedeeURL + "/data?uri=" + req.URL.Path)
 	if err != nil {
 		log.Error(err, nil)
