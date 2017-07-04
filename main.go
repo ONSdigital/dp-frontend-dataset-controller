@@ -308,13 +308,7 @@ func getFileSize(req *http.Request, uri string) string {
 		return ""
 	}
 
-	// size := bytefmt.ByteSize(uint64(fileSizeJSON.Size))
-	var size datasize.ByteSize
-	size = datasize.ByteSize(fileSizeJSON.Size)
-
-	humanReadableSize := size.HR()
-
-	return humanReadableSize
+	return datasize.ByteSize(fileSizeJSON.Size).HumanReadable()
 }
 
 func getBreadcrumb(req *http.Request, uri string) []model.TaxonomyNode {
