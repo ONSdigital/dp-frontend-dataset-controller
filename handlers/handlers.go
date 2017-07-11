@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
@@ -26,11 +28,37 @@ func init() {
 	}
 }
 
+// CreateJobID controls the creating of a job idea when a new user journey is
+// requested
+func CreateJobID(w http.ResponseWriter, req *http.Request) {
+	// TODO: This is a stubbed job id - replace with real job id from api once
+	// code has been written
+	jobID := rand.Intn(100000000)
+	jid := strconv.Itoa(jobID)
+
+	log.Trace("created job id", log.Data{"job_id": jid})
+	http.Redirect(w, req, "/jobs/"+jid+"/dimensions", 301)
+}
+
 // LegacyLanding will load a zebedee landing page
 func LegacyLanding(w http.ResponseWriter, req *http.Request) {
 	cfg := config.Get()
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 	legacyLanding(w, req, zc, cfg)
+}
+
+// FilterableLanding ..
+func FilterableLanding(w http.ResponseWriter, req *http.Request) {
+	cfg := config.Get()
+
+	b, err := render([]byte(`{}`), "filterable", cfg)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(b)
 }
 
 func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {

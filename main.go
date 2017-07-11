@@ -7,14 +7,17 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
-	"github.com/gorilla/pat"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	cfg := config.Get()
 	log.Namespace = "frontend-dataset-controller"
 
-	router := pat.New()
+	router := mux.NewRouter()
+
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding)
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateJobID)
 
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding)
 

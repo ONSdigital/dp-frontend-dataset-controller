@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
@@ -29,6 +31,17 @@ func createMockClient(expectedResponse []byte, expectedCode int) *http.Client {
 func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
+
+	Convey("test CreateJobID handler, creates a job id and redirects", t, func() {
+		w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateJobID)
+
+		location := w.Header().Get("Location")
+		So(location, ShouldNotBeEmpty)
+
+		matched, err := regexp.MatchString(`^\/jobs\/\d{8}\/dimensions$`, location)
+		So(err, ShouldBeNil)
+		So(matched, ShouldBeTrue)
+	})
 
 	Convey("test /data endpoint", t, func() {
 
@@ -138,4 +151,21 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+}
+
+func testResponse(code int, respBody, url string, f http.HandlerFunc) *httptest.ResponseRecorder {
+	req, err := http.NewRequest("POST", url, nil)
+	So(err, ShouldBeNil)
+
+	w := httptest.NewRecorder()
+	f(w, req)
+
+	So(w.Code, ShouldEqual, code)
+
+	b, err := ioutil.ReadAll(w.Body)
+	So(err, ShouldBeNil)
+
+	So(string(b), ShouldEqual, respBody)
+
+	return w
 }
