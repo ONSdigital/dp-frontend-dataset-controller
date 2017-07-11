@@ -5,8 +5,8 @@
 		{
 			"checksumSHA1": "HGcaKsLnyiPHC1fYKvGTIH00Z4c=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model",
-			"revision": "f390250319d1524b758e8bccc351d6916cebd2c0",
-			"revisionTime": "2017-07-04T13:42:44Z"
+			"revision": "68099c8c0a883488fb056b2ad1500c4c478bf883",
+			"revisionTime": "2017-07-11T09:57:28Z"
 		},
 		{
 			"checksumSHA1": "Xf6RqlcMdmIUjjgjrFfH2XXpcEA=",
@@ -39,22 +39,22 @@
 			"revisionTime": "2017-07-07T13:12:26Z"
 		},
 		{
-			"checksumSHA1": "ACaxNDTTeiWFQaPohMwP0B0nois=",
-			"path": "github.com/ONSdigital/go-ns/zebedee",
-			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
-			"revisionTime": "2017-07-07T13:12:26Z"
+			"checksumSHA1": "3bHEqWZQ2ZZn0yrQeZBdGgi9wrE=",
+			"path": "github.com/ONSdigital/go-ns/zebedee/client",
+			"revision": "4e5fe4def49c96376743b20fe698c683a86d4b75",
+			"revisionTime": "2017-07-11T09:58:36Z"
 		},
 		{
-			"checksumSHA1": "Z5FJDGRgIZJtp4rO9HIecnq7K6E=",
-			"path": "github.com/ONSdigital/go-ns/zebedee/mock_zebedee",
-			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
-			"revisionTime": "2017-07-07T13:12:26Z"
+			"checksumSHA1": "rIM30lGXWnib/GfNjckv9eFSoug=",
+			"path": "github.com/ONSdigital/go-ns/zebedee/data",
+			"revision": "4e5fe4def49c96376743b20fe698c683a86d4b75",
+			"revisionTime": "2017-07-11T09:58:36Z"
 		},
 		{
-			"checksumSHA1": "YZYo3V6o2b7U2br8jfKGIoiYLVQ=",
-			"path": "github.com/ONSdigital/go-ns/zebedee/models",
-			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
-			"revisionTime": "2017-07-07T13:12:26Z"
+			"checksumSHA1": "1vKva05Wu3ElkfoUFKFS/Se1a6M=",
+			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
+			"revision": "4e5fe4def49c96376743b20fe698c683a86d4b75",
+			"revisionTime": "2017-07-11T09:58:36Z"
 		},
 		{
 			"checksumSHA1": "jQ7JB1XsEO3528jVoX9wKM/9wWU=",
