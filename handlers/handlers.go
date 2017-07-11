@@ -11,27 +11,29 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/go-ns/log"
-	"github.com/ONSdigital/go-ns/zebedee"
+	"github.com/ONSdigital/go-ns/zebedee/client"
+	"github.com/ONSdigital/go-ns/zebedee/data"
+	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
 )
 
-var client *http.Client
+var cli *http.Client
 
 const dataEndpoint = `\/data$`
 
 func init() {
-	if client == nil {
-		client = &http.Client{Timeout: 5 * time.Second}
+	if cli == nil {
+		cli = &http.Client{Timeout: 5 * time.Second}
 	}
 }
 
-// LegacyLanding ...
+// LegacyLanding will load a zebedee landing page
 func LegacyLanding(w http.ResponseWriter, req *http.Request) {
 	cfg := config.Get()
-	zc := zebedee.NewClient(cfg.ZebedeeURL)
+	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 	legacyLanding(w, req, zc, cfg)
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc zebedee.Client, cfg config.Config) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -51,12 +53,27 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc zebedee.Client, 
 		return
 	}
 
-	m, err := zc.GetLanding("/data?uri=" + path)
+	dlp, err := zc.GetDatasetLandingPage("/data?uri=" + path)
 	if err != nil {
 		log.ErrorR(req, err, nil)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	bc, err := zc.GetBreadcrumb(dlp.URI)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var ds []data.Dataset
+	for _, v := range dlp.Datasets {
+		d, _ := zc.GetDataset(v.URI)
+		ds = append(ds, d)
+	}
+
+	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
 
 	//Marshal template data to JSON
 	templateJSON, err := json.Marshal(m)
@@ -90,7 +107,7 @@ func render(data []byte, filterID string, cfg config.Config) ([]byte, error) {
 		return nil, err
 	}
 
-	rendererRes, err := client.Do(rendererReq)
+	rendererRes, err := cli.Do(rendererReq)
 	if err != nil {
 		return nil, err
 	}
