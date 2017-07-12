@@ -9,10 +9,10 @@
 			"revisionTime": "2017-07-11T09:57:28Z"
 		},
 		{
-			"checksumSHA1": "Xf6RqlcMdmIUjjgjrFfH2XXpcEA=",
+			"checksumSHA1": "2Ww7ArlxDH4Cs/1S01vx1heMAow=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic",
-			"revision": "f390250319d1524b758e8bccc351d6916cebd2c0",
-			"revisionTime": "2017-07-04T13:42:44Z"
+			"revision": "68099c8c0a883488fb056b2ad1500c4c478bf883",
+			"revisionTime": "2017-07-11T09:57:28Z"
 		},
 		{
 			"checksumSHA1": "J9OiPnhPHFPhQ+R+dq6LFj+dTxE=",
@@ -51,7 +51,7 @@
 			"revisionTime": "2017-07-11T09:58:36Z"
 		},
 		{
-			"checksumSHA1": "1vKva05Wu3ElkfoUFKFS/Se1a6M=",
+			"checksumSHA1": "ibnuCletV4wKSZ91XUv+/fAi0Rg=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
 			"revision": "4e5fe4def49c96376743b20fe698c683a86d4b75",
 			"revisionTime": "2017-07-11T09:58:36Z"
