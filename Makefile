@@ -10,4 +10,7 @@ debug:
 test:
 	go test -tags 'production' ./...
 
+convey:
+	goconvey ./...
+
 .PHONY: build debug
