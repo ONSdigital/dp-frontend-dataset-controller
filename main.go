@@ -17,7 +17,7 @@ func main() {
 	router := mux.NewRouter()
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding)
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateJobID)
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID)
 
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding)
 

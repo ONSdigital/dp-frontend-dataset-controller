@@ -32,13 +32,13 @@ func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	Convey("test CreateJobID handler, creates a job id and redirects", t, func() {
-		w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateJobID)
+	Convey("test CreateFilterID handler, creates a filter id and redirects", t, func() {
+		w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateFilterID)
 
 		location := w.Header().Get("Location")
 		So(location, ShouldNotBeEmpty)
 
-		matched, err := regexp.MatchString(`^\/jobs\/\d{8}\/dimensions$`, location)
+		matched, err := regexp.MatchString(`^\/filters\/\d{8}\/dimensions$`, location)
 		So(err, ShouldBeNil)
 		So(matched, ShouldBeTrue)
 	})
