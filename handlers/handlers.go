@@ -28,16 +28,16 @@ func init() {
 	}
 }
 
-// CreateJobID controls the creating of a job idea when a new user journey is
+// CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
-func CreateJobID(w http.ResponseWriter, req *http.Request) {
-	// TODO: This is a stubbed job id - replace with real job id from api once
+func CreateFilterID(w http.ResponseWriter, req *http.Request) {
+	// TODO: This is a stubbed filter id - replace with real filter id from api once
 	// code has been written
-	jobID := rand.Intn(100000000)
-	jid := strconv.Itoa(jobID)
+	filterID := rand.Intn(100000000)
+	fid := strconv.Itoa(filterID)
 
-	log.Trace("created job id", log.Data{"job_id": jid})
-	http.Redirect(w, req, "/jobs/"+jid+"/dimensions", 301)
+	log.Trace("created filter id", log.Data{"filter_id": fid})
+	http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
 }
 
 // LegacyLanding will load a zebedee landing page
