@@ -27,12 +27,6 @@ job "dp-frontend-dataset-controller" {
         command = "${NOMAD_TASK_DIR}/start-task"
 
         args = ["./dp-frontend-dataset-controller"]
-
-        image = "{{ECR_URL}}:concourse-{{REVISION}}"
-
-        port_map {
-          http = 8080
-        }
       }
 
       service {
