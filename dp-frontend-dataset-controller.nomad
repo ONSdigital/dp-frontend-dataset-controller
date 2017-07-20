@@ -4,20 +4,20 @@ job "dp-frontend-dataset-controller" {
   type        = "service"
 
   update {
-    stagger      = "90s"
+    stagger      = "10s"
     max_parallel = 1
   }
 
-  group "publishing" {
-    count = "{{PUBLISHING_TASK_COUNT}}"
+  group "web" {
+    count = "{{WEB_TASK_COUNT}}"
 
     constraint {
       attribute = "${node.class}"
-      value     = "publishing"
+      value     = "web"
     }
 
     task "dp-frontend-dataset-controller" {
-      driver = "simple"
+      driver = "exec"
 
       artifact {
         source = "s3::https://s3-eu-west-1.amazonaws.com/{{DEPLOYMENT_BUCKET}}/dp-frontend-dataset-controller/{{REVISION}}.tar.gz"
@@ -31,19 +31,19 @@ job "dp-frontend-dataset-controller" {
         image = "{{ECR_URL}}:concourse-{{REVISION}}"
 
         port_map {
-          http = 20200
+          http = 8080
         }
       }
 
       service {
         name = "dp-frontend-dataset-controller"
         port = "http"
-        tags = ["publishing"]
+        tags = ["web"]
       }
 
       resources {
-        cpu    = "{{PUBLISHING_RESOURCE_CPU}}"
-        memory = "{{PUBLISHING_RESOURCE_MEM}}"
+        cpu    = "{{WEB_RESOURCE_CPU}}"
+        memory = "{{WEB_RESOURCE_MEM}}"
 
         network {
           port "http" {}
