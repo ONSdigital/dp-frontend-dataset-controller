@@ -1,0 +1,75 @@
+{
+	"type": "dataset_landing_page",
+	"uri": "/employmentandlabourmarket/peopleinwork/workplacedisputesandworkingconditions/datasets/labourdisputesbysectorlabd02",
+	"taxonomy": null,
+	"breadcrumb": [{
+		"title": "Home",
+		"uri": "/"
+	}, {
+		"title": "Employment and labour market",
+		"uri": "/employmentandlabourmarket"
+	}, {
+		"title": "People in work",
+		"uri": "/employmentandlabourmarket/peopleinwork"
+	}, {
+		"title": "Workplace disputes and working conditions",
+		"uri": "/employmentandlabourmarket/peopleinwork/workplacedisputesandworkingconditions"
+	}],
+	"service_message": "",
+	"metadata": {
+		"title": "Labour disputes by sector: LABD02",
+		"description": "Labour disputes by sector.",
+		"keywords": null,
+		"footer": {
+			"enabled": false,
+			"contact": "",
+			"release_date": "",
+			"next_release": "",
+			"dataset_id": ""
+		}
+	},
+	"search_disabled": false,
+	"data": {
+		"dataset_id": "",
+		"filter_id": "",
+		"related": {
+			"related_publications": [{
+				"title": "",
+				"uri": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/2015-07-15"
+			}],
+			"related_datasets": [{
+				"title": "Labour disputes: LABD01",
+				"uri": "/employmentandlabourmarket/peopleinwork/workplacedisputesandworkingconditions/datasets/labourdisputeslabd01"
+			}, {
+				"title": "Stoppages of work: LABD03",
+				"uri": "/employmentandlabourmarket/peopleinwork/workplacedisputesandworkingconditions/datasets/stoppagesofworklabd03"
+			}],
+			"related_methodology": null,
+			"related_links": null
+		},
+		"markdown": "",
+		"meta_description": "",
+		"national_statistic": true,
+		"release_date": "2015-07-14T23:00:00.000Z",
+		"next_release": "12 August 2015",
+		"is_timeseries": false,
+		"corrections": null,
+		"notices": null,
+		"parent_path": "Workplace disputes and working conditions",
+    "datasets": [
+      {
+        "downloads": [
+          {
+            "extension": "csv",
+            "size": "483920",
+            "uri": "/somedownload"
+          }
+        ]
+      }
+    ]
+	},
+	"filter_id": "",
+	"name": "Richard Clegg\n",
+	"email": "richard.clegg@ons.gsi.gov.uk\n",
+	"telephone": "+44 (0)1633 455400 \n"
+}

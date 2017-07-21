@@ -56,7 +56,7 @@ func TestUnitHandlers(t *testing.T) {
 			cfg := config.Get()
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 
 			So(w.Body.String(), ShouldEqual, `{"some_json":true}`)
 		})
@@ -70,7 +70,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 			cfg := config.Get()
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
@@ -94,7 +94,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 			cfg := config.Get()
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
 			So(w.Body.String(), ShouldEqual, `<html><body><h1>Some HTML from renderer!</h1></body></html>`)
@@ -110,7 +110,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 			cfg := config.Get()
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
@@ -125,7 +125,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 			cfg := config.Get()
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
@@ -145,7 +145,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 			cfg := config.Get()
 
-			legacyLanding(w, req, mockClient, cfg)
+			landing(w, req, mockClient, cfg)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})

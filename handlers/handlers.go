@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	filterdata "github.com/ONSdigital/dp-frontend-dataset-controller/data"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/ONSdigital/go-ns/zebedee/data"
@@ -44,24 +46,17 @@ func CreateFilterID(w http.ResponseWriter, req *http.Request) {
 func LegacyLanding(w http.ResponseWriter, req *http.Request) {
 	cfg := config.Get()
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	legacyLanding(w, req, zc, cfg)
+	landing(w, req, zc, cfg)
 }
 
 // FilterableLanding ..
 func FilterableLanding(w http.ResponseWriter, req *http.Request) {
 	cfg := config.Get()
-
-	b, err := render([]byte(`{}`), "filterable", cfg)
-	if err != nil {
-		log.ErrorR(req, err, nil)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(b)
+	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
+	landing(w, req, zc, cfg)
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
+func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -103,13 +98,65 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 
 	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
 
-	//Marshal template data to JSON
-	templateJSON, err := json.Marshal(m)
-	if err != nil {
-		log.Error(err, nil)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	//m.FilterID = "filterable" // This information should be coming from zebedee but isn't implemented as of yet
+	var templateJSON []byte
+
+	if m.FilterID == "filterable" {
+
+		datasets := []filterdata.Dataset{
+			{
+				ID:          "12345",
+				Title:       "",
+				URL:         "",
+				ReleaseDate: "11 November 2017",
+				NextRelease: "11 November 2018",
+				Edition:     "2017",
+				Version:     "1",
+				Contact: filterdata.Contact{
+					Name:      "Matt Rout",
+					Telephone: "012346 382012",
+					Email:     "matt@gmail.com",
+				},
+			},
+		}
+
+		dimensions := []filterdata.Dimension{
+			{
+				CodeListID: "ABDCSKA",
+				ID:         "siojxuidhc",
+				Name:       "Geography",
+				Type:       "Hierarchy",
+				Values:     []string{"Region", "County"},
+			},
+			{
+				CodeListID: "AHDHSID",
+				ID:         "eorihfieorf",
+				Name:       "Age List",
+				Type:       "List",
+				Values:     []string{"0", "1", "2"},
+			},
+		}
+
+		fp := mapper.CreateFilterableLandingPage(datasets, dimensions, m)
+
+		templateJSON, err = json.Marshal(fp)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	} else {
+
+		//Marshal template data to JSON
+		templateJSON, err = json.Marshal(m)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
+
+	log.Debug("json", log.Data{"json": string(templateJSON)})
 
 	templateHTML, err := render(templateJSON, m.FilterID, cfg)
 	if err != nil {
@@ -119,6 +166,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 	}
 
 	w.Write(templateHTML)
+	return
+
 }
 
 func render(data []byte, filterID string, cfg config.Config) ([]byte, error) {
