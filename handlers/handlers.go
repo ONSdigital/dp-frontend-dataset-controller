@@ -98,11 +98,14 @@ func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg con
 
 	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
 
-	//m.FilterID = "filterable" // This information should be coming from zebedee but isn't implemented as of yet
+	m.FilterID = "filterable" // TODO: This information should be coming from zebedee but isn't implemented as of yet
+	m.DatasetLandingPage.DatasetID = "12345"
+
 	var templateJSON []byte
 
 	if m.FilterID == "filterable" {
 
+		// TODO: This information will be coming from the dataset api when it is implemented
 		datasets := []filterdata.Dataset{
 			{
 				ID:          "12345",
@@ -155,8 +158,6 @@ func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg con
 			return
 		}
 	}
-
-	log.Debug("json", log.Data{"json": string(templateJSON)})
 
 	templateHTML, err := render(templateJSON, m.FilterID, cfg)
 	if err != nil {
