@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
@@ -16,8 +17,10 @@ func main() {
 
 	router := mux.NewRouter()
 
+	f := filter.New(cfg.FilterAPIURL)
+
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding)
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID)
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f))
 
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding)
 

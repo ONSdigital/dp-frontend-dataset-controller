@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	filterdata "github.com/ONSdigital/dp-frontend-dataset-controller/data"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/client"
@@ -32,14 +31,21 @@ func init() {
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
-func CreateFilterID(w http.ResponseWriter, req *http.Request) {
-	// TODO: This is a stubbed filter id - replace with real filter id from api once
-	// code has been written
-	filterID := rand.Intn(100000000)
-	fid := strconv.Itoa(filterID)
+func CreateFilterID(fil *filter.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
 
-	log.Trace("created filter id", log.Data{"filter_id": fid})
-	http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
+		fid, err := fil.CreateJob("ds83jks0-23euufr89-8i3") //use a real dataset filter id
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			return
+		}
+
+		fil.AddDimension(fid, "time")
+		fil.AddDimension(fid, "goods-and-services")
+
+		log.Trace("created filter id", log.Data{"filter_id": fid})
+		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
+	}
 }
 
 // LegacyLanding will load a zebedee landing page
