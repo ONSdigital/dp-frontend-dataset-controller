@@ -11,7 +11,6 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	filterdata "github.com/ONSdigital/dp-frontend-dataset-controller/data"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/client"
@@ -29,19 +28,25 @@ func init() {
 	}
 }
 
+// FilterClient is an interface with the methods required for a filter client
+type FilterClient interface {
+	CreateJob(datasetFilterID string) (string, error)
+	AddDimension(id, name string) error
+}
+
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
-func CreateFilterID(fil *filter.Client) http.HandlerFunc {
+func CreateFilterID(c FilterClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 
-		fid, err := fil.CreateJob("ds83jks0-23euufr89-8i3") //use a real dataset filter id
+		fid, err := c.CreateJob("ds83jks0-23euufr89-8i3") // TODO: use a real dataset filter id when it is available
 		if err != nil {
 			log.ErrorR(req, err, nil)
 			return
 		}
 
-		fil.AddDimension(fid, "time")
-		fil.AddDimension(fid, "goods-and-services")
+		c.AddDimension(fid, "time")
+		c.AddDimension(fid, "goods-and-services")
 
 		log.Trace("created filter id", log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)

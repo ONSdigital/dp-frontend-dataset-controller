@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"regexp"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
@@ -33,14 +32,17 @@ func TestUnitHandlers(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	Convey("test CreateFilterID handler, creates a filter id and redirects", t, func() {
-		w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateFilterID)
+		mockClient := NewMockFilterClient(mockCtrl)
+		mockClient.EXPECT().CreateJob(gomock.Any()).Return("12345", nil)
+		mockClient.EXPECT().AddDimension("12345", "time")
+		mockClient.EXPECT().AddDimension("12345", "goods-and-services")
+
+		w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateFilterID(mockClient))
 
 		location := w.Header().Get("Location")
 		So(location, ShouldNotBeEmpty)
 
-		matched, err := regexp.MatchString(`^\/filters\/\d{8}\/dimensions$`, location)
-		So(err, ShouldBeNil)
-		So(matched, ShouldBeTrue)
+		So(location, ShouldEqual, "/filters/12345/dimensions")
 	})
 
 	Convey("test /data endpoint", t, func() {

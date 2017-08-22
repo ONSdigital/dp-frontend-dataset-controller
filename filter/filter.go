@@ -42,7 +42,7 @@ func New(filterAPIURL string) *Client {
 	}
 }
 
-//FilterJob ...
+//FilterJob represents a filter job response from the filter api
 type FilterJob struct {
 	DatasetFilterID string `json:"dataset_filter_id"`
 	FilterJobID     string `json:"filter_job_id"`
