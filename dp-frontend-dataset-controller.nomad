@@ -20,7 +20,7 @@ job "dp-frontend-dataset-controller" {
       driver = "exec"
 
       artifact {
-        source = "s3::https://s3-eu-west-1.amazonaws.com/{{BUILD_BUCKET}}/dp-frontend-dataset-controller/{{REVISION}}.tar.gz
+        source = "s3::https://s3-eu-west-1.amazonaws.com/{{BUILD_BUCKET}}/dp-frontend-dataset-controller/{{REVISION}}.tar.gz"
       }
 
       artifact {
