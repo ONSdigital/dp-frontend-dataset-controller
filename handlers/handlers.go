@@ -12,8 +12,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	filterdata "github.com/ONSdigital/dp-frontend-dataset-controller/data"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
-	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
 )
@@ -30,6 +30,7 @@ func init() {
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
+	healthcheck.Client
 	CreateJob(datasetFilterID string) (string, error)
 	AddDimension(id, name string) error
 }
@@ -54,17 +55,19 @@ func CreateFilterID(c FilterClient) http.HandlerFunc {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(w http.ResponseWriter, req *http.Request) {
-	cfg := config.Get()
-	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	landing(w, req, zc, cfg)
+func LegacyLanding(zc ZebedeeClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		cfg := config.Get()
+		landing(w, req, zc, cfg)
+	}
 }
 
 // FilterableLanding ..
-func FilterableLanding(w http.ResponseWriter, req *http.Request) {
-	cfg := config.Get()
-	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	landing(w, req, zc, cfg)
+func FilterableLanding(zc ZebedeeClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		cfg := config.Get()
+		landing(w, req, zc, cfg)
+	}
 }
 
 func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
