@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
@@ -23,16 +25,6 @@ func main() {
 	f := filter.New(cfg.FilterAPIURL)
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 
-	go func() {
-		for {
-			timer := time.NewTimer(time.Second * 60)
-
-			healthcheck.MonitorExternal(f, zc)
-
-			<-timer.C
-		}
-	}()
-
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(zc))
@@ -47,9 +39,36 @@ func main() {
 	})
 
 	s := server.New(cfg.BindAddr, router)
+	s.HandleOSSignals = false
 
-	if err := s.ListenAndServe(); err != nil {
-		log.Error(err, nil)
-		os.Exit(2)
+	go func() {
+		if err := s.ListenAndServe(); err != nil {
+			log.Error(err, nil)
+			os.Exit(2)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, os.Kill)
+
+	for {
+		healthcheck.MonitorExternal(f, zc)
+
+		timer := time.NewTimer(time.Second * 60)
+
+		select {
+		case <-timer.C:
+			continue
+		case <-stop:
+			log.Info("shutting service down gracefully", nil)
+			timer.Stop()
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			if err := s.Server.Shutdown(ctx); err != nil {
+				log.Error(err, nil)
+			}
+			return
+		}
 	}
+
 }
