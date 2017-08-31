@@ -57,10 +57,10 @@
 			"revisionTime": "2017-08-30T09:50:52Z"
 		},
 		{
-			"checksumSHA1": "lJOQUHuq1rgn+FskJsRm44knx0Y=",
+			"checksumSHA1": "6PTays/vOeb8TAksmAMsfrVb1Zk=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "fc4b8039bc84906ba2eee0942d132754f62e0e8f",
-			"revisionTime": "2017-08-29T07:45:03Z"
+			"revision": "d5343032adcc11ed59cf4a26ed809a752451900b",
+			"revisionTime": "2017-08-31T10:27:31Z"
 		},
 		{
 			"checksumSHA1": "rIM30lGXWnib/GfNjckv9eFSoug=",
