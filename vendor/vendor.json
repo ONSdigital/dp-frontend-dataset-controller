@@ -21,6 +21,12 @@
 			"revisionTime": "2017-07-11T09:57:28Z"
 		},
 		{
+			"checksumSHA1": "IOf3b7fsX/HxL4OZtRLfeS/ouXI=",
+			"path": "github.com/ONSdigital/go-ns/clients/dataset",
+			"revision": "5c4e318aa10e56921c4e39fd5735c95868281d33",
+			"revisionTime": "2017-09-07T12:17:38Z"
+		},
+		{
 			"checksumSHA1": "lqSSy5FdNqR26qAVK86w80efeBY=",
 			"path": "github.com/ONSdigital/go-ns/clients/filter",
 			"revision": "fc4b8039bc84906ba2eee0942d132754f62e0e8f",

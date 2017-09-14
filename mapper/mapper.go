@@ -1,47 +1,75 @@
 package mapper
 
 import (
-	"github.com/ONSdigital/dp-frontend-dataset-controller/data"
+	"net/url"
+	"regexp"
+
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
-	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
+	"github.com/ONSdigital/go-ns/clients/dataset"
+	"github.com/murlokswarm/log"
 )
 
-// CreateFilterableLandingPage ...
-func CreateFilterableLandingPage(ds []data.Dataset, dims []data.Dimension, sp zebedeeMapper.StaticDatasetLandingPage) datasetLandingPageFilterable.Page {
-	p := datasetLandingPageFilterable.Page{}
-	p.Type = sp.Type
-	p.URI = sp.URI
-	p.Metadata = sp.Metadata
-	p.DatasetLandingPage.DatasetLandingPage = sp.DatasetLandingPage
-	p.Breadcrumb = sp.Breadcrumb
-	p.ContactDetails = sp.ContactDetails
+func getVersionFromURL(path string) string {
+	lvReg := regexp.MustCompile(`^\/datasets\/.+\/editions\/.+\/versions\/(.+)$`)
 
-	for i, d := range ds {
+	subs := lvReg.FindStringSubmatch(path)
+	return subs[1]
+}
+
+// CreateFilterableLandingPage ...
+func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, datasetID string) datasetLandingPageFilterable.Page {
+	p := datasetLandingPageFilterable.Page{}
+	p.Type = "dataset_landing_page"
+	p.Metadata.Title = d.Title
+	p.URI = d.Links.Self.URL
+	p.Metadata.Description = d.Description
+	p.Metadata.Footer.Contact = d.Contact.Name
+	p.Metadata.Footer.DatasetID = datasetID
+	p.ContactDetails.Name = d.Contact.Name
+	p.ContactDetails.Telephone = d.Contact.Telephone
+	p.ContactDetails.Email = d.Contact.Email
+	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
+	p.DatasetLandingPage.DatasetID = datasetID
+	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
+
+	for _, ver := range versions {
+		uri, err := url.Parse(ver.Links.Self.URL)
+		if err != nil {
+			log.Error(err, nil)
+		}
+
 		var v datasetLandingPageFilterable.Version
 		v.Title = d.Title
-		v.Description = sp.DatasetLandingPage.MetaDescription
-		v.Edition = d.Edition
-		v.Version = d.Version
-		v.ReleaseDate = d.ReleaseDate
+		v.Description = d.Description
+		v.Edition = ver.Edition
+		v.Version = getVersionFromURL(uri.Path)
+		v.ReleaseDate = ver.ReleaseDate
 
-		if len(sp.DatasetLandingPage.Datasets)-1 >= i {
+		/*if len(sp.DatasetLandingPage.Datasets)-1 >= i {
 			for _, download := range sp.DatasetLandingPage.Datasets[i].Downloads {
 				dwnld := datasetLandingPageFilterable.Download(download)
 				v.Downloads = append(v.Downloads, dwnld)
 			}
-		}
+		} */
+
+		v.Downloads = append(v.Downloads,
+			datasetLandingPageFilterable.Download{
+				Size:      "438290",
+				Extension: "XLSX",
+			},
+		)
 
 		p.DatasetLandingPage.Versions = append(p.DatasetLandingPage.Versions, v)
 	}
 
-	for _, dim := range dims {
+	/*for _, dim := range dims {
 		var pDim datasetLandingPageFilterable.Dimension
 
 		pDim.Title = dim.Name
 		pDim.Values = dim.Values
 
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
-	}
+	} */
 
 	return p
 }

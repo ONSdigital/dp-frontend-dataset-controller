@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
+	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
@@ -24,10 +25,12 @@ func main() {
 
 	f := filter.New(cfg.FilterAPIURL)
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
+	dc := dataset.New(cfg.DatasetAPIURL)
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(zc))
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+	router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f))
 
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc))
@@ -52,7 +55,7 @@ func main() {
 	signal.Notify(stop, os.Interrupt, os.Kill)
 
 	for {
-		healthcheck.MonitorExternal(f, zc)
+		healthcheck.MonitorExternal(f, zc, dc)
 
 		timer := time.NewTimer(time.Second * 60)
 

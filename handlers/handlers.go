@@ -9,9 +9,11 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	filterdata "github.com/ONSdigital/dp-frontend-dataset-controller/data"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
@@ -35,14 +37,28 @@ type FilterClient interface {
 	AddDimension(id, name string) error
 }
 
+// DatasetClient is an interface with methods required for a dataset client
+type DatasetClient interface {
+	healthcheck.Client
+	Get(id string) (m dataset.Model, err error)
+	GetEditions(id string) (m []dataset.Edition, err error)
+	GetVersions(id, edition string) (m []dataset.Version, err error)
+	GetVersion(id, edition, version string) (m dataset.Version, err error)
+}
+
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
 func CreateFilterID(c FilterClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		datasetID := vars["datasetID"]
+		edition := vars["editionID"]
+		version := vars["versionID"]
 
-		fid, err := c.CreateJob("ds83jks0-23euufr89-8i3") // TODO: use a real dataset filter id when it is available
+		fid, err := c.CreateJob(fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version))
 		if err != nil {
 			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -58,19 +74,69 @@ func CreateFilterID(c FilterClient) http.HandlerFunc {
 func LegacyLanding(zc ZebedeeClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		landing(w, req, zc, cfg)
+		legacyLanding(w, req, zc, cfg)
 	}
 }
 
-// FilterableLanding ..
-func FilterableLanding(zc ZebedeeClient) http.HandlerFunc {
+// FilterableLanding will load a filterable landing page
+func FilterableLanding(dc DatasetClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		landing(w, req, zc, cfg)
+		filterableLanding(w, req, dc, cfg)
 	}
 }
 
-func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
+	vars := mux.Vars(req)
+	datasetID := vars["datasetID"]
+
+	datasetModel, err := dc.Get(datasetID)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	datasetEditions, err := dc.GetEditions(datasetID)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var datasetVersions []dataset.Version
+	for _, ed := range datasetEditions {
+		editionVersions, err := dc.GetVersions(datasetID, ed.Edition)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		datasetVersions = append(datasetVersions, editionVersions...)
+	}
+
+	m := mapper.CreateFilterableLandingPage(datasetModel, datasetVersions, datasetID)
+
+	b, err := json.Marshal(m)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	templateHTML, err := render(b, "filterable", cfg)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(templateHTML)
+
+}
+
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -112,65 +178,12 @@ func landing(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg con
 
 	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
 
-	m.FilterID = "filterable" // TODO: This information should be coming from zebedee but isn't implemented as of yet
-	m.DatasetLandingPage.DatasetID = "12345"
-
 	var templateJSON []byte
-
-	if m.FilterID == "filterable" {
-
-		// TODO: This information will be coming from the dataset api when it is implemented
-		datasets := []filterdata.Dataset{
-			{
-				ID:          "12345",
-				Title:       "",
-				URL:         "",
-				ReleaseDate: "11 November 2017",
-				NextRelease: "11 November 2018",
-				Edition:     "2017",
-				Version:     "1",
-				Contact: filterdata.Contact{
-					Name:      "Matt Rout",
-					Telephone: "012346 382012",
-					Email:     "matt@gmail.com",
-				},
-			},
-		}
-
-		dimensions := []filterdata.Dimension{
-			{
-				CodeListID: "ABDCSKA",
-				ID:         "siojxuidhc",
-				Name:       "Geography",
-				Type:       "Hierarchy",
-				Values:     []string{"Region", "County"},
-			},
-			{
-				CodeListID: "AHDHSID",
-				ID:         "eorihfieorf",
-				Name:       "Age List",
-				Type:       "List",
-				Values:     []string{"0", "1", "2"},
-			},
-		}
-
-		fp := mapper.CreateFilterableLandingPage(datasets, dimensions, m)
-
-		templateJSON, err = json.Marshal(fp)
-		if err != nil {
-			log.ErrorR(req, err, nil)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	} else {
-
-		//Marshal template data to JSON
-		templateJSON, err = json.Marshal(m)
-		if err != nil {
-			log.ErrorR(req, err, nil)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+	templateJSON, err = json.Marshal(m)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	templateHTML, err := render(templateJSON, m.FilterID, cfg)

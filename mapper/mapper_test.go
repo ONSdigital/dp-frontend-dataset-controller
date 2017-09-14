@@ -1,89 +1,78 @@
 package mapper
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"testing"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/data"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
-	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
+	"github.com/ONSdigital/go-ns/clients/dataset"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage", t, func() {
-		ds := getTestDatasets()
-		dims := getTestDimensions()
-		sp := getTestStaticLandingPage()
+		d := dataset.Model{
+			CollectionID: "abcdefg",
+			Contact: dataset.Contact{
+				Name:      "Matt Rout",
+				Telephone: "01622 734721",
+				Email:     "mattrout@test.com",
+			},
+			Description: "A really awesome dataset for you to look at",
+			Links: dataset.Links{
+				Self: dataset.Link{
+					URL: "/datasets/83jd98fkflg",
+				},
+			},
+			NextRelease: "11-11-2018",
+			Periodicity: "yearly",
+			Publisher: dataset.Publisher{
+				URL:  "ons.gov.uk",
+				Name: "ONS",
+				Type: "Government Agency",
+			},
+			State: "created",
+			Theme: "purple",
+			Title: "Penguins of the Antarctic Ocean",
+		}
 
-		p := CreateFilterableLandingPage(ds, dims, sp)
-		So(p.Type, ShouldEqual, sp.Type)
-		So(p.URI, ShouldEqual, sp.URI)
-		So(p.Metadata, ShouldResemble, sp.Metadata)
-		So(p.DatasetLandingPage.DatasetLandingPage, ShouldResemble, sp.DatasetLandingPage)
-		So(p.Breadcrumb, ShouldResemble, sp.Breadcrumb)
-		So(p.ContactDetails, ShouldResemble, sp.ContactDetails)
+		v := []dataset.Version{
+			dataset.Version{
+				CollectionID: "abcdefg",
+				Edition:      "2017",
+				ID:           "tehnskofjios-ashbc7",
+				InstanceID:   "31241592",
+				License:      "ons",
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/83jd98fkflg/editions/124/versions/1",
+					},
+				},
+				ReleaseDate: "11-11-2017",
+				State:       "published",
+			},
+		}
+		datasetID := "038847784-2874757-23784854905"
+
+		p := CreateFilterableLandingPage(d, v, datasetID)
+
+		So(p.Type, ShouldEqual, "dataset_landing_page")
+		So(p.Metadata.Title, ShouldEqual, d.Title)
+		So(p.URI, ShouldEqual, d.Links.Self.URL)
+		So(p.Metadata.Footer.Contact, ShouldEqual, d.Contact.Name)
+		So(p.Metadata.Footer.DatasetID, ShouldEqual, datasetID)
+		So(p.ContactDetails.Name, ShouldEqual, d.Contact.Name)
+		So(p.ContactDetails.Telephone, ShouldEqual, d.Contact.Telephone)
+		So(p.ContactDetails.Email, ShouldEqual, d.Contact.Email)
+		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
+		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
+		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 
 		v0 := p.DatasetLandingPage.Versions[0]
-
-		So(v0.Title, ShouldEqual, ds[0].Title)
-		So(v0.Description, ShouldEqual, sp.DatasetLandingPage.MetaDescription)
-		So(v0.Edition, ShouldEqual, ds[0].Edition)
-		So(v0.Version, ShouldEqual, ds[0].Version)
-		So(v0.ReleaseDate, ShouldEqual, ds[0].ReleaseDate)
-		So(v0.Downloads[0], ShouldResemble, datasetLandingPageFilterable.Download(sp.DatasetLandingPage.Datasets[0].Downloads[0]))
-
-		d0 := p.DatasetLandingPage.Dimensions[0]
-
-		So(d0.Title, ShouldResemble, dims[0].Name)
-		So(d0.Values, ShouldResemble, dims[0].Values)
+		So(v0.Title, ShouldEqual, d.Title)
+		So(v0.Description, ShouldEqual, d.Description)
+		So(v0.Edition, ShouldEqual, v[0].Edition)
+		So(v0.Version, ShouldEqual, getVersionFromURL(v[0].Links.Self.URL))
+		So(v0.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
+		So(v0.Downloads[0].Size, ShouldEqual, "438290")
+		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
 	})
-}
-
-func getTestDatasets() []data.Dataset {
-	return []data.Dataset{
-		{
-			ID:          "12345",
-			Title:       "Dataset title",
-			URL:         "google.com",
-			ReleaseDate: "11 November 2017",
-			NextRelease: "11 November 2018",
-			Edition:     "2017",
-			Version:     "1",
-			Contact: data.Contact{
-				Name:      "Matt Rout",
-				Telephone: "012346 382012",
-				Email:     "matt@gmail.com",
-			},
-		},
-	}
-}
-
-func getTestDimensions() []data.Dimension {
-	return []data.Dimension{
-		{
-			CodeListID: "ABDCSKA",
-			ID:         "siojxuidhc",
-			Name:       "Geography",
-			Type:       "Hierarchy",
-			Values:     []string{"Region", "County"},
-		},
-		{
-			CodeListID: "AHDHSID",
-			ID:         "eorihfieorf",
-			Name:       "Age List",
-			Type:       "List",
-			Values:     []string{"0", "1", "2"},
-		},
-	}
-}
-
-func getTestStaticLandingPage() zebedeeMapper.StaticDatasetLandingPage {
-	var sdlp zebedeeMapper.StaticDatasetLandingPage
-
-	f, _ := ioutil.ReadFile("testdata/staticlandingpage.json")
-
-	json.Unmarshal(f, &sdlp)
-	return sdlp
 }
