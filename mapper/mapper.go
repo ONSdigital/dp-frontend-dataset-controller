@@ -6,7 +6,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/go-ns/clients/dataset"
-	"github.com/murlokswarm/log"
+	"github.com/ONSdigital/go-ns/log"
 )
 
 func getVersionFromURL(path string) string {
