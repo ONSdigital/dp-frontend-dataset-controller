@@ -55,7 +55,10 @@ func CreateFilterID(c FilterClient) http.HandlerFunc {
 		edition := vars["editionID"]
 		version := vars["versionID"]
 
-		fid, err := c.CreateJob(fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version))
+		log.Debug("dataset params", log.Data{"datsetid": datasetID, "edition": edition, "version": version})
+
+		//fid, err := c.CreateJob(fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version))
+		fid, err := c.CreateJob("6fffa821-a453-45cb-bee2-0d9de249ae42") // TODO: this will need to swap to the previous line when filter api is updated
 		if err != nil {
 			log.ErrorR(req, err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
