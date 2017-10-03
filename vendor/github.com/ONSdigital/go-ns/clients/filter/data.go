@@ -14,28 +14,34 @@ type DimensionOption struct {
 
 // Model represents a model returned from the filter api
 type Model struct {
-	FilterID        string              `json:"filter_job_id"`
-	DatasetFilterID string              `json:"dataset_filter_id"`
-	Dataset         string              `json:"dataset"`
-	Edition         string              `json:"edition"`
-	Version         string              `json:"version"`
-	State           string              `json:"state"`
-	Dimensions      []ModelDimension    `json:"dimensions"`
-	Downloads       map[string]Download `json:"downloads"`
-	Events          map[string][]Event  `json:"events"`
+	FilterID   string              `json:"filter_job_id"`
+	InstanceID string              `json:"instance_id"`
+	Links      Links               `json:"links"`
+	Dataset    string              `json:"dataset"`
+	Edition    string              `json:"edition"`
+	Version    string              `json:"version"`
+	State      string              `json:"state"`
+	Dimensions []ModelDimension    `json:"dimensions,omitempty"`
+	Downloads  map[string]Download `json:"downloads,omitempty"`
+	Events     map[string][]Event  `json:"events,omitempty"`
+}
+
+// Links represents a links object on the filter api response
+type Links struct {
+	Version Link `json:"version,omitempty"`
+}
+
+// Link represents a single link within a links object
+type Link struct {
+	ID   string `json:"id"`
+	HRef string `json:"href"`
 }
 
 // ModelDimension represents a dimension to be filtered upon
 type ModelDimension struct {
-	Name      string    `json:"name"`
-	Values    []string  `json:"values"`
-	IDs       []string  `json:"ids"`
-	Hierarchy Hierarchy `json:"hierarchy"`
-}
-
-// Hierarchy represents a hierarchy in a filter model
-type Hierarchy struct {
-	ID string `json:"id"`
+	Name   string   `json:"name"`
+	Values []string `json:"values"`
+	IDs    []string `json:"ids"`
 }
 
 // Download represents a download within a filter from api response

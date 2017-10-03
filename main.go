@@ -31,7 +31,7 @@ func main() {
 
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
 	router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc))
 

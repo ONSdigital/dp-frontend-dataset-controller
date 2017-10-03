@@ -11,10 +11,12 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage", t, func() {
 		d := dataset.Model{
 			CollectionID: "abcdefg",
-			Contact: dataset.Contact{
-				Name:      "Matt Rout",
-				Telephone: "01622 734721",
-				Email:     "mattrout@test.com",
+			Contacts: []dataset.Contact{
+				dataset.Contact{
+					Name:      "Matt Rout",
+					Telephone: "01622 734721",
+					Email:     "mattrout@test.com",
+				},
 			},
 			Description: "A really awesome dataset for you to look at",
 			Links: dataset.Links{
@@ -52,16 +54,16 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		p := CreateFilterableLandingPage(d, v, datasetID)
+		p := CreateFilterableLandingPage(d, v, datasetID, []dataset.Options{})
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
 		So(p.URI, ShouldEqual, d.Links.Self.URL)
-		So(p.Metadata.Footer.Contact, ShouldEqual, d.Contact.Name)
+		So(p.Metadata.Footer.Contact, ShouldEqual, d.Contacts[0].Name)
 		So(p.Metadata.Footer.DatasetID, ShouldEqual, datasetID)
-		So(p.ContactDetails.Name, ShouldEqual, d.Contact.Name)
-		So(p.ContactDetails.Telephone, ShouldEqual, d.Contact.Telephone)
-		So(p.ContactDetails.Email, ShouldEqual, d.Contact.Email)
+		So(p.ContactDetails.Name, ShouldEqual, d.Contacts[0].Name)
+		So(p.ContactDetails.Telephone, ShouldEqual, d.Contacts[0].Telephone)
+		So(p.ContactDetails.Email, ShouldEqual, d.Contacts[0].Email)
 		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)

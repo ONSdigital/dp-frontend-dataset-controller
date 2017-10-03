@@ -37,9 +37,35 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateJob(gomock.Any()).Return("12345", nil)
 			mockClient.EXPECT().AddDimension("12345", "time")
-			mockClient.EXPECT().AddDimension("12345", "goods-and-services")
+			mockClient.EXPECT().AddDimension("12345", "aggregate")
 
-			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateFilterID(mockClient))
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			dims := dataset.Dimensions{
+				Items: []dataset.Dimension{
+					{
+						ID: "aggregate",
+					},
+					{
+						ID: "time",
+					},
+				},
+			}
+			opts := dataset.Options{
+				Items: []dataset.Option{
+					{
+						Label: "1",
+					},
+					{
+						Label: "2",
+					},
+				},
+			}
+			mockDatasetClient.EXPECT().GetDimensions("1234", "5678", "2017").Return(dims, nil)
+			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "aggregate").Return(opts, nil)
+			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "time").Return(opts, nil)
+			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
+
+			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -51,7 +77,10 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateJob(gomock.Any()).Return("", errors.New("no filter job for you"))
 
-			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", CreateFilterID(mockClient))
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
+
+			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))
 		})
 	})
 
@@ -177,11 +206,32 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
-			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().Get("12345").Return(dataset.Model{Contacts: []dataset.Contact{{Name: "Matt"}}, Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
 			editions := []dataset.Edition{dataset.Edition{Edition: "2016"}}
 			mockClient.EXPECT().GetEditions("12345").Return(editions, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions("12345", "2016").Return(versions, nil)
+			dims := dataset.Dimensions{
+				Items: []dataset.Dimension{
+					{
+						ID: "aggregate",
+					},
+				},
+			}
+			opts := dataset.Options{
+				Items: []dataset.Option{
+					{
+						Label:  "1",
+						Option: "abd",
+					},
+					{
+						Label:  "2",
+						Option: "fjd",
+					},
+				},
+			}
+			mockClient.EXPECT().GetDimensions("12345", "5678", "2017").Return(dims, nil)
+			mockClient.EXPECT().GetOptions("12345", "5678", "2017", "aggregate").Return(opts, nil)
 
 			cli = createMockClient([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), 200)
 
@@ -272,12 +322,16 @@ func TestUnitHandlers(t *testing.T) {
 
 }
 
-func testResponse(code int, respBody, url string, f http.HandlerFunc) *httptest.ResponseRecorder {
+func testResponse(code int, respBody, url string, client FilterClient, dc DatasetClient, f http.HandlerFunc) *httptest.ResponseRecorder {
 	req, err := http.NewRequest("POST", url, nil)
 	So(err, ShouldBeNil)
 
 	w := httptest.NewRecorder()
-	f(w, req)
+
+	router := mux.NewRouter()
+	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(client, dc))
+
+	router.ServeHTTP(w, req)
 
 	So(w.Code, ShouldEqual, code)
 

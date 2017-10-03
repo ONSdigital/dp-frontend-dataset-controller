@@ -3,7 +3,7 @@ package dataset
 // Model represents a response dataset model from the dataset api
 type Model struct {
 	CollectionID string    `json:"collection_id"`
-	Contact      Contact   `json:"contact"`
+	Contacts     []Contact `json:"contacts"`
 	Description  string    `json:"description"`
 	Links        Links     `json:"links"`
 	NextRelease  string    `json:"next_release"`
@@ -50,6 +50,10 @@ type Links struct {
 	LatestVersion Link `json:"latest_version"`
 	Versions      Link `json:"versions"`
 	Self          Link `json:"self"`
+	CodeList      Link `json:"code_list"`
+	Options       Link `json:"options"`
+	Version       Link `json:"version"`
+	Code          Link `json:"code"`
 }
 
 // Link represents a single link within a dataset model
@@ -63,4 +67,28 @@ type Contact struct {
 	Name      string `json:"name"`
 	Telephone string `json:"telephone"`
 	Email     string `json:"email"`
+}
+
+// Dimensions represent a list of dimensions from the dataset api
+type Dimensions struct {
+	Items []Dimension `json:"items"`
+}
+
+// Dimension represents a response model for a dimension endpoint
+type Dimension struct {
+	ID    string `json:"dimension_id"`
+	Links Links  `json:"links"`
+}
+
+// Options represents a list of options from the dataset api
+type Options struct {
+	Items []Option `json:"items"`
+}
+
+// Option represents a response model for an option
+type Option struct {
+	DimensionID string `json:"dimension_id"`
+	Label       string `json:"label"`
+	Links       Links  `json:"links"`
+	Option      string `json:"option"`
 }

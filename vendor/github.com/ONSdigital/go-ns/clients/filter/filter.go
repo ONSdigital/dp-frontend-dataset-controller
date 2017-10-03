@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
+
+	"github.com/ONSdigital/go-ns/rhttp"
 )
 
 // ErrInvalidFilterAPIResponse is returned when the filter api does not respond
@@ -18,6 +19,7 @@ type ErrInvalidFilterAPIResponse struct {
 	uri          string
 }
 
+// Error should be called by the user to print out the stringified version of the error
 func (e ErrInvalidFilterAPIResponse) Error() string {
 	return fmt.Sprintf("invalid response from filter api - should be: %d, got: %d, path: %s",
 		e.expectedCode,
@@ -30,14 +32,14 @@ var _ error = ErrInvalidFilterAPIResponse{}
 
 // Client is a filter api client which can be used to make requests to the server
 type Client struct {
-	cli *http.Client
+	cli *rhttp.Client
 	url string
 }
 
 // New creates a new instance of Client with a given filter api url
 func New(filterAPIURL string) *Client {
 	return &Client{
-		cli: &http.Client{Timeout: 5 * time.Second},
+		cli: rhttp.DefaultClient,
 		url: filterAPIURL,
 	}
 }
@@ -134,14 +136,14 @@ func (c *Client) GetDimensionOptions(filterID, name string) (opts []DimensionOpt
 
 // CreateJob creates a filter job and returns the associated filterJobID
 func (c *Client) CreateJob(datasetFilterID string) (string, error) {
-	fj := Model{DatasetFilterID: datasetFilterID, State: "created"}
+	fj := Model{InstanceID: datasetFilterID, State: "created"}
 
 	b, err := json.Marshal(fj)
 	if err != nil {
 		return "", err
 	}
 
-	resp, err := http.Post(c.url+"/filters", "application/json", bytes.NewBuffer(b))
+	resp, err := c.cli.Post(c.url+"/filters", "application/json", bytes.NewBuffer(b))
 	if err != nil {
 		return "", err
 	}
@@ -161,6 +163,32 @@ func (c *Client) CreateJob(datasetFilterID string) (string, error) {
 	}
 
 	return fj.FilterID, nil
+}
+
+// UpdateJob will update a job with a given filter model
+func (c *Client) UpdateJob(m Model) error {
+	b, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+
+	uri := fmt.Sprintf("%s/filters/%s", c.url, m.FilterID)
+
+	req, err := http.NewRequest("PUT", uri, bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.cli.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return ErrInvalidFilterAPIResponse{http.StatusOK, resp.StatusCode, uri}
+	}
+
+	return nil
 }
 
 // AddDimensionValue adds a particular value to a filter job for a given filterID

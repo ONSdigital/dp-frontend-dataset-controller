@@ -20,6 +20,7 @@ type DatasetLandingPage struct {
 type Dimension struct {
 	Title       string   `json:"title"`
 	Values      []string `json:"values"`
+	OptionsURL  string   `json:"options_url"`
 	Description string   `json:"description"`
 }
 

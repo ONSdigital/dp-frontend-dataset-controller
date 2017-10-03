@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"regexp"
 	"time"
+
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 
 	"github.com/gorilla/mux"
 
@@ -35,6 +38,7 @@ type FilterClient interface {
 	healthcheck.Client
 	CreateJob(datasetFilterID string) (string, error)
 	AddDimension(id, name string) error
+	AddDimensionValue(filterID, name, value string) error
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -44,29 +48,57 @@ type DatasetClient interface {
 	GetEditions(id string) (m []dataset.Edition, err error)
 	GetVersions(id, edition string) (m []dataset.Version, err error)
 	GetVersion(id, edition, version string) (m dataset.Version, err error)
+	GetDimensions(id, edition, version string) (m dataset.Dimensions, err error)
+	GetOptions(id, edition, version, dimension string) (m dataset.Options, err error)
 }
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
-func CreateFilterID(c FilterClient) http.HandlerFunc {
+func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
 		edition := vars["editionID"]
 		version := vars["versionID"]
 
-		log.Debug("dataset params", log.Data{"datsetid": datasetID, "edition": edition, "version": version})
-
-		//fid, err := c.CreateJob(fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version))
-		fid, err := c.CreateJob("6fffa821-a453-45cb-bee2-0d9de249ae42") // TODO: this will need to swap to the previous line when filter api is updated
+		datasetModel, err := dc.GetVersion(datasetID, edition, version)
 		if err != nil {
 			log.ErrorR(req, err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		c.AddDimension(fid, "time")
-		c.AddDimension(fid, "goods-and-services")
+		fid, err := c.CreateJob(datasetModel.InstanceID)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		dimensions, err := dc.GetDimensions(datasetID, edition, version)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for _, dim := range dimensions.Items {
+			opts, err := dc.GetOptions(datasetID, edition, version, dim.ID)
+			if err != nil {
+				log.ErrorR(req, err, nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
+				if err = c.AddDimension(fid, dim.ID); err != nil {
+					log.ErrorR(req, err, nil)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+			}
+
+		}
 
 		log.Trace("created filter id", log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
@@ -119,7 +151,40 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		datasetVersions = append(datasetVersions, editionVersions...)
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, datasetVersions, datasetID)
+	latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, edition, version, err := helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	dims, err := dc.GetDimensions(datasetID, edition, version)
+	if err != nil {
+		log.ErrorR(req, err, nil)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var opts []dataset.Options
+	for _, dim := range dims.Items {
+		opt, err := dc.GetOptions(datasetID, edition, version, dim.ID)
+		if err != nil {
+			log.ErrorR(req, err, nil)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		opts = append(opts, opt)
+	}
+
+	m := mapper.CreateFilterableLandingPage(datasetModel, datasetVersions, datasetID, opts)
 
 	b, err := json.Marshal(m)
 	if err != nil {
