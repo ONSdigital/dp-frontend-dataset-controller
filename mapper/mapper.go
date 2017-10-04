@@ -10,6 +10,7 @@ import (
 )
 
 func getVersionFromURL(path string) string {
+	log.Info("Version URL", log.Data{"url": path})
 	lvReg := regexp.MustCompile(`^\/datasets\/.+\/editions\/.+\/versions\/(.+)$`)
 
 	subs := lvReg.FindStringSubmatch(path)
