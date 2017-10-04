@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -33,11 +34,14 @@ func (p TimeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func getVersionFromURL(path string) string {
+func getVersionFromURL(path string) (string, error) {
 	lvReg := regexp.MustCompile(`^\/datasets\/.+\/editions\/.+\/versions\/(.+)$`)
 
 	subs := lvReg.FindStringSubmatch(path)
-	return subs[1]
+	if len(subs) < 2 {
+		return "", errors.New("could not extract version from path")
+	}
+	return subs[1], nil
 }
 
 // CreateFilterableLandingPage ...
@@ -66,7 +70,10 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 		v.Title = d.Title
 		v.Description = d.Description
 		v.Edition = ver.Edition
-		v.Version = getVersionFromURL(uri.Path)
+		v.Version, err = getVersionFromURL(uri.Path)
+		if err != nil {
+			log.Error(err, log.Data{"path": uri.Path})
+		}
 		v.ReleaseDate = ver.ReleaseDate
 
 		/*if len(sp.DatasetLandingPage.Datasets)-1 >= i {
@@ -85,15 +92,6 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 
 		p.DatasetLandingPage.Versions = append(p.DatasetLandingPage.Versions, v)
 	}
-
-	/*for _, dim := range dims {
-		var pDim datasetLandingPageFilterable.Dimension
-
-		pDim.Title = dim.Name
-		pDim.Values = dim.Values
-
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
-	} */
 
 	for _, opt := range opts {
 		if len(opt.Items) < 2 {
