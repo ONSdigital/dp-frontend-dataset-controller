@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"net/url"
 	"regexp"
 
@@ -9,12 +10,14 @@ import (
 	"github.com/ONSdigital/go-ns/log"
 )
 
-func getVersionFromURL(path string) string {
-	log.Info("Version URL", log.Data{"url": path})
+func getVersionFromURL(path string) (string, error) {
 	lvReg := regexp.MustCompile(`^\/datasets\/.+\/editions\/.+\/versions\/(.+)$`)
 
 	subs := lvReg.FindStringSubmatch(path)
-	return subs[1]
+	if len(subs) < 2 {
+		return "", errors.New("could not extract version from path")
+	}
+	return subs[1], nil
 }
 
 // CreateFilterableLandingPage ...
@@ -45,7 +48,10 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 		v.Title = d.Title
 		v.Description = d.Description
 		v.Edition = ver.Edition
-		v.Version = getVersionFromURL(uri.Path)
+		v.Version, err = getVersionFromURL(uri.Path)
+		if err != nil {
+			log.Error(err, nil)
+		}
 		v.ReleaseDate = ver.ReleaseDate
 
 		/*if len(sp.DatasetLandingPage.Datasets)-1 >= i {
