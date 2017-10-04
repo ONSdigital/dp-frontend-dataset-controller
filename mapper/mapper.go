@@ -36,6 +36,7 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 	log.Info("Versions", log.Data{"versions": versions})
 	for _, ver := range versions {
 		uri, err := url.Parse(ver.Links.Self.URL)
+		log.Info("Self link URL", log.Data{"input URL": ver.Links.Self.URL, "output URL": uri})
 		if err != nil {
 			log.Error(err, nil)
 		}
