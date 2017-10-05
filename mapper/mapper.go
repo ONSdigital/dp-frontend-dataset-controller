@@ -1,11 +1,10 @@
 package mapper
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
-	"regexp"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
@@ -34,16 +33,6 @@ func (p TimeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func getVersionFromURL(path string) (string, error) {
-	lvReg := regexp.MustCompile(`^\/datasets\/.+\/editions\/.+\/versions\/(.+)$`)
-
-	subs := lvReg.FindStringSubmatch(path)
-	if len(subs) < 2 {
-		return "", errors.New("could not extract version from path")
-	}
-	return subs[1], nil
-}
-
 // CreateFilterableLandingPage ...
 func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, datasetID string, opts []dataset.Options) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
@@ -65,19 +54,11 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
 
 	for _, ver := range versions {
-		uri, err := url.Parse(ver.Links.Self.URL)
-		if err != nil {
-			log.Error(err, nil)
-		}
-
 		var v datasetLandingPageFilterable.Version
 		v.Title = d.Title
 		v.Description = d.Description
 		v.Edition = ver.Edition
-		v.Version, err = getVersionFromURL(uri.Path)
-		if err != nil {
-			log.Error(err, log.Data{"path": uri.Path})
-		}
+		v.Version = strconv.Itoa(ver.Version)
 		v.ReleaseDate = ver.ReleaseDate
 
 		/*if len(sp.DatasetLandingPage.Datasets)-1 >= i {

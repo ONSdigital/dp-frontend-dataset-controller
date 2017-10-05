@@ -24,6 +24,7 @@ type Version struct {
 	Links        Links  `json:"links"`
 	ReleaseDate  string `json:"release_date"`
 	State        string `json:"date"`
+	Version      int    `json:"version"`
 }
 
 // Edition represents an edition within a dataset
@@ -43,17 +44,17 @@ type Publisher struct {
 
 // Links represent the Links within a dataset model
 type Links struct {
-	Dataset       Link `json:"dataset"`
-	Dimensions    Link `json:"dimensions"`
-	Edition       Link `json:"edition"`
-	Editions      Link `json:"editions"`
-	LatestVersion Link `json:"latest_version"`
-	Versions      Link `json:"versions"`
-	Self          Link `json:"self"`
-	CodeList      Link `json:"code_list"`
-	Options       Link `json:"options"`
-	Version       Link `json:"version"`
-	Code          Link `json:"code"`
+	Dataset       Link `json:"dataset,omitempty"`
+	Dimensions    Link `json:"dimensions,omitempty"`
+	Edition       Link `json:"edition,omitempty"`
+	Editions      Link `json:"editions,omitempty"`
+	LatestVersion Link `json:"latest_version,omitempty"`
+	Versions      Link `json:"versions,omitempty"`
+	Self          Link `json:"self,omitempty"`
+	CodeList      Link `json:"code_list,omitempty"`
+	Options       Link `json:"options,omitempty"`
+	Version       Link `json:"version,omitempty"`
+	Code          Link `json:"code,omitempty"`
 }
 
 // Link represents a single link within a dataset model
