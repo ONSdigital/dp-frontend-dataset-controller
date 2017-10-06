@@ -19,6 +19,8 @@ import (
 
 func main() {
 	cfg := config.Get()
+	log.Debug("got service configuration", log.Data{"config": cfg})
+
 	log.Namespace = "frontend-dataset-controller"
 
 	router := mux.NewRouter()
@@ -55,6 +57,14 @@ func main() {
 	signal.Notify(stop, os.Interrupt, os.Kill)
 
 	for {
+		log.Debug("conducting service healthcheck", log.Data{
+			"services": []string{
+				"filter-api",
+				"dataset-api",
+				"zebedee",
+			},
+		})
+
 		healthcheck.MonitorExternal(f, zc, dc)
 
 		timer := time.NewTimer(time.Second * 60)
