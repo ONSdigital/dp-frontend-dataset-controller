@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/ONSdigital/go-ns/clients/dataset"
@@ -43,6 +44,7 @@ func TestUnitMapper(t *testing.T) {
 				ID:           "tehnskofjios-ashbc7",
 				InstanceID:   "31241592",
 				License:      "ons",
+				Version:      1,
 				Links: dataset.Links{
 					Self: dataset.Link{
 						URL: "/datasets/83jd98fkflg/editions/124/versions/1",
@@ -72,9 +74,7 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Title, ShouldEqual, d.Title)
 		So(v0.Description, ShouldEqual, d.Description)
 		So(v0.Edition, ShouldEqual, v[0].Edition)
-		ver, err := getVersionFromURL(v[0].Links.Self.URL)
-		So(err, ShouldBeNil)
-		So(v0.Version, ShouldEqual, ver)
+		So(v0.Version, ShouldEqual, strconv.Itoa(v[0].Version))
 		So(v0.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
 		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
