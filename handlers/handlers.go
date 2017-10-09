@@ -63,21 +63,21 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 
 		datasetModel, err := dc.GetVersion(datasetID, edition, version)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		fid, err := c.CreateJob(datasetModel.InstanceID)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		dimensions, err := dc.GetDimensions(datasetID, edition, version)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -85,14 +85,14 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		for _, dim := range dimensions.Items {
 			opts, err := dc.GetOptions(datasetID, edition, version, dim.ID)
 			if err != nil {
-				log.ErrorR(req, err, nil)
+				log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
 			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
 				if err = c.AddDimension(fid, dim.ID); err != nil {
-					log.ErrorR(req, err, nil)
+					log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -127,14 +127,14 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	datasetModel, err := dc.Get(datasetID)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	datasetEditions, err := dc.GetEditions(datasetID)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -143,7 +143,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	for _, ed := range datasetEditions {
 		editionVersions, err := dc.GetVersions(datasetID, ed.Edition)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -153,21 +153,21 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	_, edition, version, err := helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	dims, err := dc.GetDimensions(datasetID, edition, version)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -176,7 +176,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	for _, dim := range dims.Items {
 		opt, err := dc.GetOptions(datasetID, edition, version, dim.ID)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -188,14 +188,14 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	b, err := json.Marshal(m)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	templateHTML, err := render(b, "filterable", cfg)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -216,7 +216,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
 		b, err := zc.Get("/data?uri=" + path)
 		if err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -226,14 +226,14 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 
 	dlp, err := zc.GetDatasetLandingPage("/data?uri=" + path)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	bc, err := zc.GetBreadcrumb(dlp.URI)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -249,14 +249,14 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	templateHTML, err := render(templateJSON, m.FilterID, cfg)
 	if err != nil {
-		log.ErrorR(req, err, nil)
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
