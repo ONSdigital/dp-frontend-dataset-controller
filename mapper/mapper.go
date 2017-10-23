@@ -3,6 +3,7 @@ package mapper
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"sort"
 	"strconv"
 	"time"
@@ -33,13 +34,14 @@ func (p TimeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-// CreateFilterableLandingPage ...
+// CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, datasetID string, opts []dataset.Options) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description
+	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 
 	if len(d.Contacts) > 0 {
 		p.Metadata.Footer.Contact = d.Contacts[0].Name
@@ -51,84 +53,84 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 	p.Metadata.Footer.DatasetID = datasetID
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
-	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
 
-	for _, ver := range versions {
-		var v datasetLandingPageFilterable.Version
-		v.Title = d.Title
-		v.Description = d.Description
-		v.Edition = ver.Edition
-		v.Version = strconv.Itoa(ver.Version)
-		v.ReleaseDate = ver.ReleaseDate
+	if len(versions) > 0 {
+		p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
+		for _, ver := range versions {
+			var v datasetLandingPageFilterable.Version
+			v.Title = d.Title
+			v.Description = d.Description
+			v.Edition = ver.Edition
+			v.Version = strconv.Itoa(ver.Version)
+			v.ReleaseDate = ver.ReleaseDate
 
-		/*if len(sp.DatasetLandingPage.Datasets)-1 >= i {
-			for _, download := range sp.DatasetLandingPage.Datasets[i].Downloads {
-				dwnld := datasetLandingPageFilterable.Download(download)
-				v.Downloads = append(v.Downloads, dwnld)
+			for k, download := range ver.Downloads {
+				if len(download.URL) > 0 {
+					v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{
+						Extension: k,
+						Size:      download.Size,
+						URI:       download.URL,
+					})
+				}
 			}
-		} */
 
-		v.Downloads = append(v.Downloads,
-			datasetLandingPageFilterable.Download{
-				Size:      "438290",
-				Extension: "XLSX",
-			},
-		)
-
-		p.DatasetLandingPage.Versions = append(p.DatasetLandingPage.Versions, v)
+			p.DatasetLandingPage.Versions = append(p.DatasetLandingPage.Versions, v)
+		}
 	}
 
-	for _, opt := range opts {
-		if len(opt.Items) < 2 {
-			continue
-		}
-
-		var pDim datasetLandingPageFilterable.Dimension
-
-		pDim.Title = dimensionTitleMapper[opt.Items[0].DimensionID]
-		versionURL, err := url.Parse(d.Links.LatestVersion.URL)
-		if err != nil {
-			log.Error(err, nil)
-		}
-		pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-
-		if opt.Items[0].DimensionID == "time" {
-			var ts TimeSlice
-			for _, val := range opt.Items {
-				t, err := convertMMMYYToTime(val.Label)
-				if err != nil {
-					log.Error(err, nil)
-				}
-				ts = append(ts, t)
+	if len(opts) > 0 {
+		for _, opt := range opts {
+			if len(opt.Items) < 2 {
+				continue
 			}
-			sort.Sort(ts)
 
-			startDate := ts[0]
+			var pDim datasetLandingPageFilterable.Dimension
 
-			for i, t := range ts {
-				if i != len(ts)-1 {
-					if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
-						continue
+			pDim.Title = dimensionTitleMapper[opt.Items[0].DimensionID]
+			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
+			if err != nil {
+				log.Error(err, nil)
+			}
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+
+			if opt.Items[0].DimensionID == "time" {
+				var ts TimeSlice
+				for _, val := range opt.Items {
+					t, err := convertMMMYYToTime(val.Label)
+					if err != nil {
+						log.Error(err, nil)
 					}
-					pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
-					startDate = ts[i+1]
-				} else {
-					pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+					ts = append(ts, t)
 				}
+				sort.Sort(ts)
+
+				startDate := ts[0]
+
+				for i, t := range ts {
+					if i != len(ts)-1 {
+						if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
+							continue
+						}
+						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						startDate = ts[i+1]
+					} else {
+						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+					}
+				}
+
+			} else {
+
+				for i, val := range opt.Items {
+					if i > 4 {
+						break
+					}
+					pDim.Values = append(pDim.Values, val.Label)
+				}
+
 			}
 
-		} else {
-
-			for i, val := range opt.Items {
-				if i > 4 {
-					break
-				}
-				pDim.Values = append(pDim.Values, val.Label)
-			}
-
+			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
 		}
-
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
 	}
 
 	return p

@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"os"
 	"strconv"
 	"testing"
 
@@ -52,6 +53,12 @@ func TestUnitMapper(t *testing.T) {
 				},
 				ReleaseDate: "11-11-2017",
 				State:       "published",
+				Downloads: map[string]dataset.Download{
+					"XLSX": dataset.Download{
+						Size: "438290",
+						URL:  "my-url",
+					},
+				},
 			},
 		}
 		datasetID := "038847784-2874757-23784854905"
@@ -78,5 +85,15 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
 		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
+		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
+	})
+
+	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
+		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
+
+		p := CreateFilterableLandingPage(dataset.Model{}, []dataset.Version{}, "", []dataset.Options{})
+
+		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
+
 	})
 }
