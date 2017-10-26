@@ -68,7 +68,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
-		fid, err := c.CreateJob(datasetModel.InstanceID)
+		fid, err := c.CreateJob(datasetModel.ID)
 		if err != nil {
 			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)

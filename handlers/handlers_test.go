@@ -35,7 +35,7 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateJob(gomock.Any()).Return("12345", nil)
+			mockClient.EXPECT().CreateJob("87654321").Return("12345", nil)
 			mockClient.EXPECT().AddDimension("12345", "time")
 			mockClient.EXPECT().AddDimension("12345", "aggregate")
 
@@ -63,7 +63,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient.EXPECT().GetDimensions("1234", "5678", "2017").Return(dims, nil)
 			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "aggregate").Return(opts, nil)
 			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "time").Return(opts, nil)
-			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
+			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017").Return(dataset.Version{ID: "87654321"}, nil)
 
 			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))
 
