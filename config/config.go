@@ -10,6 +10,7 @@ type Config struct {
 	RendererURL   string `env:"RENDERER_URL"`
 	FilterAPIURL  string `env:"FILTER_API_URL"`
 	DatasetAPIURL string `env:"DATASET_API_URL"`
+	SlackToken    string `env:"SLACK_TOKEN"`
 }
 
 func init() {
@@ -19,6 +20,7 @@ func init() {
 		RendererURL:   "http://localhost:20010",
 		FilterAPIURL:  "http://localhost:22100",
 		DatasetAPIURL: "http://localhost:22000",
+		SlackToken:    "",
 	}
 	err := gofigure.Gofigure(&cfg)
 	if err != nil {
