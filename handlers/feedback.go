@@ -109,7 +109,7 @@ func AddFeedback(api *slack.Client, isPositive bool) http.HandlerFunc {
 			return
 		}
 
-		if f.Description == "" {
+		if f.Description == "" && !isPositive {
 			getFeedback(w, req, true)
 			return
 		}
