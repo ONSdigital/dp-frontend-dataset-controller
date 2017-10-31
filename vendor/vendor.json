@@ -164,6 +164,12 @@
 			"revisionTime": "2017-02-06T15:57:36Z"
 		},
 		{
+			"checksumSHA1": "HYgTWn4FgVbvSBYVO4DxUPWfCz0=",
+			"path": "github.com/nlopes/slack",
+			"revision": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc",
+			"revisionTime": "2017-07-25T12:17:30Z"
+		},
+		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",
 			"path": "github.com/smartystreets/assertions",
 			"revision": "4ea54c1f28ad3ae597e76607dea3871fa177e263",
