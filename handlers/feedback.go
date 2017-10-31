@@ -58,9 +58,17 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 // GetFeedback handles the loading of a feedback page
 func GetFeedback(w http.ResponseWriter, req *http.Request) {
+	getFeedback(w, req, false)
+}
+
+func getFeedback(w http.ResponseWriter, req *http.Request, hasError bool) {
 	var p model.Page
 
 	p.Metadata.Title = "Feedback"
+
+	if hasError {
+		p.ServiceMessage = "Description can't be blank"
+	}
 
 	cfg := config.Get()
 
@@ -98,6 +106,11 @@ func AddFeedback(api *slack.Client, isPositive bool) http.HandlerFunc {
 		if err := decoder.Decode(&f, req.Form); err != nil {
 			log.ErrorR(req, err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if f.Description == "" {
+			getFeedback(w, req, true)
 			return
 		}
 
