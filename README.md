@@ -12,6 +12,7 @@ An HTTP service for the controlling of data relevant to a particular dataset.
 | DATASET_API_URL      | http://localhost:22000  | The URL of the dp-dataset-api.
 | FILTER_API_URL       | http://localhost:22100  | The URL of the dp-filter-api.
 | ZEBEDEE_URL          | http://localhost:8082   | The URL of zebedee.
+| SLACK_TOKEN          |                         | A slack token to write feedback to slack
 
 ### Licence
 

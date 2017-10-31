@@ -39,6 +39,12 @@
 			"revisionTime": "2017-10-09T12:09:44Z"
 		},
 		{
+			"checksumSHA1": "SE6Kslx9U8YhbeNOSQ5n0vvkuYI=",
+			"path": "github.com/ONSdigital/go-ns/clients/renderer",
+			"revision": "a1bd0a85bf8904441aa027164380a31c6583cec4",
+			"revisionTime": "2017-10-23T12:32:27Z"
+		},
+		{
 			"checksumSHA1": "J9OiPnhPHFPhQ+R+dq6LFj+dTxE=",
 			"path": "github.com/ONSdigital/go-ns/handlers/requestID",
 			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
@@ -116,6 +122,12 @@
 			"revisionTime": "2017-05-30T19:55:47Z"
 		},
 		{
+			"checksumSHA1": "Cz6S4ejgcxlJfzRb72YlOrFoCPQ=",
+			"path": "github.com/gorilla/schema",
+			"revision": "8b1100835db5bbdae88541510f70d114b91a7e4d",
+			"revisionTime": "2017-06-12T21:54:33Z"
+		},
+		{
 			"checksumSHA1": "jOXIxsHHi2+Kq4evLnADdtynshs=",
 			"path": "github.com/ian-kent/envconf",
 			"revision": "c19809918c02ab33dc8635d68c77649313185275",
@@ -164,6 +176,12 @@
 			"revisionTime": "2017-02-06T15:57:36Z"
 		},
 		{
+			"checksumSHA1": "HYgTWn4FgVbvSBYVO4DxUPWfCz0=",
+			"path": "github.com/nlopes/slack",
+			"revision": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc",
+			"revisionTime": "2017-07-25T12:17:30Z"
+		},
+		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",
 			"path": "github.com/smartystreets/assertions",
 			"revision": "4ea54c1f28ad3ae597e76607dea3871fa177e263",
@@ -198,6 +216,12 @@
 			"path": "github.com/smartystreets/goconvey/convey/reporting",
 			"revision": "9e8dc3f972df6c8fcc0375ef492c24d0bb204857",
 			"revisionTime": "2017-06-02T16:46:21Z"
+		},
+		{
+			"checksumSHA1": "7EZyXN0EmZLgGxZxK01IJua4c8o=",
+			"path": "golang.org/x/net/websocket",
+			"revision": "b60f3a92103dfd93dfcb900ec77c6d0643510868",
+			"revisionTime": "2017-09-18T06:10:02Z"
 		},
 		{
 			"path": "golang.org/x/sys/unix",
