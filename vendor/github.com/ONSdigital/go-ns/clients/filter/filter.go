@@ -149,15 +149,8 @@ func (c *Client) GetDimensionOptions(filterID, name string) (opts []DimensionOpt
 }
 
 // CreateJob creates a filter job and returns the associated filterJobID
-func (c *Client) CreateJob(instanceID string, names []string) (string, error) {
-	fj := Model{InstanceID: instanceID}
-
-	var dimensions []ModelDimension
-	for _, name := range names {
-		dimensions = append(dimensions, ModelDimension{Name: name})
-	}
-
-	fj.Dimensions = dimensions
+func (c *Client) CreateJob(instanceID string) (string, error) {
+	fj := Model{InstanceID: instanceID, State: "created"}
 
 	b, err := json.Marshal(fj)
 	if err != nil {

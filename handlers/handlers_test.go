@@ -35,7 +35,9 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateJob("87654321", []string{"aggregate", "time"}).Return("12345", nil)
+			mockClient.EXPECT().CreateJob("87654321").Return("12345", nil)
+			mockClient.EXPECT().AddDimension("12345", "time")
+			mockClient.EXPECT().AddDimension("12345", "aggregate")
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.Dimensions{
@@ -73,11 +75,10 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterID returns 500 if unable to create filter job on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateJob(gomock.Any(), gomock.Any()).Return("", errors.New("no filter job for you"))
+			mockClient.EXPECT().CreateJob(gomock.Any()).Return("", errors.New("no filter job for you"))
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
-			mockDatasetClient.EXPECT().GetDimensions("1234", "5678", "2017").Return(dataset.Dimensions{}, nil)
 
 			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))
 		})

@@ -36,7 +36,7 @@ func init() {
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateJob(datasetFilterID string, names []string) (string, error)
+	CreateJob(datasetFilterID string) (string, error)
 	AddDimension(id, name string) error
 	AddDimensionValue(filterID, name, value string) error
 }
@@ -68,6 +68,13 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
+		fid, err := c.CreateJob(datasetModel.ID)
+		if err != nil {
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		dimensions, err := dc.GetDimensions(datasetID, edition, version)
 		if err != nil {
 			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
@@ -75,7 +82,6 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
-		var names []string
 		for _, dim := range dimensions.Items {
 			opts, err := dc.GetOptions(datasetID, edition, version, dim.ID)
 			if err != nil {
@@ -85,15 +91,13 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			}
 
 			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
-				names = append(names, dim.ID)
+				if err = c.AddDimension(fid, dim.ID); err != nil {
+					log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 			}
-		}
 
-		fid, err := c.CreateJob(datasetModel.ID, names)
-		if err != nil {
-			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
-			w.WriteHeader(http.StatusInternalServerError)
-			return
 		}
 
 		log.Trace("created filter id", log.Data{"filter_id": fid})

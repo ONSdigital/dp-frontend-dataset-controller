@@ -155,16 +155,16 @@ func (_mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 inte
 }
 
 // CreateJob mocks base method
-func (_m *MockFilterClient) CreateJob(_param0 string, _param1 []string) (string, error) {
-	ret := _m.ctrl.Call(_m, "CreateJob", _param0, _param1)
+func (_m *MockFilterClient) CreateJob(_param0 string) (string, error) {
+	ret := _m.ctrl.Call(_m, "CreateJob", _param0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateJob indicates an expected call of CreateJob
-func (_mr *MockFilterClientMockRecorder) CreateJob(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateJob", arg0, arg1)
+func (_mr *MockFilterClientMockRecorder) CreateJob(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateJob", arg0)
 }
 
 // Healthcheck mocks base method
