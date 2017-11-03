@@ -36,7 +36,7 @@ func init() {
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateJob(datasetFilterID string, names []string) (string, error)
+	CreateBlueprint(datasetFilterID string, names []string) (string, error)
 	AddDimension(id, name string) error
 	AddDimensionValue(filterID, name, value string) error
 }
@@ -89,7 +89,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			}
 		}
 
-		fid, err := c.CreateJob(datasetModel.ID, names)
+		fid, err := c.CreateBlueprint(datasetModel.ID, names)
 		if err != nil {
 			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)

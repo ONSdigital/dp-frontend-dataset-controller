@@ -154,17 +154,17 @@ func (_mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AddDimensionValue", arg0, arg1, arg2)
 }
 
-// CreateJob mocks base method
-func (_m *MockFilterClient) CreateJob(_param0 string, _param1 []string) (string, error) {
-	ret := _m.ctrl.Call(_m, "CreateJob", _param0, _param1)
+// CreateBlueprint mocks base method
+func (_m *MockFilterClient) CreateBlueprint(_param0 string, _param1 []string) (string, error) {
+	ret := _m.ctrl.Call(_m, "CreateBlueprint", _param0, _param1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateJob indicates an expected call of CreateJob
-func (_mr *MockFilterClientMockRecorder) CreateJob(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateJob", arg0, arg1)
+// CreateBlueprint indicates an expected call of CreateBlueprint
+func (_mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateBlueprint", arg0, arg1)
 }
 
 // Healthcheck mocks base method
