@@ -71,9 +71,9 @@ func TestUnitHandlers(t *testing.T) {
 			So(location, ShouldEqual, "/filters/12345/dimensions")
 		})
 
-		Convey("test CreateFilterID returns 500 if unable to create filter job on filter api", func() {
+		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(gomock.Any(), gomock.Any()).Return("", errors.New("no filter job for you"))
+			mockClient.EXPECT().CreateBlueprint(gomock.Any(), gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
