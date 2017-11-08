@@ -121,7 +121,7 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 			} else {
 
 				for i, val := range opt.Items {
-					if i > 4 {
+					if i > 10 {
 						break
 					}
 					pDim.Values = append(pDim.Values, val.Label)
