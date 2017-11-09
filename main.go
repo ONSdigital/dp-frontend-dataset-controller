@@ -32,8 +32,15 @@ func main() {
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+	// with editions page
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+
+	// without editions page
+	// router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+	// router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
 	if len(cfg.SlackToken) > 0 {
