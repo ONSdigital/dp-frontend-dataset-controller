@@ -209,7 +209,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 }
 
 func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
-	log.Debug("EDITIONSLIST FUNC!!!", nil)
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 
@@ -228,7 +227,6 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 	}
 
 	m := mapper.CreateEditionsList(datasetModel, datasetEditions, datasetID)
-	fmt.Printf("%+v\n", m)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -237,7 +235,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
-	templateHTML, err := render(b, "DEL", cfg)
+	templateHTML, err := render(b, "editions-list", cfg)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -299,7 +297,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 		return
 	}
 
-	templateHTML, err := render(templateJSON, m.FilterID, cfg)
+	templateHTML, err := render(templateJSON, "legacy-dataset", cfg)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -311,14 +309,14 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 
 }
 
-func render(data []byte, filterID string, cfg config.Config) ([]byte, error) {
+func render(data []byte, pageType string, cfg config.Config) ([]byte, error) {
 	rdr := bytes.NewReader(data)
 
 	var rendererReq *http.Request
 	var err error
-	if filterID == "" {
+	if pageType == "legacy-dataset" {
 		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-landing-page-static", rdr)
-	} else if filterID == "DEL" {
+	} else if pageType == "editions-list" {
 		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-edition-list", rdr)
 	} else {
 		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-landing-page-filterable", rdr)
