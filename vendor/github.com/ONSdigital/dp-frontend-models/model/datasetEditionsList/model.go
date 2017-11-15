@@ -13,6 +13,6 @@ type Page struct {
 }
 
 type Edition struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
+	Title            string `json:"title"`
+	LatestVersionURL string `json:"url"`
 }

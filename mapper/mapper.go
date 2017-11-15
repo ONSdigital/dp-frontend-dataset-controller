@@ -159,9 +159,17 @@ func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID s
 
 	if len(editions) > 0 {
 		for _, edition := range editions {
+
+			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
+			if err != nil {
+				log.Error(err, nil)
+			}
+			var latestVersionPath = latestVersionURL.Path
+			fmt.Println(latestVersionPath)
+
 			var e datasetEditionsList.Edition
 			e.Title = edition.Edition
-			e.URL = edition.Links.Self.URL
+			e.LatestVersionURL = latestVersionPath
 
 			p.Editions = append(p.Editions, e)
 		}
