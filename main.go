@@ -32,14 +32,10 @@ func main() {
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	// with editions page
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
-
-	// without editions page
-	// router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	// router.Path("/datasets/{datasetID}/{uri:.*}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 

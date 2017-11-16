@@ -206,10 +206,8 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{Contacts: []dataset.Contact{{Name: "Matt"}}, Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
-			editions := []dataset.Edition{dataset.Edition{Edition: "2016"}}
-			mockClient.EXPECT().GetEditions("12345").Return(editions, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
-			mockClient.EXPECT().GetVersions("12345", "2016").Return(versions, nil)
+			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, nil)
 			dims := dataset.Dimensions{
 				Items: []dataset.Dimension{
 					{
@@ -261,36 +259,17 @@ func TestUnitHandlers(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
-		Convey("test filterableLanding returns 500 if client GetEditions() returns error", func() {
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
-			editions := []dataset.Edition{dataset.Edition{Edition: "2016"}}
-			mockClient.EXPECT().GetEditions("12345").Return(editions, errors.New("sorry"))
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-
 		Convey("test filterableLanding returns 500 if client GetVersions() returns error", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
-			editions := []dataset.Edition{dataset.Edition{Edition: "2016"}}
-			mockClient.EXPECT().GetEditions("12345").Return(editions, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
-			mockClient.EXPECT().GetVersions("12345", "2016").Return(versions, errors.New("sorry"))
+			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, errors.New("sorry"))
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient))
 
 			router.ServeHTTP(w, req)
 
@@ -300,18 +279,17 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test filterableLanding returns 500 if renderer returns error", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
-			editions := []dataset.Edition{dataset.Edition{Edition: "2016"}}
-			mockClient.EXPECT().GetEditions("12345").Return(editions, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
-			mockClient.EXPECT().GetVersions("12345", "2016").Return(versions, nil)
+			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, nil)
+			mockClient.EXPECT().GetDimensions("12345", "5678", "1")
 
 			cli = createMockClient(nil, 500)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678/versions/1", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient))
 
 			router.ServeHTTP(w, req)
 

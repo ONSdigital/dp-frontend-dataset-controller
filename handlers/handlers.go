@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -128,6 +129,8 @@ func EditionsList(dc DatasetClient) http.HandlerFunc {
 func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
+	edition := vars["editionID"]
+	version := vars["versionID"]
 
 	datasetModel, err := dc.Get(datasetID)
 	if err != nil {
@@ -136,37 +139,34 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(datasetID)
-	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var datasetVersions []dataset.Version
-	for _, ed := range datasetEditions {
-		editionVersions, err := dc.GetVersions(datasetID, ed.Edition)
+	if len(edition) == 0 {
+		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 		if err != nil {
 			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		datasetVersions = append(datasetVersions, editionVersions...)
+		_, edition, version, err = helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
+		if err != nil {
+			log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 
-	latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
+	var datasetVersions []dataset.Version
+	editionVersions, err := dc.GetVersions(datasetID, edition)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_, edition, version, err := helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
-	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	datasetVersions = append(datasetVersions, editionVersions...)
+
+	if len(version) == 0 {
+		version = strconv.Itoa(editionVersions[0].Version)
 	}
 
 	dims, err := dc.GetDimensions(datasetID, edition, version)

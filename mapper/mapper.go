@@ -57,6 +57,7 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 
 	if len(versions) > 0 {
 		p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
+		p.DatasetLandingPage.Edition = versions[0].Edition
 		for _, ver := range versions {
 			var v datasetLandingPageFilterable.Version
 			v.Title = d.Title
@@ -122,7 +123,7 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 			} else {
 
 				for i, val := range opt.Items {
-					if i > 4 {
+					if i > 10 {
 						break
 					}
 					pDim.Values = append(pDim.Values, val.Label)
