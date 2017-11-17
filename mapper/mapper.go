@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
@@ -87,12 +88,18 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 
 			var pDim datasetLandingPageFilterable.Dimension
 
-			pDim.Title = dimensionTitleMapper[opt.Items[0].DimensionID]
+			var ok bool
+			var title string
+			if title, ok = dimensionTitleMapper[opt.Items[0].DimensionID]; !ok {
+				title = strings.Title(opt.Items[0].DimensionID)
+			}
+
+			pDim.Title = title
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 			if err != nil {
 				log.Error(err, nil)
 			}
-			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, title)
 
 			if opt.Items[0].DimensionID == "time" {
 				var ts TimeSlice
