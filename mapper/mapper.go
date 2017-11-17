@@ -99,7 +99,7 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 			if err != nil {
 				log.Error(err, nil)
 			}
-			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, title)
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
 
 			if opt.Items[0].DimensionID == "time" {
 				var ts TimeSlice
