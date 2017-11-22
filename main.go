@@ -29,6 +29,9 @@ func main() {
 	f := filter.New(cfg.FilterAPIURL)
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 	dc := dataset.New(cfg.DatasetAPIURL)
+	if len(cfg.DatasetAPIAuthToken) > 0 {
+		dc.SetInternalToken(cfg.DatasetAPIAuthToken)
+	}
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 

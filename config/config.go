@@ -5,12 +5,13 @@ import "github.com/ian-kent/gofigure"
 var cfg Config
 
 type Config struct {
-	BindAddr      string `env:"BIND_ADDR"`
-	ZebedeeURL    string `env:"ZEBEDEE_URL"`
-	RendererURL   string `env:"RENDERER_URL"`
-	FilterAPIURL  string `env:"FILTER_API_URL"`
-	DatasetAPIURL string `env:"DATASET_API_URL"`
-	SlackToken    string `env:"SLACK_TOKEN"`
+	BindAddr            string `env:"BIND_ADDR"`
+	ZebedeeURL          string `env:"ZEBEDEE_URL"`
+	RendererURL         string `env:"RENDERER_URL"`
+	FilterAPIURL        string `env:"FILTER_API_URL"`
+	DatasetAPIURL       string `env:"DATASET_API_URL"`
+	SlackToken          string `env:"SLACK_TOKEN"`
+	DatasetAPIAuthToken string `env:"DATASET_API_AUTH_TOKEN"`
 }
 
 func init() {
