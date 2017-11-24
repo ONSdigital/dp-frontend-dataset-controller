@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/log"
@@ -138,6 +139,47 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 			}
 
 			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
+		}
+	}
+
+	return p
+}
+
+// CreateEditionsList creates a editions list page based on api model responses
+func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
+	p := datasetEditionsList.Page{}
+	p.Type = "dataset_edition_list"
+	p.Metadata.Title = d.Title
+	p.URI = d.Links.Self.URL
+	p.Metadata.Description = d.Description
+	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
+
+	if len(d.Contacts) > 0 {
+		p.Metadata.Footer.Contact = d.Contacts[0].Name
+		p.ContactDetails.Name = d.Contacts[0].Name
+		p.ContactDetails.Telephone = d.Contacts[0].Telephone
+		p.ContactDetails.Email = d.Contacts[0].Email
+	}
+
+	p.Metadata.Footer.DatasetID = datasetID
+	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
+	p.DatasetLandingPage.DatasetID = datasetID
+
+	if len(editions) > 0 {
+		for _, edition := range editions {
+
+			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
+			if err != nil {
+				log.Error(err, nil)
+			}
+			var latestVersionPath = latestVersionURL.Path
+			fmt.Println(latestVersionPath)
+
+			var e datasetEditionsList.Edition
+			e.Title = edition.Edition
+			e.LatestVersionURL = latestVersionPath
+
+			p.Editions = append(p.Editions, e)
 		}
 	}
 

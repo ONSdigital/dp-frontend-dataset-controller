@@ -9,6 +9,12 @@
 			"revisionTime": "2017-10-05T07:32:47Z"
 		},
 		{
+			"checksumSHA1": "Ri1nZntkbdc+S7p7baJJie9pXxU=",
+			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList",
+			"revision": "ae1b7451a12930cbe9bde0e13cc27faeb3214bd8",
+			"revisionTime": "2017-11-09T10:51:17Z"
+		},
+		{
 			"checksumSHA1": "gIrXDTHBRWVzOxza/9nO3k2q3c8=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable",
 			"revision": "d5005a8cb73c03ca98004c4021a99f2b05906a20",
