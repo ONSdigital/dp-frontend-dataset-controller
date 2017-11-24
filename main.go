@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/smtp"
 	"os"
 	"os/signal"
 	"time"
@@ -15,12 +17,10 @@ import (
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/gorilla/mux"
-	"github.com/nlopes/slack"
 )
 
 func main() {
 	cfg := config.Get()
-	log.Debug("got service configuration", log.Data{"config": cfg})
 
 	log.Namespace = "frontend-dataset-controller"
 
@@ -35,17 +35,26 @@ func main() {
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").HandlerFunc(handlers.FilterableLanding(dc))
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
-	if len(cfg.SlackToken) > 0 {
+	if len(cfg.MailHost) > 0 {
+		auth := smtp.PlainAuth(
+			"",
+			cfg.MailUser,
+			cfg.MailPassword,
+			cfg.MailHost,
+		)
+
+		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
+
 		log.Debug("adding feedback routes", nil)
-		slackAPI := slack.New(cfg.SlackToken)
-		router.Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(slackAPI, false))
-		router.Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(slackAPI, true))
+		router.Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
+		router.Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
 		router.Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
 		router.Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks)
 	}
@@ -53,9 +62,12 @@ func main() {
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc))
 
 	log.Debug("Starting server", log.Data{
-		"bind_addr":    cfg.BindAddr,
-		"zebedee_url":  cfg.ZebedeeURL,
-		"renderer_url": cfg.RendererURL,
+		"bind_addr":       cfg.BindAddr,
+		"zebedee_url":     cfg.ZebedeeURL,
+		"renderer_url":    cfg.RendererURL,
+		"dataset_api_url": cfg.DatasetAPIURL,
+		"mail_host":       cfg.MailHost,
+		"filter_api_url":  cfg.FilterAPIURL,
 	})
 
 	s := server.New(cfg.BindAddr, router)
