@@ -293,3 +293,52 @@ func (_m *MockDatasetClient) Healthcheck() (string, error) {
 func (_mr *MockDatasetClientMockRecorder) Healthcheck() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
 }
+
+// MockRenderClient is a mock of RenderClient interface
+type MockRenderClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockRenderClientMockRecorder
+}
+
+// MockRenderClientMockRecorder is the mock recorder for MockRenderClient
+type MockRenderClientMockRecorder struct {
+	mock *MockRenderClient
+}
+
+// NewMockRenderClient creates a new mock instance
+func NewMockRenderClient(ctrl *gomock.Controller) *MockRenderClient {
+	mock := &MockRenderClient{ctrl: ctrl}
+	mock.recorder = &MockRenderClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (_m *MockRenderClient) EXPECT() *MockRenderClientMockRecorder {
+	return _m.recorder
+}
+
+// Do mocks base method
+func (_m *MockRenderClient) Do(_param0 string, _param1 []byte) ([]byte, error) {
+	ret := _m.ctrl.Call(_m, "Do", _param0, _param1)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Do indicates an expected call of Do
+func (_mr *MockRenderClientMockRecorder) Do(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Do", arg0, arg1)
+}
+
+// Healthcheck mocks base method
+func (_m *MockRenderClient) Healthcheck() (string, error) {
+	ret := _m.ctrl.Call(_m, "Healthcheck")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Healthcheck indicates an expected call of Healthcheck
+func (_mr *MockRenderClientMockRecorder) Healthcheck() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
+}

@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
+	"github.com/ONSdigital/go-ns/clients/renderer"
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
@@ -29,13 +30,14 @@ func main() {
 	f := filter.New(cfg.FilterAPIURL)
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 	dc := dataset.New(cfg.DatasetAPIURL)
+	rend := renderer.New(cfg.RendererURL)
 
 	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
-	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc))
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
+	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
@@ -56,7 +58,7 @@ func main() {
 		router.Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks)
 	}
 
-	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc))
+	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
 
 	log.Debug("Starting server", log.Data{
 		"bind_addr":       cfg.BindAddr,

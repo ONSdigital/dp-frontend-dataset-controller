@@ -11,6 +11,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
+	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/log"
 )
@@ -37,7 +38,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, displayOtherVersionsLink bool) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -136,6 +137,29 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 
 			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
 		}
+	}
+
+	return p
+}
+
+// CreateVersionsList creates a versions list page based on api model responses
+func CreateVersionsList(d dataset.Model, versions []dataset.Version) datasetVersionsList.Page {
+	var p datasetVersionsList.Page
+	p.Metadata.Title = "Previous versions"
+
+	for _, ver := range versions {
+		var version datasetVersionsList.Version
+
+		version.Date = ver.ReleaseDate
+		for ext, download := range ver.Downloads {
+			version.Downloads = append(version.Downloads, datasetVersionsList.Download{
+				Extension: ext,
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+
+		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 	}
 
 	return p
