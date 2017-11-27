@@ -14,7 +14,7 @@ type Page struct {
 type DatasetLandingPage struct {
 	datasetLandingPageStatic.DatasetLandingPage
 	Dimensions []Dimension `json:"dimensions"`
-	Versions   []Version   `json:"versions"`
+	Version    Version     `json:"version"`
 	Edition    string      `json:"edition"`
 }
 

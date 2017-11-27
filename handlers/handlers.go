@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -155,18 +154,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	var datasetVersions []dataset.Version
-	editionVersions, err := dc.GetVersions(datasetID, edition)
+	ver, err := dc.GetVersion(datasetID, edition, version)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	datasetVersions = append(datasetVersions, editionVersions...)
-
-	if len(version) == 0 {
-		version = strconv.Itoa(editionVersions[0].Version)
 	}
 
 	dims, err := dc.GetDimensions(datasetID, edition, version)
@@ -188,7 +180,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, datasetVersions, datasetID, opts)
+	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts)
 
 	b, err := json.Marshal(m)
 	if err != nil {

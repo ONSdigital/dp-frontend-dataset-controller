@@ -37,7 +37,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, datasetID string, opts []dataset.Options) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -56,30 +56,26 @@ func CreateFilterableLandingPage(d dataset.Model, versions []dataset.Version, da
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
-	if len(versions) > 0 {
-		p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = versions[0].ReleaseDate
-		p.DatasetLandingPage.Edition = versions[0].Edition
-		for _, ver := range versions {
-			var v datasetLandingPageFilterable.Version
-			v.Title = d.Title
-			v.Description = d.Description
-			v.Edition = ver.Edition
-			v.Version = strconv.Itoa(ver.Version)
-			v.ReleaseDate = ver.ReleaseDate
+	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = ver.ReleaseDate
+	p.DatasetLandingPage.Edition = ver.Edition
+	var v datasetLandingPageFilterable.Version
+	v.Title = d.Title
+	v.Description = d.Description
+	v.Edition = ver.Edition
+	v.Version = strconv.Itoa(ver.Version)
+	v.ReleaseDate = ver.ReleaseDate
 
-			for k, download := range ver.Downloads {
-				if len(download.URL) > 0 {
-					v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{
-						Extension: k,
-						Size:      download.Size,
-						URI:       download.URL,
-					})
-				}
-			}
-
-			p.DatasetLandingPage.Versions = append(p.DatasetLandingPage.Versions, v)
+	for k, download := range ver.Downloads {
+		if len(download.URL) > 0 {
+			v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{
+				Extension: k,
+				Size:      download.Size,
+				URI:       download.URL,
+			})
 		}
 	}
+
+	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
 		for _, opt := range opts {
