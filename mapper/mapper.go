@@ -146,8 +146,17 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 func CreateVersionsList(d dataset.Model, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	p.Metadata.Title = "Previous versions"
+	uri, err := url.Parse(versions[0].Links.Self.URL)
+	if err != nil {
+		log.Error(err, nil)
+	}
+	p.Data.LatestVersionURL = uri.Path
 
-	for _, ver := range versions {
+	for i, ver := range versions {
+		if i == 0 {
+			continue
+		}
+
 		var version datasetVersionsList.Version
 
 		version.Date = ver.ReleaseDate
@@ -159,7 +168,10 @@ func CreateVersionsList(d dataset.Model, versions []dataset.Version) datasetVers
 			})
 		}
 
+		version.Reason = "-" // TODO: use reason from dataset api if it becomes available
+
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+		p.Data.Versions = append(p.Data.Versions, version)
 	}
 
 	return p

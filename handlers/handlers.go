@@ -154,7 +154,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	templateHTML, err := rend.Do("dataset-versions-list", b)
+	templateHTML, err := rend.Do("dataset-version-list", b)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
