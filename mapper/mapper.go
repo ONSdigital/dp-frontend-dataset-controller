@@ -66,6 +66,8 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	v.Version = strconv.Itoa(ver.Version)
 	v.ReleaseDate = ver.ReleaseDate
 
+	p.DatasetLandingPage.HasOlderVersions = displayOtherVersionsLink
+
 	for k, download := range ver.Downloads {
 		if len(download.URL) > 0 {
 			v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{

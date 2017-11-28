@@ -13,9 +13,10 @@ type Page struct {
 
 type DatasetLandingPage struct {
 	datasetLandingPageStatic.DatasetLandingPage
-	Dimensions []Dimension `json:"dimensions"`
-	Version    Version     `json:"version"`
-	Edition    string      `json:"edition"`
+	Dimensions       []Dimension `json:"dimensions"`
+	Version          Version     `json:"version"`
+	HasOlderVersions bool        `json:"has_older_versions"`
+	Edition          string      `json:"edition"`
 }
 
 type Dimension struct {
