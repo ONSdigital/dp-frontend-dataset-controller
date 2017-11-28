@@ -289,6 +289,64 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+	Convey("test versions list", t, func() {
+		Convey("test versions list returns 200 when rendered succesfully", func() {
+			mockClient := NewMockDatasetClient(mockCtrl)
+			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().GetVersions("12345", "2017").Return([]dataset.Version{}, nil)
+			mockClient.EXPECT().GetEdition("12345", "2017").Return(dataset.Edition{}, nil)
+
+			mockRend := NewMockRenderClient(mockCtrl)
+			mockRend.EXPECT().Do("dataset-version-list", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockRend))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+			So(w.Body.String(), ShouldEqual, `<html><body><h1>Some HTML from renderer!</h1></body></html>`)
+		})
+
+		Convey("test versions list returns status 500 when dataset client returns an error", func() {
+			mockClient := NewMockDatasetClient(mockCtrl)
+			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, errors.New("dataset client error"))
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+
+		Convey("test versions list returns status 500 when renderer returns an error", func() {
+			mockClient := NewMockDatasetClient(mockCtrl)
+			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().GetVersions("12345", "2017").Return([]dataset.Version{}, nil)
+			mockClient.EXPECT().GetEdition("12345", "2017").Return(dataset.Edition{}, nil)
+
+			mockRend := NewMockRenderClient(mockCtrl)
+			mockRend.EXPECT().Do("dataset-version-list", gomock.Any()).Return(nil, errors.New("render error"))
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockRend))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
 }
 
 func testResponse(code int, respBody, url string, client FilterClient, dc DatasetClient, f http.HandlerFunc) *httptest.ResponseRecorder {

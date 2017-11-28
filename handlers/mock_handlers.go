@@ -229,6 +229,19 @@ func (_mr *MockDatasetClientMockRecorder) GetDimensions(arg0, arg1, arg2 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDimensions", arg0, arg1, arg2)
 }
 
+// GetEdition mocks base method
+func (_m *MockDatasetClient) GetEdition(_param0 string, _param1 string) (dataset.Edition, error) {
+	ret := _m.ctrl.Call(_m, "GetEdition", _param0, _param1)
+	ret0, _ := ret[0].(dataset.Edition)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEdition indicates an expected call of GetEdition
+func (_mr *MockDatasetClientMockRecorder) GetEdition(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEdition", arg0, arg1)
+}
+
 // GetEditions mocks base method
 func (_m *MockDatasetClient) GetEditions(_param0 string) ([]dataset.Edition, error) {
 	ret := _m.ctrl.Call(_m, "GetEditions", _param0)
