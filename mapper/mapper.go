@@ -145,17 +145,17 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(d dataset.Model, versions []dataset.Version) datasetVersionsList.Page {
+func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	p.Metadata.Title = "Previous versions"
-	uri, err := url.Parse(versions[0].Links.Self.URL)
+	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
 		log.Error(err, nil)
 	}
 	p.Data.LatestVersionURL = uri.Path
 
-	for i, ver := range versions {
-		if i == 0 {
+	for _, ver := range versions {
+		if edition.Links.LatestVersion.URL == ver.Links.Self.URL {
 			continue
 		}
 

@@ -34,6 +34,7 @@ type DatasetClient interface {
 	healthcheck.Client
 	Get(id string) (m dataset.Model, err error)
 	GetEditions(id string) (m []dataset.Edition, err error)
+	GetEdition(id, edition string) (dataset.Edition, error)
 	GetVersions(id, edition string) (m []dataset.Version, err error)
 	GetVersion(id, edition, version string) (m dataset.Version, err error)
 	GetDimensions(id, edition, version string) (m dataset.Dimensions, err error)
@@ -146,7 +147,14 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	p := mapper.CreateVersionsList(d, versions)
+	e, err := dc.GetEdition(datasetID, edition)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p := mapper.CreateVersionsList(d, e, versions)
 	b, err := json.Marshal(p)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
