@@ -102,9 +102,6 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 
 	if len(opts) > 0 {
 		for _, opt := range opts {
-			if len(opt.Items) < 2 {
-				continue
-			}
 
 			var pDim datasetLandingPageFilterable.Dimension
 
