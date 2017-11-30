@@ -147,21 +147,6 @@ func (c *Client) GetEdition(datasetID, edition string) (m Edition, err error) {
 	}
 	defer resp.Body.Close()
 
-	var body map[string]interface{}
-	if err = json.Unmarshal(b, &body); err != nil {
-		return
-	}
-
-	// TODO: Authentication will sort this problem out for us. Currently
-	// the shape of the response body is different if you are authenticated
-	// so return the "next" item only
-	if next, ok := body["next"]; ok && len(c.internalToken) > 0 {
-		b, err = json.Marshal(next)
-		if err != nil {
-			return
-		}
-	}
-
 	err = json.Unmarshal(b, &m)
 	return
 }
