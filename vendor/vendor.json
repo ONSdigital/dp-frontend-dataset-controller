@@ -15,10 +15,10 @@
 			"revisionTime": "2017-11-09T10:51:17Z"
 		},
 		{
-			"checksumSHA1": "gIrXDTHBRWVzOxza/9nO3k2q3c8=",
+			"checksumSHA1": "sqtIJvIYdwxmdAaR3TMfnCcrxiA=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable",
-			"revision": "d5005a8cb73c03ca98004c4021a99f2b05906a20",
-			"revisionTime": "2017-10-30T09:01:34Z"
+			"revision": "8984d32f6bd260d721ec351e55347cc25ad3604d",
+			"revisionTime": "2017-11-27T09:31:24Z"
 		},
 		{
 			"checksumSHA1": "2Ww7ArlxDH4Cs/1S01vx1heMAow=",
@@ -27,16 +27,22 @@
 			"revisionTime": "2017-07-11T09:57:28Z"
 		},
 		{
+			"checksumSHA1": "4A6ex61GBc5LlhjQDcxGduOOlqo=",
+			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList",
+			"revision": "8984d32f6bd260d721ec351e55347cc25ad3604d",
+			"revisionTime": "2017-11-27T09:31:24Z"
+		},
+		{
 			"checksumSHA1": "zgQXB6EtoNdvUCvMjxA6U9cfDDI=",
 			"path": "github.com/ONSdigital/go-ns/clients/clientlog",
 			"revision": "cea7003259c9767d3bfb84af8c93fdc76f329880",
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "ZXceia3GOXCyh1LnLQGR9Pf9P6g=",
+			"checksumSHA1": "hizUOjKXVoHv5WmCxikgElTDhy0=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "cf38837484cb627b256211362a52314b9a2a6f68",
-			"revisionTime": "2017-11-20T13:18:43Z"
+			"revision": "d552dfa4894333d95e67ff474961dbfa48e32c71",
+			"revisionTime": "2017-11-28T09:14:45Z"
 		},
 		{
 			"checksumSHA1": "MKOhkB+MWSWilvK9xy5mBjIbpzo=",

@@ -1,15 +1,10 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
-	"time"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 
@@ -24,15 +19,7 @@ import (
 	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
 )
 
-var cli *http.Client
-
 const dataEndpoint = `\/data$`
-
-func init() {
-	if cli == nil {
-		cli = &http.Client{Timeout: 5 * time.Second}
-	}
-}
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
@@ -47,10 +34,17 @@ type DatasetClient interface {
 	healthcheck.Client
 	Get(id string) (m dataset.Model, err error)
 	GetEditions(id string) (m []dataset.Edition, err error)
+	GetEdition(id, edition string) (dataset.Edition, error)
 	GetVersions(id, edition string) (m []dataset.Version, err error)
 	GetVersion(id, edition, version string) (m dataset.Version, err error)
 	GetDimensions(id, edition, version string) (m dataset.Dimensions, err error)
 	GetOptions(id, edition, version, dimension string) (m dataset.Options, err error)
+}
+
+// RenderClient is an interface with methods for require for rendering a template
+type RenderClient interface {
+	healthcheck.Client
+	Do(string, []byte) ([]byte, error)
 }
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
@@ -103,30 +97,82 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		legacyLanding(w, req, zc, cfg)
+		legacyLanding(w, req, zc, rend, cfg)
 	}
 }
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		filterableLanding(w, req, dc, cfg)
+		filterableLanding(w, req, dc, rend, cfg)
 	}
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient) http.HandlerFunc {
+func EditionsList(dc DatasetClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		editionsList(w, req, dc, cfg)
+		editionsList(w, req, dc, rend, cfg)
 	}
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
+// VersionsList will load a list of versions for a filterable datase
+func VersionsList(dc DatasetClient, rend RenderClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		cfg := config.Get()
+		versionsList(w, req, dc, rend, cfg)
+	}
+}
+
+func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
+	vars := mux.Vars(req)
+	datasetID := vars["datasetID"]
+	edition := vars["edition"]
+
+	d, err := dc.Get(datasetID)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	versions, err := dc.GetVersions(datasetID, edition)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	e, err := dc.GetEdition(datasetID, edition)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p := mapper.CreateVersionsList(d, e, versions)
+	b, err := json.Marshal(p)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	templateHTML, err := rend.Do("dataset-version-list", b)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(templateHTML)
+}
+
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
@@ -155,18 +201,23 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	var datasetVersions []dataset.Version
-	editionVersions, err := dc.GetVersions(datasetID, edition)
+	allVers, err := dc.GetVersions(datasetID, edition)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	datasetVersions = append(datasetVersions, editionVersions...)
+	var displayOtherVersionsLink bool
+	if len(allVers) > 1 {
+		displayOtherVersionsLink = true
+	}
 
-	if len(version) == 0 {
-		version = strconv.Itoa(editionVersions[0].Version)
+	ver, err := dc.GetVersion(datasetID, edition, version)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	dims, err := dc.GetDimensions(datasetID, edition, version)
@@ -188,7 +239,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, datasetVersions, datasetID, opts)
+	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, displayOtherVersionsLink)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -197,7 +248,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	templateHTML, err := render(b, "filterable", cfg)
+	templateHTML, err := rend.Do("dataset-landing-page-filterable", b)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -208,7 +259,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 
@@ -235,7 +286,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
-	templateHTML, err := render(b, "editions-list", cfg)
+	templateHTML, err := rend.Do("dataset-edition-list", b)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -247,7 +298,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, cfg config.Config) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -297,7 +348,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 		return
 	}
 
-	templateHTML, err := render(templateJSON, "legacy-dataset", cfg)
+	templateHTML, err := rend.Do("dataset-landing-page-static", templateJSON)
 	if err != nil {
 		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -307,33 +358,4 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, c
 	w.Write(templateHTML)
 	return
 
-}
-
-func render(data []byte, pageType string, cfg config.Config) ([]byte, error) {
-	rdr := bytes.NewReader(data)
-
-	var rendererReq *http.Request
-	var err error
-	if pageType == "legacy-dataset" {
-		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-landing-page-static", rdr)
-	} else if pageType == "editions-list" {
-		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-edition-list", rdr)
-	} else {
-		rendererReq, err = http.NewRequest("POST", cfg.RendererURL+"/dataset-landing-page-filterable", rdr)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	rendererRes, err := cli.Do(rendererReq)
-	if err != nil {
-		return nil, err
-	}
-	defer rendererRes.Body.Close()
-
-	if rendererRes.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("invalid response from renderer service: %d", rendererRes.StatusCode)
-	}
-
-	return ioutil.ReadAll(rendererRes.Body)
 }

@@ -8,7 +8,6 @@ import (
 	"sort"
 
 	"github.com/ONSdigital/go-ns/clients/clientlog"
-	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/rhttp"
 )
 
@@ -55,7 +54,6 @@ func (c *Client) SetInternalToken(token string) {
 
 func (c *Client) setInternalTokenHeader(req *http.Request) {
 	if len(c.internalToken) > 0 {
-		log.Debug("setting internal token header", log.Data{"it": c.internalToken})
 		req.Header.Set("Internal-token", c.internalToken)
 	}
 }
@@ -79,6 +77,53 @@ func (c *Client) Get(id string) (m Model, err error) {
 	uri := fmt.Sprintf("%s/datasets/%s", c.url, id)
 
 	clientlog.Do("retrieving dataset", service, uri)
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req)
+
+	resp, err := c.cli.Do(req)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		err = &ErrInvalidDatasetAPIResponse{http.StatusOK, resp.StatusCode, uri}
+		return
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	var body map[string]interface{}
+	if err = json.Unmarshal(b, &body); err != nil {
+		return
+	}
+
+	// TODO: Authentication will sort this problem out for us. Currently
+	// the shape of the response body is different if you are authenticated
+	// so return the "next" item only
+	if next, ok := body["next"]; ok && len(c.internalToken) > 0 {
+		b, err = json.Marshal(next)
+		if err != nil {
+			return
+		}
+	}
+
+	err = json.Unmarshal(b, &m)
+	return
+}
+
+// GetEdition retrieves a single edition document from a given datasetID and edition label
+func (c *Client) GetEdition(datasetID, edition string) (m Edition, err error) {
+	uri := fmt.Sprintf("%s/datasets/%s/editions/%s", c.url, datasetID, edition)
+
+	clientlog.Do("retrieving dataset editions", service, uri)
 
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {

@@ -63,7 +63,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		p := CreateFilterableLandingPage(d, v, datasetID, []dataset.Options{})
+		p := CreateFilterableLandingPage(d, v[0], datasetID, []dataset.Options{}, false)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -77,7 +77,7 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 
-		v0 := p.DatasetLandingPage.Versions[0]
+		v0 := p.DatasetLandingPage.Version
 		So(v0.Title, ShouldEqual, d.Title)
 		So(v0.Description, ShouldEqual, d.Description)
 		So(v0.Edition, ShouldEqual, v[0].Edition)
@@ -91,7 +91,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
 		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
 
-		p := CreateFilterableLandingPage(dataset.Model{}, []dataset.Version{}, "", []dataset.Options{})
+		p := CreateFilterableLandingPage(dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, false)
 
 		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
 
