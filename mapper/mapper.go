@@ -62,7 +62,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
-	p.DatasetLandingPage.ReleaseFrequency = d.ReleaseFrequency
+	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
 	p.DatasetLandingPage.Citation = d.Publisher.Name
 
 	for _, pub := range d.Publications {
@@ -117,6 +117,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 				log.Error(err, nil)
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+			pDim.TotalItems = len(opt.Items)
 
 			if opt.Items[0].DimensionID == "time" {
 				var ts TimeSlice
@@ -146,8 +147,10 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			} else {
 
 				for i, val := range opt.Items {
-					if i > 10 {
-						break
+					if len(opt.Items) > 50 {
+						if i > 9 {
+							break
+						}
 					}
 					pDim.Values = append(pDim.Values, val.Label)
 				}
