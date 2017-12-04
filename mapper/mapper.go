@@ -63,7 +63,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
-	p.DatasetLandingPage.Citation = d.Publisher.Name
+	p.DatasetLandingPage.Citation = d.License
 
 	for _, pub := range d.Publications {
 		p.DatasetLandingPage.Publications = append(p.DatasetLandingPage.Publications, datasetLandingPageFilterable.Publication{
@@ -76,6 +76,13 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 		p.DatasetLandingPage.RelatedLinks = append(p.DatasetLandingPage.RelatedLinks, datasetLandingPageFilterable.Publication{
 			Title: link.Title,
 			URL:   link.URL,
+		})
+	}
+
+	for _, changes := range ver.LatestChanges {
+		p.DatasetLandingPage.LatestChanges = append(p.DatasetLandingPage.LatestChanges, datasetLandingPageFilterable.Change{
+			Name:        changes.Name,
+			Description: changes.Description,
 		})
 	}
 
