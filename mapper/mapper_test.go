@@ -26,8 +26,8 @@ func TestUnitMapper(t *testing.T) {
 					URL: "/datasets/83jd98fkflg",
 				},
 			},
-			NextRelease: "11-11-2018",
-			Periodicity: "yearly",
+			NextRelease:      "11-11-2018",
+			ReleaseFrequency: "Yearly",
 			Publisher: dataset.Publisher{
 				URL:  "ons.gov.uk",
 				Name: "ONS",
