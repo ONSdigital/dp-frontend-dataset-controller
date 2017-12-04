@@ -31,6 +31,7 @@ func main() {
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
 	dc := dataset.New(cfg.DatasetAPIURL)
 	rend := renderer.New(cfg.RendererURL)
+
 	if len(cfg.DatasetAPIAuthToken) > 0 {
 		dc.SetInternalToken(cfg.DatasetAPIAuthToken)
 	}
