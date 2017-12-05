@@ -33,6 +33,12 @@
 			"revisionTime": "2017-11-27T09:31:24Z"
 		},
 		{
+			"checksumSHA1": "TmozBxfmO48Lq4nR9m4WVUjTFDI=",
+			"path": "github.com/ONSdigital/dp-frontend-models/model/feedback",
+			"revision": "4b370df490a0cc7bc95db04ba62e93c9644c1462",
+			"revisionTime": "2017-12-05T13:31:21Z"
+		},
+		{
 			"checksumSHA1": "zgQXB6EtoNdvUCvMjxA6U9cfDDI=",
 			"path": "github.com/ONSdigital/go-ns/clients/clientlog",
 			"revision": "cea7003259c9767d3bfb84af8c93fdc76f329880",
