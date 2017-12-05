@@ -81,6 +81,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 	p.Feedback = description
 	p.Name = name
 	p.Email = email
+	p.PreviousURL = url
 
 	cfg := config.Get()
 
