@@ -39,10 +39,10 @@
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "6O1Z00Jk0jD5BDOKq5lx48H5Dbs=",
+			"checksumSHA1": "4RDJIDyBh1de+Ea9xFJBE/HIrIU=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "189ed1e789b0738a131d99b34449577f7b0b0450",
-			"revisionTime": "2017-11-30T10:09:04Z"
+			"revision": "346c09ef11b6fd9a6eb4e269d8b47aa4c9530694",
+			"revisionTime": "2017-12-06T15:01:50Z"
 		},
 		{
 			"checksumSHA1": "MKOhkB+MWSWilvK9xy5mBjIbpzo=",
@@ -192,6 +192,12 @@
 			"path": "github.com/nlopes/slack",
 			"revision": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc",
 			"revisionTime": "2017-07-25T12:17:30Z"
+		},
+		{
+			"checksumSHA1": "rJab1YdNhQooDiBWNnt7TLWPyBU=",
+			"path": "github.com/pkg/errors",
+			"revision": "f15c970de5b76fac0b59abb32d62c17cc7bed265",
+			"revisionTime": "2017-10-18T19:55:50Z"
 		},
 		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",
