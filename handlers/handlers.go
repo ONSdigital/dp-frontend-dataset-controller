@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 
@@ -37,6 +40,7 @@ type DatasetClient interface {
 	GetEdition(id, edition string) (dataset.Edition, error)
 	GetVersions(id, edition string) (m []dataset.Version, err error)
 	GetVersion(id, edition, version string) (m dataset.Version, err error)
+	GetVersionMetadata(id, edition, version string) (m dataset.Metadata, err error)
 	GetDimensions(id, edition, version string) (m dataset.Dimensions, err error)
 	GetOptions(id, edition, version, dimension string) (m dataset.Options, err error)
 }
@@ -239,6 +243,29 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
+	metadata, err := dc.GetVersionMetadata(datasetID, edition, version)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	textBytes, err := getText(dc, datasetID, edition, version, metadata, dims)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if ver.Downloads == nil {
+		ver.Downloads = make(map[string]dataset.Download)
+	}
+
+	ver.Downloads["Text"] = dataset.Download{
+		Size: strconv.Itoa(len(textBytes)),
+		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
+	}
+
 	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, displayOtherVersionsLink)
 
 	b, err := json.Marshal(m)
@@ -358,4 +385,60 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, r
 	w.Write(templateHTML)
 	return
 
+}
+
+// MetadataText generates a metadata text file
+func MetadataText(dc DatasetClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		metadataText(w, req, dc)
+	}
+}
+
+func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
+	vars := mux.Vars(req)
+	datasetID := vars["datasetID"]
+	edition := vars["edition"]
+	version := vars["version"]
+
+	metadata, err := dc.GetVersionMetadata(datasetID, edition, version)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	dimensions, err := dc.GetDimensions(datasetID, edition, version)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	b, err := getText(dc, datasetID, edition, version, metadata, dimensions)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "plain/text")
+
+	w.Write(b)
+
+}
+
+func getText(dc DatasetClient, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.Dimensions) ([]byte, error) {
+	var b bytes.Buffer
+
+	b.WriteString(metadata.String())
+	b.WriteString("Dimensions:\n")
+	for _, dimension := range dimensions.Items {
+		options, err := dc.GetOptions(datasetID, edition, version, dimension.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		b.WriteString(options.String())
+	}
+	return b.Bytes(), nil
 }
