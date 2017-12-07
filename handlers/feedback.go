@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/smtp"
+	"regexp"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-models/model"
+	"github.com/ONSdigital/dp-frontend-models/model/feedback"
 	"github.com/ONSdigital/go-ns/clients/renderer"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/gorilla/schema"
@@ -16,6 +18,7 @@ import (
 
 // Feedback represents a user's feedback
 type Feedback struct {
+	Purpose      string `schema:"purpose"`
 	SpecificPage string `schema:"specific-page"`
 	WholeSite    string `schema:"whole-site"`
 	URI          string `schema:":uri"`
@@ -29,7 +32,7 @@ type Feedback struct {
 func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 	var p model.Page
 
-	p.Metadata.Title = "Thank you for your feedback"
+	p.Metadata.Title = "Thank you"
 	returnTo := req.URL.Query().Get("returnTo")
 
 	if returnTo == "Whole site" {
@@ -60,17 +63,25 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 // GetFeedback handles the loading of a feedback page
 func GetFeedback(w http.ResponseWriter, req *http.Request) {
-	getFeedback(w, req, false)
+	getFeedback(w, req, req.Referer(), "", "", "", "", "")
 }
 
-func getFeedback(w http.ResponseWriter, req *http.Request, hasError bool) {
-	var p model.Page
+func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpose, description, name, email string) {
+	var p feedback.Page
 
 	p.Metadata.Title = "Feedback"
+	p.Metadata.Description = url
 
-	if hasError {
-		p.ServiceMessage = "Description can't be blank"
+	if len(p.Metadata.Description) > 50 {
+		p.Metadata.Description = p.Metadata.Description[len(p.Metadata.Description)-50 : len(p.Metadata.Description)]
 	}
+
+	p.ErrorType = errorType
+	p.Purpose = purpose
+	p.Feedback = description
+	p.Name = name
+	p.Email = email
+	p.PreviousURL = url
 
 	cfg := config.Get()
 
@@ -111,9 +122,21 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 			return
 		}
 
-		if f.Description == "" && !isPositive {
-			getFeedback(w, req, true)
+		if f.Purpose == "" && !isPositive {
+			getFeedback(w, req, f.URL, "purpose", f.Purpose, f.Description, f.Name, f.Email)
 			return
+		}
+
+		if f.Description == "" && !isPositive {
+			getFeedback(w, req, f.URL, "description", f.Purpose, f.Description, f.Name, f.Email)
+			return
+		}
+
+		if len(f.Email) > 0 && !isPositive {
+			if ok, err := regexp.MatchString(`^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$`, f.Email); !ok || err != nil {
+				getFeedback(w, req, f.URL, "email", f.Purpose, f.Description, f.Name, f.Email)
+				return
+			}
 		}
 
 		if f.URL == "" {
@@ -131,8 +154,6 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
-		log.Debug("feedback email sent", nil)
 
 		redirectURL := "/feedback/thanks?returnTo=" + f.URL
 		http.Redirect(w, req, redirectURL, 301)
@@ -155,6 +176,9 @@ func generateFeedbackMessage(f Feedback, from, to string, isPositive bool) []byt
 
 	b.WriteString(fmt.Sprintf("Page URL: %s\n", f.URL))
 	b.WriteString(fmt.Sprintf("Description: %s\n", description))
+	if len(f.Purpose) > 0 {
+		b.WriteString(fmt.Sprintf("Purpose: %s\n", f.Purpose))
+	}
 
 	if len(f.Name) > 0 {
 		b.WriteString(fmt.Sprintf("Name: %s\n", f.Name))
