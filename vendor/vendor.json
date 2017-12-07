@@ -15,10 +15,10 @@
 			"revisionTime": "2017-11-09T10:51:17Z"
 		},
 		{
-			"checksumSHA1": "sqtIJvIYdwxmdAaR3TMfnCcrxiA=",
+			"checksumSHA1": "n4lhmFsHUqd+3+IVXh0ZHK3TnZM=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable",
-			"revision": "8984d32f6bd260d721ec351e55347cc25ad3604d",
-			"revisionTime": "2017-11-27T09:31:24Z"
+			"revision": "7f0d2ed7a0aa58ecb5f66262760e917ccf852d05",
+			"revisionTime": "2017-11-30T10:54:50Z"
 		},
 		{
 			"checksumSHA1": "2Ww7ArlxDH4Cs/1S01vx1heMAow=",
@@ -45,10 +45,10 @@
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "hizUOjKXVoHv5WmCxikgElTDhy0=",
+			"checksumSHA1": "4RDJIDyBh1de+Ea9xFJBE/HIrIU=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "d552dfa4894333d95e67ff474961dbfa48e32c71",
-			"revisionTime": "2017-11-28T09:14:45Z"
+			"revision": "346c09ef11b6fd9a6eb4e269d8b47aa4c9530694",
+			"revisionTime": "2017-12-06T15:01:50Z"
 		},
 		{
 			"checksumSHA1": "MKOhkB+MWSWilvK9xy5mBjIbpzo=",
@@ -198,6 +198,12 @@
 			"path": "github.com/nlopes/slack",
 			"revision": "5cde21b8b96a43fc3435a1f514123d14fd7eabdc",
 			"revisionTime": "2017-07-25T12:17:30Z"
+		},
+		{
+			"checksumSHA1": "rJab1YdNhQooDiBWNnt7TLWPyBU=",
+			"path": "github.com/pkg/errors",
+			"revision": "f15c970de5b76fac0b59abb32d62c17cc7bed265",
+			"revisionTime": "2017-10-18T19:55:50Z"
 		},
 		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",

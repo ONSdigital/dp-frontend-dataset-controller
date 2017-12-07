@@ -59,6 +59,33 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 
 	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = ver.ReleaseDate
 	p.DatasetLandingPage.Edition = ver.Edition
+	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
+	p.DatasetLandingPage.QMIURL = d.QMI.URL
+	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
+	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
+	p.DatasetLandingPage.Citation = d.License
+
+	for _, pub := range d.Publications {
+		p.DatasetLandingPage.Publications = append(p.DatasetLandingPage.Publications, datasetLandingPageFilterable.Publication{
+			Title: pub.Title,
+			URL:   pub.URL,
+		})
+	}
+
+	for _, link := range d.RelatedDatasets {
+		p.DatasetLandingPage.RelatedLinks = append(p.DatasetLandingPage.RelatedLinks, datasetLandingPageFilterable.Publication{
+			Title: link.Title,
+			URL:   link.URL,
+		})
+	}
+
+	for _, changes := range ver.LatestChanges {
+		p.DatasetLandingPage.LatestChanges = append(p.DatasetLandingPage.LatestChanges, datasetLandingPageFilterable.Change{
+			Name:        changes.Name,
+			Description: changes.Description,
+		})
+	}
+
 	var v datasetLandingPageFilterable.Version
 	v.Title = d.Title
 	v.Description = d.Description
@@ -82,9 +109,6 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 
 	if len(opts) > 0 {
 		for _, opt := range opts {
-			if len(opt.Items) < 2 {
-				continue
-			}
 
 			var pDim datasetLandingPageFilterable.Dimension
 
@@ -100,6 +124,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 				log.Error(err, nil)
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+			pDim.TotalItems = len(opt.Items)
 
 			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
@@ -129,8 +154,10 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			} else {
 
 				for i, val := range opt.Items {
-					if i > 10 {
-						break
+					if len(opt.Items) > 50 {
+						if i > 9 {
+							break
+						}
 					}
 					pDim.Values = append(pDim.Values, val.Label)
 				}

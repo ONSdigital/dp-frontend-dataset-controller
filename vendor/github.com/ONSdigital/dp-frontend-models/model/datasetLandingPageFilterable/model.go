@@ -13,16 +13,41 @@ type Page struct {
 
 type DatasetLandingPage struct {
 	datasetLandingPageStatic.DatasetLandingPage
-	Dimensions       []Dimension `json:"dimensions"`
-	Version          Version     `json:"version"`
-	HasOlderVersions bool        `json:"has_older_versions"`
-	Edition          string      `json:"edition"`
+	Dimensions          []Dimension   `json:"dimensions"`
+	Version             Version       `json:"version"`
+	HasOlderVersions    bool          `json:"has_older_versions"`
+	Edition             string        `json:"edition"`
+	ReleaseFrequency    string        `json:"release_frequency"`
+	IsLatest            bool          `json:"is_latest"`
+	QMIURL              string        `json:"qmi_url"`
+	IsNationalStatistic bool          `json:"is_national_statistic"`
+	Publications        []Publication `json:"publications"`
+	RelatedLinks        []Publication `json:"related_links"`
+	LatestChanges       []Change      `json:"latest_changes"`
+	Citation            string        `json:"citation"`
+}
+
+type Publication struct {
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}
+
+type Change struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type Publisher struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+	URL  string `json:"url"`
 }
 
 type Dimension struct {
 	Title       string   `json:"title"`
 	Values      []string `json:"values"`
 	OptionsURL  string   `json:"options_url"`
+	TotalItems  int      `json:"total_items"`
 	Description string   `json:"description"`
 }
 
