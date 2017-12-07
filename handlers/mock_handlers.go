@@ -4,107 +4,151 @@
 package handlers
 
 import (
+	"reflect"
+
 	dataset "github.com/ONSdigital/go-ns/clients/dataset"
 	data "github.com/ONSdigital/go-ns/zebedee/data"
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockZebedeeClient is a mock of ZebedeeClient interface
-type MockZebedeeClient struct {
+// MockDatasetClient is a mock of DatasetClient interface
+type MockDatasetClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockZebedeeClientMockRecorder
+	recorder *MockDatasetClientMockRecorder
 }
 
-// MockZebedeeClientMockRecorder is the mock recorder for MockZebedeeClient
-type MockZebedeeClientMockRecorder struct {
-	mock *MockZebedeeClient
+// MockDatasetClientMockRecorder is the mock recorder for MockDatasetClient
+type MockDatasetClientMockRecorder struct {
+	mock *MockDatasetClient
 }
 
-// NewMockZebedeeClient creates a new mock instance
-func NewMockZebedeeClient(ctrl *gomock.Controller) *MockZebedeeClient {
-	mock := &MockZebedeeClient{ctrl: ctrl}
-	mock.recorder = &MockZebedeeClientMockRecorder{mock}
+// NewMockDatasetClient creates a new mock instance
+func NewMockDatasetClient(ctrl *gomock.Controller) *MockDatasetClient {
+	mock := &MockDatasetClient{ctrl: ctrl}
+	mock.recorder = &MockDatasetClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (_m *MockZebedeeClient) EXPECT() *MockZebedeeClientMockRecorder {
-	return _m.recorder
+func (m *MockDatasetClient) EXPECT() *MockDatasetClientMockRecorder {
+	return m.recorder
 }
 
 // Get mocks base method
-func (_m *MockZebedeeClient) Get(_param0 string) ([]byte, error) {
-	ret := _m.ctrl.Call(_m, "Get", _param0)
-	ret0, _ := ret[0].([]byte)
+func (m *MockDatasetClient) Get(arg0 string) (dataset.Model, error) {
+	ret := m.ctrl.Call(m, "Get", arg0)
+	ret0, _ := ret[0].(dataset.Model)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
-func (_mr *MockZebedeeClientMockRecorder) Get(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Get", arg0)
+func (mr *MockDatasetClientMockRecorder) Get(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockDatasetClient)(nil).Get), arg0)
 }
 
-// GetBreadcrumb mocks base method
-func (_m *MockZebedeeClient) GetBreadcrumb(_param0 string) ([]data.Breadcrumb, error) {
-	ret := _m.ctrl.Call(_m, "GetBreadcrumb", _param0)
-	ret0, _ := ret[0].([]data.Breadcrumb)
+// GetDimensions mocks base method
+func (m *MockDatasetClient) GetDimensions(arg0, arg1, arg2 string) (dataset.Dimensions, error) {
+	ret := m.ctrl.Call(m, "GetDimensions", arg0, arg1, arg2)
+	ret0, _ := ret[0].(dataset.Dimensions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetBreadcrumb indicates an expected call of GetBreadcrumb
-func (_mr *MockZebedeeClientMockRecorder) GetBreadcrumb(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetBreadcrumb", arg0)
+// GetDimensions indicates an expected call of GetDimensions
+func (mr *MockDatasetClientMockRecorder) GetDimensions(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensions", reflect.TypeOf((*MockDatasetClient)(nil).GetDimensions), arg0, arg1, arg2)
 }
 
-// GetDataset mocks base method
-func (_m *MockZebedeeClient) GetDataset(_param0 string) (data.Dataset, error) {
-	ret := _m.ctrl.Call(_m, "GetDataset", _param0)
-	ret0, _ := ret[0].(data.Dataset)
+// GetEdition mocks base method
+func (m *MockDatasetClient) GetEdition(arg0, arg1 string) (dataset.Edition, error) {
+	ret := m.ctrl.Call(m, "GetEdition", arg0, arg1)
+	ret0, _ := ret[0].(dataset.Edition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDataset indicates an expected call of GetDataset
-func (_mr *MockZebedeeClientMockRecorder) GetDataset(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDataset", arg0)
+// GetEdition indicates an expected call of GetEdition
+func (mr *MockDatasetClientMockRecorder) GetEdition(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdition", reflect.TypeOf((*MockDatasetClient)(nil).GetEdition), arg0, arg1)
 }
 
-// GetDatasetLandingPage mocks base method
-func (_m *MockZebedeeClient) GetDatasetLandingPage(_param0 string) (data.DatasetLandingPage, error) {
-	ret := _m.ctrl.Call(_m, "GetDatasetLandingPage", _param0)
-	ret0, _ := ret[0].(data.DatasetLandingPage)
+// GetEditions mocks base method
+func (m *MockDatasetClient) GetEditions(arg0 string) ([]dataset.Edition, error) {
+	ret := m.ctrl.Call(m, "GetEditions", arg0)
+	ret0, _ := ret[0].([]dataset.Edition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDatasetLandingPage indicates an expected call of GetDatasetLandingPage
-func (_mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDatasetLandingPage", arg0)
+// GetEditions indicates an expected call of GetEditions
+func (mr *MockDatasetClientMockRecorder) GetEditions(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEditions", reflect.TypeOf((*MockDatasetClient)(nil).GetEditions), arg0)
+}
+
+// GetOptions mocks base method
+func (m *MockDatasetClient) GetOptions(arg0, arg1, arg2, arg3 string) (dataset.Options, error) {
+	ret := m.ctrl.Call(m, "GetOptions", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(dataset.Options)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOptions indicates an expected call of GetOptions
+func (mr *MockDatasetClientMockRecorder) GetOptions(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptions", reflect.TypeOf((*MockDatasetClient)(nil).GetOptions), arg0, arg1, arg2, arg3)
+}
+
+// GetVersion mocks base method
+func (m *MockDatasetClient) GetVersion(arg0, arg1, arg2 string) (dataset.Version, error) {
+	ret := m.ctrl.Call(m, "GetVersion", arg0, arg1, arg2)
+	ret0, _ := ret[0].(dataset.Version)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersion indicates an expected call of GetVersion
+func (mr *MockDatasetClientMockRecorder) GetVersion(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockDatasetClient)(nil).GetVersion), arg0, arg1, arg2)
+}
+
+// GetVersionMetadata mocks base method
+func (m *MockDatasetClient) GetVersionMetadata(arg0, arg1, arg2 string) (dataset.Metadata, error) {
+	ret := m.ctrl.Call(m, "GetVersionMetadata", arg0, arg1, arg2)
+	ret0, _ := ret[0].(dataset.Metadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersionMetadata indicates an expected call of GetVersionMetadata
+func (mr *MockDatasetClientMockRecorder) GetVersionMetadata(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockDatasetClient)(nil).GetVersionMetadata), arg0, arg1, arg2)
+}
+
+// GetVersions mocks base method
+func (m *MockDatasetClient) GetVersions(arg0, arg1 string) ([]dataset.Version, error) {
+	ret := m.ctrl.Call(m, "GetVersions", arg0, arg1)
+	ret0, _ := ret[0].([]dataset.Version)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersions indicates an expected call of GetVersions
+func (mr *MockDatasetClientMockRecorder) GetVersions(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockDatasetClient)(nil).GetVersions), arg0, arg1)
 }
 
 // Healthcheck mocks base method
-func (_m *MockZebedeeClient) Healthcheck() (string, error) {
-	ret := _m.ctrl.Call(_m, "Healthcheck")
+func (m *MockDatasetClient) Healthcheck() (string, error) {
+	ret := m.ctrl.Call(m, "Healthcheck")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Healthcheck indicates an expected call of Healthcheck
-func (_mr *MockZebedeeClientMockRecorder) Healthcheck() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
-}
-
-// SetAccessToken mocks base method
-func (_m *MockZebedeeClient) SetAccessToken(_param0 string) {
-	_m.ctrl.Call(_m, "SetAccessToken", _param0)
-}
-
-// SetAccessToken indicates an expected call of SetAccessToken
-func (_mr *MockZebedeeClientMockRecorder) SetAccessToken(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetAccessToken", arg0)
+func (mr *MockDatasetClientMockRecorder) Healthcheck() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockDatasetClient)(nil).Healthcheck))
 }
 
 // MockFilterClient is a mock of FilterClient interface
@@ -126,185 +170,58 @@ func NewMockFilterClient(ctrl *gomock.Controller) *MockFilterClient {
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (_m *MockFilterClient) EXPECT() *MockFilterClientMockRecorder {
-	return _m.recorder
+func (m *MockFilterClient) EXPECT() *MockFilterClientMockRecorder {
+	return m.recorder
 }
 
 // AddDimension mocks base method
-func (_m *MockFilterClient) AddDimension(_param0 string, _param1 string) error {
-	ret := _m.ctrl.Call(_m, "AddDimension", _param0, _param1)
+func (m *MockFilterClient) AddDimension(arg0, arg1 string) error {
+	ret := m.ctrl.Call(m, "AddDimension", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddDimension indicates an expected call of AddDimension
-func (_mr *MockFilterClientMockRecorder) AddDimension(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "AddDimension", arg0, arg1)
+func (mr *MockFilterClientMockRecorder) AddDimension(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimension", reflect.TypeOf((*MockFilterClient)(nil).AddDimension), arg0, arg1)
 }
 
 // AddDimensionValue mocks base method
-func (_m *MockFilterClient) AddDimensionValue(_param0 string, _param1 string, _param2 string) error {
-	ret := _m.ctrl.Call(_m, "AddDimensionValue", _param0, _param1, _param2)
+func (m *MockFilterClient) AddDimensionValue(arg0, arg1, arg2 string) error {
+	ret := m.ctrl.Call(m, "AddDimensionValue", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddDimensionValue indicates an expected call of AddDimensionValue
-func (_mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "AddDimensionValue", arg0, arg1, arg2)
+func (mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimensionValue", reflect.TypeOf((*MockFilterClient)(nil).AddDimensionValue), arg0, arg1, arg2)
 }
 
 // CreateBlueprint mocks base method
-func (_m *MockFilterClient) CreateBlueprint(_param0 string, _param1 []string) (string, error) {
-	ret := _m.ctrl.Call(_m, "CreateBlueprint", _param0, _param1)
+func (m *MockFilterClient) CreateBlueprint(arg0 string, arg1 []string) (string, error) {
+	ret := m.ctrl.Call(m, "CreateBlueprint", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateBlueprint indicates an expected call of CreateBlueprint
-func (_mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateBlueprint", arg0, arg1)
+func (mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), arg0, arg1)
 }
 
 // Healthcheck mocks base method
-func (_m *MockFilterClient) Healthcheck() (string, error) {
-	ret := _m.ctrl.Call(_m, "Healthcheck")
+func (m *MockFilterClient) Healthcheck() (string, error) {
+	ret := m.ctrl.Call(m, "Healthcheck")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Healthcheck indicates an expected call of Healthcheck
-func (_mr *MockFilterClientMockRecorder) Healthcheck() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
-}
-
-// MockDatasetClient is a mock of DatasetClient interface
-type MockDatasetClient struct {
-	ctrl     *gomock.Controller
-	recorder *MockDatasetClientMockRecorder
-}
-
-// MockDatasetClientMockRecorder is the mock recorder for MockDatasetClient
-type MockDatasetClientMockRecorder struct {
-	mock *MockDatasetClient
-}
-
-// NewMockDatasetClient creates a new mock instance
-func NewMockDatasetClient(ctrl *gomock.Controller) *MockDatasetClient {
-	mock := &MockDatasetClient{ctrl: ctrl}
-	mock.recorder = &MockDatasetClientMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use
-func (_m *MockDatasetClient) EXPECT() *MockDatasetClientMockRecorder {
-	return _m.recorder
-}
-
-// Get mocks base method
-func (_m *MockDatasetClient) Get(_param0 string) (dataset.Model, error) {
-	ret := _m.ctrl.Call(_m, "Get", _param0)
-	ret0, _ := ret[0].(dataset.Model)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Get indicates an expected call of Get
-func (_mr *MockDatasetClientMockRecorder) Get(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Get", arg0)
-}
-
-// GetDimensions mocks base method
-func (_m *MockDatasetClient) GetDimensions(_param0 string, _param1 string, _param2 string) (dataset.Dimensions, error) {
-	ret := _m.ctrl.Call(_m, "GetDimensions", _param0, _param1, _param2)
-	ret0, _ := ret[0].(dataset.Dimensions)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDimensions indicates an expected call of GetDimensions
-func (_mr *MockDatasetClientMockRecorder) GetDimensions(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDimensions", arg0, arg1, arg2)
-}
-
-// GetEdition mocks base method
-func (_m *MockDatasetClient) GetEdition(_param0 string, _param1 string) (dataset.Edition, error) {
-	ret := _m.ctrl.Call(_m, "GetEdition", _param0, _param1)
-	ret0, _ := ret[0].(dataset.Edition)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetEdition indicates an expected call of GetEdition
-func (_mr *MockDatasetClientMockRecorder) GetEdition(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEdition", arg0, arg1)
-}
-
-// GetEditions mocks base method
-func (_m *MockDatasetClient) GetEditions(_param0 string) ([]dataset.Edition, error) {
-	ret := _m.ctrl.Call(_m, "GetEditions", _param0)
-	ret0, _ := ret[0].([]dataset.Edition)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetEditions indicates an expected call of GetEditions
-func (_mr *MockDatasetClientMockRecorder) GetEditions(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEditions", arg0)
-}
-
-// GetOptions mocks base method
-func (_m *MockDatasetClient) GetOptions(_param0 string, _param1 string, _param2 string, _param3 string) (dataset.Options, error) {
-	ret := _m.ctrl.Call(_m, "GetOptions", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(dataset.Options)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetOptions indicates an expected call of GetOptions
-func (_mr *MockDatasetClientMockRecorder) GetOptions(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetOptions", arg0, arg1, arg2, arg3)
-}
-
-// GetVersion mocks base method
-func (_m *MockDatasetClient) GetVersion(_param0 string, _param1 string, _param2 string) (dataset.Version, error) {
-	ret := _m.ctrl.Call(_m, "GetVersion", _param0, _param1, _param2)
-	ret0, _ := ret[0].(dataset.Version)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersion indicates an expected call of GetVersion
-func (_mr *MockDatasetClientMockRecorder) GetVersion(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetVersion", arg0, arg1, arg2)
-}
-
-// GetVersions mocks base method
-func (_m *MockDatasetClient) GetVersions(_param0 string, _param1 string) ([]dataset.Version, error) {
-	ret := _m.ctrl.Call(_m, "GetVersions", _param0, _param1)
-	ret0, _ := ret[0].([]dataset.Version)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersions indicates an expected call of GetVersions
-func (_mr *MockDatasetClientMockRecorder) GetVersions(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetVersions", arg0, arg1)
-}
-
-// Healthcheck mocks base method
-func (_m *MockDatasetClient) Healthcheck() (string, error) {
-	ret := _m.ctrl.Call(_m, "Healthcheck")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Healthcheck indicates an expected call of Healthcheck
-func (_mr *MockDatasetClientMockRecorder) Healthcheck() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
+func (mr *MockFilterClientMockRecorder) Healthcheck() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockFilterClient)(nil).Healthcheck))
 }
 
 // MockRenderClient is a mock of RenderClient interface
@@ -326,32 +243,130 @@ func NewMockRenderClient(ctrl *gomock.Controller) *MockRenderClient {
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (_m *MockRenderClient) EXPECT() *MockRenderClientMockRecorder {
-	return _m.recorder
+func (m *MockRenderClient) EXPECT() *MockRenderClientMockRecorder {
+	return m.recorder
 }
 
 // Do mocks base method
-func (_m *MockRenderClient) Do(_param0 string, _param1 []byte) ([]byte, error) {
-	ret := _m.ctrl.Call(_m, "Do", _param0, _param1)
+func (m *MockRenderClient) Do(arg0 string, arg1 []byte) ([]byte, error) {
+	ret := m.ctrl.Call(m, "Do", arg0, arg1)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Do indicates an expected call of Do
-func (_mr *MockRenderClientMockRecorder) Do(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Do", arg0, arg1)
+func (mr *MockRenderClientMockRecorder) Do(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockRenderClient)(nil).Do), arg0, arg1)
 }
 
 // Healthcheck mocks base method
-func (_m *MockRenderClient) Healthcheck() (string, error) {
-	ret := _m.ctrl.Call(_m, "Healthcheck")
+func (m *MockRenderClient) Healthcheck() (string, error) {
+	ret := m.ctrl.Call(m, "Healthcheck")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Healthcheck indicates an expected call of Healthcheck
-func (_mr *MockRenderClientMockRecorder) Healthcheck() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Healthcheck")
+func (mr *MockRenderClientMockRecorder) Healthcheck() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockRenderClient)(nil).Healthcheck))
+}
+
+// MockZebedeeClient is a mock of ZebedeeClient interface
+type MockZebedeeClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockZebedeeClientMockRecorder
+}
+
+// MockZebedeeClientMockRecorder is the mock recorder for MockZebedeeClient
+type MockZebedeeClientMockRecorder struct {
+	mock *MockZebedeeClient
+}
+
+// NewMockZebedeeClient creates a new mock instance
+func NewMockZebedeeClient(ctrl *gomock.Controller) *MockZebedeeClient {
+	mock := &MockZebedeeClient{ctrl: ctrl}
+	mock.recorder = &MockZebedeeClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockZebedeeClient) EXPECT() *MockZebedeeClientMockRecorder {
+	return m.recorder
+}
+
+// Get mocks base method
+func (m *MockZebedeeClient) Get(arg0 string) ([]byte, error) {
+	ret := m.ctrl.Call(m, "Get", arg0)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get
+func (mr *MockZebedeeClientMockRecorder) Get(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockZebedeeClient)(nil).Get), arg0)
+}
+
+// GetBreadcrumb mocks base method
+func (m *MockZebedeeClient) GetBreadcrumb(arg0 string) ([]data.Breadcrumb, error) {
+	ret := m.ctrl.Call(m, "GetBreadcrumb", arg0)
+	ret0, _ := ret[0].([]data.Breadcrumb)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBreadcrumb indicates an expected call of GetBreadcrumb
+func (mr *MockZebedeeClientMockRecorder) GetBreadcrumb(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBreadcrumb", reflect.TypeOf((*MockZebedeeClient)(nil).GetBreadcrumb), arg0)
+}
+
+// GetDataset mocks base method
+func (m *MockZebedeeClient) GetDataset(arg0 string) (data.Dataset, error) {
+	ret := m.ctrl.Call(m, "GetDataset", arg0)
+	ret0, _ := ret[0].(data.Dataset)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDataset indicates an expected call of GetDataset
+func (mr *MockZebedeeClientMockRecorder) GetDataset(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockZebedeeClient)(nil).GetDataset), arg0)
+}
+
+// GetDatasetLandingPage mocks base method
+func (m *MockZebedeeClient) GetDatasetLandingPage(arg0 string) (data.DatasetLandingPage, error) {
+	ret := m.ctrl.Call(m, "GetDatasetLandingPage", arg0)
+	ret0, _ := ret[0].(data.DatasetLandingPage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDatasetLandingPage indicates an expected call of GetDatasetLandingPage
+func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), arg0)
+}
+
+// Healthcheck mocks base method
+func (m *MockZebedeeClient) Healthcheck() (string, error) {
+	ret := m.ctrl.Call(m, "Healthcheck")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Healthcheck indicates an expected call of Healthcheck
+func (mr *MockZebedeeClientMockRecorder) Healthcheck() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockZebedeeClient)(nil).Healthcheck))
+}
+
+// SetAccessToken mocks base method
+func (m *MockZebedeeClient) SetAccessToken(arg0 string) {
+	m.ctrl.Call(m, "SetAccessToken", arg0)
+}
+
+// SetAccessToken indicates an expected call of SetAccessToken
+func (mr *MockZebedeeClientMockRecorder) SetAccessToken(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessToken", reflect.TypeOf((*MockZebedeeClient)(nil).SetAccessToken), arg0)
 }
