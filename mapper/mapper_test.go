@@ -68,12 +68,14 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
 		So(p.URI, ShouldEqual, d.Links.Self.URL)
+		So(p.ShowFeedbackForm, ShouldEqual, true)
 		So(p.ContactDetails.Name, ShouldEqual, d.Contacts[0].Name)
 		So(p.ContactDetails.Telephone, ShouldEqual, d.Contacts[0].Telephone)
 		So(p.ContactDetails.Email, ShouldEqual, d.Contacts[0].Email)
 		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
+		So(p.ShowFeedbackForm, ShouldEqual, true)
 
 		v0 := p.DatasetLandingPage.Version
 		So(v0.Title, ShouldEqual, d.Title)
