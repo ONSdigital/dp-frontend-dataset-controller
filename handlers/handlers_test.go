@@ -218,6 +218,8 @@ func TestUnitHandlers(t *testing.T) {
 			}
 			mockClient.EXPECT().GetDimensions("12345", "5678", "2017").Return(dims, nil)
 			mockClient.EXPECT().GetOptions("12345", "5678", "2017", "aggregate").Return(opts, nil)
+			mockClient.EXPECT().GetVersionMetadata("12345", "5678", "2017")
+			mockClient.EXPECT().GetOptions("12345", "5678", "2017", "aggregate").Return(opts, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -273,6 +275,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion("12345", "5678", "1").Return(versions[0], nil)
 			mockClient.EXPECT().GetDimensions("12345", "5678", "1")
+			mockClient.EXPECT().GetVersionMetadata("12345", "5678", "1")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return(nil, errors.New("error from renderer"))
