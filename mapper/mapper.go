@@ -38,7 +38,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, displayOtherVersionsLink bool) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -122,6 +122,12 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 			if err != nil {
 				log.Error(err, nil)
+			}
+			for _, dimension := range dims.Items {
+				log.Debug("title", log.Data{"ID:": dimension.ID, "Title:": title})
+				if dimension.ID == opt.Items[0].DimensionID {
+					pDim.Description = dimension.Description
+				}
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
 			pDim.TotalItems = len(opt.Items)

@@ -239,7 +239,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, displayOtherVersionsLink)
+	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink)
 
 	b, err := json.Marshal(m)
 	if err != nil {
