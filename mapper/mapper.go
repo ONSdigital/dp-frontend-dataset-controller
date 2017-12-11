@@ -46,6 +46,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
 	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
+	p.ShowFeedbackForm = true
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
@@ -219,6 +220,7 @@ func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID s
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description
 	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
+	p.ShowFeedbackForm = true
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
