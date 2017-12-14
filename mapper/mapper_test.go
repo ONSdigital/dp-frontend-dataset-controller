@@ -63,7 +63,51 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		p := CreateFilterableLandingPage(d, v[0], datasetID, []dataset.Options{}, dataset.Dimensions{}, false)
+		p := CreateFilterableLandingPage(d, v[0], datasetID, []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "age",
+						Label:       "6",
+						Option:      "6",
+					},
+					{
+						DimensionID: "age",
+						Label:       "3",
+						Option:      "3",
+					},
+					{
+						DimensionID: "age",
+						Label:       "24",
+						Option:      "24",
+					},
+					{
+						DimensionID: "age",
+						Label:       "23",
+						Option:      "23",
+					},
+					{
+						DimensionID: "age",
+						Label:       "19",
+						Option:      "19",
+					},
+				},
+			},
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "time",
+						Label:       "Jan-05",
+						Option:      "Jan-05",
+					},
+					{
+						DimensionID: "time",
+						Label:       "Feb-05",
+						Option:      "Feb-05",
+					},
+				},
+			},
+		}, dataset.Dimensions{}, false)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -76,6 +120,18 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(p.ShowFeedbackForm, ShouldEqual, true)
+
+		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
+		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 5)
+		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "3")
+		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "6")
+		So(p.DatasetLandingPage.Dimensions[0].Values[2], ShouldEqual, "19")
+		So(p.DatasetLandingPage.Dimensions[0].Values[3], ShouldEqual, "23")
+		So(p.DatasetLandingPage.Dimensions[0].Values[4], ShouldEqual, "24")
+		So(len(p.DatasetLandingPage.Dimensions[1].Values), ShouldEqual, 1)
+		So(p.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Time")
+		So(p.DatasetLandingPage.Dimensions[1].Values[0], ShouldEqual, "All months between January 2005 and February 2005")
 
 		v0 := p.DatasetLandingPage.Version
 		So(v0.Title, ShouldEqual, d.Title)

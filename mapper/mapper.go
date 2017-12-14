@@ -168,6 +168,26 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 					pDim.Values = append(pDim.Values, val.Label)
 				}
 
+				if opt.Items[0].DimensionID == "time" || opt.Items[0].DimensionID == "age" {
+					isValid := true
+					var intVals []int
+					for _, val := range pDim.Values {
+						intVal, err := strconv.Atoi(val)
+						if err != nil {
+							isValid = false
+							break
+						}
+						intVals = append(intVals, intVal)
+					}
+
+					if isValid {
+						sort.Ints(intVals)
+						for i, val := range intVals {
+							pDim.Values[i] = strconv.Itoa(val)
+						}
+					}
+				}
+
 			}
 
 			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
