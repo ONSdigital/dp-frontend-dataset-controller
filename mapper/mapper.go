@@ -65,6 +65,14 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
 	p.DatasetLandingPage.Citation = d.License
 
+	for _, meth := range d.Methodologies {
+		p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, datasetLandingPageFilterable.Methodology{
+			Title:       meth.Title,
+			URL:         meth.URL,
+			Description: meth.Description,
+		})
+	}
+
 	for _, pub := range d.Publications {
 		p.DatasetLandingPage.Publications = append(p.DatasetLandingPage.Publications, datasetLandingPageFilterable.Publication{
 			Title: pub.Title,
