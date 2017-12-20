@@ -47,6 +47,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.Metadata.Description = d.Description
 	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 	p.ShowFeedbackForm = true
+	p.DatasetId = datasetID
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
@@ -132,7 +133,6 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 				log.Error(err, nil)
 			}
 			for _, dimension := range dims.Items {
-				log.Debug("title", log.Data{"ID:": dimension.ID, "Title:": title})
 				if dimension.ID == opt.Items[0].DimensionID {
 					pDim.Description = dimension.Description
 				}
@@ -214,6 +214,7 @@ func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dat
 		log.Error(err, nil)
 	}
 	p.Data.LatestVersionURL = uri.Path
+	p.DatasetId = d.ID
 
 	for _, ver := range versions {
 		if edition.Links.LatestVersion.URL == ver.Links.Self.URL {
@@ -249,6 +250,7 @@ func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID s
 	p.Metadata.Description = d.Description
 	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 	p.ShowFeedbackForm = true
+	p.DatasetId = datasetID
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name

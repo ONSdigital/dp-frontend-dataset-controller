@@ -3,6 +3,8 @@ package model
 //Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	Type                             string         `json:"type"`
+	DatasetId                        string         `json:"dataset_id"`
+	DatasetTitle                     string         `json:"dataset_title"`
 	URI                              string         `json:"uri"`
 	Taxonomy                         []TaxonomyNode `json:"taxonomy"`
 	TaxonomyDomain                   string         `json:"taxonomy_domain"`
@@ -14,6 +16,5 @@ type Page struct {
 	PatternLibraryAssetsPath         string         `json:"-"`
 	Language                         string         `json:"-"`
 	IncludeAssetsIntegrityAttributes bool           `json:"-"`
-	DatasetTitle                     string         `json:"dataset_title"`
-	ShowFeedbackForm                 bool           `json:"show_feedback_form"`
+	ShowFeedbackForm                 bool           `json:"-"`
 }

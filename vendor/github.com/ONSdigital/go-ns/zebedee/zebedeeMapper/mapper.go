@@ -60,8 +60,6 @@ func MapZebedeeDatasetLandingPageToFrontendModel(dlp data.DatasetLandingPage, bc
 		sdlp.DatasetLandingPage.ParentPath = sdlp.Page.Breadcrumb[len(sdlp.Page.Breadcrumb)-1].Title
 	}
 
-	log.Debug("pp", log.Data{"pp": sdlp.DatasetLandingPage.ParentPath})
-
 	for i, d := range ds {
 		var dataset datasetLandingPageStatic.Dataset
 		for _, value := range d.Downloads {
