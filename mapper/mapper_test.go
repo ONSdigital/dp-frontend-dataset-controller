@@ -33,9 +33,10 @@ func TestUnitMapper(t *testing.T) {
 				Name: "ONS",
 				Type: "Government Agency",
 			},
-			State: "created",
-			Theme: "purple",
-			Title: "Penguins of the Antarctic Ocean",
+			State:   "created",
+			Theme:   "purple",
+			Title:   "Penguins of the Antarctic Ocean",
+			License: "ons",
 		}
 
 		v := []dataset.Version{
