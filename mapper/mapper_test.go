@@ -44,7 +44,6 @@ func TestUnitMapper(t *testing.T) {
 				Edition:      "2017",
 				ID:           "tehnskofjios-ashbc7",
 				InstanceID:   "31241592",
-				License:      "ons",
 				Version:      1,
 				Links: dataset.Links{
 					Self: dataset.Link{
