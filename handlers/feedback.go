@@ -18,14 +18,14 @@ import (
 
 // Feedback represents a user's feedback
 type Feedback struct {
-	Purpose      string `schema:"purpose"`
-	SpecificPage string `schema:"specific-page"`
-	WholeSite    string `schema:"whole-site"`
-	URI          string `schema:":uri"`
-	URL          string `schema:"url"`
-	Description  string `schema:"description"`
-	Name         string `schema:"name"`
-	Email        string `schema:"email"`
+	Purpose          string `schema:"purpose"`
+	Type             string `schema:"type"`
+	URI              string `schema:":uri"`
+	URL              string `schema:"url"`
+	Description      string `schema:"description"`
+	Name             string `schema:"name"`
+	Email            string `schema:"email"`
+	FeedbackFormType string `schema:"feedback-form-type"`
 }
 
 // FeedbackThanks loads the Feedback Thank you page
@@ -122,7 +122,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 			return
 		}
 
-		if f.Purpose == "" && !isPositive {
+		if f.FeedbackFormType == "page" && f.Purpose == "" && !isPositive {
 			getFeedback(w, req, f.URL, "purpose", f.Purpose, f.Description, f.Name, f.Email)
 			return
 		}
@@ -173,6 +173,10 @@ func generateFeedbackMessage(f Feedback, from, to string, isPositive bool) []byt
 	b.WriteString(fmt.Sprintf("From: %s\n", from))
 	b.WriteString(fmt.Sprintf("To: %s\n", to))
 	b.WriteString(fmt.Sprintf("Subject: Feedback received\n\n"))
+
+	if len(f.Type) > 0 {
+		b.WriteString(fmt.Sprintf("Feedback Type: %s\n", f.Type))
+	}
 
 	b.WriteString(fmt.Sprintf("Page URL: %s\n", f.URL))
 	b.WriteString(fmt.Sprintf("Description: %s\n", description))

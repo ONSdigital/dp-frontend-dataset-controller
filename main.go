@@ -20,6 +20,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type unencryptedAuth struct {
+	smtp.Auth
+}
+
+func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	s := *server
+	s.TLS = true
+	return a.Auth.Start(&s)
+}
+
 func main() {
 	cfg := config.Get()
 
@@ -48,12 +58,17 @@ func main() {
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
 	if len(cfg.MailHost) > 0 {
+
 		auth := smtp.PlainAuth(
 			"",
 			cfg.MailUser,
 			cfg.MailPassword,
 			cfg.MailHost,
 		)
+
+		if cfg.MailHost == "localhost" {
+			auth = unencryptedAuth{auth}
+		}
 
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
