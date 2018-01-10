@@ -9,12 +9,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/log"
 )
+
+// SetTaxonomyDomain will set the taxonomy domain for a given pages
+func SetTaxonomyDomain(p *model.Page) {
+	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
+}
 
 var dimensionTitleMapper = map[string]string{
 	"aggregate": "Goods and Services",
@@ -40,12 +46,12 @@ func (p TimeSlice) Swap(i, j int) {
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
+	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
-	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 
@@ -208,6 +214,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 // CreateVersionsList creates a versions list page based on api model responses
 func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
+	SetTaxonomyDomain(&p.Page)
 	p.Metadata.Title = "Previous versions"
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
@@ -244,11 +251,11 @@ func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dat
 // CreateEditionsList creates a editions list page based on api model responses
 func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
+	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_edition_list"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description
-	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 

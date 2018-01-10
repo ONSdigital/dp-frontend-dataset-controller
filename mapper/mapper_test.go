@@ -5,11 +5,19 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
+	Convey("test SetTaxonomyDomain adds the taxonomy domain to page model", t, func() {
+		os.Setenv("TAXONOMY_DOMAIN", "https://www.ons.gov.uk")
+		p := model.Page{}
+		SetTaxonomyDomain(&p)
+		So(p.TaxonomyDomain, ShouldEqual, "https://www.ons.gov.uk")
+	})
+
 	Convey("test CreateFilterableLandingPage", t, func() {
 		d := dataset.Model{
 			CollectionID: "abcdefg",
