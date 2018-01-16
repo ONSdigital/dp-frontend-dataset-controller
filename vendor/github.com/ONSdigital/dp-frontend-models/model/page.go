@@ -17,4 +17,5 @@ type Page struct {
 	Language                         string         `json:"-"`
 	IncludeAssetsIntegrityAttributes bool           `json:"-"`
 	ShowFeedbackForm                 bool           `json:"show_feedback_form"`
+	ReleaseDate                      string         `json:"release_date"`
 }

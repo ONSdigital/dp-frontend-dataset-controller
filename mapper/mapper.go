@@ -54,6 +54,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.Metadata.Description = d.Description
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
+	p.ReleaseDate = ver.ReleaseDate
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
@@ -64,7 +65,6 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
-	p.DatasetLandingPage.DatasetLandingPage.ReleaseDate = ver.ReleaseDate
 	p.DatasetLandingPage.Edition = ver.Edition
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
@@ -106,8 +106,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	v.Description = d.Description
 	v.Edition = ver.Edition
 	v.Version = strconv.Itoa(ver.Version)
-	v.ReleaseDate = ver.ReleaseDate
-
+	
 	p.DatasetLandingPage.HasOlderVersions = displayOtherVersionsLink
 
 	for k, download := range ver.Downloads {
