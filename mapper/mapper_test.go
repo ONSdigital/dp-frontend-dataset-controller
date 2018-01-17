@@ -146,7 +146,7 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Description, ShouldEqual, d.Description)
 		So(v0.Edition, ShouldEqual, v[0].Edition)
 		So(v0.Version, ShouldEqual, strconv.Itoa(v[0].Version))
-		So(v0.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
+		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
 		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
