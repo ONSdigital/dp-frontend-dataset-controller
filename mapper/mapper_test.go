@@ -126,7 +126,7 @@ func TestUnitMapper(t *testing.T) {
 		So(p.ContactDetails.Email, ShouldEqual, d.Contacts[0].Email)
 		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
-		So(p.DatasetLandingPage.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
+		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(p.ShowFeedbackForm, ShouldEqual, true)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
