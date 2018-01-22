@@ -33,6 +33,11 @@ func (e ErrInvalidFilterAPIResponse) Error() string {
 	)
 }
 
+// Code returns the status code received from filter api if an error is returned
+func (e ErrInvalidFilterAPIResponse) Code() int {
+	return e.actualCode
+}
+
 var _ error = ErrInvalidFilterAPIResponse{}
 
 // Client is a filter api client which can be used to make requests to the server
@@ -416,4 +421,32 @@ func (c *Client) AddDimensionValues(filterID, name string, options []string) err
 	}
 
 	return nil
+}
+
+// GetPreview attempts to retrieve a preview for a given filterOutputID
+func (c *Client) GetPreview(filterOutputID string) (p Preview, err error) {
+	uri := fmt.Sprintf("%s/filter-outputs/%s/preview", c.url, filterOutputID)
+
+	clientlog.Do("retrieving preview for filter output job", service, uri, log.Data{
+		"method":   "GET",
+		"filterID": filterOutputID,
+	})
+
+	resp, err := c.cli.Get(uri)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return p, &ErrInvalidFilterAPIResponse{http.StatusOK, resp.StatusCode, uri}
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	err = json.Unmarshal(b, &p)
+	return
 }
