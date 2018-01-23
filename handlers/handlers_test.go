@@ -14,9 +14,37 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+type testCliError struct{}
+
+func (e *testCliError) Error() string { return "client error" }
+func (e *testCliError) Code() int     { return http.StatusNotFound }
+
 func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
+
+	Convey("test setStatusCode", t, func() {
+
+		Convey("test status code handles 404 response from client", func() {
+			req := httptest.NewRequest("GET", "http://localhost:20000", nil)
+			w := httptest.NewRecorder()
+			err := &testCliError{}
+
+			setStatusCode(req, w, err)
+
+			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+
+		Convey("test status code handles internal server error", func() {
+			req := httptest.NewRequest("GET", "http://localhost:20000", nil)
+			w := httptest.NewRecorder()
+			err := errors.New("internal server error")
+
+			setStatusCode(req, w, err)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
 
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
