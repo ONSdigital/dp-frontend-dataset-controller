@@ -46,16 +46,16 @@ func main() {
 		dc.SetInternalToken(cfg.DatasetAPIAuthToken)
 	}
 
-	router.Path("/healthcheck").HandlerFunc(healthcheck.Do)
+	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Do)
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
-	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
-	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, rend))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
-	router.Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc))
+	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc))
 
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
 	if len(cfg.MailHost) > 0 {
 
@@ -73,13 +73,13 @@ func main() {
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
 		log.Debug("adding feedback routes", nil)
-		router.Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
-		router.Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
-		router.Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
-		router.Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks)
+		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
+		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
+		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
+		router.StrictSlash(true).Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks)
 	}
 
-	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
+	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
 
 	log.Debug("Starting server", log.Data{
 		"bind_addr":       cfg.BindAddr,
