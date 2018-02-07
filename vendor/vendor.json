@@ -93,6 +93,12 @@
 			"revisionTime": "2017-07-07T13:12:26Z"
 		},
 		{
+			"checksumSHA1": "eqT3lUe+1W+njYJOealHQ+LsXv0=",
+			"path": "github.com/ONSdigital/go-ns/rchttp",
+			"revision": "4e0856cfc45ba7e5055256151d29c1037ef51f88",
+			"revisionTime": "2018-02-07T11:04:46Z"
+		},
+		{
 			"checksumSHA1": "Ohl8JaJRUL+/Y+NTL8y97PZlFfs=",
 			"path": "github.com/ONSdigital/go-ns/rhttp",
 			"revision": "8d823faf3c9b2cd9dd887b6e941ac7818688053a",
@@ -250,6 +256,12 @@
 		{
 			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
 			"path": "golang.org/x/net/context",
+			"revision": "a8b9294777976932365dabb6640cf1468d95c70f",
+			"revisionTime": "2017-11-29T19:21:16Z"
+		},
+		{
+			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+			"path": "golang.org/x/net/context/ctxhttp",
 			"revision": "a8b9294777976932365dabb6640cf1468d95c70f",
 			"revisionTime": "2017-11-29T19:21:16Z"
 		},
