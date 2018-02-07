@@ -11,12 +11,12 @@ type Config struct {
 	FilterAPIURL        string `env:"FILTER_API_URL"`
 	DatasetAPIURL       string `env:"DATASET_API_URL"`
 	DatasetAPIAuthToken string `env:"DATASET_API_AUTH_TOKEN"`
-	MailHost      string `env:"MAIL_HOST"`
-	MailUser      string `env:"MAIL_USER"`
-	MailPassword  string `env:"MAIL_PASSWORD"`
-	MailPort      string `env:"MAIL_PORT"`
-	FeedbackTo    string `env:"FEEDBACK_TO"`
-	FeedbackFrom  string `env:"FEEDBACK_FROM"`
+	MailHost            string `env:"MAIL_HOST"`
+	MailUser            string `env:"MAIL_USER"`
+	MailPassword        string `env:"MAIL_PASSWORD"`
+	MailPort            string `env:"MAIL_PORT"`
+	FeedbackTo          string `env:"FEEDBACK_TO"`
+	FeedbackFrom        string `env:"FEEDBACK_FROM"`
 }
 
 func init() {
