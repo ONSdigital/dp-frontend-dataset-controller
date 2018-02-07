@@ -35,7 +35,7 @@ func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) 
 func main() {
 	cfg := config.Get()
 
-	log.Namespace = "frontend-dataset-controller"
+	log.Namespace = "dp-frontend-dataset-controller"
 
 	router := mux.NewRouter()
 
