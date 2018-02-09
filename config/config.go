@@ -21,17 +21,18 @@ type Config struct {
 
 func init() {
 	cfg = Config{
-		BindAddr:      ":20200",
-		ZebedeeURL:    "http://localhost:8082",
-		RendererURL:   "http://localhost:20010",
-		FilterAPIURL:  "http://localhost:22100",
-		DatasetAPIURL: "http://localhost:22000",
-		MailHost:      "",
-		MailPort:      "",
-		MailUser:      "",
-		MailPassword:  "",
-		FeedbackTo:    "",
-		FeedbackFrom:  "",
+		BindAddr:            ":20200",
+		ZebedeeURL:          "http://localhost:8082",
+		RendererURL:         "http://localhost:20010",
+		FilterAPIURL:        "http://localhost:22100",
+		DatasetAPIURL:       "http://localhost:22000",
+		DatasetAPIAuthToken: "FD0108EA-825D-411C-9B1D-41EF7727F465",
+		MailHost:            "",
+		MailPort:            "",
+		MailUser:            "",
+		MailPassword:        "",
+		FeedbackTo:          "",
+		FeedbackFrom:        "",
 	}
 	err := gofigure.Gofigure(&cfg)
 	if err != nil {

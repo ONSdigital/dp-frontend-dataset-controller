@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 
@@ -17,6 +16,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/clients/dataset"
+	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
@@ -25,14 +25,12 @@ import (
 
 const dataEndpoint = `\/data$`
 
-var datasetAuthToken = os.Getenv("DATASET_API_AUTH_TOKEN")
-
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateBlueprint(datasetFilterID string, names []string) (string, error)
-	AddDimension(id, name string) error
-	AddDimensionValue(filterID, name, value string) error
+	CreateBlueprint(datasetFilterID string, names []string, cfg ...filter.Config) (string, error)
+	AddDimension(id, name string, cfg ...filter.Config) error
+	AddDimensionValue(filterID, name, value string, cfg ...filter.Config) error
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -71,12 +69,15 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	w.WriteHeader(status)
 }
 
-func setAuthTokenIfRequired(req *http.Request) []dataset.Config {
+func setAuthTokenIfRequired(req *http.Request) ([]dataset.Config, []filter.Config) {
 	var datasetConfig []dataset.Config
+	var filterConfig []filter.Config
 	if len(req.Header.Get("X-Florence-Token")) > 0 {
-		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: datasetAuthToken})
+		cfg := config.Get()
+		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken})
+		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.DatasetAPIAuthToken})
 	}
-	return datasetConfig
+	return datasetConfig, filterConfig
 }
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
@@ -88,7 +89,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		edition := vars["editionID"]
 		version := vars["versionID"]
 
-		datasetCfg := setAuthTokenIfRequired(req)
+		datasetCfg, filterConfig := setAuthTokenIfRequired(req)
 
 		datasetModel, err := dc.GetVersion(datasetID, edition, version, datasetCfg...)
 		if err != nil {
@@ -115,7 +116,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			}
 		}
 
-		fid, err := c.CreateBlueprint(datasetModel.ID, names)
+		fid, err := c.CreateBlueprint(datasetModel.ID, names, filterConfig...)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -163,7 +164,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
 
-	datasetCfg := setAuthTokenIfRequired(req)
+	datasetCfg, _ := setAuthTokenIfRequired(req)
 
 	d, err := dc.Get(datasetID, datasetCfg...)
 	if err != nil {
@@ -205,7 +206,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	edition := vars["editionID"]
 	version := vars["versionID"]
 
-	datasetCfg := setAuthTokenIfRequired(req)
+	datasetCfg, _ := setAuthTokenIfRequired(req)
 
 	datasetModel, err := dc.Get(datasetID, datasetCfg...)
 	if err != nil {
@@ -304,7 +305,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 
-	datasetCfg := setAuthTokenIfRequired(req)
+	datasetCfg, _ := setAuthTokenIfRequired(req)
 
 	datasetModel, err := dc.Get(datasetID, datasetCfg...)
 	if err != nil {
@@ -407,7 +408,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
 	edition := vars["edition"]
 	version := vars["version"]
 
-	datasetCfg := setAuthTokenIfRequired(req)
+	datasetCfg, _ := setAuthTokenIfRequired(req)
 
 	metadata, err := dc.GetVersionMetadata(datasetID, edition, version, datasetCfg...)
 	if err != nil {
@@ -436,7 +437,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
 func getText(dc DatasetClient, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.Dimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
-	datasetCfg := setAuthTokenIfRequired(req)
+	datasetCfg, _ := setAuthTokenIfRequired(req)
 
 	b.WriteString(metadata.String())
 	b.WriteString("Dimensions:\n")
