@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	dataset "github.com/ONSdigital/go-ns/clients/dataset"
+	"github.com/ONSdigital/go-ns/clients/filter"
 	data "github.com/ONSdigital/go-ns/zebedee/data"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -215,40 +216,55 @@ func (m *MockFilterClient) EXPECT() *MockFilterClientMockRecorder {
 }
 
 // AddDimension mocks base method
-func (m *MockFilterClient) AddDimension(arg0, arg1 string) error {
-	ret := m.ctrl.Call(m, "AddDimension", arg0, arg1)
+func (m *MockFilterClient) AddDimension(arg0, arg1 string, arg2 ...filter.Config) error {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddDimension", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddDimension indicates an expected call of AddDimension
-func (mr *MockFilterClientMockRecorder) AddDimension(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimension", reflect.TypeOf((*MockFilterClient)(nil).AddDimension), arg0, arg1)
+func (mr *MockFilterClientMockRecorder) AddDimension(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimension", reflect.TypeOf((*MockFilterClient)(nil).AddDimension), varargs...)
 }
 
 // AddDimensionValue mocks base method
-func (m *MockFilterClient) AddDimensionValue(arg0, arg1, arg2 string) error {
-	ret := m.ctrl.Call(m, "AddDimensionValue", arg0, arg1, arg2)
+func (m *MockFilterClient) AddDimensionValue(arg0, arg1, arg2 string, arg3 ...filter.Config) error {
+	varargs := []interface{}{arg0, arg1, arg2}
+	for _, a := range arg3 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddDimensionValue", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddDimensionValue indicates an expected call of AddDimensionValue
-func (mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimensionValue", reflect.TypeOf((*MockFilterClient)(nil).AddDimensionValue), arg0, arg1, arg2)
+func (mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 interface{}, arg3 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1, arg2}, arg3...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDimensionValue", reflect.TypeOf((*MockFilterClient)(nil).AddDimensionValue), varargs...)
 }
 
 // CreateBlueprint mocks base method
-func (m *MockFilterClient) CreateBlueprint(arg0 string, arg1 []string) (string, error) {
-	ret := m.ctrl.Call(m, "CreateBlueprint", arg0, arg1)
+func (m *MockFilterClient) CreateBlueprint(arg0 string, arg1 []string, arg2 ...filter.Config) (string, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateBlueprint", varargs...)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateBlueprint indicates an expected call of CreateBlueprint
-func (mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), arg0, arg1)
+func (mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), varargs...)
 }
 
 // Healthcheck mocks base method
