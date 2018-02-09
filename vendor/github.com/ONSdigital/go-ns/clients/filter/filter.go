@@ -51,6 +51,12 @@ type Client struct {
 	url string
 }
 
+func (c *Client) setInternalTokenHeader(req *http.Request, cfg ...Config) {
+	if len(cfg) > 0 {
+		req.Header.Set("Internal-token", cfg[0].InternalToken)
+	}
+}
+
 // New creates a new instance of Client with a given filter api url
 func New(filterAPIURL string) *Client {
 	return &Client{
@@ -79,7 +85,13 @@ func (c *Client) GetOutput(filterOutputID string, cfg ...Config) (m Model, err e
 
 	clientlog.Do("retrieving filter output", service, uri)
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
@@ -105,7 +117,13 @@ func (c *Client) GetDimension(filterID, name string, cfg ...Config) (dim Dimensi
 
 	clientlog.Do("retrieving dimension information", service, uri)
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
@@ -136,7 +154,13 @@ func (c *Client) GetDimensions(filterID string, cfg ...Config) (dims []Dimension
 
 	clientlog.Do("retrieving all dimensions for given filter job", service, uri)
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
@@ -162,7 +186,13 @@ func (c *Client) GetDimensionOptions(filterID, name string, cfg ...Config) (opts
 
 	clientlog.Do("retrieving selected dimension options for filter job", service, uri)
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
@@ -206,7 +236,13 @@ func (c *Client) CreateBlueprint(instanceID string, names []string, cfg ...Confi
 		"instanceID": instanceID,
 	})
 
-	resp, err := c.cli.Post(uri, "application/json", bytes.NewBuffer(b))
+	req, err := http.NewRequest("POST", uri, bytes.NewBuffer(b))
+	if err != nil {
+		return "", err
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -250,6 +286,7 @@ func (c *Client) UpdateBlueprint(m Model, doSubmit bool, cfg ...Config) (mdl Mod
 	if err != nil {
 		return
 	}
+	c.setInternalTokenHeader(req, cfg...)
 
 	resp, err := c.cli.Do(req)
 	if err != nil {
@@ -286,6 +323,7 @@ func (c *Client) AddDimensionValue(filterID, name, value string, cfg ...Config) 
 	if err != nil {
 		return err
 	}
+	c.setInternalTokenHeader(req, cfg...)
 
 	resp, err := c.cli.Do(req)
 	if err != nil {
@@ -306,6 +344,7 @@ func (c *Client) RemoveDimensionValue(filterID, name, value string, cfg ...Confi
 	if err != nil {
 		return err
 	}
+	c.setInternalTokenHeader(req, cfg...)
 
 	clientlog.Do("removing dimension option from filter job", service, uri, log.Data{
 		"method": "DELETE",
@@ -336,6 +375,7 @@ func (c *Client) RemoveDimension(filterID, name string, cfg ...Config) (err erro
 	if err != nil {
 		return
 	}
+	c.setInternalTokenHeader(req, cfg...)
 
 	resp, err := c.cli.Do(req)
 	if err != nil {
@@ -358,7 +398,13 @@ func (c *Client) AddDimension(id, name string, cfg ...Config) error {
 		"dimension": name,
 	})
 
-	resp, err := c.cli.Post(uri, "application/json", bytes.NewBufferString(`{}`))
+	req, err := http.NewRequest("POST", uri, bytes.NewBufferString(`{}`))
+	if err != nil {
+		return err
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return err
 	}
@@ -376,7 +422,13 @@ func (c *Client) GetJobState(filterID string, cfg ...Config) (m Model, err error
 
 	clientlog.Do("retrieving filter job state", service, uri)
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
@@ -416,7 +468,13 @@ func (c *Client) AddDimensionValues(filterID, name string, options []string, cfg
 		return err
 	}
 
-	resp, err := c.cli.Post(uri, "application/json", bytes.NewBuffer(b))
+	req, err := http.NewRequest("POST", uri, bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return err
 	}
@@ -437,7 +495,13 @@ func (c *Client) GetPreview(filterOutputID string, cfg ...Config) (p Preview, er
 		"filterID": filterOutputID,
 	})
 
-	resp, err := c.cli.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setInternalTokenHeader(req, cfg...)
+
+	resp, err := c.cli.Do(req)
 	if err != nil {
 		return
 	}
