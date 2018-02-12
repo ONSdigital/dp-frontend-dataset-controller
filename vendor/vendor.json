@@ -3,6 +3,24 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "6h0BxzDuAXEGtuDM5pfUtwfq0Rk=",
+			"path": "github.com/ONSdigital/dp-frontend-dataset-controller",
+			"revision": "916e7d4f23de146d3ff5fbf14f157b3887d6b20b",
+			"revisionTime": "2017-07-10T09:11:01Z"
+		},
+		{
+			"checksumSHA1": "xZhyZaP9k1ctVD0f4hK89XAmhns=",
+			"path": "github.com/ONSdigital/dp-frontend-dataset-controller/config",
+			"revision": "916e7d4f23de146d3ff5fbf14f157b3887d6b20b",
+			"revisionTime": "2017-07-10T09:11:01Z"
+		},
+		{
+			"checksumSHA1": "E8IDXSZE5Vd+d7wnxK4D2dTtpX4=",
+			"path": "github.com/ONSdigital/dp-frontend-dataset-controller/handlers",
+			"revision": "916e7d4f23de146d3ff5fbf14f157b3887d6b20b",
+			"revisionTime": "2017-07-10T09:11:01Z"
+		},
+		{
 			"checksumSHA1": "HGcaKsLnyiPHC1fYKvGTIH00Z4c=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model",
 			"revision": "f390250319d1524b758e8bccc351d6916cebd2c0",
