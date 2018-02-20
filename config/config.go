@@ -11,6 +11,7 @@ type Config struct {
 	FilterAPIURL        string `env:"FILTER_API_URL"`
 	DatasetAPIURL       string `env:"DATASET_API_URL"`
 	DatasetAPIAuthToken string `env:"DATASET_API_AUTH_TOKEN"`
+	FilterAPIAuthToken  string `env:"FILTER_API_AUTH_TOKEN"`
 	MailHost            string `env:"MAIL_HOST"`
 	MailUser            string `env:"MAIL_USER"`
 	MailPassword        string `env:"MAIL_PASSWORD"`
@@ -27,6 +28,7 @@ func init() {
 		FilterAPIURL:        "http://localhost:22100",
 		DatasetAPIURL:       "http://localhost:22000",
 		DatasetAPIAuthToken: "FD0108EA-825D-411C-9B1D-41EF7727F465",
+		FilterAPIAuthToken:  "FD0108EA-825D-411C-9B1D-41EF7727F465",
 		MailHost:            "",
 		MailPort:            "",
 		MailUser:            "",
