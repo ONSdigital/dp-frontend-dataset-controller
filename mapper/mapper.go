@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/log"
+	"github.com/ONSdigital/go-ns/zebedee/data"
 )
 
 // SetTaxonomyDomain will set the taxonomy domain for a given pages
@@ -44,7 +45,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
@@ -55,6 +56,13 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
+
+	for _, breadcrumb := range breadcrumbs {
+		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
+			Title: breadcrumb.Description.Title,
+			URI:   breadcrumb.URI,
+		})
+	}
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
@@ -106,7 +114,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 	v.Description = d.Description
 	v.Edition = ver.Edition
 	v.Version = strconv.Itoa(ver.Version)
-	
+
 	p.DatasetLandingPage.HasOlderVersions = displayOtherVersionsLink
 
 	for k, download := range ver.Downloads {
