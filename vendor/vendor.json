@@ -45,16 +45,16 @@
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "n5+JJ8qAGE1Bg0T1ZHz1IcAPHoM=",
+			"checksumSHA1": "QojtNCt6HfbdehpTezbPIW2vIDc=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "ede53373c9eac7c63f0652b90a38d5dd81739665",
-			"revisionTime": "2018-01-22T11:04:58Z"
+			"revision": "60d3c9b03c74c060617327747e8fc0a36a029d58",
+			"revisionTime": "2018-02-07T13:54:15Z"
 		},
 		{
-			"checksumSHA1": "59BNELbYkk2me7OINUyfxeHKh/Q=",
+			"checksumSHA1": "AzqHCsmu1F7/40oP5UcD5kkFtVc=",
 			"path": "github.com/ONSdigital/go-ns/clients/filter",
-			"revision": "ede53373c9eac7c63f0652b90a38d5dd81739665",
-			"revisionTime": "2018-01-22T11:04:58Z"
+			"revision": "60d3c9b03c74c060617327747e8fc0a36a029d58",
+			"revisionTime": "2018-02-07T13:54:15Z"
 		},
 		{
 			"checksumSHA1": "ErW+zGTol4Phhd2tPg4hhSO/02I=",
@@ -81,10 +81,22 @@
 			"revisionTime": "2017-08-30T09:50:52Z"
 		},
 		{
+			"checksumSHA1": "mZbyvsoM+r0Vi+4g2/pYoKUmBN4=",
+			"path": "github.com/ONSdigital/go-ns/identity",
+			"revision": "4e0856cfc45ba7e5055256151d29c1037ef51f88",
+			"revisionTime": "2018-02-07T11:04:46Z"
+		},
+		{
 			"checksumSHA1": "AjbjbhFVAOP/1NU5HL+uy+X/yJo=",
 			"path": "github.com/ONSdigital/go-ns/log",
 			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
 			"revisionTime": "2017-07-07T13:12:26Z"
+		},
+		{
+			"checksumSHA1": "eqT3lUe+1W+njYJOealHQ+LsXv0=",
+			"path": "github.com/ONSdigital/go-ns/rchttp",
+			"revision": "4e0856cfc45ba7e5055256151d29c1037ef51f88",
+			"revisionTime": "2018-02-07T11:04:46Z"
 		},
 		{
 			"checksumSHA1": "Ohl8JaJRUL+/Y+NTL8y97PZlFfs=",
@@ -244,6 +256,12 @@
 		{
 			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
 			"path": "golang.org/x/net/context",
+			"revision": "a8b9294777976932365dabb6640cf1468d95c70f",
+			"revisionTime": "2017-11-29T19:21:16Z"
+		},
+		{
+			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+			"path": "golang.org/x/net/context/ctxhttp",
 			"revision": "a8b9294777976932365dabb6640cf1468d95c70f",
 			"revisionTime": "2017-11-29T19:21:16Z"
 		},
