@@ -220,8 +220,9 @@ func TestUnitHandlers(t *testing.T) {
 
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
-			mockClient.EXPECT().Get("12345").Return(dataset.Model{Contacts: []dataset.Contact{{Name: "Matt"}}, Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
+			mockClient.EXPECT().Get("12345").Return(dataset.Model{Contacts: []dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion("12345", "5678", "2017").Return(versions[0], nil)
@@ -248,6 +249,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetOptions("12345", "5678", "2017", "aggregate").Return(opts, nil)
 			mockClient.EXPECT().GetVersionMetadata("12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions("12345", "5678", "2017", "aggregate").Return(opts, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb("/economy/grossdomesticproduct/datasets/gdpjanuary2018")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -256,7 +258,7 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient))
 
 			router.ServeHTTP(w, req)
 
@@ -265,6 +267,7 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 500 if client Get() returns an error", func() {
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, errors.New("sorry"))
 
@@ -272,7 +275,7 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, nil))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, nil, mockZebedeeClient))
 
 			router.ServeHTTP(w, req)
 
@@ -280,16 +283,18 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 500 if client GetVersions() returns error", func() {
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions("12345", "5678").Return(versions, errors.New("sorry"))
+			mockZebedeeClient.EXPECT().GetBreadcrumb("")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, nil))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, nil, mockZebedeeClient))
 
 			router.ServeHTTP(w, req)
 
@@ -297,6 +302,7 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 500 if renderer returns error", func() {
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockClient.EXPECT().Get("12345").Return(dataset.Model{}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
@@ -304,6 +310,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetVersion("12345", "5678", "1").Return(versions[0], nil)
 			mockClient.EXPECT().GetDimensions("12345", "5678", "1")
 			mockClient.EXPECT().GetVersionMetadata("12345", "5678", "1")
+			mockZebedeeClient.EXPECT().GetBreadcrumb("")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return(nil, errors.New("error from renderer"))
@@ -312,7 +319,7 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678/versions/1", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockRend))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient))
 
 			router.ServeHTTP(w, req)
 
