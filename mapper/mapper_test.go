@@ -7,6 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/go-ns/clients/dataset"
+	"github.com/ONSdigital/go-ns/zebedee/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -71,6 +72,11 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
+		breadcrumbItem := data.Breadcrumb{
+			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			Description: data.NodeDescription{Title: "GDP: January 2018"},
+		}
+
 		p := CreateFilterableLandingPage(d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
@@ -115,7 +121,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false)
+		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem})
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -128,6 +134,8 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(p.ShowFeedbackForm, ShouldEqual, true)
+		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
+		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
@@ -155,7 +163,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
 		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
 
-		p := CreateFilterableLandingPage(dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false)
+		p := CreateFilterableLandingPage(dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{})
 
 		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
 
