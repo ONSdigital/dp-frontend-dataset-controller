@@ -136,10 +136,10 @@ func LegacyLanding(zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
 }
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, rend RenderClient) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		filterableLanding(w, req, dc, rend, cfg)
+		filterableLanding(w, req, dc, rend, zc, cfg)
 	}
 }
 
@@ -200,7 +200,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	w.Write(templateHTML)
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
@@ -212,6 +212,23 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
+	}
+
+	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
+		zc.SetAccessToken(c.Value)
+	}
+	bc, err := zc.GetBreadcrumb(datasetModel.URI)
+	if err != nil {
+		log.ErrorR(req, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
+	}
+
+	if len(bc) > 0 {
+		bc = append(bc, data.Breadcrumb{
+			Description: data.NodeDescription{
+				Title: datasetModel.Title,
+			},
+			URI: datasetModel.Links.Self.URL,
+		})
 	}
 
 	if len(edition) == 0 {
@@ -283,7 +300,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink)
+	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
 	b, err := json.Marshal(m)
 	if err != nil {
