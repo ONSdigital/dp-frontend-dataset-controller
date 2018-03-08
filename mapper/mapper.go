@@ -148,6 +148,9 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			for _, dimension := range dims.Items {
 				if dimension.ID == opt.Items[0].DimensionID {
 					pDim.Description = dimension.Description
+					if len(dimension.Label) > 0 {
+						pDim.Title = dimension.Label
+					}
 				}
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
