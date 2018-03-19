@@ -250,9 +250,9 @@ func (mr *MockFilterClientMockRecorder) AddDimensionValue(arg0, arg1, arg2 inter
 }
 
 // CreateBlueprint mocks base method
-func (m *MockFilterClient) CreateBlueprint(arg0 string, arg1 []string, arg2 ...filter.Config) (string, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
+func (m *MockFilterClient) CreateBlueprint(arg0, arg1, arg2 string, arg3 []string, arg4 ...filter.Config) (string, error) {
+	varargs := []interface{}{arg0, arg1, arg2, arg3}
+	for _, a := range arg4 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateBlueprint", varargs...)
@@ -262,8 +262,8 @@ func (m *MockFilterClient) CreateBlueprint(arg0 string, arg1 []string, arg2 ...f
 }
 
 // CreateBlueprint indicates an expected call of CreateBlueprint
-func (mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
+func (mr *MockFilterClientMockRecorder) CreateBlueprint(arg0, arg1, arg2, arg3 interface{}, arg4 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1, arg2, arg3}, arg4...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), varargs...)
 }
 

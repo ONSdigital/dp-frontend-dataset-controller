@@ -49,7 +49,7 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint("87654321", []string{"aggregate", "time"}).Return("12345", nil)
+			mockClient.EXPECT().CreateBlueprint("1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.Dimensions{
@@ -75,7 +75,6 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient.EXPECT().GetDimensions("1234", "5678", "2017").Return(dims, nil)
 			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "aggregate").Return(opts, nil)
 			mockDatasetClient.EXPECT().GetOptions("1234", "5678", "2017", "time").Return(opts, nil)
-			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017").Return(dataset.Version{ID: "87654321"}, nil)
 
 			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))
 
@@ -87,10 +86,9 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(gomock.Any(), gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
+			mockClient.EXPECT().CreateBlueprint("1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockDatasetClient.EXPECT().GetVersion("1234", "5678", "2017")
 			mockDatasetClient.EXPECT().GetDimensions("1234", "5678", "2017").Return(dataset.Dimensions{}, nil)
 
 			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient))

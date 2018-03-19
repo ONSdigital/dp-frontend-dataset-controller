@@ -45,16 +45,16 @@
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "L/oM4QPmlP/v75cYEZ9fVyW5O7s=",
+			"checksumSHA1": "qKZ4wSuQReyMXR5EgM45gNMcV/Q=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "e29753fe5b1f1329fee8db1de8ab3274c187a3ec",
-			"revisionTime": "2018-03-06T11:43:28Z"
+			"revision": "27be34329dfd57fa61c5dde246668c8efb31d361",
+			"revisionTime": "2018-03-15T11:53:57Z"
 		},
 		{
-			"checksumSHA1": "AzqHCsmu1F7/40oP5UcD5kkFtVc=",
+			"checksumSHA1": "y31I7P4RZtM/52PV/OWMV3d7eHM=",
 			"path": "github.com/ONSdigital/go-ns/clients/filter",
-			"revision": "60d3c9b03c74c060617327747e8fc0a36a029d58",
-			"revisionTime": "2018-02-07T13:54:15Z"
+			"revision": "2eff3776922c90ffa4438d1c0935a5e6723a1c7c",
+			"revisionTime": "2018-03-07T09:13:24Z"
 		},
 		{
 			"checksumSHA1": "ErW+zGTol4Phhd2tPg4hhSO/02I=",

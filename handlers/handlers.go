@@ -28,7 +28,7 @@ const dataEndpoint = `\/data$`
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateBlueprint(datasetFilterID string, names []string, cfg ...filter.Config) (string, error)
+	CreateBlueprint(datasetID, edition, version string, names []string, cfg ...filter.Config) (string, error)
 	AddDimension(id, name string, cfg ...filter.Config) error
 	AddDimensionValue(filterID, name, value string, cfg ...filter.Config) error
 }
@@ -91,12 +91,6 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 
 		datasetCfg, filterConfig := setAuthTokenIfRequired(req)
 
-		datasetModel, err := dc.GetVersion(datasetID, edition, version, datasetCfg...)
-		if err != nil {
-			setStatusCode(req, w, err)
-			return
-		}
-
 		dimensions, err := dc.GetDimensions(datasetID, edition, version, datasetCfg...)
 		if err != nil {
 			setStatusCode(req, w, err)
@@ -116,7 +110,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			}
 		}
 
-		fid, err := c.CreateBlueprint(datasetModel.ID, names, filterConfig...)
+		fid, err := c.CreateBlueprint(datasetID, edition, version, names, filterConfig...)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
