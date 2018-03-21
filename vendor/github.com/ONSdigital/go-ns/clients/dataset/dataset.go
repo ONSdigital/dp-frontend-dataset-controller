@@ -258,7 +258,9 @@ func (c *Client) GetEditions(id string, cfg ...Config) (m []Edition, err error) 
 		for _, item := range body["items"].([]interface{}) {
 			items = append(items, item.(map[string]interface{})["next"].(map[string]interface{}))
 		}
-		b, err = json.Marshal(items)
+		parentItems := make(map[string]interface{})
+		parentItems["items"] = items
+		b, err = json.Marshal(parentItems)
 		if err != nil {
 			return
 		}
@@ -312,6 +314,38 @@ func (c *Client) GetVersions(id, edition string, cfg ...Config) (m []Version, er
 // GetVersion gets a specific version for an edition from the dataset api
 func (c *Client) GetVersion(id, edition, version string, cfg ...Config) (m Version, err error) {
 	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s", c.url, id, edition, version)
+
+	clientlog.Do("retrieving dataset version", service, uri)
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+	c.setRequestHeaders(req, cfg...)
+
+	resp, err := c.doRequest(req, cfg...)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		err = &ErrInvalidDatasetAPIResponse{http.StatusOK, resp.StatusCode, uri}
+		return
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	err = json.Unmarshal(b, &m)
+	return
+}
+
+// GetInstance returns an instance from the dataset api
+func (c *Client) GetInstance(instanceID string, cfg ...Config) (m Instance, err error) {
+	uri := fmt.Sprintf("%s/instances/%s", c.url, instanceID)
 
 	clientlog.Do("retrieving dataset version", service, uri)
 
