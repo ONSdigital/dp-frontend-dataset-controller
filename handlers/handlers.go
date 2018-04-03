@@ -74,8 +74,8 @@ func setAuthTokenIfRequired(req *http.Request) ([]dataset.Config, []filter.Confi
 	var filterConfig []filter.Config
 	if len(req.Header.Get("X-Florence-Token")) > 0 {
 		cfg := config.Get()
-		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken})
-		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.FilterAPIAuthToken})
+		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken, FlorenceToken: req.Header.Get("X-Florence-Token")})
+		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.FilterAPIAuthToken, FlorenceToken: req.Header.Get("X-Florence-Token")})
 	}
 	return datasetConfig, filterConfig
 }
