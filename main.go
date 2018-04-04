@@ -14,12 +14,10 @@ import (
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
 	"github.com/ONSdigital/go-ns/healthcheck"
-	"github.com/ONSdigital/go-ns/identity"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 )
 
 type unencryptedAuth struct {
@@ -45,8 +43,6 @@ func main() {
 	rend := renderer.New(cfg.RendererURL)
 
 	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Do)
-
-	alice := alice.New(identity.Handler(true)).Then(router)
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
@@ -90,7 +86,7 @@ func main() {
 		"filter_api_url":  cfg.FilterAPIURL,
 	})
 
-	s := server.New(cfg.BindAddr, alice)
+	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
 
 	go func() {
