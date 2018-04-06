@@ -327,8 +327,12 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 
 	datasetEditions, err := dc.GetEditions(datasetID, datasetCfg...)
 	if err != nil {
-		setStatusCode(req, w, err)
-		return
+		if err, ok := err.(ClientError); ok {
+			if err.Code() != http.StatusNotFound {
+				setStatusCode(req, w, err)
+				return
+			}
+		}
 	}
 
 	m := mapper.CreateEditionsList(datasetModel, datasetEditions, datasetID)
