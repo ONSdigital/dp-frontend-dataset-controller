@@ -72,10 +72,11 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 func setAuthTokenIfRequired(req *http.Request) ([]dataset.Config, []filter.Config) {
 	var datasetConfig []dataset.Config
 	var filterConfig []filter.Config
-	if len(req.Header.Get("X-Florence-Token")) > 0 {
+	florenceToken := req.Header.Get("X-Florence-Token")
+	if len(florenceToken) > 0 {
 		cfg := config.Get()
-		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken})
-		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.FilterAPIAuthToken})
+		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken, FlorenceToken: florenceToken})
+		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.FilterAPIAuthToken, FlorenceToken: florenceToken})
 	}
 	return datasetConfig, filterConfig
 }
@@ -326,8 +327,12 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 
 	datasetEditions, err := dc.GetEditions(datasetID, datasetCfg...)
 	if err != nil {
-		setStatusCode(req, w, err)
-		return
+		if err, ok := err.(ClientError); ok {
+			if err.Code() != http.StatusNotFound {
+				setStatusCode(req, w, err)
+				return
+			}
+		}
 	}
 
 	m := mapper.CreateEditionsList(datasetModel, datasetEditions, datasetID)

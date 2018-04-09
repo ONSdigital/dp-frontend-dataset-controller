@@ -278,7 +278,7 @@ func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID s
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
-	if len(editions) > 0 {
+	if editions != nil && len(editions) > 0 {
 		for _, edition := range editions {
 
 			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
