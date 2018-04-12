@@ -45,10 +45,10 @@
 			"revisionTime": "2017-10-09T08:31:24Z"
 		},
 		{
-			"checksumSHA1": "zt4AInA1RMIfycBvLcJv+DDqXRs=",
+			"checksumSHA1": "xRTwEHxBNsXB1jkEvIwnR8kbgiw=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "78211135ddc39f6b26b465593c604c37ae98f932",
-			"revisionTime": "2018-04-03T14:39:30Z"
+			"revision": "16d2de7ab06b72607f9c5a40f3dafffa2eff9ed3",
+			"revisionTime": "2018-03-20T08:53:04Z"
 		},
 		{
 			"checksumSHA1": "js2NWe8+dCfeM6PzSjC7odLwEdg=",
