@@ -297,6 +297,18 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
+	for _, d := range m.DatasetLandingPage.Version.Downloads {
+		if len(cfg.DownloadServiceURL) > 0 {
+			downloadURL, err := url.Parse(d.URI)
+			if err != nil {
+				setStatusCode(req, w, err)
+				return
+			}
+
+			d.URI = cfg.DownloadServiceURL + downloadURL.Path
+		}
+	}
+
 	b, err := json.Marshal(m)
 	if err != nil {
 		setStatusCode(req, w, err)
