@@ -16,7 +16,7 @@ job "dp-frontend-dataset-controller" {
       value     = "web"
     }
 
-    task "dp-frontend-dataset-controller" {
+    task "dp-frontend-dataset-controller-web" {
       driver = "exec"
 
       artifact {
@@ -56,7 +56,7 @@ job "dp-frontend-dataset-controller" {
       }
 
       vault {
-        policies = ["dp-frontend-dataset-controller"]
+        policies = ["dp-frontend-dataset-controller-web"]
       }
     }
   }
@@ -69,7 +69,7 @@ job "dp-frontend-dataset-controller" {
       value     = "publishing"
     }
 
-    task "dp-frontend-dataset-controller" {
+    task "dp-frontend-dataset-controller-publishing" {
       driver = "exec"
 
       artifact {
@@ -109,7 +109,7 @@ job "dp-frontend-dataset-controller" {
       }
 
       vault {
-        policies = ["dp-frontend-dataset-controller"]
+        policies = ["dp-frontend-dataset-controller-publishing"]
       }
     }
   }
