@@ -297,7 +297,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
-	for _, d := range m.DatasetLandingPage.Version.Downloads {
+	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
 			downloadURL, err := url.Parse(d.URI)
 			if err != nil {
@@ -306,6 +306,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			}
 
 			d.URI = cfg.DownloadServiceURL + downloadURL.Path
+			m.DatasetLandingPage.Version.Downloads[i] = d
 		}
 	}
 
