@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/smtp"
 	"regexp"
@@ -71,6 +73,18 @@ func GetFeedback(w http.ResponseWriter, req *http.Request) {
 func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpose, description, name, email string) {
 	var p feedback.Page
 	mapper.SetTaxonomyDomain(&p.Page)
+
+	var services = make(map[string]string)
+	services["cmd"] = "Customising data by applying filters"
+	services["dev"] = "ONS developer website"
+
+	service := services[req.URL.Query().Get("service")]
+	if service == "" {
+		io.Copy(ioutil.Discard, req.Body)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	p.ServiceDescription = service
 
 	p.Metadata.Title = "Feedback"
 	p.Metadata.Description = url
