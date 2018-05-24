@@ -13,7 +13,7 @@ import (
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
-	"github.com/ONSdigital/go-ns/healthcheck"
+	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
@@ -42,7 +42,7 @@ func main() {
 	dc := dataset.New(cfg.DatasetAPIURL)
 	rend := renderer.New(cfg.RendererURL)
 
-	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Do)
+	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Handler)
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
@@ -99,32 +99,12 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, os.Kill)
 
-	for {
-		log.Debug("conducting service healthcheck", log.Data{
-			"services": []string{
-				"filter-api",
-				"dataset-api",
-				"zebedee",
-			},
-		})
+	<-stop
 
-		healthcheck.MonitorExternal(f, zc, dc)
-
-		timer := time.NewTimer(time.Second * 60)
-
-		select {
-		case <-timer.C:
-			continue
-		case <-stop:
-			log.Info("shutting service down gracefully", nil)
-			timer.Stop()
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
-			if err := s.Server.Shutdown(ctx); err != nil {
-				log.Error(err, nil)
-			}
-			return
-		}
+	log.Info("shutting service down gracefully", nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := s.Server.Shutdown(ctx); err != nil {
+		log.Error(err, nil)
 	}
-
 }
