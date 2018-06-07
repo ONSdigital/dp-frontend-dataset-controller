@@ -18,6 +18,7 @@ type Config struct {
 	MailPort            string `env:"MAIL_PORT"`
 	FeedbackTo          string `env:"FEEDBACK_TO"`
 	FeedbackFrom        string `env:"FEEDBACK_FROM"`
+	DownloadServiceURL  string `env:"DOWNLOAD_SERVICE_URL"`
 }
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 		DatasetAPIURL:       "http://localhost:22000",
 		DatasetAPIAuthToken: "FD0108EA-825D-411C-9B1D-41EF7727F465",
 		FilterAPIAuthToken:  "FD0108EA-825D-411C-9B1D-41EF7727F465",
+		DownloadServiceURL:  "http://localhost:23600",
 		MailHost:            "",
 		MailPort:            "",
 		MailUser:            "",
