@@ -65,7 +65,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.ErrorR(req, err, log.Data{"setting-response-status": status})
+	log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
@@ -117,7 +117,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
-		log.Trace("created filter id", log.Data{"filter_id": fid})
+		log.InfoCtx(req.Context(), "created filter id", log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
 	}
 }
@@ -179,7 +179,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	p := mapper.CreateVersionsList(d, e, versions)
+	p := mapper.CreateVersionsList(req.Context(), d, e, versions)
 	b, err := json.Marshal(p)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -214,7 +214,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 	bc, err := zc.GetBreadcrumb(datasetModel.URI)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
+		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
 	}
 
 	if len(bc) > 0 {
@@ -295,7 +295,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	}
 
-	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
+	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -348,7 +348,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		}
 	}
 
-	m := mapper.CreateEditionsList(datasetModel, datasetEditions, datasetID)
+	m := mapper.CreateEditionsList(req.Context(), datasetModel, datasetEditions, datasetID)
 
 	b, err := json.Marshal(m)
 	if err != nil {

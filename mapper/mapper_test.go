@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"context"
 	"os"
 	"strconv"
 	"testing"
@@ -12,6 +13,8 @@ import (
 )
 
 func TestUnitMapper(t *testing.T) {
+	ctx := context.Background()
+
 	Convey("test SetTaxonomyDomain adds the taxonomy domain to page model", t, func() {
 		os.Setenv("TAXONOMY_DOMAIN", "https://www.ons.gov.uk")
 		p := model.Page{}
@@ -77,7 +80,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: data.NodeDescription{Title: "GDP: January 2018"},
 		}
 
-		p := CreateFilterableLandingPage(d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -163,7 +166,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
 		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
 
-		p := CreateFilterableLandingPage(dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{})
+		p := CreateFilterableLandingPage(ctx, dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{})
 
 		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
 
