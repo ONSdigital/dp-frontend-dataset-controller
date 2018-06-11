@@ -33,8 +33,6 @@ func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) 
 func main() {
 	cfg := config.Get()
 
-	ctx := context.Background()
-
 	log.Namespace = "dp-frontend-dataset-controller"
 
 	router := mux.NewRouter()
@@ -70,7 +68,7 @@ func main() {
 
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
-		log.InfoCtx(ctx, "adding feedback routes", nil)
+		log.Info("adding feedback routes", nil)
 		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
 		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
 		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
@@ -79,7 +77,7 @@ func main() {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
 
-	log.InfoCtx(ctx, "Starting server", log.Data{
+	log.Info("Starting server", log.Data{
 		"bind_addr":       cfg.BindAddr,
 		"zebedee_url":     cfg.ZebedeeURL,
 		"renderer_url":    cfg.RendererURL,
@@ -93,7 +91,7 @@ func main() {
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.ErrorCtx(ctx, err, nil)
+			log.Error(err, nil)
 			os.Exit(2)
 		}
 	}()
