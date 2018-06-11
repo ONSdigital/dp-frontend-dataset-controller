@@ -39,9 +39,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	f := filter.New(cfg.FilterAPIURL)
+	f := filter.New(cfg.FilterAPIURL, "", "")
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	dc := dataset.New(cfg.DatasetAPIURL)
+	dc := dataset.NewAPIClient(cfg.DatasetAPIURL, "", "")
 	rend := renderer.New(cfg.RendererURL)
 
 	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Handler)

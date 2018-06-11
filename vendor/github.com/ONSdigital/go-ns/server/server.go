@@ -8,10 +8,12 @@ import (
 
 	"context"
 	"github.com/ONSdigital/go-ns/handlers/requestID"
-	"github.com/ONSdigital/go-ns/handlers/timeout"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/justinas/alice"
 )
+
+const RequestIDHandlerKey string = "RequestID"
+const LogHandlerKey string = "Log"
 
 // Server is a http.Server with sensible defaults, which supports
 // configurable middleware and timeouts, and shuts down cleanly
@@ -30,15 +32,14 @@ type Server struct {
 // New creates a new server
 func New(bindAddr string, router http.Handler) *Server {
 	middleware := map[string]alice.Constructor{
-		"RequestID": requestID.Handler(16),
-		"Log":       log.Handler,
-		"Timeout":   timeout.Handler(10 * time.Second),
+		RequestIDHandlerKey: requestID.Handler(16),
+		LogHandlerKey:       log.Handler,
 	}
 
 	return &Server{
 		Alice:           nil,
 		Middleware:      middleware,
-		MiddlewareOrder: []string{"RequestID", "Log", "Timeout"},
+		MiddlewareOrder: []string{RequestIDHandlerKey, LogHandlerKey},
 		Server: http.Server{
 			Handler:           router,
 			Addr:              bindAddr,
@@ -100,6 +101,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	}
 
 	return s.Server.Shutdown(ctx)
+}
+
+// Close is simply a wrapper around Shutdown that enables Server to be treated as a Closable
+func (s *Server) Close(ctx context.Context) error {
+	return s.Shutdown(ctx)
 }
 
 func (s *Server) listenAndServe() error {

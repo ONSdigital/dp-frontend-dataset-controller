@@ -147,7 +147,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 				log.ErrorCtx(ctx, err, nil)
 			}
 			for _, dimension := range dims.Items {
-				if dimension.ID == opt.Items[0].DimensionID {
+				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Description = dimension.Description
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
