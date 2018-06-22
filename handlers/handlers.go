@@ -287,11 +287,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	ver.Downloads["Text"] = dataset.Download{
-		Size: strconv.Itoa(len(textBytes)),
-		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
-	}
-
 	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
@@ -305,6 +300,15 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			d.URI = cfg.DownloadServiceURL + downloadURL.Path
 			m.DatasetLandingPage.Version.Downloads[i] = d
 		}
+	}
+
+	// This needs to be after the for-loop to add the download files,
+	// because the loop adds the download services domain to the URLs
+	// which this text file doesn't need because it's created on-the-fly
+	// by this app
+	ver.Downloads["Text"] = dataset.Download{
+		Size: strconv.Itoa(len(textBytes)),
+		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	}
 
 	b, err := json.Marshal(m)
