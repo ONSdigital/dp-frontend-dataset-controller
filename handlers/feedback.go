@@ -48,7 +48,7 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 	b, err := json.Marshal(p)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +57,7 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 	templateHTML, err := r.Do("feedback-thanks", b)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -104,7 +104,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 
 	b, err := json.Marshal(p)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -113,7 +113,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 
 	templateHTML, err := r.Do("feedback", b)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -125,7 +125,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		if err := req.ParseForm(); err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorCtx(req.Context(), err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -134,7 +134,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 
 		var f Feedback
 		if err := decoder.Decode(&f, req.Form); err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorCtx(req.Context(), err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -167,7 +167,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 			[]string{to},
 			generateFeedbackMessage(f, from, to, isPositive),
 		); err != nil {
-			log.ErrorR(req, err, nil)
+			log.ErrorCtx(req.Context(), err, nil)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

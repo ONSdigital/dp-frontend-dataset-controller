@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -45,7 +46,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
@@ -143,10 +144,10 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			pDim.Title = title
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 			if err != nil {
-				log.Error(err, nil)
+				log.ErrorCtx(ctx, err, nil)
 			}
 			for _, dimension := range dims.Items {
-				if dimension.ID == opt.Items[0].DimensionID {
+				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Description = dimension.Description
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
@@ -161,7 +162,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 				for _, val := range opt.Items {
 					t, err := convertMMMYYToTime(val.Label)
 					if err != nil {
-						log.Error(err, nil)
+						log.ErrorCtx(ctx, err, nil)
 					}
 					ts = append(ts, t)
 				}
@@ -222,13 +223,13 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	SetTaxonomyDomain(&p.Page)
 	p.Metadata.Title = "Previous versions"
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
-		log.Error(err, nil)
+		log.ErrorCtx(ctx, err, nil)
 	}
 	p.Data.LatestVersionURL = uri.Path
 	p.DatasetId = d.ID
@@ -259,7 +260,7 @@ func CreateVersionsList(d dataset.Model, edition dataset.Edition, versions []dat
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_edition_list"
@@ -283,7 +284,7 @@ func CreateEditionsList(d dataset.Model, editions []dataset.Edition, datasetID s
 
 			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
 			if err != nil {
-				log.Error(err, nil)
+				log.ErrorCtx(ctx, err, nil)
 			}
 			var latestVersionPath = latestVersionURL.Path
 			fmt.Println(latestVersionPath)

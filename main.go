@@ -37,9 +37,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	f := filter.New(cfg.FilterAPIURL)
+	f := filter.New(cfg.FilterAPIURL, "", "")
 	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	dc := dataset.New(cfg.DatasetAPIURL)
+	dc := dataset.NewAPIClient(cfg.DatasetAPIURL, "", "")
 	rend := renderer.New(cfg.RendererURL)
 
 	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Handler)
@@ -68,7 +68,7 @@ func main() {
 
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
-		log.Debug("adding feedback routes", nil)
+		log.Info("adding feedback routes", nil)
 		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
 		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
 		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
@@ -77,7 +77,7 @@ func main() {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
 
-	log.Debug("Starting server", log.Data{
+	log.Info("Starting server", log.Data{
 		"bind_addr":       cfg.BindAddr,
 		"zebedee_url":     cfg.ZebedeeURL,
 		"renderer_url":    cfg.RendererURL,
@@ -101,10 +101,10 @@ func main() {
 
 	<-stop
 
-	log.Info("shutting service down gracefully", nil)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	log.InfoCtx(ctx, "shutting service down gracefully", nil)
 	defer cancel()
 	if err := s.Server.Shutdown(ctx); err != nil {
-		log.Error(err, nil)
+		log.ErrorCtx(ctx, err, nil)
 	}
 }

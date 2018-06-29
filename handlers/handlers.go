@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,13 +11,14 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/clients/dataset"
-	"github.com/ONSdigital/go-ns/clients/filter"
+	"github.com/ONSdigital/go-ns/common"
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
@@ -28,22 +30,22 @@ const dataEndpoint = `\/data$`
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateBlueprint(datasetID, edition, version string, names []string, cfg ...filter.Config) (string, error)
-	AddDimension(id, name string, cfg ...filter.Config) error
-	AddDimensionValue(filterID, name, value string, cfg ...filter.Config) error
+	CreateBlueprint(ctx context.Context, datasetID, edition, version string, names []string) (string, error)
+	AddDimension(ctx context.Context, id, name string) error
+	AddDimensionValue(ctx context.Context, filterID, name, value string) error
 }
 
 // DatasetClient is an interface with methods required for a dataset client
 type DatasetClient interface {
 	healthcheck.Client
-	Get(id string, cfg ...dataset.Config) (m dataset.Model, err error)
-	GetEditions(id string, cfg ...dataset.Config) (m []dataset.Edition, err error)
-	GetEdition(id, edition string, cfg ...dataset.Config) (dataset.Edition, error)
-	GetVersions(id, edition string, cfg ...dataset.Config) (m []dataset.Version, err error)
-	GetVersion(id, edition, version string, cfg ...dataset.Config) (m dataset.Version, err error)
-	GetVersionMetadata(id, edition, version string, cfg ...dataset.Config) (m dataset.Metadata, err error)
-	GetDimensions(id, edition, version string, cfg ...dataset.Config) (m dataset.Dimensions, err error)
-	GetOptions(id, edition, version, dimension string, cfg ...dataset.Config) (m dataset.Options, err error)
+	Get(ctx context.Context, id string) (m dataset.Model, err error)
+	GetEditions(ctx context.Context, id string) (m []dataset.Edition, err error)
+	GetEdition(ctx context.Context, id, edition string) (dataset.Edition, error)
+	GetVersions(ctx context.Context, id, edition string) (m []dataset.Version, err error)
+	GetVersion(ctx context.Context, id, edition, version string) (m dataset.Version, err error)
+	GetVersionMetadata(ctx context.Context, id, edition, version string) (m dataset.Metadata, err error)
+	GetDimensions(ctx context.Context, id, edition, version string) (m dataset.Dimensions, err error)
+	GetOptions(ctx context.Context, id, edition, version, dimension string) (m dataset.Options, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -65,20 +67,16 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.ErrorR(req, err, log.Data{"setting-response-status": status})
+	log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
-func setAuthTokenIfRequired(req *http.Request) ([]dataset.Config, []filter.Config) {
-	var datasetConfig []dataset.Config
-	var filterConfig []filter.Config
-	florenceToken := req.Header.Get("X-Florence-Token")
-	if len(florenceToken) > 0 {
-		cfg := config.Get()
-		datasetConfig = append(datasetConfig, dataset.Config{InternalToken: cfg.DatasetAPIAuthToken, FlorenceToken: florenceToken})
-		filterConfig = append(filterConfig, filter.Config{InternalToken: cfg.FilterAPIAuthToken, FlorenceToken: florenceToken})
+func forwardFlorenceTokenIfRequired(req *http.Request) *http.Request {
+	if len(req.Header.Get(common.FlorenceHeaderKey)) > 0 {
+		ctx := common.SetFlorenceIdentity(req.Context(), req.Header.Get(common.FlorenceHeaderKey))
+		return req.WithContext(ctx)
 	}
-	return datasetConfig, filterConfig
+	return req
 }
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
@@ -90,9 +88,9 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		edition := vars["editionID"]
 		version := vars["versionID"]
 
-		datasetCfg, filterConfig := setAuthTokenIfRequired(req)
+		req = forwardFlorenceTokenIfRequired(req)
 
-		dimensions, err := dc.GetDimensions(datasetID, edition, version, datasetCfg...)
+		dimensions, err := dc.GetDimensions(req.Context(), datasetID, edition, version)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -100,24 +98,24 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 
 		var names []string
 		for _, dim := range dimensions.Items {
-			opts, err := dc.GetOptions(datasetID, edition, version, dim.ID, datasetCfg...)
+			opts, err := dc.GetOptions(req.Context(), datasetID, edition, version, dim.Name)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
 			}
 
 			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
-				names = append(names, dim.ID)
+				names = append(names, dim.Name)
 			}
 		}
 
-		fid, err := c.CreateBlueprint(datasetID, edition, version, names, filterConfig...)
+		fid, err := c.CreateBlueprint(req.Context(), datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
 		}
 
-		log.Trace("created filter id", log.Data{"filter_id": fid})
+		log.InfoCtx(req.Context(), "created filter id", log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
 	}
 }
@@ -159,27 +157,27 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
 
-	datasetCfg, _ := setAuthTokenIfRequired(req)
+	req = forwardFlorenceTokenIfRequired(req)
 
-	d, err := dc.Get(datasetID, datasetCfg...)
+	d, err := dc.Get(req.Context(), datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	versions, err := dc.GetVersions(datasetID, edition, datasetCfg...)
+	versions, err := dc.GetVersions(req.Context(), datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	e, err := dc.GetEdition(datasetID, edition, datasetCfg...)
+	e, err := dc.GetEdition(req.Context(), datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	p := mapper.CreateVersionsList(d, e, versions)
+	p := mapper.CreateVersionsList(req.Context(), d, e, versions)
 	b, err := json.Marshal(p)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -201,9 +199,9 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	edition := vars["editionID"]
 	version := vars["versionID"]
 
-	datasetCfg, _ := setAuthTokenIfRequired(req)
+	req = forwardFlorenceTokenIfRequired(req)
 
-	datasetModel, err := dc.Get(datasetID, datasetCfg...)
+	datasetModel, err := dc.Get(req.Context(), datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -214,7 +212,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 	bc, err := zc.GetBreadcrumb(datasetModel.URI)
 	if err != nil {
-		log.ErrorR(req, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
+		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
 	}
 
 	if len(bc) > 0 {
@@ -240,7 +238,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	allVers, err := dc.GetVersions(datasetID, edition, datasetCfg...)
+	allVers, err := dc.GetVersions(req.Context(), datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -251,13 +249,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		displayOtherVersionsLink = true
 	}
 
-	ver, err := dc.GetVersion(datasetID, edition, version, datasetCfg...)
+	ver, err := dc.GetVersion(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	dims, err := dc.GetDimensions(datasetID, edition, version, datasetCfg...)
+	dims, err := dc.GetDimensions(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -265,7 +263,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	var opts []dataset.Options
 	for _, dim := range dims.Items {
-		opt, err := dc.GetOptions(datasetID, edition, version, dim.ID, datasetCfg...)
+		opt, err := dc.GetOptions(req.Context(), datasetID, edition, version, dim.Name)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -274,7 +272,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
-	metadata, err := dc.GetVersionMetadata(datasetID, edition, version, datasetCfg...)
+	metadata, err := dc.GetVersionMetadata(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -290,12 +288,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	ver.Downloads["Text"] = dataset.Download{
-		Size: strconv.Itoa(len(textBytes)),
-		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
-	}
-
-	m := mapper.CreateFilterableLandingPage(datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
+	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -309,6 +302,16 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			m.DatasetLandingPage.Version.Downloads[i] = d
 		}
 	}
+
+	// This needs to be after the for-loop to add the download files,
+	// because the loop adds the download services domain to the URLs
+	// which this text file doesn't need because it's created on-the-fly
+	// by this app
+	m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, datasetLandingPageFilterable.Download{
+		Extension: "txt",
+		Size:      strconv.Itoa(len(textBytes)),
+		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
+	})
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -330,15 +333,15 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 
-	datasetCfg, _ := setAuthTokenIfRequired(req)
+	req = forwardFlorenceTokenIfRequired(req)
 
-	datasetModel, err := dc.Get(datasetID, datasetCfg...)
+	datasetModel, err := dc.Get(req.Context(), datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(datasetID, datasetCfg...)
+	datasetEditions, err := dc.GetEditions(req.Context(), datasetID)
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
@@ -348,7 +351,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		}
 	}
 
-	m := mapper.CreateEditionsList(datasetModel, datasetEditions, datasetID)
+	m := mapper.CreateEditionsList(req.Context(), datasetModel, datasetEditions, datasetID)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -437,15 +440,15 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
 	edition := vars["edition"]
 	version := vars["version"]
 
-	datasetCfg, _ := setAuthTokenIfRequired(req)
+	req = forwardFlorenceTokenIfRequired(req)
 
-	metadata, err := dc.GetVersionMetadata(datasetID, edition, version, datasetCfg...)
+	metadata, err := dc.GetVersionMetadata(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	dimensions, err := dc.GetDimensions(datasetID, edition, version)
+	dimensions, err := dc.GetDimensions(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -466,12 +469,10 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
 func getText(dc DatasetClient, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.Dimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
-	datasetCfg, _ := setAuthTokenIfRequired(req)
-
 	b.WriteString(metadata.String())
 	b.WriteString("Dimensions:\n")
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptions(datasetID, edition, version, dimension.ID, datasetCfg...)
+		options, err := dc.GetOptions(req.Context(), datasetID, edition, version, dimension.Name)
 		if err != nil {
 			return nil, err
 		}
