@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 
 	"github.com/gorilla/mux"
 
@@ -306,10 +307,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// because the loop adds the download services domain to the URLs
 	// which this text file doesn't need because it's created on-the-fly
 	// by this app
-	ver.Downloads["Text"] = dataset.Download{
-		Size: strconv.Itoa(len(textBytes)),
-		URL:  fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
-	}
+	m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, datasetLandingPageFilterable.Download{
+		Extension: "txt",
+		Size:      strconv.Itoa(len(textBytes)),
+		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
+	})
 
 	b, err := json.Marshal(m)
 	if err != nil {
