@@ -184,7 +184,7 @@ func CreateFilterableLandingPage(d dataset.Model, ver dataset.Version, datasetID
 			} else if _, err = time.Parse("2006", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
 				for _, val := range opt.Items {
-					t, err := convertYYToTime(val.Label)
+					t, err := convertYYYYToTime(val.Label)
 					if err != nil {
 						log.Error(err, nil)
 					}
@@ -327,6 +327,6 @@ func convertMMMYYToTime(input string) (t time.Time, err error) {
 	return time.Parse("Jan-06", input)
 }
 
-func convertYYToTime(input string) (t time.Time, err error) {
+func convertYYYYToTime(input string) (t time.Time, err error) {
 	return time.Parse("2006", input)
 }
