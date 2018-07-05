@@ -81,12 +81,6 @@
 			"revisionTime": "2017-07-07T13:12:26Z"
 		},
 		{
-			"checksumSHA1": "HgL/HLG5D1WNPb1lrb/hpywtm9o=",
-			"path": "github.com/ONSdigital/go-ns/handlers/timeout",
-			"revision": "9660e2f6a8593b97df7a5f0a626672aa45b68269",
-			"revisionTime": "2017-07-07T13:12:26Z"
-		},
-		{
 			"checksumSHA1": "hYv7uxuH7z+OaPJYMDdP2TflSvQ=",
 			"path": "github.com/ONSdigital/go-ns/healthcheck",
 			"revision": "c751f1b8254523fa6f18ef042d273750e70c6732",
