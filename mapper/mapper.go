@@ -182,6 +182,30 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 					}
 				}
 
+			} else if _, err = time.Parse("2006", opt.Items[0].Label); err == nil {
+				var ts TimeSlice
+				for _, val := range opt.Items {
+					t, err := convertYYYYToTime(val.Label)
+					if err != nil {
+						log.Error(err, nil)
+					}
+					ts = append(ts, t)
+				}
+				sort.Sort(ts)
+
+				startDate := ts[0]
+
+				for i, t := range ts {
+					if i != len(ts)-1 {
+						if (ts[i+1].Year() - t.Year()) == 1 {
+							continue
+						}
+						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						startDate = ts[i+1]
+					} else {
+						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+					}
+				}
 			} else {
 
 				for i, val := range opt.Items {
@@ -302,4 +326,8 @@ func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset
 
 func convertMMMYYToTime(input string) (t time.Time, err error) {
 	return time.Parse("Jan-06", input)
+}
+
+func convertYYYYToTime(input string) (t time.Time, err error) {
+	return time.Parse("2006", input)
 }
