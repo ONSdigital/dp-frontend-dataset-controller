@@ -16,6 +16,13 @@ job "dp-frontend-dataset-controller" {
       value     = "web"
     }
 
+    restart {
+      attempts = 3
+      delay    = "15s"
+      interval = "1m"
+      mode     = "delay"
+    }
+
     task "dp-frontend-dataset-controller-web" {
       driver = "exec"
 
@@ -67,6 +74,13 @@ job "dp-frontend-dataset-controller" {
     constraint {
       attribute = "${node.class}"
       value     = "publishing"
+    }
+
+    restart {
+      attempts = 3
+      delay    = "15s"
+      interval = "1m"
+      mode     = "delay"
     }
 
     task "dp-frontend-dataset-controller-publishing" {
