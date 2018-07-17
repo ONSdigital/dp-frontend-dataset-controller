@@ -109,7 +109,7 @@ func (c *Client) Get(ctx context.Context, id string) (m Model, err error) {
 	// TODO: Authentication will sort this problem out for us. Currently
 	// the shape of the response body is different if you are authenticated
 	// so return the "next" item only
-	if next, ok := body["next"]; ok {
+	if next, ok := body["next"]; ok && common.IsCallerPresent(ctx) {
 		b, err = json.Marshal(next)
 		if err != nil {
 			return
@@ -117,6 +117,41 @@ func (c *Client) Get(ctx context.Context, id string) (m Model, err error) {
 	}
 
 	err = json.Unmarshal(b, &m)
+	return
+}
+
+// GetDatasets returns the list of datasets
+func (c *Client) GetDatasets(ctx context.Context) (m ModelCollection, err error) {
+	uri := fmt.Sprintf("%s/datasets", c.url)
+
+	clientlog.Do(ctx, "retrieving datasets", service, uri)
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return
+	}
+
+	resp, err := c.cli.Do(ctx, req)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		err = NewDatasetAPIResponse(resp, uri)
+		return
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	var body map[string]interface{}
+	if err = json.Unmarshal(b, &body); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -342,9 +377,14 @@ func (c *Client) PutVersion(ctx context.Context, datasetID, edition, version str
 	return nil
 }
 
+// GetMetadataURL returns the URL for the metadata of a given dataset id, edition and version
+func (c *Client) GetMetadataURL(id, edition, version string) string {
+	return fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s/metadata", c.url, id, edition, version)
+}
+
 // GetVersionMetadata returns the metadata for a given dataset id, edition and version
 func (c *Client) GetVersionMetadata(ctx context.Context, id, edition, version string) (m Metadata, err error) {
-	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s/metadata", c.url, id, edition, version)
+	uri := c.GetMetadataURL(id, edition, version)
 
 	clientlog.Do(ctx, "retrieving dataset version metadata", service, uri)
 
