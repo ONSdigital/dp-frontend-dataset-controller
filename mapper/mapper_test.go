@@ -40,7 +40,7 @@ func TestUnitMapper(t *testing.T) {
 			},
 			NextRelease:      "11-11-2018",
 			ReleaseFrequency: "Yearly",
-			Publisher: dataset.Publisher{
+			Publisher: &dataset.Publisher{
 				URL:  "ons.gov.uk",
 				Name: "ONS",
 				Type: "Government Agency",

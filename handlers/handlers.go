@@ -469,7 +469,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient) {
 func getText(dc DatasetClient, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.Dimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
-	b.WriteString(metadata.String())
+	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
 	for _, dimension := range dimensions.Items {
 		options, err := dc.GetOptions(req.Context(), datasetID, edition, version, dimension.Name)
