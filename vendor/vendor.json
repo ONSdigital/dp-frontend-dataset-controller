@@ -51,10 +51,10 @@
 			"revisionTime": "2018-07-16T14:44:21Z"
 		},
 		{
-			"checksumSHA1": "WV/zB0kOhzbyUiDri+MlLyOs/hs=",
+			"checksumSHA1": "30cvT+T3lSVX9d021VnyqjxylbU=",
 			"path": "github.com/ONSdigital/go-ns/clients/filter",
-			"revision": "491470a66fbb2471ff3fd02f8159b7158d9281ab",
-			"revisionTime": "2018-06-07T13:26:14Z"
+			"revision": "6a5af596f126f9ad7379e79ab1e7c0741172001f",
+			"revisionTime": "2018-08-03T07:57:47Z"
 		},
 		{
 			"checksumSHA1": "Pm1h3tasSTepT+k2/lEiXlrdveQ=",
