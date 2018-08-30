@@ -1,6 +1,10 @@
 package config
 
-import "github.com/ian-kent/gofigure"
+import (
+	"encoding/json"
+
+	"github.com/ian-kent/gofigure"
+)
 
 var cfg Config
 
@@ -43,4 +47,11 @@ func init() {
 //Get ...
 func Get() Config {
 	return cfg
+}
+
+// String is implemented to prevent sensitive fields being logged.
+// The config is returned as JSON with sensitive fields omitted.
+func (config Config) String() string {
+	json, _ := json.Marshal(config)
+	return string(json)
 }
