@@ -77,14 +77,7 @@ func main() {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
 
-	log.Info("Starting server", log.Data{
-		"bind_addr":       cfg.BindAddr,
-		"zebedee_url":     cfg.ZebedeeURL,
-		"renderer_url":    cfg.RendererURL,
-		"dataset_api_url": cfg.DatasetAPIURL,
-		"mail_host":       cfg.MailHost,
-		"filter_api_url":  cfg.FilterAPIURL,
-	})
+	log.Info("Starting server", log.Data{"config": cfg})
 
 	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
