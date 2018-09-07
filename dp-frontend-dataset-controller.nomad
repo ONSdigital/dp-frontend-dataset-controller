@@ -4,8 +4,11 @@ job "dp-frontend-dataset-controller" {
   type        = "service"
 
   update {
-    stagger      = "10s"
-    max_parallel = 1
+    stagger          = "60s"
+    min_healthy_time = "30s"
+    healthy_deadline = "2m"
+    max_parallel     = 1
+    auto_revert      = true
   }
 
   group "web" {
@@ -14,6 +17,13 @@ job "dp-frontend-dataset-controller" {
     constraint {
       attribute = "${node.class}"
       value     = "web"
+    }
+
+    restart {
+      attempts = 3
+      delay    = "15s"
+      interval = "1m"
+      mode     = "delay"
     }
 
     task "dp-frontend-dataset-controller-web" {
@@ -67,6 +77,13 @@ job "dp-frontend-dataset-controller" {
     constraint {
       attribute = "${node.class}"
       value     = "publishing"
+    }
+
+    restart {
+      attempts = 3
+      delay    = "15s"
+      interval = "1m"
+      mode     = "delay"
     }
 
     task "dp-frontend-dataset-controller-publishing" {
