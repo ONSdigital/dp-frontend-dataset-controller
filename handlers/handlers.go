@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -403,7 +404,11 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, r
 
 	var ds []data.Dataset
 	for _, v := range dlp.Datasets {
-		d, _ := zc.GetDataset(v.URI)
+		d, err := zc.GetDataset(v.URI)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
+			return
+		}
 		ds = append(ds, d)
 	}
 

@@ -111,16 +111,16 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "6PTays/vOeb8TAksmAMsfrVb1Zk=",
+			"checksumSHA1": "cJWJF357pxg9moFdCiwYjbP7FCs=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "d5343032adcc11ed59cf4a26ed809a752451900b",
-			"revisionTime": "2017-08-31T10:27:31Z"
+			"revision": "8f16ab9f96817f89e7a2e2791f6ff72346f15711",
+			"revisionTime": "2018-11-27T09:28:38Z"
 		},
 		{
-			"checksumSHA1": "rIM30lGXWnib/GfNjckv9eFSoug=",
+			"checksumSHA1": "9mWGEOFjfqNrlKofXt/asIRh8qc=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/data",
-			"revision": "4e5fe4def49c96376743b20fe698c683a86d4b75",
-			"revisionTime": "2017-07-11T09:58:36Z"
+			"revision": "8f16ab9f96817f89e7a2e2791f6ff72346f15711",
+			"revisionTime": "2018-11-27T09:28:38Z"
 		},
 		{
 			"checksumSHA1": "1ItKI2owz8pIpBWxmqK49eR3JqE=",
