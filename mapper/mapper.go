@@ -130,7 +130,9 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 			var pDim datasetLandingPageFilterable.Dimension
 
 			var title string
-			title = strings.Title(opt.Items[0].DimensionID)
+			if len(opt.Items) > 0 {
+				title = strings.Title(opt.Items[0].DimensionID)
+			}
 
 			pDim.Title = title
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
