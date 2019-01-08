@@ -11,13 +11,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ONSdigital/go-ns/common"
+	"github.com/ONSdigital/go-ns/rhttp"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 )
 
 // ZebedeeClient represents a zebedee client
 type ZebedeeClient struct {
 	zebedeeURL  string
-	client      *http.Client
+	client      *rhttp.Client
 	accessToken string
 }
 
@@ -28,6 +30,7 @@ type ErrInvalidZebedeeResponse struct {
 	uri        string
 }
 
+// Error should be called by the user to print out the stringified version of the error
 func (e ErrInvalidZebedeeResponse) Error() string {
 	return fmt.Sprintf("invalid response from zebedee - should be 2.x.x or 3.x.x, got: %d, path: %s",
 		e.actualCode,
@@ -38,16 +41,19 @@ func (e ErrInvalidZebedeeResponse) Error() string {
 var _ error = ErrInvalidZebedeeResponse{}
 
 // NewZebedeeClient creates a new Zebedee Client, set ZEBEDEE_REQUEST_TIMEOUT_SECOND
-// environment variable to modify default 5 second timeout
+// environment variable to modify default client timeout as zebedee can often be slow
+// to respond
 func NewZebedeeClient(url string) *ZebedeeClient {
 	timeout, err := strconv.Atoi(os.Getenv("ZEBEDEE_REQUEST_TIMEOUT_SECONDS"))
 	if timeout == 0 || err != nil {
 		timeout = 5
 	}
+	cli := rhttp.DefaultClient
+	cli.HTTPClient.Timeout = time.Duration(timeout) * time.Second
 
 	return &ZebedeeClient{
 		zebedeeURL: url,
-		client:     &http.Client{Timeout: time.Duration(timeout) * time.Second},
+		client:     cli,
 	}
 }
 
@@ -57,7 +63,7 @@ func (c *ZebedeeClient) Get(path string) ([]byte, error) {
 }
 
 // Healthcheck calls the healthcheck endpoint on the api and alerts the caller of any errors
-func (c ZebedeeClient) Healthcheck() (string, error) {
+func (c *ZebedeeClient) Healthcheck() (string, error) {
 	resp, err := c.client.Get(c.zebedeeURL + "/healthcheck")
 	if err != nil {
 		return "zebedee", err
@@ -125,7 +131,7 @@ func (c *ZebedeeClient) get(path string) ([]byte, error) {
 	}
 
 	if len(c.accessToken) > 0 {
-		req.Header.Set("X-Florence-Token", c.accessToken)
+		req.Header.Set(common.FlorenceHeaderKey, c.accessToken)
 	}
 
 	resp, err := c.client.Do(req)
@@ -158,7 +164,7 @@ func (c *ZebedeeClient) GetBreadcrumb(uri string) ([]data.Breadcrumb, error) {
 }
 
 // GetDataset returns details about a dataset from zebedee
-func (c ZebedeeClient) GetDataset(uri string) (data.Dataset, error) {
+func (c *ZebedeeClient) GetDataset(uri string) (data.Dataset, error) {
 	b, err := c.get("/data?uri=" + uri)
 	if err != nil {
 		return data.Dataset{}, err
@@ -169,29 +175,43 @@ func (c ZebedeeClient) GetDataset(uri string) (data.Dataset, error) {
 		return d, err
 	}
 
+	downloads := make([]data.Download, 0)
+
 	for _, v := range d.Downloads {
 		fs, err := c.GetFileSize(uri + "/" + v.File)
 		if err != nil {
 			return d, err
 		}
 
-		v.Size = fs.Size
+		downloads = append(downloads, data.Download{
+			File: v.File,
+			Size: strconv.Itoa(fs.Size),
+		})
 	}
 
+	d.Downloads = downloads
+
+	supplementaryFiles := make([]data.SupplementaryFile, 0)
 	for _, v := range d.SupplementaryFiles {
 		fs, err := c.GetFileSize(uri + "/" + v.File)
 		if err != nil {
 			return d, err
 		}
 
-		v.Size = fs.Size
+		supplementaryFiles = append(supplementaryFiles, data.SupplementaryFile{
+			File:  v.File,
+			Title: v.Title,
+			Size:  strconv.Itoa(fs.Size),
+		})
 	}
+
+	d.SupplementaryFiles = supplementaryFiles
 
 	return d, nil
 }
 
 // GetFileSize retrieves a given filesize from zebedee
-func (c ZebedeeClient) GetFileSize(uri string) (data.FileSize, error) {
+func (c *ZebedeeClient) GetFileSize(uri string) (data.FileSize, error) {
 	b, err := c.get("/filesize?uri=" + uri)
 	if err != nil {
 		return data.FileSize{}, err
@@ -206,7 +226,7 @@ func (c ZebedeeClient) GetFileSize(uri string) (data.FileSize, error) {
 }
 
 // GetPageTitle retrieves a page title from zebedee
-func (c ZebedeeClient) GetPageTitle(uri string) (data.PageTitle, error) {
+func (c *ZebedeeClient) GetPageTitle(uri string) (data.PageTitle, error) {
 	b, err := c.get("/data?uri=" + uri + "&title")
 	if err != nil {
 		return data.PageTitle{}, err
