@@ -24,12 +24,6 @@ func SetTaxonomyDomain(p *model.Page) {
 	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
 }
 
-var dimensionTitleMapper = map[string]string{
-	"aggregate": "Goods and Services",
-	"time":      "Time",
-	"geography": "Geographic Areas",
-}
-
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
 
@@ -135,9 +129,8 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 
 			var pDim datasetLandingPageFilterable.Dimension
 
-			var ok bool
 			var title string
-			if title, ok = dimensionTitleMapper[opt.Items[0].DimensionID]; !ok {
+			if len(opt.Items) > 0 {
 				title = strings.Title(opt.Items[0].DimensionID)
 			}
 
