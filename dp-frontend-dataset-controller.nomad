@@ -36,12 +36,12 @@ job "dp-frontend-dataset-controller" {
       config {
         command = "${NOMAD_TASK_DIR}/start-task"
 
-        args = [“./dp-frontend-dataset-controller”]
+        args = ["./dp-frontend-dataset-controller"]
 
-        image = “{{ECR_URL}}:concourse-{{REVISION}}”
+        image = "{{ECR_URL}}:concourse-{{REVISION}}"
 
         port_map {
-          http = “${NOMAD_PORT_http}”
+          http = "${NOMAD_PORT_http}"
         }
       }
 
@@ -96,12 +96,12 @@ job "dp-frontend-dataset-controller" {
       config {
         command = "${NOMAD_TASK_DIR}/start-task"
 
-        args = [“./dp-frontend-dataset-controller”]
+        args = ["./dp-frontend-dataset-controller"]
 
-        image = “{{ECR_URL}}:concourse-{{REVISION}}”
+        image = "{{ECR_URL}}:concourse-{{REVISION}}"
 
         port_map {
-          http = “${NOMAD_PORT_http}”
+          http = "${NOMAD_PORT_http}"
         }
       }
 
