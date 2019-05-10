@@ -19,6 +19,7 @@ type DatasetLandingPage struct {
 	Edition             string        `json:"edition"`
 	ReleaseFrequency    string        `json:"release_frequency"`
 	IsLatest            bool          `json:"is_latest"`
+	LatestVersionURL    string        `json:"latest_version_url"`
 	QMIURL              string        `json:"qmi_url"`
 	IsNationalStatistic bool          `json:"is_national_statistic"`
 	Publications        []Publication `json:"publications"`
