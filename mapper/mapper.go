@@ -268,7 +268,13 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 			})
 		}
 
-		version.Reason = "-" // TODO: use reason from dataset api if it becomes available
+		var correctionReasons []string
+		for _, alert := range *ver.Alerts {
+			if alert.Type == "correction" {
+				correctionReasons = append(correctionReasons, alert.Description)
+			}
+		}
+		version.Reasons = correctionReasons
 
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 		p.Data.Versions = append(p.Data.Versions, version)
