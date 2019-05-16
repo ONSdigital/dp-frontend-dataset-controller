@@ -18,6 +18,7 @@ import (
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/gorilla/mux"
+	"github.com/ONSdigital/go-ns/handlers/collectionID"
 )
 
 type unencryptedAuth struct {
@@ -81,6 +82,9 @@ func main() {
 
 	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
+
+	s.Middleware["CollectionID"] = collectionID.Handler
+	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
