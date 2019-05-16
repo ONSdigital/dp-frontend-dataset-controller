@@ -13,12 +13,12 @@ import (
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
+	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/gorilla/mux"
-	"github.com/ONSdigital/go-ns/handlers/collectionID"
 )
 
 type unencryptedAuth struct {
