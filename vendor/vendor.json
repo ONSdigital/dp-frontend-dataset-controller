@@ -63,10 +63,16 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "bM4DRHwEBe64fraPWoPZO1qmfGA=",
+			"checksumSHA1": "hlr8fdPLJMYY6YkPuiBkI8Jm9Mc=",
 			"path": "github.com/ONSdigital/go-ns/common",
-			"revision": "68aed3815467567f5bcbcceeffd5792151d83a1a",
-			"revisionTime": "2019-05-15T12:18:17Z"
+			"revision": "caee21dda39f1143056a5ec0b3031036e14c7c42",
+			"revisionTime": "2019-05-20T09:08:57Z"
+		},
+		{
+			"checksumSHA1": "vTOAgsj69LFRQVsg/Of0O8B/eaY=",
+			"path": "github.com/ONSdigital/go-ns/handlers/collectionID",
+			"revision": "caee21dda39f1143056a5ec0b3031036e14c7c42",
+			"revisionTime": "2019-05-20T09:08:57Z"
 		},
 		{
 			"checksumSHA1": "ei+/RCSa0XO9v9rQxAh0uqyJ/28=",
