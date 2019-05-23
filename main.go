@@ -83,7 +83,7 @@ func main() {
 	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
 
-	s.Middleware["CollectionID"] = collectionID.CheckHeader
+	s.Middleware["CollectionID"] = collectionID.CheckCookie
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
 	
 	go func() {
