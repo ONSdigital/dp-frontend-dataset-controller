@@ -358,9 +358,10 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
 		if err != nil {
 			log.Error(err, nil)
+		} else {
+			log.Info("only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionURL.Path})
+			http.Redirect(w, req, latestVersionURL.Path, 302)
 		}
-		log.Info("only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionURL.Path})
-		http.Redirect(w, req, latestVersionURL.Path, 302)
 	}
 
 	m := mapper.CreateEditionsList(req.Context(), datasetModel, datasetEditions, datasetID)
