@@ -70,6 +70,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 
 	p.DatasetLandingPage.Edition = ver.Edition
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
+	p.DatasetLandingPage.LatestVersionURL = d.Links.LatestVersion.URL
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
