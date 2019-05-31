@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
+	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
@@ -82,6 +83,9 @@ func main() {
 	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
 
+	s.Middleware["CollectionID"] = collectionID.CheckCookie
+	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
+	
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
 			log.Error(err, nil)
