@@ -69,6 +69,11 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 	p.DatasetLandingPage.DatasetID = datasetID
 
 	p.DatasetLandingPage.Edition = ver.Edition
+
+	if ver.Edition != "time-series" {
+		p.DatasetLandingPage.ShowEditionName = true
+	}
+
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
 	p.DatasetLandingPage.LatestVersionURL = d.Links.LatestVersion.URL
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
