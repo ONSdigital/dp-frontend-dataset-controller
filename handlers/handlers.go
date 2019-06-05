@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
@@ -349,6 +350,17 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 				setStatusCode(req, w, err)
 				return
 			}
+		}
+	}
+
+	numberOfEditions := len(datasetEditions)
+	if numberOfEditions == 1 {
+		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
+		if err != nil {
+			log.Error(err, nil)
+		} else {
+			log.Info("only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionURL.Path})
+			http.Redirect(w, req, latestVersionURL.Path, 302)
 		}
 	}
 
