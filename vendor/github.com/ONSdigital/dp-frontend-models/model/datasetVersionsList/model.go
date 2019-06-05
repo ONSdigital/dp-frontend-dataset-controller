@@ -17,7 +17,7 @@ type VersionsList struct {
 // Version represents an edition version on the version list page
 type Version struct {
 	Date      string     `json:"date"`
-	Reason    string     `json:"reason"`
+	Reasons   []string   `json:"reasons"`
 	Downloads []Download `json:"downloads"`
 	FilterURL string     `json:"filter_url"`
 }
