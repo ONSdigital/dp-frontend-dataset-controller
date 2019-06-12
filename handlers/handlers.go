@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
+	"sync"
 
 	"github.com/pkg/errors"
 
@@ -123,10 +125,10 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		legacyLanding(w, req, zc, rend, cfg)
+		legacyLanding(w, req, zc, dc, rend, cfg)
 	}
 }
 
@@ -383,7 +385,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -422,6 +424,34 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, r
 			return
 		}
 		ds = append(ds, d)
+	}
+
+	// Check for filterable datasets and fetch details
+	if len(dlp.RelatedFilterableDatasets) > 0 {
+		var relatedFilterableDatasets []data.Related
+		var wg sync.WaitGroup
+		var mutex = &sync.Mutex{}
+		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
+			datasetID := strings.Split(relatedFilterableDataset.URI, "/")[2]
+			wg.Add(1)
+			go func(ctx context.Context, datasetID string, dc DatasetClient, relatedFilterableDataset data.Related) {
+				defer wg.Done()
+				d, err := dc.Get(ctx, datasetID)
+				if err != nil {
+					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
+					log.ErrorCtx(req.Context(), errors.WithMessage(err, "error fetching dataset details"), log.Data{
+						"datasetID": datasetID,
+					})
+				} else {
+					mutex.Lock()
+					defer mutex.Unlock()
+					relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
+				}
+				return
+			}(req.Context(), datasetID, dc, relatedFilterableDataset)
+		}
+		wg.Wait()
+		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
 	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
