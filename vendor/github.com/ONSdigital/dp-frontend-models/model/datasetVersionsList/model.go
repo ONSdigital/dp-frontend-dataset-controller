@@ -16,10 +16,21 @@ type VersionsList struct {
 
 // Version represents an edition version on the version list page
 type Version struct {
-	Date      string     `json:"date"`
-	Reasons   []string   `json:"reasons"`
-	Downloads []Download `json:"downloads"`
-	FilterURL string     `json:"filter_url"`
+	Date          string       `json:"date"`
+	Corrections   []Correction `json:"correction"`
+	Downloads     []Download   `json:"downloads"`
+	FilterURL     string       `json:"filter_url"`
+	VersionNumber int          `json:"version_number"`
+	Superseded    string       `json:"superseded"`
+	IsLatest      bool         `json:"is_latest"`
+	Title         string       `json:"title"`
+	Edition       string       `json:"edition"`
+}
+
+//Download has the details for the an individual dataset's downloadable files
+type Correction struct {
+	Reason string `json:"reason"`
+	Date   string `json:"date"`
 }
 
 //Download has the details for the an individual dataset's downloadable files
