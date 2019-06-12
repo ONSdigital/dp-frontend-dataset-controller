@@ -99,9 +99,10 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test /data endpoint", t, func() {
 
 		Convey("test successful json response", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
-			mockClient.EXPECT().Get("/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
-			mockClient.EXPECT().SetAccessToken("12345")
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockZebedeeClient.EXPECT().Get("/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
+			mockZebedeeClient.EXPECT().SetAccessToken("12345")
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/data", nil)
@@ -109,7 +110,7 @@ func TestUnitHandlers(t *testing.T) {
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, nil))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil))
 
 			router.ServeHTTP(w, req)
 
@@ -117,14 +118,15 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("test status 500 returned if zedbedee get returns error", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
-			mockClient.EXPECT().Get("/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockZebedeeClient.EXPECT().Get("/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/data", nil)
 			So(err, ShouldBeNil)
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, nil))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil))
 
 			router.ServeHTTP(w, req)
 
@@ -135,13 +137,14 @@ func TestUnitHandlers(t *testing.T) {
 
 	Convey("test legacylanding handler with non /data endpoint", t, func() {
 		Convey("test sucessful data retrieval and rendering", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockClient.EXPECT().GetBreadcrumb(dlp.URI)
-			mockClient.EXPECT().GetDataset("dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset("dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -151,7 +154,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, mockRend))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockRend))
 
 			router.ServeHTTP(w, req)
 
@@ -160,46 +163,49 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving landing page", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{}
-			mockClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, errors.New("something went wrong :("))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, errors.New("something went wrong :("))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, nil))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving breadcrumb", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
-			mockClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockClient.EXPECT().GetBreadcrumb(dlp.URI).Return(nil, errors.New("something went wrong"))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI).Return(nil, errors.New("something went wrong"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, nil))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
 		Convey("test status 500 returned if render client returns error", func() {
-			mockClient := NewMockZebedeeClient(mockCtrl)
+			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockClient.EXPECT().GetBreadcrumb(dlp.URI)
-			mockClient.EXPECT().GetDataset("dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset("dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return(nil, errors.New("error from renderer"))
@@ -209,7 +215,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockClient, mockRend))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockRend))
 
 			router.ServeHTTP(w, req)
 
