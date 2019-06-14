@@ -264,7 +264,8 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		version.Title = d.Title
 		version.Date = ver.ReleaseDate
 
-		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+		version.VersionURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 
 		if ver.Version > 1 {
 			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, (i))

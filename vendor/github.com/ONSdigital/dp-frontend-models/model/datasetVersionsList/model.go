@@ -20,6 +20,7 @@ type Version struct {
 	Corrections   []Correction `json:"correction"`
 	Downloads     []Download   `json:"downloads"`
 	FilterURL     string       `json:"filter_url"`
+	VersionURL    string       `json:"version_url"`
 	VersionNumber int          `json:"version_number"`
 	Superseded    string       `json:"superseded"`
 	IsLatest      bool         `json:"is_latest"`
