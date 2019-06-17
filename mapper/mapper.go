@@ -264,11 +264,10 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		}
 
 		var version datasetVersionsList.Version
+
 		version.VersionNumber = ver.Version
-		//version.Title = d.Title
 		version.Title = d.Title
 		version.Date = ver.ReleaseDate
-
 		version.VersionURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 
