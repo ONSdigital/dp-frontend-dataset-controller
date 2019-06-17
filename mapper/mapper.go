@@ -245,7 +245,12 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	var p datasetVersionsList.Page
 	SetTaxonomyDomain(&p.Page)
 	// TODO refactor and make Welsh compatable.
-	p.Metadata.Title = "All versions of " + d.Title + " " + versions[0].Edition + " dataset"
+	p.Metadata.Title = "All versions of " + d.Title
+	if len(versions) > 0 {
+		p.Metadata.Title += " " + versions[0].Edition
+	}
+	p.Metadata.Title += " dataset"
+
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
 		log.ErrorCtx(ctx, err, nil)
