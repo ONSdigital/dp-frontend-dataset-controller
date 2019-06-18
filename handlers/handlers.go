@@ -258,7 +258,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/", datasetID, edition, strconv.Itoa(latestVersionNumber))
+	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	ver, err := dc.GetVersion(req.Context(), datasetID, edition, version)
 	if err != nil {
