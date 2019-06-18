@@ -16,6 +16,7 @@ type DatasetLandingPage struct {
 	Dimensions          []Dimension   `json:"dimensions"`
 	Version             Version       `json:"version"`
 	HasOlderVersions    bool          `json:"has_older_versions"`
+	ShowEditionName     bool          `json:"show_edition_name"`
 	Edition             string        `json:"edition"`
 	ReleaseFrequency    string        `json:"release_frequency"`
 	IsLatest            bool          `json:"is_latest"`
