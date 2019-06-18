@@ -13,23 +13,24 @@ type Page struct {
 
 type DatasetLandingPage struct {
 	datasetLandingPageStatic.DatasetLandingPage
-	Dimensions          []Dimension   `json:"dimensions"`
-	Version             Version       `json:"version"`
-	HasOlderVersions    bool          `json:"has_older_versions"`
-	ShowEditionName     bool          `json:"show_edition_name"`
-	Edition             string        `json:"edition"`
-	ReleaseFrequency    string        `json:"release_frequency"`
-	IsLatest            bool          `json:"is_latest"`
-	LatestVersionURL    string        `json:"latest_version_url"`
-	QMIURL              string        `json:"qmi_url"`
-	IsNationalStatistic bool          `json:"is_national_statistic"`
-	Publications        []Publication `json:"publications"`
-	RelatedLinks        []Publication `json:"related_links"`
-	LatestChanges       []Change      `json:"latest_changes"`
-	Citation            string        `json:"citation"`
-	DatasetTitle        string        `json:"dataset_title"`
-	UnitOfMeasurement   string        `json:"unit_of_measurement"`
-	Methodologies       []Methodology `json:"methodology"`
+	Dimensions               []Dimension   `json:"dimensions"`
+	Version                  Version       `json:"version"`
+	HasOlderVersions         bool          `json:"has_older_versions"`
+	ShowEditionName          bool          `json:"show_edition_name"`
+	Edition                  string        `json:"edition"`
+	ReleaseFrequency         string        `json:"release_frequency"`
+	IsLatest                 bool          `json:"is_latest"`
+	LatestVersionURL         string        `json:"latest_version_url"`
+	IsLatestVersionOfEdition bool          `json:"is_latest_version_of_edition_url"`
+	QMIURL                   string        `json:"qmi_url"`
+	IsNationalStatistic      bool          `json:"is_national_statistic"`
+	Publications             []Publication `json:"publications"`
+	RelatedLinks             []Publication `json:"related_links"`
+	LatestChanges            []Change      `json:"latest_changes"`
+	Citation                 string        `json:"citation"`
+	DatasetTitle             string        `json:"dataset_title"`
+	UnitOfMeasurement        string        `json:"unit_of_measurement"`
+	Methodologies            []Methodology `json:"methodology"`
 }
 
 type Publication struct {

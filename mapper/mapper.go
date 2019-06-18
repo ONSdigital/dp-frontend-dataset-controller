@@ -40,7 +40,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
@@ -75,7 +75,8 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 	}
 
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
-	p.DatasetLandingPage.LatestVersionURL = d.Links.LatestVersion.URL
+	p.DatasetLandingPage.LatestVersionURL = latestVersionURL
+	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)

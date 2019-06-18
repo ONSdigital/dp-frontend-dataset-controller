@@ -251,6 +251,15 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		displayOtherVersionsLink = true
 	}
 
+	latestVersionNumber := 1
+	for _, singleVersion := range allVers {
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
+		}
+	}
+
+	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/", datasetID, edition, strconv.Itoa(latestVersionNumber))
+
 	ver, err := dc.GetVersion(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -290,7 +299,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
+	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
