@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -43,6 +42,7 @@ type FilterClient interface {
 type DatasetClient interface {
 	healthcheck.Client
 	Get(ctx context.Context, id string) (m dataset.Model, err error)
+	GetByPath(ctx context.Context, path string) (m dataset.Model, err error)
 	GetEditions(ctx context.Context, id string) (m []dataset.Edition, err error)
 	GetEdition(ctx context.Context, id, edition string) (dataset.Edition, error)
 	GetVersions(ctx context.Context, id, edition string) (m []dataset.Version, err error)
@@ -432,15 +432,14 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		var wg sync.WaitGroup
 		var mutex = &sync.Mutex{}
 		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
-			datasetID := strings.Split(relatedFilterableDataset.URI, "/")[2]
 			wg.Add(1)
-			go func(ctx context.Context, datasetID string, dc DatasetClient, relatedFilterableDataset data.Related) {
+			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset data.Related) {
 				defer wg.Done()
-				d, err := dc.Get(ctx, datasetID)
+				d, err := dc.GetByPath(ctx, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
 					log.ErrorCtx(req.Context(), errors.WithMessage(err, "error fetching dataset details"), log.Data{
-						"datasetID": datasetID,
+						"dataset": relatedFilterableDataset.URI,
 					})
 				} else {
 					mutex.Lock()
@@ -448,7 +447,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 					relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
 				}
 				return
-			}(req.Context(), datasetID, dc, relatedFilterableDataset)
+			}(req.Context(), dc, relatedFilterableDataset)
 		}
 		wg.Wait()
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
