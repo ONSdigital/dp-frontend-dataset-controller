@@ -15,10 +15,10 @@
 			"revisionTime": "2017-11-09T10:51:17Z"
 		},
 		{
-			"checksumSHA1": "OzbZZHdF+rBV9z4JsWXMyzuG0eQ=",
+			"checksumSHA1": "4TaDB6kxInXHJ12g3BTnTcRMY+M=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable",
-			"revision": "3b7c2e7fd7147937e7a8c887018112b79767deef",
-			"revisionTime": "2019-05-02T11:57:08Z"
+			"revision": "7b030343aa885979ee333f32a1b3a0cd7db9d49a",
+			"revisionTime": "2019-06-18T12:31:28Z"
 		},
 		{
 			"checksumSHA1": "u3M4F4CMaWSbrq+eP2uAg/52xzM=",
@@ -182,10 +182,10 @@
 			"revisionTime": "2017-05-02T19:22:41Z"
 		},
 		{
-			"checksumSHA1": "Js/yx9fZ3+wH1wZpHNIxSTMIaCg=",
+			"checksumSHA1": "cIiyvAduLLFvu+tg1Qr5Jw3jeWo=",
 			"path": "github.com/jtolds/gls",
-			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
-			"revisionTime": "2017-05-03T22:40:06Z"
+			"revision": "b4936e06046bbecbb94cae9c18127ebe510a2cb9",
+			"revisionTime": "2018-11-10T20:28:10Z"
 		},
 		{
 			"checksumSHA1": "OBvAHqWjdI4NQVAqTkcQAdTuCFY=",
