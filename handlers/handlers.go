@@ -441,11 +441,11 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 					log.ErrorCtx(req.Context(), errors.WithMessage(err, "error fetching dataset details"), log.Data{
 						"dataset": relatedFilterableDataset.URI,
 					})
-				} else {
-					mutex.Lock()
-					defer mutex.Unlock()
-					relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
+					return
 				}
+				mutex.Lock()
+				defer mutex.Unlock()
+				relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
 				return
 			}(req.Context(), dc, relatedFilterableDataset)
 		}
