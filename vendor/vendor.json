@@ -21,10 +21,10 @@
 			"revisionTime": "2019-06-18T12:31:28Z"
 		},
 		{
-			"checksumSHA1": "2Ww7ArlxDH4Cs/1S01vx1heMAow=",
+			"checksumSHA1": "u3M4F4CMaWSbrq+eP2uAg/52xzM=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic",
-			"revision": "68099c8c0a883488fb056b2ad1500c4c478bf883",
-			"revisionTime": "2017-07-11T09:57:28Z"
+			"revision": "71c4791e5ef8e0cf9f8678073d88182170a2d661",
+			"revisionTime": "2019-06-12T09:32:01Z"
 		},
 		{
 			"checksumSHA1": "75LiXlJQRBdZq0U0dblxsumlseM=",
@@ -45,10 +45,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "OUfm7rDmp3qg4NkVD9UELXvO9Xk=",
+			"checksumSHA1": "7sRxS0TMfUOf8rWfqrozenQZYRQ=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "68aed3815467567f5bcbcceeffd5792151d83a1a",
-			"revisionTime": "2019-05-15T12:18:17Z"
+			"revision": "6f82e6a20b01b654f578a2ece969813a4f825157",
+			"revisionTime": "2019-06-19T14:58:47Z"
 		},
 		{
 			"checksumSHA1": "30cvT+T3lSVX9d021VnyqjxylbU=",
@@ -123,22 +123,22 @@
 			"revisionTime": "2018-11-27T09:28:38Z"
 		},
 		{
-			"checksumSHA1": "9mWGEOFjfqNrlKofXt/asIRh8qc=",
+			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/data",
-			"revision": "8f16ab9f96817f89e7a2e2791f6ff72346f15711",
-			"revisionTime": "2018-11-27T09:28:38Z"
+			"revision": "caee21dda39f1143056a5ec0b3031036e14c7c42",
+			"revisionTime": "2019-05-20T09:08:57Z"
 		},
 		{
-			"checksumSHA1": "1ItKI2owz8pIpBWxmqK49eR3JqE=",
+			"checksumSHA1": "jTYGIg3hCVtfo3Lkm6BvEUqhXhA=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
-			"revision": "fa025aaeb8a18c2bd97a15a5905dc5b7d184d400",
-			"revisionTime": "2018-11-23T13:13:48Z"
+			"revision": "b855e422a973c7e4b527fdb02f6ec0ae3a756677",
+			"revisionTime": "2019-06-12T09:52:30Z"
 		},
 		{
-			"checksumSHA1": "/5JpULDw51Em+1+OJHcfDkbw/e0=",
+			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",
 			"path": "github.com/golang/mock/gomock",
-			"revision": "f67f7081ddcd0f92a20c1d58e7cd8b23253d15c7",
-			"revisionTime": "2017-12-07T01:11:52Z"
+			"revision": "140ae90f29eaaadc229f8d4b78f074b7f0611c1e",
+			"revisionTime": "2019-05-17T14:58:38Z"
 		},
 		{
 			"path": "github.com/gopherjs/gopherjs/js",
