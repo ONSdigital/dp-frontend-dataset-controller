@@ -135,10 +135,10 @@
 			"revisionTime": "2019-06-12T09:52:30Z"
 		},
 		{
-			"checksumSHA1": "/5JpULDw51Em+1+OJHcfDkbw/e0=",
+			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",
 			"path": "github.com/golang/mock/gomock",
-			"revision": "f67f7081ddcd0f92a20c1d58e7cd8b23253d15c7",
-			"revisionTime": "2017-12-07T01:11:52Z"
+			"revision": "140ae90f29eaaadc229f8d4b78f074b7f0611c1e",
+			"revisionTime": "2019-05-17T14:58:38Z"
 		},
 		{
 			"path": "github.com/gopherjs/gopherjs/js",
