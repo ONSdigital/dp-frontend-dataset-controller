@@ -30,6 +30,9 @@ import (
 
 const dataEndpoint = `\/data$`
 
+// To mock interfaces in this file
+// mockgen -source=handlers/handlers.go -destination=handlers/mock_handlers.go -imports=handlers=github.com/ONSdigital/dp-frontend-dataset-controller/handlers -package=handlers
+
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
@@ -60,7 +63,7 @@ type RenderClient interface {
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
-	error
+	Error() string
 	Code() int
 }
 
