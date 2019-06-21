@@ -276,9 +276,13 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 
 		var correctionReasons []string
 		const correctionAlertType = "correction"
-		for _, alert := range *ver.Alerts {
-			if alert.Type == correctionAlertType {
-				correctionReasons = append(correctionReasons, alert.Description)
+		if *ver.Alerts != nil {
+			for _, alert := range *ver.Alerts {
+				if &alert != nil {
+					if alert.Type == correctionAlertType {
+						correctionReasons = append(correctionReasons, alert.Description)
+					}
+				}
 			}
 		}
 		version.Reasons = correctionReasons
