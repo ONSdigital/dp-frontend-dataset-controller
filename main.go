@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
+	"github.com/ONSdigital/go-ns/handlers/accessToken"
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
@@ -85,6 +86,9 @@ func main() {
 
 	s.Middleware["CollectionID"] = collectionID.CheckCookie
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
+
+	s.Middleware["AccessToken"] = accessToken.CheckCookie
+	s.MiddlewareOrder = append(s.MiddlewareOrder, "AccessToken")
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
