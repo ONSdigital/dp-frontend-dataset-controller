@@ -102,7 +102,6 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockZebedeeClient.EXPECT().Get(ctx, "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
-			//mockZebedeeClient.EXPECT().SetAccessToken("12345")
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/data", nil)
