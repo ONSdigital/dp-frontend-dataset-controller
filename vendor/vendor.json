@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "QDHWtVBYrIsLSMqgwJy57QpcbsY=",
+			"checksumSHA1": "hEDY1K4lAova2Ej92ia5HeyQMME=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model",
-			"revision": "cb4e58dfd37eb1aa358e2b0e096aa74e1d0f07dd",
-			"revisionTime": "2017-12-28T08:15:36Z"
+			"revision": "45cb171b8e0b9ea6c197afc7c43e0ac87816572c",
+			"revisionTime": "2019-06-19T09:55:20Z"
 		},
 		{
 			"checksumSHA1": "Ri1nZntkbdc+S7p7baJJie9pXxU=",
@@ -77,8 +77,8 @@
 		{
 			"checksumSHA1": "P5NQRDEiQJNSdTZqgcfR/o5T43Q=",
 			"path": "github.com/ONSdigital/go-ns/handlers/collectionID",
-			"revision": "9d7a9b194abd25973e015478e6e6514ba398d231",
-			"revisionTime": "2019-06-26T11:14:30Z"
+			"revision": "e4adbc6a592d7455d67fef5a6b26348ef475878b",
+			"revisionTime": "2019-06-26T12:19:43Z"
 		},
 		{
 			"checksumSHA1": "ei+/RCSa0XO9v9rQxAh0uqyJ/28=",
