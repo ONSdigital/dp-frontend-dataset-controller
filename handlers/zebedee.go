@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+
 	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 )
@@ -10,10 +12,9 @@ import (
 
 // ZebedeeClient is an interface for zebedee client
 type ZebedeeClient interface {
-	SetAccessToken(string)
-	GetBreadcrumb(string) ([]data.Breadcrumb, error)
-	Get(string) ([]byte, error)
-	GetDatasetLandingPage(string) (data.DatasetLandingPage, error)
-	GetDataset(string) (data.Dataset, error)
+	GetBreadcrumb(context.Context, string) ([]data.Breadcrumb, error)
+	Get(context.Context, string) ([]byte, error)
+	GetDatasetLandingPage(context.Context, string) (data.DatasetLandingPage, error)
+	GetDataset(context.Context, string) (data.Dataset, error)
 	healthcheck.Client
 }
