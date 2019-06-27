@@ -76,7 +76,7 @@ func main() {
 		router.StrictSlash(true).Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks)
 	}
 
-	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, rend))
+	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend))
 
 	log.Info("Starting server", log.Data{"config": cfg})
 
@@ -85,7 +85,7 @@ func main() {
 
 	s.Middleware["CollectionID"] = collectionID.CheckCookie
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
-	
+
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
 			log.Error(err, nil)
