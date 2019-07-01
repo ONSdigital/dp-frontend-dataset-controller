@@ -40,7 +40,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
@@ -51,6 +51,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
+	p.BetaBannerEnabled = true
 
 	for _, breadcrumb := range breadcrumbs {
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
@@ -69,8 +70,14 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 	p.DatasetLandingPage.DatasetID = datasetID
 
 	p.DatasetLandingPage.Edition = ver.Edition
+
+	if ver.Edition != "time-series" {
+		p.DatasetLandingPage.ShowEditionName = true
+	}
+
 	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
-	p.DatasetLandingPage.LatestVersionURL = d.Links.LatestVersion.URL
+	p.DatasetLandingPage.LatestVersionURL = latestVersionURL
+	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
@@ -245,6 +252,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	var p datasetVersionsList.Page
 	SetTaxonomyDomain(&p.Page)
 	p.Metadata.Title = "Previous versions"
+	p.BetaBannerEnabled = true
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
 		log.ErrorCtx(ctx, err, nil)
@@ -268,7 +276,16 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 			})
 		}
 
-		version.Reason = "-" // TODO: use reason from dataset api if it becomes available
+		var correctionReasons []string
+		const correctionAlertType = "correction"
+		if ver.Alerts != nil {
+			for _, alert := range *ver.Alerts {
+				if &alert != nil && alert.Type == correctionAlertType {
+					correctionReasons = append(correctionReasons, alert.Description)
+				}
+			}
+			version.Reasons = correctionReasons
+		}
 
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 		p.Data.Versions = append(p.Data.Versions, version)
@@ -287,6 +304,7 @@ func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset
 	p.Metadata.Description = d.Description
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
+	p.BetaBannerEnabled = true
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name

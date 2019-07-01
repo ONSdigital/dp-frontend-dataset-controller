@@ -124,7 +124,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem})
+		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -166,7 +166,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
 		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
 
-		p := CreateFilterableLandingPage(ctx, dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{})
+		p := CreateFilterableLandingPage(ctx, dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
 
 		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
 
