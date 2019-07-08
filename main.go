@@ -87,7 +87,7 @@ func main() {
 	s.Middleware["CollectionID"] = collectionID.CheckCookie
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
 
-	s.Middleware["AccessToken"] = accessToken.CheckCookie
+	s.Middleware["AccessToken"] = accessToken.CheckCookieValueAndForwardWithRequestContext
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "AccessToken")
 
 	go func() {
