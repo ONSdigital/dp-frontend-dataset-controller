@@ -123,10 +123,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "AXGeuD9F5bYkQgdV6dLNgRUf9xY=",
+			"checksumSHA1": "JVYcgiLYn00vESzMyaQqC6pF0pw=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "a71825ee63804c27756ac8444c56a843285b09d6",
-			"revisionTime": "2019-07-08T12:45:24Z"
+			"revision": "ba92cde67e201ffba6f382610deabc4c3e86e6af",
+			"revisionTime": "2019-07-09T08:27:28Z"
 		},
 		{
 			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
