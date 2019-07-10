@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"sync"
 
 	"github.com/pkg/errors"
 
@@ -29,6 +30,9 @@ import (
 
 const dataEndpoint = `\/data$`
 
+// To mock interfaces in this file
+// mockgen -source=handlers/handlers.go -destination=handlers/mock_handlers.go -imports=handlers=github.com/ONSdigital/dp-frontend-dataset-controller/handlers -package=handlers
+
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
@@ -41,6 +45,7 @@ type FilterClient interface {
 type DatasetClient interface {
 	healthcheck.Client
 	Get(ctx context.Context, id string) (m dataset.Model, err error)
+	GetByPath(ctx context.Context, path string) (m dataset.Model, err error)
 	GetEditions(ctx context.Context, id string) (m []dataset.Edition, err error)
 	GetEdition(ctx context.Context, id, edition string) (dataset.Edition, error)
 	GetVersions(ctx context.Context, id, edition string) (m []dataset.Version, err error)
@@ -58,7 +63,7 @@ type RenderClient interface {
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
-	error
+	Error() string
 	Code() int
 }
 
@@ -123,10 +128,10 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		legacyLanding(w, req, zc, rend, cfg)
+		legacyLanding(w, req, zc, dc, rend, cfg)
 	}
 }
 
@@ -251,6 +256,15 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		displayOtherVersionsLink = true
 	}
 
+	latestVersionNumber := 1
+	for _, singleVersion := range allVers {
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
+		}
+	}
+
+	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, strconv.Itoa(latestVersionNumber))
+
 	ver, err := dc.GetVersion(req.Context(), datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -290,7 +304,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc)
+	m := mapper.CreateFilterableLandingPage(req.Context(), datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -383,7 +397,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) {
 	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
 		zc.SetAccessToken(c.Value)
 	}
@@ -422,6 +436,33 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, r
 			return
 		}
 		ds = append(ds, d)
+	}
+
+	// Check for filterable datasets and fetch details
+	if len(dlp.RelatedFilterableDatasets) > 0 {
+		var relatedFilterableDatasets []data.Related
+		var wg sync.WaitGroup
+		var mutex = &sync.Mutex{}
+		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
+			wg.Add(1)
+			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset data.Related) {
+				defer wg.Done()
+				d, err := dc.GetByPath(ctx, relatedFilterableDataset.URI)
+				if err != nil {
+					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
+					log.ErrorCtx(req.Context(), errors.WithMessage(err, "error fetching dataset details"), log.Data{
+						"dataset": relatedFilterableDataset.URI,
+					})
+					return
+				}
+				mutex.Lock()
+				defer mutex.Unlock()
+				relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
+				return
+			}(req.Context(), dc, relatedFilterableDataset)
+		}
+		wg.Wait()
+		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
 	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
