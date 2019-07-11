@@ -28,7 +28,7 @@ type Version struct {
 	Edition       string       `json:"edition"`
 }
 
-//Download has the details for the an individual dataset's downloadable files
+// Correction represents a single correction on the versions list page
 type Correction struct {
 	Reason string `json:"reason"`
 	Date   string `json:"date"`
