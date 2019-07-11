@@ -63,10 +63,16 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "hlr8fdPLJMYY6YkPuiBkI8Jm9Mc=",
+			"checksumSHA1": "EKyi1XnDHY92J3MomOqsSp/erRw=",
 			"path": "github.com/ONSdigital/go-ns/common",
-			"revision": "caee21dda39f1143056a5ec0b3031036e14c7c42",
-			"revisionTime": "2019-05-20T09:08:57Z"
+			"revision": "9d7a9b194abd25973e015478e6e6514ba398d231",
+			"revisionTime": "2019-06-26T11:14:30Z"
+		},
+		{
+			"checksumSHA1": "y24uVuOQBiUWkawZVwdWRZ5TxHk=",
+			"path": "github.com/ONSdigital/go-ns/handlers/accessToken",
+			"revision": "a71825ee63804c27756ac8444c56a843285b09d6",
+			"revisionTime": "2019-07-08T12:45:24Z"
 		},
 		{
 			"checksumSHA1": "P5NQRDEiQJNSdTZqgcfR/o5T43Q=",
@@ -117,10 +123,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "cJWJF357pxg9moFdCiwYjbP7FCs=",
+			"checksumSHA1": "JVYcgiLYn00vESzMyaQqC6pF0pw=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "8f16ab9f96817f89e7a2e2791f6ff72346f15711",
-			"revisionTime": "2018-11-27T09:28:38Z"
+			"revision": "ba92cde67e201ffba6f382610deabc4c3e86e6af",
+			"revisionTime": "2019-07-09T08:27:28Z"
 		},
 		{
 			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
