@@ -296,11 +296,15 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		}
 
 		const correctionAlertType = "correction"
-		for _, alert := range *ver.Alerts {
-			if alert.Type == correctionAlertType {
-				correctionReasons = append(correctionReasons, alert.Description)
+		if ver.Alerts != nil {
+			for _, alert := range *ver.Alerts {
+				if &alert != nil && alert.Type == correctionAlertType {
+					version.Corrections = append(version.Corrections, datasetVersionsList.Correction{
+						Reason: alert.Description,
+						Date:   alert.Date,
+					})
+				}
 			}
-			version.Reasons = correctionReasons
 		}
 
 		p.Data.Versions = append(p.Data.Versions, version)
@@ -310,7 +314,6 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		versionsInReverse := len(p.Data.Versions) - 1 - i
 		p.Data.Versions[i], p.Data.Versions[versionsInReverse] = p.Data.Versions[versionsInReverse], p.Data.Versions[i]
 	}
-
 	return p
 }
 
