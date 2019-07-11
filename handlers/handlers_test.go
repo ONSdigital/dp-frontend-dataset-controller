@@ -101,8 +101,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test successful json response", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockZebedeeClient.EXPECT().Get("/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
-			mockZebedeeClient.EXPECT().SetAccessToken("12345")
+			mockZebedeeClient.EXPECT().Get(ctx, "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/data", nil)
@@ -120,7 +119,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test status 500 returned if zedbedee get returns error", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockZebedeeClient.EXPECT().Get("/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
+			mockZebedeeClient.EXPECT().Get(ctx, "/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/data", nil)
@@ -142,9 +141,9 @@ func TestUnitHandlers(t *testing.T) {
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI)
-			mockZebedeeClient.EXPECT().GetDataset("dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -166,7 +165,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{}
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, errors.New("something went wrong :("))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -183,8 +182,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI).Return(nil, errors.New("something went wrong"))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, dlp.URI).Return(nil, errors.New("something went wrong"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -203,9 +202,9 @@ func TestUnitHandlers(t *testing.T) {
 			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage("/data?uri=/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(dlp.URI)
-			mockZebedeeClient.EXPECT().GetDataset("dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return(nil, errors.New("error from renderer"))
@@ -254,7 +253,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetOptions(ctx, "12345", "5678", "2017", "aggregate").Return(opts, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions(ctx, "12345", "5678", "2017", "aggregate").Return(opts, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb("/economy/grossdomesticproduct/datasets/gdpjanuary2018")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, "/economy/grossdomesticproduct/datasets/gdpjanuary2018")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -293,7 +292,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "12345").Return(dataset.Model{}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, "12345", "5678").Return(versions, errors.New("sorry"))
-			mockZebedeeClient.EXPECT().GetBreadcrumb("")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, "")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
@@ -315,7 +314,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetVersion(ctx, "12345", "5678", "1").Return(versions[0], nil)
 			mockClient.EXPECT().GetDimensions(ctx, "12345", "5678", "1")
 			mockClient.EXPECT().GetVersionMetadata(ctx, "12345", "5678", "1")
-			mockZebedeeClient.EXPECT().GetBreadcrumb("")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return(nil, errors.New("error from renderer"))
