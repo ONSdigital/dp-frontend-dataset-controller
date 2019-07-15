@@ -217,7 +217,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
+		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.Links.Taxonomy.URL})
 	}
 
 	if len(edition) == 0 {
