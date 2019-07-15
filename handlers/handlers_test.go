@@ -253,7 +253,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetOptions(ctx, "12345", "5678", "2017", "aggregate").Return(opts, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions(ctx, "12345", "5678", "2017", "aggregate").Return(opts, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, "/economy/grossdomesticproduct/datasets/gdpjanuary2018")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
