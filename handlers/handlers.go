@@ -144,10 +144,10 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient) ht
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient, rend RenderClient) http.HandlerFunc {
+func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		editionsList(w, req, dc, rend, cfg)
+		editionsList(w, req, dc, zc, rend, cfg)
 	}
 }
 
@@ -215,18 +215,9 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, datasetModel.URI)
+	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
 		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
-	}
-
-	if len(bc) > 0 {
-		bc = append(bc, data.Breadcrumb{
-			Description: data.NodeDescription{
-				Title: datasetModel.Title,
-			},
-			URI: datasetModel.Links.Self.URL,
-		})
 	}
 
 	if len(edition) == 0 {
@@ -343,19 +334,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
+	ctx := req.Context()
 
 	req = forwardFlorenceTokenIfRequired(req)
 
-	datasetModel, err := dc.Get(req.Context(), datasetID)
+	datasetModel, err := dc.Get(ctx, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(req.Context(), datasetID)
+	datasetEditions, err := dc.GetEditions(ctx, datasetID)
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
@@ -363,6 +355,12 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 				return
 			}
 		}
+	}
+
+	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
+	if err != nil {
+		log.ErrorCtx(ctx, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
+		return
 	}
 
 	numberOfEditions := len(datasetEditions)
@@ -376,7 +374,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		}
 	}
 
-	m := mapper.CreateEditionsList(req.Context(), datasetModel, datasetEditions, datasetID)
+	m := mapper.CreateEditionsList(ctx, datasetModel, datasetEditions, datasetID, bc)
 
 	b, err := json.Marshal(m)
 	if err != nil {
