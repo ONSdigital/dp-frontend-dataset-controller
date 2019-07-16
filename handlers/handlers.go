@@ -360,7 +360,6 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
 		log.ErrorCtx(ctx, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.Links.Taxonomy.URL})
-		return
 	}
 
 	numberOfEditions := len(datasetEditions)
