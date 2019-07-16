@@ -60,6 +60,28 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 		})
 	}
 
+	// breadcrumbs won't contain this page or it's parent page in it's response
+	// from Zebedee, so add it to the slice
+	currentPageBreadcrumbTitle := ver.Links.Edition.ID
+	if currentPageBreadcrumbTitle == "time-series" {
+		currentPageBreadcrumbTitle = "Current"
+	}
+	datasetURL, err := url.Parse(d.Links.Self.URL)
+	if err != nil {
+		datasetURL.Path = ""
+		log.ErrorCtx(ctx, err, nil)
+	}
+	datasetBreadcrumbs := []model.TaxonomyNode{
+		{
+			Title: d.Title,
+			URI:   datasetURL.Path,
+		},
+		{
+			Title: currentPageBreadcrumbTitle,
+		},
+	}
+	p.Breadcrumb = append(p.Breadcrumb, datasetBreadcrumbs...)
+
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
 		p.ContactDetails.Telephone = d.Contacts[0].Telephone
@@ -318,7 +340,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_edition_list"
@@ -328,6 +350,18 @@ func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
+
+	for _, bc := range breadcrumbs {
+		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+			Title: bc.Description.Title,
+			URI:   bc.URI,
+		})
+	}
+
+	// breadcrumbs won't contain this page in it's response from Zebedee, so add it to the slice
+	p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+		Title: d.Title,
+	})
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name

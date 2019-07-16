@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-// Model represents a response dataset model from the dataset	 api
+// Model represents a response dataset model from the dataset api
 type Model struct {
 	ID                string           `json:"id"`
 	CollectionID      string           `json:"collection_id"`
@@ -113,6 +113,7 @@ type Links struct {
 	Options       Link `json:"options,omitempty"`
 	Version       Link `json:"version,omitempty"`
 	Code          Link `json:"code,omitempty"`
+	Taxonomy      Link `json:"taxonomy,omitempty"`
 }
 
 // Link represents a single link within a dataset model
