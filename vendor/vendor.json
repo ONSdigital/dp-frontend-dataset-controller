@@ -69,10 +69,10 @@
 			"revisionTime": "2019-06-26T11:14:30Z"
 		},
 		{
-			"checksumSHA1": "y24uVuOQBiUWkawZVwdWRZ5TxHk=",
+			"checksumSHA1": "gPmeo8SaEG731UM3ejs32yd9SB8=",
 			"path": "github.com/ONSdigital/go-ns/handlers/accessToken",
-			"revision": "a71825ee63804c27756ac8444c56a843285b09d6",
-			"revisionTime": "2019-07-08T12:45:24Z"
+			"revision": "9dedeaa7b91f2187ebae8cf6b63a268016fa50b3",
+			"revisionTime": "2019-07-19T07:31:34Z"
 		},
 		{
 			"checksumSHA1": "P5NQRDEiQJNSdTZqgcfR/o5T43Q=",
