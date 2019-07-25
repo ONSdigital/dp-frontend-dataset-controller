@@ -60,6 +60,28 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 		})
 	}
 
+	// breadcrumbs won't contain this page or it's parent page in it's response
+	// from Zebedee, so add it to the slice
+	currentPageBreadcrumbTitle := ver.Links.Edition.ID
+	if currentPageBreadcrumbTitle == "time-series" {
+		currentPageBreadcrumbTitle = "Current"
+	}
+	datasetURL, err := url.Parse(d.Links.Self.URL)
+	if err != nil {
+		datasetURL.Path = ""
+		log.ErrorCtx(ctx, err, nil)
+	}
+	datasetBreadcrumbs := []model.TaxonomyNode{
+		{
+			Title: d.Title,
+			URI:   datasetURL.Path,
+		},
+		{
+			Title: currentPageBreadcrumbTitle,
+		},
+	}
+	p.Breadcrumb = append(p.Breadcrumb, datasetBreadcrumbs...)
+
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
 		p.ContactDetails.Telephone = d.Contacts[0].Telephone
@@ -251,7 +273,12 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	SetTaxonomyDomain(&p.Page)
-	p.Metadata.Title = "Previous versions"
+	// TODO refactor and make Welsh compatable.
+	p.Metadata.Title = "All versions of " + d.Title
+	if len(versions) > 0 {
+		p.Metadata.Title += " " + versions[0].Edition
+	}
+	p.Metadata.Title += " dataset"
 	p.BetaBannerEnabled = true
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
@@ -260,14 +287,28 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	p.Data.LatestVersionURL = uri.Path
 	p.DatasetId = d.ID
 
-	for _, ver := range versions {
+	for i, ver := range versions {
 		if edition.Links.LatestVersion.URL == ver.Links.Self.URL {
 			continue
 		}
 
 		var version datasetVersionsList.Version
 
+		version.VersionNumber = ver.Version
+		version.Title = d.Title
 		version.Date = ver.ReleaseDate
+		version.VersionURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+
+		if ver.Version > 1 {
+			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, (i))
+		}
+		if ver.Version == len(versions) {
+			version.IsLatest = true
+		} else {
+			version.IsLatest = false
+		}
+
 		for ext, download := range ver.Downloads {
 			version.Downloads = append(version.Downloads, datasetVersionsList.Download{
 				Extension: ext,
@@ -276,26 +317,30 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 			})
 		}
 
-		var correctionReasons []string
 		const correctionAlertType = "correction"
 		if ver.Alerts != nil {
 			for _, alert := range *ver.Alerts {
 				if &alert != nil && alert.Type == correctionAlertType {
-					correctionReasons = append(correctionReasons, alert.Description)
+					version.Corrections = append(version.Corrections, datasetVersionsList.Correction{
+						Reason: alert.Description,
+						Date:   alert.Date,
+					})
 				}
 			}
-			version.Reasons = correctionReasons
 		}
 
-		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 		p.Data.Versions = append(p.Data.Versions, version)
 	}
-
+	// Reverse splice, so it is ordered by latest
+	for i := len(p.Data.Versions)/2 - 1; i >= 0; i-- {
+		versionsInReverse := len(p.Data.Versions) - 1 - i
+		p.Data.Versions[i], p.Data.Versions[versionsInReverse] = p.Data.Versions[versionsInReverse], p.Data.Versions[i]
+	}
 	return p
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_edition_list"
@@ -305,6 +350,18 @@ func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
+
+	for _, bc := range breadcrumbs {
+		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+			Title: bc.Description.Title,
+			URI:   bc.URI,
+		})
+	}
+
+	// breadcrumbs won't contain this page in it's response from Zebedee, so add it to the slice
+	p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+		Title: d.Title,
+	})
 
 	if len(d.Contacts) > 0 {
 		p.ContactDetails.Name = d.Contacts[0].Name
