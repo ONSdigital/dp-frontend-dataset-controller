@@ -144,10 +144,10 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient) ht
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient, rend RenderClient) http.HandlerFunc {
+func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		cfg := config.Get()
-		editionsList(w, req, dc, rend, cfg)
+		editionsList(w, req, dc, zc, rend, cfg)
 	}
 }
 
@@ -205,30 +205,19 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
 	version := vars["versionID"]
+	ctx := req.Context()
 
 	req = forwardFlorenceTokenIfRequired(req)
 
-	datasetModel, err := dc.Get(req.Context(), datasetID)
+	datasetModel, err := dc.Get(ctx, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
-		zc.SetAccessToken(c.Value)
-	}
-	bc, err := zc.GetBreadcrumb(datasetModel.URI)
+	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.URI})
-	}
-
-	if len(bc) > 0 {
-		bc = append(bc, data.Breadcrumb{
-			Description: data.NodeDescription{
-				Title: datasetModel.Title,
-			},
-			URI: datasetModel.Links.Self.URL,
-		})
+		log.ErrorCtx(req.Context(), err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.Links.Taxonomy.URL})
 	}
 
 	if len(edition) == 0 {
@@ -345,19 +334,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
+	ctx := req.Context()
 
 	req = forwardFlorenceTokenIfRequired(req)
 
-	datasetModel, err := dc.Get(req.Context(), datasetID)
+	datasetModel, err := dc.Get(ctx, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(req.Context(), datasetID)
+	datasetEditions, err := dc.GetEditions(ctx, datasetID)
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
@@ -365,6 +355,11 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 				return
 			}
 		}
+	}
+
+	bc, err := zc.GetBreadcrumb(ctx, datasetModel.Links.Taxonomy.URL)
+	if err != nil {
+		log.ErrorCtx(ctx, err, log.Data{"Getting breadcrumb for dataset URI": datasetModel.Links.Taxonomy.URL})
 	}
 
 	numberOfEditions := len(datasetEditions)
@@ -378,7 +373,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		}
 	}
 
-	m := mapper.CreateEditionsList(req.Context(), datasetModel, datasetEditions, datasetID)
+	m := mapper.CreateEditionsList(ctx, datasetModel, datasetEditions, datasetID, bc)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -398,16 +393,13 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 }
 
 func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) {
-	if c, err := req.Cookie("access_token"); err == nil && len(c.Value) > 0 {
-		zc.SetAccessToken(c.Value)
-	}
-
+	ctx := req.Context()
 	path := req.URL.Path
 
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
 	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
-		b, err := zc.Get("/data?uri=" + path)
+		b, err := zc.Get(ctx, "/data?uri="+path)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -416,13 +408,13 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		return
 	}
 
-	dlp, err := zc.GetDatasetLandingPage("/data?uri=" + path)
+	dlp, err := zc.GetDatasetLandingPage(ctx, path)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(dlp.URI)
+	bc, err := zc.GetBreadcrumb(ctx, dlp.URI)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -430,7 +422,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	var ds []data.Dataset
 	for _, v := range dlp.Datasets {
-		d, err := zc.GetDataset(v.URI)
+		d, err := zc.GetDataset(ctx, v.URI)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
 			return

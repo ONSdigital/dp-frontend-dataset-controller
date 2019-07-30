@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
+	"github.com/ONSdigital/go-ns/handlers/accessToken"
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
@@ -45,8 +46,8 @@ func main() {
 
 	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Handler)
 
-	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
-	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, rend))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc))
@@ -85,6 +86,9 @@ func main() {
 
 	s.Middleware["CollectionID"] = collectionID.CheckCookie
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
+
+	s.Middleware["AccessToken"] = accessToken.CheckCookieValueAndForwardWithRequestContext
+	s.MiddlewareOrder = append(s.MiddlewareOrder, "AccessToken")
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
