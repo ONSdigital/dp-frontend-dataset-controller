@@ -16,6 +16,7 @@ import (
 	"github.com/ONSdigital/go-ns/handlers/accessToken"
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
+	"github.com/ONSdigital/go-ns/handlers/localeCode"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/go-ns/zebedee/client"
@@ -89,6 +90,9 @@ func main() {
 
 	s.Middleware["AccessToken"] = accessToken.CheckCookieValueAndForwardWithRequestContext
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "AccessToken")
+
+	s.Middleware["LocaleCode"] = localeCode.CheckHeaderValueAndForwardWithRequestContext
+	s.MiddlewareOrder = append(s.MiddlewareOrder, "LocaleCode")
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {

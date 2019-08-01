@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "hEDY1K4lAova2Ej92ia5HeyQMME=",
+			"checksumSHA1": "qsWQHvSsn4XThaZ6DJWbdugsos0=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model",
-			"revision": "45cb171b8e0b9ea6c197afc7c43e0ac87816572c",
-			"revisionTime": "2019-06-19T09:55:20Z"
+			"revision": "ee079565c4c1f212ffd1a69ff17aa837fb7c73cd",
+			"revisionTime": "2019-06-25T13:34:06Z"
 		},
 		{
 			"checksumSHA1": "Ri1nZntkbdc+S7p7baJJie9pXxU=",
@@ -63,10 +63,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "EKyi1XnDHY92J3MomOqsSp/erRw=",
+			"checksumSHA1": "F+kAREbYcIceRimr1oz321889C8=",
 			"path": "github.com/ONSdigital/go-ns/common",
-			"revision": "9d7a9b194abd25973e015478e6e6514ba398d231",
-			"revisionTime": "2019-06-26T11:14:30Z"
+			"revision": "d5019fd87b49b1027b8d3956c82bb295e69f9e03",
+			"revisionTime": "2019-07-23T10:01:44Z"
 		},
 		{
 			"checksumSHA1": "gPmeo8SaEG731UM3ejs32yd9SB8=",
@@ -85,6 +85,12 @@
 			"path": "github.com/ONSdigital/go-ns/handlers/healthcheck",
 			"revision": "7d241b721903e1b6a9a1f5c916cdbfa661d230f1",
 			"revisionTime": "2018-05-08T08:56:58Z"
+		},
+		{
+			"checksumSHA1": "eriThZ7T6Mo/DL4VwivijAn6UXc=",
+			"path": "github.com/ONSdigital/go-ns/handlers/localeCode",
+			"revision": "d5019fd87b49b1027b8d3956c82bb295e69f9e03",
+			"revisionTime": "2019-07-23T10:01:44Z"
 		},
 		{
 			"checksumSHA1": "J9OiPnhPHFPhQ+R+dq6LFj+dTxE=",
@@ -123,10 +129,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "JVYcgiLYn00vESzMyaQqC6pF0pw=",
+			"checksumSHA1": "p8Y7mqobfQ6UIeu//AA0klHtKfI=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "ba92cde67e201ffba6f382610deabc4c3e86e6af",
-			"revisionTime": "2019-07-09T08:27:28Z"
+			"revision": "d5019fd87b49b1027b8d3956c82bb295e69f9e03",
+			"revisionTime": "2019-07-23T10:01:44Z"
 		},
 		{
 			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
@@ -135,10 +141,10 @@
 			"revisionTime": "2019-05-20T09:08:57Z"
 		},
 		{
-			"checksumSHA1": "lEppDOAYlgUrEeLuCv+ER3qd3GA=",
+			"checksumSHA1": "fO7lMA4hJvLdEmLJWveQv0xPuhs=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
-			"revision": "473b0c699f27bbe3dcc56ac68fc6311738d8f076",
-			"revisionTime": "2019-07-11T13:31:14Z"
+			"revision": "d5019fd87b49b1027b8d3956c82bb295e69f9e03",
+			"revisionTime": "2019-07-23T10:01:44Z"
 		},
 		{
 			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",

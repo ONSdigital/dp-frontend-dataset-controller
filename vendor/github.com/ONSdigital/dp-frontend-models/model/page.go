@@ -15,7 +15,7 @@ type Page struct {
 	SearchDisabled                   bool           `json:"search_disabled"`
 	SiteDomain                       string         `json:"-"`
 	PatternLibraryAssetsPath         string         `json:"-"`
-	Language                         string         `json:"-"`
+	Language                         string         `json:"language"`
 	IncludeAssetsIntegrityAttributes bool           `json:"-"`
 	ShowFeedbackForm                 bool           `json:"show_feedback_form"`
 	ReleaseDate                      string         `json:"release_date"`
