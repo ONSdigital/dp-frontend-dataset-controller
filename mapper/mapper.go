@@ -288,10 +288,6 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	p.DatasetId = d.ID
 
 	for i, ver := range versions {
-		if edition.Links.LatestVersion.URL == ver.Links.Self.URL {
-			continue
-		}
-
 		var version datasetVersionsList.Version
 
 		version.VersionNumber = ver.Version
