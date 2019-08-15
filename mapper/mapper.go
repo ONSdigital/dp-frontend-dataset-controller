@@ -180,10 +180,10 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
 			pDim.TotalItems = len(opt.Items)
 
-			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
+			if _, err = time.Parse("Jan-06", opt.Items[0].Option); err == nil {
 				var ts TimeSlice
 				for _, val := range opt.Items {
-					t, err := convertMMMYYToTime(val.Label)
+					t, err := convertMMMYYToTime(val.Option)
 					if err != nil {
 						log.ErrorCtx(ctx, err, nil)
 					}
@@ -205,10 +205,10 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 					}
 				}
 
-			} else if _, err = time.Parse("2006", opt.Items[0].Label); err == nil {
+			} else if _, err = time.Parse("2006", opt.Items[0].Option); err == nil {
 				var ts TimeSlice
 				for _, val := range opt.Items {
-					t, err := convertYYYYToTime(val.Label)
+					t, err := convertYYYYToTime(val.Option)
 					if err != nil {
 						log.Error(err, nil)
 					}
