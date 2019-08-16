@@ -331,6 +331,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	for i, ver := range p.Data.Versions{
 		if ver.VersionNumber == latestVersionNumber {
 			p.Data.Versions[i].IsLatest = true
+			break;
 		}
 	}
 
