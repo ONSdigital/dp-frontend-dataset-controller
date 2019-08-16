@@ -334,11 +334,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		}
 	}
 
-	// Reverse splice, so it is ordered by latest
-	for i := len(p.Data.Versions)/2 - 1; i >= 0; i-- {
-		versionsInReverse := len(p.Data.Versions) - 1 - i
-		p.Data.Versions[i], p.Data.Versions[versionsInReverse] = p.Data.Versions[versionsInReverse], p.Data.Versions[i]
-	}
+	sort.Slice(p.Data.Versions, func(i, j int) bool { return p.Data.Versions[i].VersionNumber > p.Data.Versions[j].VersionNumber })
 	return p
 }
 
