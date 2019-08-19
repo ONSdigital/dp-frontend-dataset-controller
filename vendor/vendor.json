@@ -71,8 +71,8 @@
 		{
 			"checksumSHA1": "hnWK78otqTZwDU2D16X5GHzvIhk=",
 			"path": "github.com/ONSdigital/go-ns/handlers/accessToken",
-			"revision": "27f1f1272f08f91cf4d8f0afe5032f57a3527b63",
-			"revisionTime": "2019-08-08T08:42:17Z"
+			"revision": "6c2be76816831e9951121264a951947ec0031d9d",
+			"revisionTime": "2019-08-16T10:49:18Z"
 		},
 		{
 			"checksumSHA1": "P5NQRDEiQJNSdTZqgcfR/o5T43Q=",
@@ -129,10 +129,10 @@
 			"revisionTime": "2018-06-07T13:26:14Z"
 		},
 		{
-			"checksumSHA1": "DL27QV6LjD2GaUgleKnuZh1ePNw=",
+			"checksumSHA1": "5gRGaRpEUJapAYNkPzdPMiydb6w=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/client",
-			"revision": "4acb08e5a74b9a46d94a4d709caef26bfd26fa3e",
-			"revisionTime": "2019-08-07T13:51:13Z"
+			"revision": "6c2be76816831e9951121264a951947ec0031d9d",
+			"revisionTime": "2019-08-16T10:49:18Z"
 		},
 		{
 			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
