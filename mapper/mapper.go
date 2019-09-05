@@ -273,7 +273,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	SetTaxonomyDomain(&p.Page)
-	// TODO refactor and make Welsh compatable.
+	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
 	if len(versions) > 0 {
 		p.Metadata.Title += " " + versions[0].Edition
@@ -287,9 +287,10 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	p.Data.LatestVersionURL = uri.Path
 	p.DatasetId = d.ID
 
+	latestVersionNumber := 1
 	for i, ver := range versions {
 		var version datasetVersionsList.Version
-
+		version.IsLatest = false
 		version.VersionNumber = ver.Version
 		version.Title = d.Title
 		version.Date = ver.ReleaseDate
@@ -297,12 +298,11 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 
 		if ver.Version > 1 {
-			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, (i))
+			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, i)
 		}
-		if ver.Version == len(versions) {
-			version.IsLatest = true
-		} else {
-			version.IsLatest = false
+
+		if ver.Version > latestVersionNumber{
+			latestVersionNumber = ver.Version
 		}
 
 		for ext, download := range ver.Downloads {
@@ -327,11 +327,15 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 
 		p.Data.Versions = append(p.Data.Versions, version)
 	}
-	// Reverse splice, so it is ordered by latest
-	for i := len(p.Data.Versions)/2 - 1; i >= 0; i-- {
-		versionsInReverse := len(p.Data.Versions) - 1 - i
-		p.Data.Versions[i], p.Data.Versions[versionsInReverse] = p.Data.Versions[versionsInReverse], p.Data.Versions[i]
+
+	for i, ver := range p.Data.Versions{
+		if ver.VersionNumber == latestVersionNumber {
+			p.Data.Versions[i].IsLatest = true
+			break;
+		}
 	}
+
+	sort.Slice(p.Data.Versions, func(i, j int) bool { return p.Data.Versions[i].VersionNumber > p.Data.Versions[j].VersionNumber })
 	return p
 }
 
