@@ -172,3 +172,85 @@ func TestUnitMapper(t *testing.T) {
 
 	})
 }
+
+// TestCreateVersionsList Tests the CreateVersionsList function in the mapper
+func TestCreateVersionsList(t *testing.T) {
+	dummyModelData := dataset.Model{
+		ID:    "cpih01",
+		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
+		Links: dataset.Links{
+			Editions: dataset.Link{
+				URL: "http://localhost:22000/datasets/cpih01/editions",
+				ID:  ""},
+			LatestVersion: dataset.Link{
+				URL: "http://localhost:22000/datasets/cpih01/editions/time-series/versions/3",
+				ID:  "3"},
+			Self: dataset.Link{
+				URL: "http://localhost:22000/datasets/cpih01",
+				ID:  ""},
+			Taxonomy: dataset.Link{
+				URL: "/economy/environmentalaccounts/datasets/consumerpricesindexincludingowneroccupiershousingcostscpih",
+				ID:  ""},
+		},
+	}
+	dummyEditionData := dataset.Edition{}
+	dummyVersion1 := dataset.Version{
+		Alerts:        nil,
+		CollectionID:  "",
+		Downloads:     nil,
+		Edition:       "time-series",
+		Dimensions:    nil,
+		ID:            "",
+		InstanceID:    "",
+		LatestChanges: nil,
+		Links: dataset.Links{
+			Dataset: dataset.Link{
+				URL: "http://localhost:22000/datasets/cpih01",
+				ID: "cpih01",
+			},
+		},
+		ReleaseDate: "2019-08-15T00:00:00.000Z",
+		State:       "published",
+		Temporal:    nil,
+		Version:     1,
+	}
+	dummyVersion2 := dummyVersion1
+	dummyVersion2.Version = 2
+	dummyVersion3 := dummyVersion1
+	dummyVersion3.Version = 3
+
+	ctx := context.Background()
+	Convey("test latest version page", t, func() {
+		dummySingleVersionList := []dataset.Version{dummyVersion3}
+
+		page := CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummySingleVersionList)
+		Convey("title", func() {
+			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
+		})
+		Convey("has correct number of versions when only one should be present", func() {
+			So(len(page.Data.Versions), ShouldEqual, 1)
+		})
+
+		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
+		page = CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummyMultipleVersionList)
+
+		Convey("has correct number of versions when multiple should be present", func() {
+			So(len(page.Data.Versions), ShouldEqual, 3)
+		})
+		Convey("is latest version correctly tagged", func() {
+			So(page.Data.Versions[0].IsLatest, ShouldEqual, true)
+			So(page.Data.Versions[1].IsLatest, ShouldEqual, false)
+			So(page.Data.Versions[2].IsLatest, ShouldEqual, false)
+		})
+		Convey("are version numbers accurate", func() {
+			So(page.Data.Versions[0].VersionNumber, ShouldEqual, 3)
+			So(page.Data.Versions[1].VersionNumber, ShouldEqual, 2)
+			So(page.Data.Versions[2].VersionNumber, ShouldEqual, 1)
+		})
+		Convey("superseded links accurate", func() {
+			So(page.Data.Versions[0].Superseded, ShouldEqual, "/datasets/cpih01/editions/time-series/versions/2")
+			So(page.Data.Versions[1].Superseded, ShouldEqual, "/datasets/cpih01/editions/time-series/versions/1")
+			So(page.Data.Versions[2].Superseded, ShouldEqual, "")
+		})
+	})
+}
