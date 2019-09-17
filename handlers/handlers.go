@@ -128,33 +128,29 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		cfg := config.Get()
 		legacyLanding(w, req, zc, dc, rend, cfg)
 	}
 }
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		cfg := config.Get()
 		filterableLanding(w, req, dc, rend, zc, cfg)
 	}
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
+func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		cfg := config.Get()
 		editionsList(w, req, dc, zc, rend, cfg)
 	}
 }
 
 // VersionsList will load a list of versions for a filterable datase
-func VersionsList(dc DatasetClient, rend RenderClient) http.HandlerFunc {
+func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		cfg := config.Get()
 		versionsList(w, req, dc, rend, cfg)
 	}
 }
