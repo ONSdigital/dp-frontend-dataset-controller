@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/filter"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
-	"github.com/ONSdigital/go-ns/clients/dataset"
-	"github.com/ONSdigital/go-ns/clients/filter"
 	"github.com/ONSdigital/go-ns/clients/renderer"
 	"github.com/ONSdigital/go-ns/handlers/accessToken"
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
@@ -19,7 +20,6 @@ import (
 	"github.com/ONSdigital/go-ns/handlers/localeCode"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
-	"github.com/ONSdigital/go-ns/zebedee/client"
 	"github.com/gorilla/mux"
 )
 
@@ -40,9 +40,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	f := filter.New(cfg.FilterAPIURL, "", "")
-	zc := client.NewZebedeeClient(cfg.ZebedeeURL)
-	dc := dataset.NewAPIClient(cfg.DatasetAPIURL, "", "")
+	f := filter.New(cfg.FilterAPIURL)
+	zc := zebedee.NewZebedeeClient(cfg.ZebedeeURL)
+	dc := dataset.NewAPIClient(cfg.DatasetAPIURL)
 	rend := renderer.New(cfg.RendererURL)
 
 	router.StrictSlash(true).Path("/healthcheck").HandlerFunc(healthcheck.Handler)
@@ -54,7 +54,7 @@ func main() {
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc))
 
-	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, cfg))
 
 	if len(cfg.MailHost) > 0 {
 
