@@ -457,7 +457,16 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
-	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds)
+	var localeCode string
+	if ctx.Value(common.LocaleHeaderKey) != nil {
+		var ok bool
+		localeCode, ok = ctx.Value(common.LocaleHeaderKey).(string)
+		if !ok {
+			log.ErrorCtx(ctx, errors.New("error casting locale code to string"), nil)
+		}
+	}
+
+	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds, localeCode)
 
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)
