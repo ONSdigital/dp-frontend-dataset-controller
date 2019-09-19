@@ -6,9 +6,10 @@ package handlers
 
 import (
 	context "context"
-	dataset "github.com/ONSdigital/go-ns/clients/dataset"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	dataset "github.com/ONSdigital/dp-api-clients-go/dataset"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockFilterClient is a mock of FilterClient interface
