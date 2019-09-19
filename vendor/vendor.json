@@ -3,6 +3,30 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "jaImJmCMOAR6xG3nWvyfQZQjqyU=",
+			"path": "github.com/ONSdigital/dp-api-clients-go/clientlog",
+			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
+			"revisionTime": "2019-09-16T13:24:41Z"
+		},
+		{
+			"checksumSHA1": "sTplfTmlRRkvhyi6VUcuMDJSMPk=",
+			"path": "github.com/ONSdigital/dp-api-clients-go/dataset",
+			"revision": "baf33ed796a0bcabadac7e6636b400e76dc801b4",
+			"revisionTime": "2019-09-19T13:13:21Z"
+		},
+		{
+			"checksumSHA1": "PZBcbtyYP97weT1rOox9CCUZ7GI=",
+			"path": "github.com/ONSdigital/dp-api-clients-go/filter",
+			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
+			"revisionTime": "2019-09-16T13:24:41Z"
+		},
+		{
+			"checksumSHA1": "LJUV3GKJKS6Lx1JdhqYqUH0seys=",
+			"path": "github.com/ONSdigital/dp-api-clients-go/renderer",
+			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
+			"revisionTime": "2019-09-16T13:24:41Z"
+		},
+		{
 			"checksumSHA1": "u/2gjjf8AF4UmlWuPTgcn6t+E7A=",
 			"path": "github.com/ONSdigital/dp-api-clients-go/zebedee",
 			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
@@ -45,10 +69,10 @@
 			"revisionTime": "2019-09-05T13:10:15Z"
 		},
 		{
-			"checksumSHA1": "FiMRxNHMTjAOynvPAGmyNi1amVM=",
+			"checksumSHA1": "n0XMzNcar1o9UqFgBzeh7E5poIA=",
 			"path": "github.com/ONSdigital/dp-rchttp",
-			"revision": "52fb85ef6bc97ee4f9a30547f17502b9e4a1b199",
-			"revisionTime": "2019-08-15T15:09:08Z"
+			"revision": "bb5699e6fd59efc9e8b669936f558fb017c17049",
+			"revisionTime": "2019-09-19T14:30:00Z"
 		},
 		{
 			"checksumSHA1": "+rsjNtumZUdoJ5k3D6TI8+RkkTU=",
@@ -59,12 +83,6 @@
 		{
 			"checksumSHA1": "U6qK/6OGFrgkPpqY6z3q4dph+pk=",
 			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
-		},
-		{
-			"checksumSHA1": "RLoP7FkklVRwnesyDs7iIFhQbOk=",
-			"path": "github.com/ONSdigital/go-ns/clients/filter",
 			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
 			"revisionTime": "2019-09-12T11:54:14Z"
 		},

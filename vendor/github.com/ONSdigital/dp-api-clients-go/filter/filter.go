@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ONSdigital/dp-api-clients-go/clientlog"
 	"github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/go-ns/clients/clientlog"
 	"github.com/ONSdigital/go-ns/common"
 	"github.com/ONSdigital/go-ns/log"
 )
@@ -361,7 +361,6 @@ func (c *Client) AddDimensionValue(ctx context.Context, serviceAuthToken, filter
 
 	defer CloseResponseBody(ctx, resp)
 
-
 	if resp.StatusCode != http.StatusCreated {
 		return &ErrInvalidFilterAPIResponse{http.StatusCreated, resp.StatusCode, uri}
 	}
@@ -536,7 +535,7 @@ func (c *Client) AddDimensionValues(ctx context.Context, serviceAuthToken, filte
 // GetPreview attempts to retrieve a preview for a given filterOutputID
 func (c *Client) GetPreview(ctx context.Context, serviceAuthToken, downloadServiceToken, filterOutputID string) (Preview, error) {
 	uri := fmt.Sprintf("%s/filter-outputs/%s/preview", c.url, filterOutputID)
- 	var p Preview
+	var p Preview
 	clientlog.Do(ctx, "retrieving preview for filter output job", service, uri, log.Data{
 		"method":   "GET",
 		"filterID": filterOutputID,

@@ -10,9 +10,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ONSdigital/go-ns/clients/clientlog"
+	"github.com/ONSdigital/go-ns/log"
+
+	"github.com/ONSdigital/dp-api-clients-go/clientlog"
+	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/go-ns/common"
-	"github.com/ONSdigital/go-ns/rchttp"
 	"github.com/pkg/errors"
 )
 
@@ -44,17 +46,21 @@ var _ error = ErrInvalidDatasetAPIResponse{}
 
 // Client is a dataset api client which can be used to make requests to the server
 type Client struct {
-	cli common.RCHTTPClienter
+	cli rchttp.Clienter
 	url string
 }
 
+// closeResponseBody closes the response body and logs an error containing the context if unsuccessful
+func closeResponseBody(ctx context.Context, resp *http.Response) {
+	if err := resp.Body.Close(); err != nil {
+		log.ErrorCtx(ctx, err, log.Data{"message": "error closing http response body"})
+	}
+}
+
 // NewAPIClient creates a new instance of Client with a given dataset api url and the relevant tokens
-func NewAPIClient(datasetAPIURL, serviceToken, xDownloadServiceToken string) *Client {
+func NewAPIClient(datasetAPIURL string) *Client {
 	return &Client{
-		cli: rchttp.ClientWithDownloadServiceToken(
-			rchttp.ClientWithServiceToken(nil, serviceToken),
-			xDownloadServiceToken,
-		),
+		cli: rchttp.NewClient(),
 		url: datasetAPIURL,
 	}
 }
@@ -67,6 +73,7 @@ func (c *Client) Healthcheck() (string, error) {
 	if err != nil {
 		return service, err
 	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		return service, NewDatasetAPIResponse(resp, "/healthcheck")
@@ -76,22 +83,16 @@ func (c *Client) Healthcheck() (string, error) {
 }
 
 // Get returns dataset level information for a given dataset id
-func (c *Client) Get(ctx context.Context, id string) (m Model, err error) {
-	uri := fmt.Sprintf("%s/datasets/%s", c.url, id)
+func (c *Client) Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m Model, err error) {
+	uri := fmt.Sprintf("%s/datasets/%s", c.url, datasetID)
 
 	clientlog.Do(ctx, "retrieving dataset", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -102,7 +103,6 @@ func (c *Client) Get(ctx context.Context, id string) (m Model, err error) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	var body map[string]interface{}
 	if err = json.Unmarshal(b, &body); err != nil {
@@ -124,22 +124,16 @@ func (c *Client) Get(ctx context.Context, id string) (m Model, err error) {
 }
 
 // GetByPath returns dataset level information for a given dataset path
-func (c *Client) GetByPath(ctx context.Context, path string) (m Model, err error) {
+func (c *Client) GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m Model, err error) {
 	uri := fmt.Sprintf("%s/%s", c.url, strings.Trim(path, "/"))
 
 	clientlog.Do(ctx, "retrieving data from dataset API", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -150,7 +144,6 @@ func (c *Client) GetByPath(ctx context.Context, path string) (m Model, err error
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	var body map[string]interface{}
 	if err = json.Unmarshal(b, &body); err != nil {
@@ -172,22 +165,16 @@ func (c *Client) GetByPath(ctx context.Context, path string) (m Model, err error
 }
 
 // GetDatasets returns the list of datasets
-func (c *Client) GetDatasets(ctx context.Context) (m ModelCollection, err error) {
+func (c *Client) GetDatasets(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string) (m ModelCollection, err error) {
 	uri := fmt.Sprintf("%s/datasets", c.url)
 
 	clientlog.Do(ctx, "retrieving datasets", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -198,7 +185,6 @@ func (c *Client) GetDatasets(ctx context.Context) (m ModelCollection, err error)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	var body map[string]interface{}
 	if err = json.Unmarshal(b, &body); err != nil {
@@ -209,22 +195,16 @@ func (c *Client) GetDatasets(ctx context.Context) (m ModelCollection, err error)
 }
 
 // GetEdition retrieves a single edition document from a given datasetID and edition label
-func (c *Client) GetEdition(ctx context.Context, datasetID, edition string) (m Edition, err error) {
+func (c *Client) GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (m Edition, err error) {
 	uri := fmt.Sprintf("%s/datasets/%s/editions/%s", c.url, datasetID, edition)
 
 	clientlog.Do(ctx, "retrieving dataset editions", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -235,7 +215,6 @@ func (c *Client) GetEdition(ctx context.Context, datasetID, edition string) (m E
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	var body map[string]interface{}
 	if err = json.Unmarshal(b, &body); err != nil {
@@ -254,22 +233,16 @@ func (c *Client) GetEdition(ctx context.Context, datasetID, edition string) (m E
 }
 
 // GetEditions returns all editions for a dataset
-func (c *Client) GetEditions(ctx context.Context, id string) (m []Edition, err error) {
-	uri := fmt.Sprintf("%s/datasets/%s/editions", c.url, id)
+func (c *Client) GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []Edition, err error) {
+	uri := fmt.Sprintf("%s/datasets/%s/editions", c.url, datasetID)
 
 	clientlog.Do(ctx, "retrieving dataset editions", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -280,7 +253,6 @@ func (c *Client) GetEditions(ctx context.Context, id string) (m []Edition, err e
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	var body map[string]interface{}
 	if err = json.Unmarshal(b, &body); err != nil {
@@ -309,22 +281,16 @@ func (c *Client) GetEditions(ctx context.Context, id string) (m []Edition, err e
 }
 
 // GetVersions gets all versions for an edition from the dataset api
-func (c *Client) GetVersions(ctx context.Context, id, edition string) (m []Version, err error) {
-	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions", c.url, id, edition)
+func (c *Client) GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string) (m []Version, err error) {
+	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions", c.url, datasetID, edition)
 
 	clientlog.Do(ctx, "retrieving dataset versions", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeadersAndWithDownloadToken(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -335,7 +301,6 @@ func (c *Client) GetVersions(ctx context.Context, id, edition string) (m []Versi
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	versions := struct {
 		Items []Version `json:"items"`
@@ -347,22 +312,16 @@ func (c *Client) GetVersions(ctx context.Context, id, edition string) (m []Versi
 }
 
 // GetVersion gets a specific version for an edition from the dataset api
-func (c *Client) GetVersion(ctx context.Context, id, edition, version string) (m Version, err error) {
-	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s", c.url, id, edition, version)
+func (c *Client) GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m Version, err error) {
+	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s", c.url, datasetID, edition, version)
 
 	clientlog.Do(ctx, "retrieving dataset version", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeadersAndWithDownloadToken(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -373,29 +332,22 @@ func (c *Client) GetVersion(ctx context.Context, id, edition, version string) (m
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	err = json.Unmarshal(b, &m)
 	return
 }
 
 // GetInstance returns an instance from the dataset api
-func (c *Client) GetInstance(ctx context.Context, instanceID string) (m Instance, err error) {
+func (c *Client) GetInstance(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, instanceID string) (m Instance, err error) {
 	uri := fmt.Sprintf("%s/instances/%s", c.url, instanceID)
 
 	clientlog.Do(ctx, "retrieving dataset version", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -406,14 +358,13 @@ func (c *Client) GetInstance(ctx context.Context, instanceID string) (m Instance
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	err = json.Unmarshal(b, &m)
 	return
 }
 
 // PutVersion update the version
-func (c *Client) PutVersion(ctx context.Context, datasetID, edition, version string, v Version) error {
+func (c *Client) PutVersion(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition, version string, v Version) error {
 	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s", c.url, datasetID, edition, version)
 	clientlog.Do(ctx, "updating version", service, uri)
 
@@ -427,14 +378,16 @@ func (c *Client) PutVersion(ctx context.Context, datasetID, edition, version str
 		return errors.Wrap(err, "error while attempting to create http request")
 	}
 
-	req = setCollectionID(ctx, req)
+	addCollectionIDHeader(req, collectionID)
+	common.AddFlorenceHeader(req, userAuthToken)
+	common.AddServiceTokenHeader(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
 		return errors.Wrap(err, "http client returned error while attempting to make request")
 	}
 
-	defer resp.Body.Close()
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("incorrect http status, expected: 200, actual: %d, uri: %s", resp.StatusCode, uri)
@@ -448,22 +401,16 @@ func (c *Client) GetMetadataURL(id, edition, version string) string {
 }
 
 // GetVersionMetadata returns the metadata for a given dataset id, edition and version
-func (c *Client) GetVersionMetadata(ctx context.Context, id, edition, version string) (m Metadata, err error) {
+func (c *Client) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m Metadata, err error) {
 	uri := c.GetMetadataURL(id, edition, version)
 
 	clientlog.Do(ctx, "retrieving dataset version metadata", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -474,29 +421,22 @@ func (c *Client) GetVersionMetadata(ctx context.Context, id, edition, version st
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	err = json.Unmarshal(b, &m)
 	return
 }
 
 // GetDimensions will return a versions dimensions
-func (c *Client) GetDimensions(ctx context.Context, id, edition, version string) (m Dimensions, err error) {
+func (c *Client) GetDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m Dimensions, err error) {
 	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s/dimensions", c.url, id, edition, version)
 
 	clientlog.Do(ctx, "retrieving dataset version dimensions", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -507,7 +447,6 @@ func (c *Client) GetDimensions(ctx context.Context, id, edition, version string)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	if err = json.Unmarshal(b, &m); err != nil {
 		return
@@ -519,22 +458,16 @@ func (c *Client) GetDimensions(ctx context.Context, id, edition, version string)
 }
 
 // GetOptions will return the options for a dimension
-func (c *Client) GetOptions(ctx context.Context, id, edition, version, dimension string) (m Options, err error) {
+func (c *Client) GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string) (m Options, err error) {
 	uri := fmt.Sprintf("%s/datasets/%s/editions/%s/versions/%s/dimensions/%s/options", c.url, id, edition, version, dimension)
 
 	clientlog.Do(ctx, "retrieving options for dimension", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return
 	}
-
-	req = setCollectionID(ctx, req)
-
-	resp, err := c.cli.Do(ctx, req)
-	if err != nil {
-		return
-	}
+	defer closeResponseBody(ctx, resp)
 
 	if resp.StatusCode != http.StatusOK {
 		err = NewDatasetAPIResponse(resp, uri)
@@ -545,7 +478,6 @@ func (c *Client) GetOptions(ctx context.Context, id, edition, version, dimension
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	err = json.Unmarshal(b, &m)
 	return
@@ -563,20 +495,44 @@ func NewDatasetAPIResponse(resp *http.Response, uri string) (e *ErrInvalidDatase
 			e.body = "Client failed to read DatasetAPI body"
 			return
 		}
-		defer resp.Body.Close()
+		defer closeResponseBody(nil, resp)
+
 		e.body = string(b)
 	}
 	return
 }
 
-func setCollectionID(ctx context.Context, req *http.Request) *http.Request {
+func addCollectionIDHeader(r *http.Request, collectionID string) {
+	if len(collectionID) > 0 {
+		r.Header.Add(common.CollectionIDHeaderKey, collectionID)
+	}
+}
 
-	rawKeyValue := ctx.Value(common.CollectionIDHeaderKey)
-
-	if rawKeyValue != nil { // avoid stringifying an empty interface
-		collectionID := rawKeyValue.(string)
-		req.Header.Set(common.CollectionIDHeaderKey, collectionID)
+// doGetWithAuthHeaders executes clienter.Do setting the user and service authentication token as a request header. Returns the http.Response and any error.
+// It is the callers responsibility to ensure response.Body is closed on completion.
+func (c *Client) doGetWithAuthHeaders(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, uri string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
 	}
 
-	return req
+	addCollectionIDHeader(req, collectionID)
+	common.AddFlorenceHeader(req, userAuthToken)
+	common.AddServiceTokenHeader(req, serviceAuthToken)
+	return c.cli.Do(ctx, req)
+}
+
+// doGetWithAuthHeadersAndWithDownloadToken executes clienter.Do setting the user and service authentication and dwonload token token as a request header. Returns the http.Response and any error.
+// It is the callers responsibility to ensure response.Body is closed on completion.
+func (c *Client) doGetWithAuthHeadersAndWithDownloadToken(ctx context.Context, userAuthToken, serviceAuthToken, downloadserviceAuthToken, collectionID, uri string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	addCollectionIDHeader(req, collectionID)
+	common.AddFlorenceHeader(req, userAuthToken)
+	common.AddServiceTokenHeader(req, serviceAuthToken)
+	common.AddDownloadServiceTokenHeader(req, downloadserviceAuthToken)
+	return c.cli.Do(ctx, req)
 }
