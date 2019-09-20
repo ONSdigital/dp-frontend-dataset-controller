@@ -75,94 +75,70 @@
 			"revisionTime": "2019-09-19T14:30:00Z"
 		},
 		{
-			"checksumSHA1": "+rsjNtumZUdoJ5k3D6TI8+RkkTU=",
-			"path": "github.com/ONSdigital/go-ns/clients/clientlog",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
-		},
-		{
-			"checksumSHA1": "U6qK/6OGFrgkPpqY6z3q4dph+pk=",
-			"path": "github.com/ONSdigital/go-ns/clients/dataset",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
-		},
-		{
-			"checksumSHA1": "CcTAFYoH0tCQXPlgZRB8iFC/hy0=",
-			"path": "github.com/ONSdigital/go-ns/clients/renderer",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
-		},
-		{
-			"checksumSHA1": "joEficGsKGq7jYa405YRZTX7Xs4=",
+			"checksumSHA1": "IV6CmyPxZnOlkVCcXXYVuBwUz+I=",
 			"path": "github.com/ONSdigital/go-ns/common",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "hnWK78otqTZwDU2D16X5GHzvIhk=",
 			"path": "github.com/ONSdigital/go-ns/handlers/accessToken",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "P5NQRDEiQJNSdTZqgcfR/o5T43Q=",
 			"path": "github.com/ONSdigital/go-ns/handlers/collectionID",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "ei+/RCSa0XO9v9rQxAh0uqyJ/28=",
 			"path": "github.com/ONSdigital/go-ns/handlers/healthcheck",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "a0nIqRKHBd2o3Pr6b3JHR6LHpYQ=",
 			"path": "github.com/ONSdigital/go-ns/handlers/localeCode",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "Vjyl/gfY0qx2lW9te3Ieb5HV3/s=",
 			"path": "github.com/ONSdigital/go-ns/handlers/requestID",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
-			"checksumSHA1": "tTt/y1makanEiPkSZ3pT8MkbIBo=",
+			"checksumSHA1": "TNDLPtZgP8tqlEZnzQr9bLJewIU=",
 			"path": "github.com/ONSdigital/go-ns/healthcheck",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "g9flYl+PBs6cYflFY3EpG6IcJGM=",
 			"path": "github.com/ONSdigital/go-ns/log",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
-		},
-		{
-			"checksumSHA1": "L4B1AA6AKWscHCZc02qk2SQU65k=",
-			"path": "github.com/ONSdigital/go-ns/rchttp",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "GQdzMpAMb42KQQ/GsJFSRU5dj1Y=",
 			"path": "github.com/ONSdigital/go-ns/server",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
-			"checksumSHA1": "UzD4bpGuvgLkXixqcUKF3YZ9tOs=",
+			"checksumSHA1": "pqzbSH9/G9OhWit7cVAqc8wzjzw=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/data",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "fO7lMA4hJvLdEmLJWveQv0xPuhs=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",
@@ -180,8 +156,8 @@
 			"checksumSHA1": "g/V4qrXjUGG9B+e3hB+4NAYJ5Gs=",
 			"origin": "github.com/ONSdigital/go-ns/vendor/github.com/gorilla/context",
 			"path": "github.com/gorilla/context",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "VTqrNjHE7v3Bisuo0NHGS1r+6I0=",
@@ -223,15 +199,15 @@
 			"checksumSHA1": "OBvAHqWjdI4NQVAqTkcQAdTuCFY=",
 			"origin": "github.com/ONSdigital/go-ns/vendor/github.com/justinas/alice",
 			"path": "github.com/justinas/alice",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "hBgLmZ/4mCxmnH88mqFKBkpJFUY=",
 			"origin": "github.com/ONSdigital/go-ns/vendor/github.com/mgutz/ansi",
 			"path": "github.com/mgutz/ansi",
-			"revision": "4ea5953ac8f88a051500f1acd3caf25c1e3e81c3",
-			"revisionTime": "2019-09-12T11:54:14Z"
+			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
+			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
 			"checksumSHA1": "I7hloldMJZTqUx6hbVDp5nk9fZQ=",
