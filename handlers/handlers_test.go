@@ -20,9 +20,9 @@ type testCliError struct{}
 func (e *testCliError) Error() string { return "client error" }
 func (e *testCliError) Code() int     { return http.StatusNotFound }
 
-const serviceAuthToken = "service-token"
-const userAuthToken = "user-token"
-const collectionID = "collection-123456789"
+const serviceAuthToken = ""
+const userAuthToken = ""
+const collectionID = ""
 
 func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
@@ -55,8 +55,8 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, serviceAuthToken, "", "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
-			mockConfig := config.Config{}
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
+			mockConfig := config.Config{ServiceToken: serviceAuthToken}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.Dimensions{
@@ -93,7 +93,7 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, serviceAuthToken, "", "1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", "1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
