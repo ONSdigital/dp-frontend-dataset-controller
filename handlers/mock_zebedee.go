@@ -35,63 +35,63 @@ func (m *MockZebedeeClient) EXPECT() *MockZebedeeClientMockRecorder {
 }
 
 // GetBreadcrumb mocks base method
-func (m *MockZebedeeClient) GetBreadcrumb(arg0 context.Context, arg1 string) ([]data.Breadcrumb, error) {
+func (m *MockZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]data.Breadcrumb, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBreadcrumb", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetBreadcrumb", ctx, userAccessToken, path)
 	ret0, _ := ret[0].([]data.Breadcrumb)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetBreadcrumb indicates an expected call of GetBreadcrumb
-func (mr *MockZebedeeClientMockRecorder) GetBreadcrumb(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockZebedeeClientMockRecorder) GetBreadcrumb(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBreadcrumb", reflect.TypeOf((*MockZebedeeClient)(nil).GetBreadcrumb), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBreadcrumb", reflect.TypeOf((*MockZebedeeClient)(nil).GetBreadcrumb), ctx, userAccessToken, path)
 }
 
 // Get mocks base method
-func (m *MockZebedeeClient) Get(arg0 context.Context, arg1 string) ([]byte, error) {
+func (m *MockZebedeeClient) Get(ctx context.Context, userAccessToken, path string) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", arg0, arg1)
+	ret := m.ctrl.Call(m, "Get", ctx, userAccessToken, path)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
-func (mr *MockZebedeeClientMockRecorder) Get(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockZebedeeClientMockRecorder) Get(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockZebedeeClient)(nil).Get), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockZebedeeClient)(nil).Get), ctx, userAccessToken, path)
 }
 
 // GetDatasetLandingPage mocks base method
-func (m *MockZebedeeClient) GetDatasetLandingPage(arg0 context.Context, arg1 string) (data.DatasetLandingPage, error) {
+func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDatasetLandingPage", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDatasetLandingPage", ctx, userAccessToken, path)
 	ret0, _ := ret[0].(data.DatasetLandingPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDatasetLandingPage indicates an expected call of GetDatasetLandingPage
-func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), ctx, userAccessToken, path)
 }
 
 // GetDataset mocks base method
-func (m *MockZebedeeClient) GetDataset(arg0 context.Context, arg1 string) (data.Dataset, error) {
+func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, path string) (data.Dataset, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDataset", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDataset", ctx, userAccessToken, path)
 	ret0, _ := ret[0].(data.Dataset)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDataset indicates an expected call of GetDataset
-func (mr *MockZebedeeClientMockRecorder) GetDataset(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockZebedeeClientMockRecorder) GetDataset(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockZebedeeClient)(nil).GetDataset), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockZebedeeClient)(nil).GetDataset), ctx, userAccessToken, path)
 }
 
 // Healthcheck mocks base method

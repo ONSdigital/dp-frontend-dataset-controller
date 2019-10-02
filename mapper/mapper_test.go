@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-frontend-models/model"
-	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -206,7 +206,7 @@ func TestCreateVersionsList(t *testing.T) {
 		Links: dataset.Links{
 			Dataset: dataset.Link{
 				URL: "http://localhost:22000/datasets/cpih01",
-				ID: "cpih01",
+				ID:  "cpih01",
 			},
 		},
 		ReleaseDate: "2019-08-15T00:00:00.000Z",
