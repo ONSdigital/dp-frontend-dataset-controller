@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "zU9Pguj/FFmev60uzWMXVrXrNqU=",
+			"path": "github.com/ONSdigital/dp-api-clients-go",
+			"revision": "b110850f5e5bdb4fda88f279f04b93e7f041e7f6",
+			"revisionTime": "2019-10-08T14:31:41Z"
+		},
+		{
 			"checksumSHA1": "jaImJmCMOAR6xG3nWvyfQZQjqyU=",
 			"path": "github.com/ONSdigital/dp-api-clients-go/clientlog",
 			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
@@ -15,10 +21,10 @@
 			"revisionTime": "2019-09-19T13:13:21Z"
 		},
 		{
-			"checksumSHA1": "ChGqiobwTAunx+GbUmiZptfAkgk=",
+			"checksumSHA1": "Pi5r/nBuEBno+AD7wwR/HwwGP/0=",
 			"path": "github.com/ONSdigital/dp-api-clients-go/filter",
-			"revision": "180f5f51c9bf850c45a180d0c19850f4af290ac3",
-			"revisionTime": "2019-09-19T09:42:24Z"
+			"revision": "b110850f5e5bdb4fda88f279f04b93e7f041e7f6",
+			"revisionTime": "2019-10-08T14:31:41Z"
 		},
 		{
 			"checksumSHA1": "LJUV3GKJKS6Lx1JdhqYqUH0seys=",

@@ -11,8 +11,8 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-api-clients-go/clientlog"
+	"github.com/ONSdigital/dp-api-clients-go/headers"
 	"github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/go-ns/common"
 	"github.com/ONSdigital/go-ns/log"
 )
 
@@ -89,21 +89,12 @@ func (c *Client) Healthcheck() (string, error) {
 }
 
 // GetOutput returns a filter output job for a given filter output id
-func (c *Client) GetOutput(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, filterOutputID string) (Model, error) {
+func (c *Client) GetOutput(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID string) (Model, error) {
 	uri := fmt.Sprintf("%s/filter-outputs/%s", c.url, filterOutputID)
 	var m Model
 	clientlog.Do(ctx, "retrieving filter output", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return m, err
-	}
-
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-	common.AddDownloadServiceTokenHeader(req, downloadServiceToken)
-
-	resp, err := c.cli.Do(ctx, req)
+	resp, err := c.doGetWithAuthHeadersAndWithDownloadToken(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, uri)
 	if err != nil {
 		return m, err
 	}
@@ -125,20 +116,13 @@ func (c *Client) GetOutput(ctx context.Context, userAuthToken, serviceAuthToken,
 }
 
 // GetDimension returns information on a requested dimension name for a given filterID
-func (c *Client) GetDimension(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name string) (Dimension, error) {
+func (c *Client) GetDimension(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string) (Dimension, error) {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s", c.url, filterID, name)
 	var dim Dimension
 	clientlog.Do(ctx, "retrieving dimension information", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return dim, err
-	}
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-
-	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
 		return dim, err
 	}
@@ -165,20 +149,13 @@ func (c *Client) GetDimension(ctx context.Context, userAuthToken, serviceAuthTok
 }
 
 // GetDimensions will return the dimensions associated with the provided filter id
-func (c *Client) GetDimensions(ctx context.Context, userAuthToken, serviceAuthToken, filterID string) ([]Dimension, error) {
+func (c *Client) GetDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID string) ([]Dimension, error) {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions", c.url, filterID)
 	var dims []Dimension
 	clientlog.Do(ctx, "retrieving all dimensions for given filter job", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return dims, err
-	}
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-
-	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
 		return dims, err
 	}
@@ -200,20 +177,13 @@ func (c *Client) GetDimensions(ctx context.Context, userAuthToken, serviceAuthTo
 }
 
 // GetDimensionOptions retrieves a list of the dimension options
-func (c *Client) GetDimensionOptions(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name string) ([]DimensionOption, error) {
+func (c *Client) GetDimensionOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string) ([]DimensionOption, error) {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s/options", c.url, filterID, name)
 	var opts []DimensionOption
 	clientlog.Do(ctx, "retrieving selected dimension options for filter job", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return opts, err
-	}
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-
-	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
 		return opts, err
 	}
@@ -237,7 +207,7 @@ func (c *Client) GetDimensionOptions(ctx context.Context, userAuthToken, service
 }
 
 // CreateBlueprint creates a filter blueprint and returns the associated filterID
-func (c *Client) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version string, names []string) (string, error) {
+func (c *Client) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error) {
 	ver, err := strconv.Atoi(version)
 	if err != nil {
 		return "", err
@@ -270,9 +240,10 @@ func (c *Client) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuth
 		return "", err
 	}
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-	common.AddDownloadServiceTokenHeader(req, downloadServiceToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
+	headers.SetDownloadServiceToken(req, downloadServiceToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -298,7 +269,7 @@ func (c *Client) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuth
 }
 
 // UpdateBlueprint will update a blueprint with a given filter model
-func (c *Client) UpdateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken string, m Model, doSubmit bool) (Model, error) {
+func (c *Client) UpdateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID string, m Model, doSubmit bool) (Model, error) {
 	b, err := json.Marshal(m)
 	if err != nil {
 		return m, err
@@ -320,9 +291,9 @@ func (c *Client) UpdateBlueprint(ctx context.Context, userAuthToken, serviceAuth
 		return m, err
 	}
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-	common.AddDownloadServiceTokenHeader(req, downloadServiceToken)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
+	headers.SetDownloadServiceToken(req, downloadServiceToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -348,7 +319,7 @@ func (c *Client) UpdateBlueprint(ctx context.Context, userAuthToken, serviceAuth
 
 // AddDimensionValue adds a particular value to a filter job for a given filterID
 // and name
-func (c *Client) AddDimensionValue(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name, value string) error {
+func (c *Client) AddDimensionValue(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name, value string) error {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s/options/%s", c.url, filterID, name, value)
 
 	clientlog.Do(ctx, "adding dimension option to filter job", service, uri, log.Data{
@@ -361,8 +332,9 @@ func (c *Client) AddDimensionValue(ctx context.Context, userAuthToken, serviceAu
 		return err
 	}
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -379,7 +351,7 @@ func (c *Client) AddDimensionValue(ctx context.Context, userAuthToken, serviceAu
 
 // RemoveDimensionValue removes a particular value to a filter job for a given filterID
 // and name
-func (c *Client) RemoveDimensionValue(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name, value string) error {
+func (c *Client) RemoveDimensionValue(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name, value string) error {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s/options/%s", c.url, filterID, name, value)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	if err != nil {
@@ -391,8 +363,9 @@ func (c *Client) RemoveDimensionValue(ctx context.Context, userAuthToken, servic
 		"value":  value,
 	})
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -408,7 +381,7 @@ func (c *Client) RemoveDimensionValue(ctx context.Context, userAuthToken, servic
 }
 
 // RemoveDimension removes a given dimension from a filter job
-func (c *Client) RemoveDimension(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name string) error {
+func (c *Client) RemoveDimension(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string) error {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s", c.url, filterID, name)
 
 	clientlog.Do(ctx, "removing dimension from filter job", service, uri, log.Data{
@@ -421,8 +394,9 @@ func (c *Client) RemoveDimension(ctx context.Context, userAuthToken, serviceAuth
 		return err
 	}
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -440,7 +414,7 @@ func (c *Client) RemoveDimension(ctx context.Context, userAuthToken, serviceAuth
 }
 
 // AddDimension adds a new dimension to a filter job
-func (c *Client) AddDimension(ctx context.Context, userAuthToken, serviceAuthToken, id, name string) error {
+func (c *Client) AddDimension(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, name string) error {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s", c.url, id, name)
 	clientlog.Do(ctx, "adding dimension to filter job", service, uri, log.Data{
 		"method":    "POST",
@@ -451,9 +425,9 @@ func (c *Client) AddDimension(ctx context.Context, userAuthToken, serviceAuthTok
 	if err != nil {
 		return err
 	}
-
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -470,21 +444,12 @@ func (c *Client) AddDimension(ctx context.Context, userAuthToken, serviceAuthTok
 }
 
 // GetJobState will return the current state of the filter job
-func (c *Client) GetJobState(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, filterID string) (Model, error) {
+func (c *Client) GetJobState(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterID string) (Model, error) {
 	uri := fmt.Sprintf("%s/filters/%s", c.url, filterID)
 	var m Model
 	clientlog.Do(ctx, "retrieving filter job state", service, uri)
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return m, err
-	}
-
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-	common.AddDownloadServiceTokenHeader(req, downloadServiceToken)
-
-	resp, err := c.cli.Do(ctx, req)
+	resp, err := c.doGetWithAuthHeaders(ctx, userAuthToken, serviceAuthToken, collectionID, uri)
 	if err != nil {
 		return m, err
 	}
@@ -506,7 +471,7 @@ func (c *Client) GetJobState(ctx context.Context, userAuthToken, serviceAuthToke
 }
 
 // AddDimensionValues adds many options to a filter job dimension
-func (c *Client) AddDimensionValues(ctx context.Context, userAuthToken, serviceAuthToken, filterID, name string, options []string) error {
+func (c *Client) AddDimensionValues(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string, options []string) error {
 	uri := fmt.Sprintf("%s/filters/%s/dimensions/%s", c.url, filterID, name)
 
 	clientlog.Do(ctx, "adding multiple dimension values to filter job", service, uri, log.Data{
@@ -530,8 +495,9 @@ func (c *Client) AddDimensionValues(ctx context.Context, userAuthToken, serviceA
 		return err
 	}
 
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
 
 	resp, err := c.cli.Do(ctx, req)
 	if err != nil {
@@ -548,7 +514,7 @@ func (c *Client) AddDimensionValues(ctx context.Context, userAuthToken, serviceA
 }
 
 // GetPreview attempts to retrieve a preview for a given filterOutputID
-func (c *Client) GetPreview(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, filterOutputID string) (Preview, error) {
+func (c *Client) GetPreview(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID string) (Preview, error) {
 	uri := fmt.Sprintf("%s/filter-outputs/%s/preview", c.url, filterOutputID)
 	var p Preview
 	clientlog.Do(ctx, "retrieving preview for filter output job", service, uri, log.Data{
@@ -556,16 +522,7 @@ func (c *Client) GetPreview(ctx context.Context, userAuthToken, serviceAuthToken
 		"filterID": filterOutputID,
 	})
 
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return p, err
-	}
-
-	common.AddUserHeader(req, userAuthToken)
-	common.AddServiceTokenHeader(req, serviceAuthToken)
-	common.AddDownloadServiceTokenHeader(req, downloadServiceToken)
-
-	resp, err := c.cli.Do(ctx, req)
+	resp, err := c.doGetWithAuthHeadersAndWithDownloadToken(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, uri)
 	if err != nil {
 		return p, err
 	}
@@ -583,4 +540,33 @@ func (c *Client) GetPreview(ctx context.Context, userAuthToken, serviceAuthToken
 
 	err = json.Unmarshal(b, &p)
 	return p, err
+}
+
+// doGetWithAuthHeaders executes clienter.Do setting the user and service authentication token as a request header. Returns the http.Response and any error.
+// It is the callers responsibility to ensure response.Body is closed on completion.
+func (c *Client) doGetWithAuthHeaders(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, uri string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
+	return c.cli.Do(ctx, req)
+}
+
+// doGetWithAuthHeadersAndWithDownloadToken executes clienter.Do setting the user and service authentication and dwonload token token as a request header. Returns the http.Response and any error.
+// It is the callers responsibility to ensure response.Body is closed on completion.
+func (c *Client) doGetWithAuthHeadersAndWithDownloadToken(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, uri string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	headers.SetCollectionID(req, collectionID)
+	headers.SetUserAuthToken(req, userAuthToken)
+	headers.SetServiceAuthToken(req, serviceAuthToken)
+	headers.SetDownloadServiceToken(req, downloadServiceAuthToken)
+	return c.cli.Do(ctx, req)
 }
