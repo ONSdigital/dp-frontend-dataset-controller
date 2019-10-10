@@ -50,18 +50,18 @@ func (mr *MockFilterClientMockRecorder) Healthcheck() *gomock.Call {
 }
 
 // CreateBlueprint mocks base method
-func (m *MockFilterClient) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version string, names []string) (string, error) {
+func (m *MockFilterClient) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateBlueprint", ctx, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version, names)
+	ret := m.ctrl.Call(m, "CreateBlueprint", ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateBlueprint indicates an expected call of CreateBlueprint
-func (mr *MockFilterClientMockRecorder) CreateBlueprint(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version, names interface{}) *gomock.Call {
+func (mr *MockFilterClientMockRecorder) CreateBlueprint(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version, names)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
 }
 
 // MockDatasetClient is a mock of DatasetClient interface

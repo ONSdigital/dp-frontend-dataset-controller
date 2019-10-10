@@ -36,7 +36,7 @@ const dataEndpoint = `\/data$`
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	healthcheck.Client
-	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, datasetID, edition, version string, names []string) (string, error)
+	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -114,8 +114,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 				names = append(names, dim.Name)
 			}
 		}
-
-		fid, err := c.CreateBlueprint(ctx, userAccessToken, cfg.ServiceToken, "", datasetID, edition, version, names)
+		fid, err := c.CreateBlueprint(ctx, userAccessToken, cfg.ServiceToken, "", collectionID, datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
