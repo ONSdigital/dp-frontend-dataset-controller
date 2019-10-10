@@ -27,6 +27,12 @@
 			"revisionTime": "2019-10-08T14:31:41Z"
 		},
 		{
+			"checksumSHA1": "NHPGQu2l2BAVvL/aittToHlquNM=",
+			"path": "github.com/ONSdigital/dp-api-clients-go/headers",
+			"revision": "b110850f5e5bdb4fda88f279f04b93e7f041e7f6",
+			"revisionTime": "2019-10-08T14:31:41Z"
+		},
+		{
 			"checksumSHA1": "LJUV3GKJKS6Lx1JdhqYqUH0seys=",
 			"path": "github.com/ONSdigital/dp-api-clients-go/renderer",
 			"revision": "e65f4e4c4b26a860ca3c8b226157a51f0fee572f",
