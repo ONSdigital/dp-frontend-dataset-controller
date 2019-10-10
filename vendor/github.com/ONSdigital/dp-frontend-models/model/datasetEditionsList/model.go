@@ -10,6 +10,7 @@ type Page struct {
 	datasetLandingPageFilterable.DatasetLandingPage
 	ContactDetails model.ContactDetails `json:"contact_details"`
 	Editions       []Edition            `json:"editions"`
+	DatasetTitle   string               `json:"dataset_title"`
 }
 
 type Edition struct {

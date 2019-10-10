@@ -21,6 +21,7 @@ type Config struct {
 	FeedbackTo         string `env:"FEEDBACK_TO"`
 	FeedbackFrom       string `env:"FEEDBACK_FROM"`
 	DownloadServiceURL string `env:"DOWNLOAD_SERVICE_URL"`
+	ServiceToken       string `env:"SERVICE_TOKEN"`
 }
 
 func init() {
@@ -37,6 +38,7 @@ func init() {
 		MailPassword:       "",
 		FeedbackTo:         "",
 		FeedbackFrom:       "",
+		ServiceToken:       "",
 	}
 	err := gofigure.Gofigure(&cfg)
 	if err != nil {

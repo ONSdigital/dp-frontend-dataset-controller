@@ -12,9 +12,9 @@ import (
 
 // ZebedeeClient is an interface for zebedee client
 type ZebedeeClient interface {
-	GetBreadcrumb(context.Context, string) ([]data.Breadcrumb, error)
-	Get(context.Context, string) ([]byte, error)
-	GetDatasetLandingPage(context.Context, string) (data.DatasetLandingPage, error)
-	GetDataset(context.Context, string) (data.Dataset, error)
+	GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]data.Breadcrumb, error)
+	Get(ctx context.Context, userAccessToken, path string) ([]byte, error)
+	GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error)
+	GetDataset(ctx context.Context, userAccessToken, path string) (data.Dataset, error)
 	healthcheck.Client
 }
