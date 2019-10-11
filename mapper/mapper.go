@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
-	"github.com/ONSdigital/go-ns/clients/dataset"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 )
@@ -301,7 +301,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, i)
 		}
 
-		if ver.Version > latestVersionNumber{
+		if ver.Version > latestVersionNumber {
 			latestVersionNumber = ver.Version
 		}
 
@@ -328,10 +328,10 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		p.Data.Versions = append(p.Data.Versions, version)
 	}
 
-	for i, ver := range p.Data.Versions{
+	for i, ver := range p.Data.Versions {
 		if ver.VersionNumber == latestVersionNumber {
 			p.Data.Versions[i].IsLatest = true
-			break;
+			break
 		}
 	}
 
