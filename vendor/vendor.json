@@ -147,10 +147,10 @@
 			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
-			"checksumSHA1": "fO7lMA4hJvLdEmLJWveQv0xPuhs=",
+			"checksumSHA1": "jYnnbRVYyWAcbAhTfY0lJzS0ikk=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
-			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
-			"revisionTime": "2019-09-19T16:09:22Z"
+			"revision": "b53b51e1adea80d413c7ebb6aad848ea732258a8",
+			"revisionTime": "2019-10-23T10:37:30Z"
 		},
 		{
 			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",
