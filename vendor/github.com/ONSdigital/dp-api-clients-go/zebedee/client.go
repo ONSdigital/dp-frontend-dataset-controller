@@ -81,7 +81,7 @@ func (c *ZebedeeClient) Healthcheck() (string, error) {
 // GetDatasetLandingPage returns a DatasetLandingPage populated with data from a zebedee response. If an error
 // is returned there is a chance that a partly completed DatasetLandingPage is returned
 func (c *ZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error) {
-	reqURL := c.createRequestURL(ctx, "/data?uri="+path)
+	reqURL := c.createRequestURL(ctx, "/data", "uri="+path)
 	b, err := c.get(ctx, userAccessToken, reqURL)
 	if err != nil {
 		return data.DatasetLandingPage{}, err
@@ -161,7 +161,9 @@ func (c *ZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, uri 
 
 // GetDataset returns details about a dataset from zebedee
 func (c *ZebedeeClient) GetDataset(ctx context.Context, userAccessToken, uri string) (data.Dataset, error) {
-	b, err := c.get(ctx, userAccessToken, "/data?uri="+uri)
+	reqURL := c.createRequestURL(ctx, "/data", "uri="+uri)
+	b, err := c.get(ctx, userAccessToken, reqURL)
+
 	if err != nil {
 		return data.Dataset{}, err
 	}
@@ -208,7 +210,8 @@ func (c *ZebedeeClient) GetDataset(ctx context.Context, userAccessToken, uri str
 
 // GetFileSize retrieves a given filesize from zebedee
 func (c *ZebedeeClient) GetFileSize(ctx context.Context, userAccessToken, uri string) (data.FileSize, error) {
-	b, err := c.get(ctx, userAccessToken, "/filesize?uri="+uri)
+	reqURL := c.createRequestURL(ctx, "/filesize", "uri="+uri)
+	b, err := c.get(ctx, userAccessToken, reqURL)
 	if err != nil {
 		return data.FileSize{}, err
 	}
@@ -236,19 +239,17 @@ func (c *ZebedeeClient) GetPageTitle(ctx context.Context, userAccessToken, uri s
 	return pt, nil
 }
 
-func (c *ZebedeeClient) createRequestURL(ctx context.Context, path string) string {
-	var url string
-
+func (c *ZebedeeClient) createRequestURL(ctx context.Context, url, query string) string {
 	// Check if collection ID is set in context
 	if ctx.Value(common.CollectionIDHeaderKey) != nil {
 		collectionID, ok := ctx.Value(common.CollectionIDHeaderKey).(string)
 		if !ok {
 			log.ErrorCtx(ctx, errors.New("error casting collection ID cookie to string"), nil)
 		}
-		url = "/data/" + collectionID
+		url += "/" + collectionID
 	}
 
-	url = url + path
+	url += "?" + query
 
 	// Check if locale code is set in context and add lang query param to url
 	if ctx.Value(common.LocaleHeaderKey) != nil {
@@ -256,7 +257,7 @@ func (c *ZebedeeClient) createRequestURL(ctx context.Context, path string) strin
 		if !ok {
 			log.ErrorCtx(ctx, errors.New("error casting locale code to string"), nil)
 		}
-		url = url + "&lang=" + localeCode
+		url += "&lang=" + localeCode
 	}
 
 	return url
