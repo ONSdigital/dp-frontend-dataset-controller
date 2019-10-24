@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"sync"
@@ -226,7 +227,8 @@ func (c *ZebedeeClient) GetFileSize(ctx context.Context, userAccessToken, uri st
 
 // GetPageTitle retrieves a page title from zebedee
 func (c *ZebedeeClient) GetPageTitle(ctx context.Context, userAccessToken, uri string) (data.PageTitle, error) {
-	b, err := c.get(ctx, userAccessToken, "/data?uri="+uri+"&title")
+	reqURL := c.createRequestURL(ctx, "/data", "uri="+uri+"&title")
+	b, err := c.get(ctx, userAccessToken, reqURL)
 	if err != nil {
 		return data.PageTitle{}, err
 	}
@@ -239,17 +241,18 @@ func (c *ZebedeeClient) GetPageTitle(ctx context.Context, userAccessToken, uri s
 	return pt, nil
 }
 
-func (c *ZebedeeClient) createRequestURL(ctx context.Context, url, query string) string {
+func (c *ZebedeeClient) createRequestURL(ctx context.Context, path, query string) string {
 	// Check if collection ID is set in context
 	if ctx.Value(common.CollectionIDHeaderKey) != nil {
 		collectionID, ok := ctx.Value(common.CollectionIDHeaderKey).(string)
 		if !ok {
 			log.ErrorCtx(ctx, errors.New("error casting collection ID cookie to string"), nil)
 		}
-		url += "/" + collectionID
+		path += "/" + collectionID
 	}
 
-	url += "?" + query
+	path += "?" + url.PathEscape(query)
+	log.InfoCtx(ctx, "built uri", log.Data{"request_url": path})
 
 	// Check if locale code is set in context and add lang query param to url
 	if ctx.Value(common.LocaleHeaderKey) != nil {
@@ -257,8 +260,8 @@ func (c *ZebedeeClient) createRequestURL(ctx context.Context, url, query string)
 		if !ok {
 			log.ErrorCtx(ctx, errors.New("error casting locale code to string"), nil)
 		}
-		url += "&lang=" + localeCode
+		path += "&lang=" + localeCode
 	}
 
-	return url
+	return path
 }
