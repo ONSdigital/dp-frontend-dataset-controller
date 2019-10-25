@@ -252,7 +252,6 @@ func (c *ZebedeeClient) createRequestURL(ctx context.Context, path, query string
 	}
 
 	path += "?" + url.PathEscape(query)
-	log.InfoCtx(ctx, "built uri", log.Data{"request_url": path})
 
 	// Check if locale code is set in context and add lang query param to url
 	if ctx.Value(common.LocaleHeaderKey) != nil {
