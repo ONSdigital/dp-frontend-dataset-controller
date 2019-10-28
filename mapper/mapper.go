@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -18,11 +17,6 @@ import (
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 )
-
-// SetTaxonomyDomain will set the taxonomy domain for a given pages
-func SetTaxonomyDomain(p *model.Page) {
-	p.TaxonomyDomain = os.Getenv("TAXONOMY_DOMAIN")
-}
 
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
@@ -42,7 +36,6 @@ func (p TimeSlice) Swap(i, j int) {
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
-	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
@@ -272,7 +265,6 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.Model, ver datas
 // CreateVersionsList creates a versions list page based on api model responses
 func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
-	SetTaxonomyDomain(&p.Page)
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
 	if len(versions) > 0 {
@@ -342,7 +334,6 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 // CreateEditionsList creates a editions list page based on api model responses
 func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
-	SetTaxonomyDomain(&p.Page)
 	p.Type = "dataset_edition_list"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL

@@ -12,7 +12,6 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/feedback"
 	"github.com/ONSdigital/go-ns/log"
@@ -34,7 +33,6 @@ type Feedback struct {
 // FeedbackThanks loads the Feedback Thank you page
 func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 	var p model.Page
-	mapper.SetTaxonomyDomain(&p)
 
 	p.Metadata.Title = "Thank you"
 	returnTo := req.URL.Query().Get("returnTo")
@@ -72,7 +70,6 @@ func GetFeedback(w http.ResponseWriter, req *http.Request) {
 
 func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpose, description, name, email string) {
 	var p feedback.Page
-	mapper.SetTaxonomyDomain(&p.Page)
 
 	var services = make(map[string]string)
 	services["cmd"] = "Customising data by applying filters"
