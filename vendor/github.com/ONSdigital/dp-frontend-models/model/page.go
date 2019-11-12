@@ -7,7 +7,6 @@ type Page struct {
 	DatasetTitle                     string         `json:"dataset_title"`
 	URI                              string         `json:"uri"`
 	Taxonomy                         []TaxonomyNode `json:"taxonomy"`
-	TaxonomyDomain                   string         `json:"taxonomy_domain"`
 	Breadcrumb                       []TaxonomyNode `json:"breadcrumb"`
 	IsInFilterBreadcrumb             bool           `json:"is_in_filter_breadcrumb"`
 	ServiceMessage                   string         `json:"service_message"`

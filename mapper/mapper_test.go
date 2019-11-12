@@ -2,25 +2,16 @@ package mapper
 
 import (
 	"context"
-	"os"
 	"strconv"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
-
-	Convey("test SetTaxonomyDomain adds the taxonomy domain to page model", t, func() {
-		os.Setenv("TAXONOMY_DOMAIN", "https://www.ons.gov.uk")
-		p := model.Page{}
-		SetTaxonomyDomain(&p)
-		So(p.TaxonomyDomain, ShouldEqual, "https://www.ons.gov.uk")
-	})
 
 	Convey("test CreateFilterableLandingPage", t, func() {
 		d := dataset.Model{
@@ -163,14 +154,6 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
 	})
 
-	Convey("test taxonomy domain is set on page when environment variable is set", t, func() {
-		os.Setenv("TAXONOMY_DOMAIN", "my-domain")
-
-		p := CreateFilterableLandingPage(ctx, dataset.Model{}, dataset.Version{}, "", []dataset.Options{}, dataset.Dimensions{}, false, []data.Breadcrumb{}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
-
-		So(p.TaxonomyDomain, ShouldEqual, "my-domain")
-
-	})
 }
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper

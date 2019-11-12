@@ -3,7 +3,6 @@ package zebedeeMapper
 import (
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic"
@@ -51,20 +50,8 @@ func MapZebedeeDatasetLandingPageToFrontendModel(dlp data.DatasetLandingPage, bc
 	sdlp.DatasetLandingPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	sdlp.DatasetLandingPage.IsTimeseries = dlp.Timeseries
 	sdlp.ContactDetails = model.ContactDetails(dlp.Description.Contact)
-
-	// HACK FIX TODO REMOVE WHEN TIME IS SAVED CORRECTLY (GMT/UTC Issue)
-	if strings.Contains(dlp.Description.ReleaseDate, "T23:00:00"){
-		releaseDateInTimeFormat, err := time.Parse(time.RFC3339, dlp.Description.ReleaseDate)
-		if err != nil{
-			log.Error(err, nil)
-			sdlp.DatasetLandingPage.ReleaseDate = dlp.Description.ReleaseDate
-		}
-		sdlp.DatasetLandingPage.ReleaseDate = releaseDateInTimeFormat.Add(1 * time.Hour).Format("02 January 2006")
-	} else {
-		sdlp.DatasetLandingPage.ReleaseDate = dlp.Description.ReleaseDate
-	}
-	// END of hack fix
-    sdlp.DatasetLandingPage.NextRelease = dlp.Description.NextRelease
+	sdlp.DatasetLandingPage.ReleaseDate = dlp.Description.ReleaseDate
+	sdlp.DatasetLandingPage.NextRelease = dlp.Description.NextRelease
 	sdlp.DatasetLandingPage.DatasetID = dlp.Description.DatasetID
 	sdlp.DatasetLandingPage.Notes = dlp.Section.Markdown
 
@@ -83,6 +70,7 @@ func MapZebedeeDatasetLandingPageToFrontendModel(dlp data.DatasetLandingPage, bc
 		var dataset datasetLandingPageStatic.Dataset
 		for _, value := range d.Downloads {
 			dataset.URI = d.URI
+			dataset.VersionLabel = d.Description.VersionLabel
 			dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
 				URI:       value.File,
 				Extension: strings.TrimPrefix(filepath.Ext(value.File), "."),

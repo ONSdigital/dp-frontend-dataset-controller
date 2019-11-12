@@ -39,16 +39,16 @@
 			"revisionTime": "2019-09-16T13:24:41Z"
 		},
 		{
-			"checksumSHA1": "C0fITXQDcLbjqKtJkKtxOHMObRc=",
+			"checksumSHA1": "TXt/TxezSl1yaI4+rdXs6/Mf7SM=",
 			"path": "github.com/ONSdigital/dp-api-clients-go/zebedee",
-			"revision": "23eb8ce049f8b86e4bcba549cefcbcf8403336d7",
-			"revisionTime": "2019-10-24T09:54:33Z"
+			"revision": "3ed4c4d847f99c734b099f9dd33d6cd74f87e9c1",
+			"revisionTime": "2019-10-25T10:16:01Z"
 		},
 		{
-			"checksumSHA1": "qsWQHvSsn4XThaZ6DJWbdugsos0=",
+			"checksumSHA1": "fJkBbYwFJnWgmIhmYaf5Pnt8CNk=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model",
-			"revision": "6eee1d972c81a8224e8bcef28cd398ed370854cc",
-			"revisionTime": "2019-09-05T13:10:15Z"
+			"revision": "61a4fc32d261a3e49e950290423ec0b8050612a2",
+			"revisionTime": "2019-10-25T12:16:22Z"
 		},
 		{
 			"checksumSHA1": "F5fUTKbRADGQSQLT73z6XxeSd2w=",
@@ -63,10 +63,10 @@
 			"revisionTime": "2019-09-05T13:10:15Z"
 		},
 		{
-			"checksumSHA1": "u3M4F4CMaWSbrq+eP2uAg/52xzM=",
+			"checksumSHA1": "fuPZ6Tu2Pn4TxWBPiq4lfwv2Huk=",
 			"path": "github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic",
-			"revision": "6eee1d972c81a8224e8bcef28cd398ed370854cc",
-			"revisionTime": "2019-09-05T13:10:15Z"
+			"revision": "1708ed3870ce08fc2cd65c2e37c744f6131749c7",
+			"revisionTime": "2019-11-04T07:40:32Z"
 		},
 		{
 			"checksumSHA1": "BNvcNTiuBS69r49n0J1gmP5X5m8=",
@@ -141,16 +141,16 @@
 			"revisionTime": "2019-09-19T16:09:22Z"
 		},
 		{
-			"checksumSHA1": "pqzbSH9/G9OhWit7cVAqc8wzjzw=",
+			"checksumSHA1": "Y5RwQB+CFwZ30Rer4bPLWLTv9Ck=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/data",
-			"revision": "30bf55ba5a05f1d425fba4607f1af7d0e8a89cae",
-			"revisionTime": "2019-09-19T16:09:22Z"
+			"revision": "afbd2b4fac0e8fb449f61404d9e0eafe58081cb1",
+			"revisionTime": "2019-11-04T08:08:21Z"
 		},
 		{
-			"checksumSHA1": "jYnnbRVYyWAcbAhTfY0lJzS0ikk=",
+			"checksumSHA1": "Ad/HMSopKzlS+EecPhdtBloaSmg=",
 			"path": "github.com/ONSdigital/go-ns/zebedee/zebedeeMapper",
-			"revision": "b53b51e1adea80d413c7ebb6aad848ea732258a8",
-			"revisionTime": "2019-10-23T10:37:30Z"
+			"revision": "3d3e42a7608f4a8c30555a266cf36d91aa1f8025",
+			"revisionTime": "2019-11-04T07:43:55Z"
 		},
 		{
 			"checksumSHA1": "MAeBR949WamCkKZdQjI21gfK/U0=",
