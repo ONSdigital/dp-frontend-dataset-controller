@@ -22,6 +22,7 @@ type Config struct {
 	FeedbackFrom       string `env:"FEEDBACK_FROM"`
 	DownloadServiceURL string `env:"DOWNLOAD_SERVICE_URL"`
 	ServiceToken       string `env:"SERVICE_TOKEN"`
+	EnableLoop11	   bool   `env:"ENABLE_LOOP11"`
 }
 
 func init() {
@@ -39,6 +40,7 @@ func init() {
 		FeedbackTo:         "",
 		FeedbackFrom:       "",
 		ServiceToken:       "",
+		EnableLoop11:		false,
 	}
 	err := gofigure.Gofigure(&cfg)
 	if err != nil {
