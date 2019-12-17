@@ -334,7 +334,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb, enableLoop11 bool) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	p.Type = "dataset_edition_list"
 	p.Metadata.Title = d.Title
@@ -343,6 +343,7 @@ func CreateEditionsList(ctx context.Context, d dataset.Model, editions []dataset
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
+	p.EnableLoop11 = enableLoop11
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{

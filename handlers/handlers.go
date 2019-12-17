@@ -368,7 +368,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
-	m := mapper.CreateEditionsList(ctx, datasetModel, datasetEditions, datasetID, bc)
+	m := mapper.CreateEditionsList(ctx, datasetModel, datasetEditions, datasetID, bc, cfg.EnableLoop11)
 
 	b, err := json.Marshal(m)
 	if err != nil {
