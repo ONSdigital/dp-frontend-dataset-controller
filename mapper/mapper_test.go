@@ -115,7 +115,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", false)
+		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -130,6 +130,7 @@ func TestUnitMapper(t *testing.T) {
 		So(p.ShowFeedbackForm, ShouldEqual, true)
 		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
 		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
+		So(p.EnableLoop11, ShouldEqual, true)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
