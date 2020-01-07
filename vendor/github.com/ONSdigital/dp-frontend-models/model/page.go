@@ -19,4 +19,5 @@ type Page struct {
 	ShowFeedbackForm                 bool           `json:"show_feedback_form"`
 	ReleaseDate                      string         `json:"release_date"`
 	BetaBannerEnabled                bool           `json:"beta_banner_enabled"`
+	EnableLoop11                     bool           `json:"enable_loop11"`
 }
