@@ -282,7 +282,7 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 	p.DatasetId = d.ID
 
 	latestVersionNumber := 1
-	for i, ver := range versions {
+	for _, ver := range versions {
 		var version datasetVersionsList.Version
 		version.IsLatest = false
 		version.VersionNumber = ver.Version
@@ -291,8 +291,10 @@ func CreateVersionsList(ctx context.Context, d dataset.Model, edition dataset.Ed
 		version.VersionURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
 
-		if ver.Version > 1 {
-			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, i)
+		// Not the 'created' first version and more than one stored version
+		if ver.Version > 1 && len(p.Data.Versions) >= 1 {
+			previousVersion := p.Data.Versions[len(p.Data.Versions)-1].VersionNumber
+			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, previousVersion)
 		}
 
 		if ver.Version > latestVersionNumber {
