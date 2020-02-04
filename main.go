@@ -41,7 +41,7 @@ func main() {
 	router := mux.NewRouter()
 
 	f := filter.New(cfg.FilterAPIURL)
-	zc := zebedee.NewZebedeeClient(cfg.ZebedeeURL)
+	zc := zebedee.New(cfg.ZebedeeURL)
 	dc := dataset.NewAPIClient(cfg.DatasetAPIURL)
 	rend := renderer.New(cfg.RendererURL)
 

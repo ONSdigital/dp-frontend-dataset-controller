@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 
-	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 )
 
@@ -16,5 +15,4 @@ type ZebedeeClient interface {
 	Get(ctx context.Context, userAccessToken, path string) ([]byte, error)
 	GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error)
 	GetDataset(ctx context.Context, userAccessToken, path string) (data.Dataset, error)
-	healthcheck.Client
 }

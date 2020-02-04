@@ -22,7 +22,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/common"
-	"github.com/ONSdigital/go-ns/healthcheck"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
@@ -35,15 +34,13 @@ const dataEndpoint = `\/data$`
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
-	healthcheck.Client
 	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
 type DatasetClient interface {
-	healthcheck.Client
-	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Model, err error)
-	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.Model, err error)
+	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.DatasetDetails, err error)
+	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
 	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
 	GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error)
 	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string) (m []dataset.Version, err error)
@@ -55,7 +52,6 @@ type DatasetClient interface {
 
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
-	healthcheck.Client
 	Do(string, []byte) ([]byte, error)
 }
 

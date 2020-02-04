@@ -55,7 +55,7 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID,"1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
 			mockConfig := config.Config{ServiceToken: serviceAuthToken}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
@@ -93,7 +93,7 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID,"1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
@@ -240,7 +240,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{Contacts: []dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "2017").Return(versions[0], nil)
@@ -288,7 +288,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, errors.New("sorry"))
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("sorry"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
@@ -305,7 +305,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, errors.New("sorry"))
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
@@ -325,7 +325,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "1").Return(versions[0], nil)
@@ -352,7 +352,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test versions list returns 200 when rendered succesfully", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2017").Return([]dataset.Version{}, nil)
 			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
 
@@ -374,7 +374,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, errors.New("dataset client error"))
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
@@ -390,7 +390,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test versions list returns status 500 when renderer returns an error", func() {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.Model{}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2017").Return([]dataset.Version{}, nil)
 			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
 
