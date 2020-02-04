@@ -28,6 +28,6 @@ and update the `MAIL_*` and `FEEDBACK_*` variables configured for this app.
 
 ### Licence
 
-Copyright ©‎ 2017, Office for National Statistics (https://www.ons.gov.uk)
+Copyright ©‎ 2017 2020, Office for National Statistics (https://www.ons.gov.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
