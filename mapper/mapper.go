@@ -14,8 +14,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
-	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/zebedee/data"
+	"github.com/ONSdigital/log.go/log"
 )
 
 // TimeSlice allows sorting of a list of time.Time
@@ -63,7 +63,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
 		datasetURL.Path = ""
-		log.ErrorCtx(ctx, err, nil)
+		log.Event(ctx, "failed to parse url, self link", log.Error(err))
 	}
 	datasetBreadcrumbs := []model.TaxonomyNode{
 		{
@@ -168,7 +168,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 			pDim.Title = title
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 			if err != nil {
-				log.ErrorCtx(ctx, err, nil)
+				log.Event(ctx, "failed to parse url, last_version link", log.Error(err))
 			}
 			for _, dimension := range dims.Items {
 				if dimension.Name == opt.Items[0].DimensionID {
@@ -186,7 +186,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 				for _, val := range opt.Items {
 					t, err := convertMMMYYToTime(val.Label)
 					if err != nil {
-						log.ErrorCtx(ctx, err, nil)
+						log.Event(ctx, "unable to convery date (MMYY) to time", log.Error(err), log.Data{"label": val.Label})
 					}
 					ts = append(ts, t)
 				}
@@ -211,7 +211,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 				for _, val := range opt.Items {
 					t, err := convertYYYYToTime(val.Label)
 					if err != nil {
-						log.Error(err, nil)
+						log.Event(ctx, "unable to convery date (YYYY) to time", log.Error(err), log.Data{"label": val.Label})
 					}
 					ts = append(ts, t)
 				}
@@ -283,7 +283,7 @@ func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition d
 	p.EnableLoop11 = enableLoop11
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
-		log.ErrorCtx(ctx, err, nil)
+		log.Event(ctx, "failed to parse url, latest_version link", log.Error(err))
 	}
 	p.Data.LatestVersionURL = uri.Path
 	p.DatasetId = d.ID
@@ -381,7 +381,7 @@ func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions 
 
 			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
 			if err != nil {
-				log.ErrorCtx(ctx, err, nil)
+				log.Event(ctx, "failed to parse url, latest_version link", log.Error(err))
 			}
 			var latestVersionPath = latestVersionURL.Path
 			fmt.Println(latestVersionPath)

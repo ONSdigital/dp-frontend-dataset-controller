@@ -18,8 +18,8 @@ import (
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/healthcheck"
 	"github.com/ONSdigital/go-ns/handlers/localeCode"
-	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/server"
+	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 )
 
@@ -35,6 +35,7 @@ func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) 
 
 func main() {
 	cfg := config.Get()
+	ctx := context.Background()
 
 	log.Namespace = "dp-frontend-dataset-controller"
 
@@ -71,7 +72,7 @@ func main() {
 
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
-		log.Info("adding feedback routes", nil)
+		log.Event(ctx, "adding feedback routes")
 		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, false))
 		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, true))
 		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback)
@@ -80,7 +81,7 @@ func main() {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, cfg))
 
-	log.Info("Starting server", log.Data{"config": cfg})
+	log.Event(ctx, "Starting server", log.Data{"config": cfg})
 
 	s := server.New(cfg.BindAddr, router)
 	s.HandleOSSignals = false
@@ -96,7 +97,7 @@ func main() {
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.Error(err, nil)
+			log.Event(ctx, "failed to start http listen and serve", log.Error(err))
 			os.Exit(2)
 		}
 	}()
@@ -107,9 +108,9 @@ func main() {
 	<-stop
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	log.InfoCtx(ctx, "shutting service down gracefully", nil)
+	log.Event(ctx, "shutting service down gracefully")
 	defer cancel()
 	if err := s.Server.Shutdown(ctx); err != nil {
-		log.ErrorCtx(ctx, err, nil)
+		log.Event(ctx, "failed to shutdown http server", log.Error(err))
 	}
 }

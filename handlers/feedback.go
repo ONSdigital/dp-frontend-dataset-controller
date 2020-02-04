@@ -14,7 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/feedback"
-	"github.com/ONSdigital/go-ns/log"
+	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/schema"
 )
 
@@ -33,6 +33,7 @@ type Feedback struct {
 // FeedbackThanks loads the Feedback Thank you page
 func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 	var p model.Page
+	ctx := req.Context()
 
 	p.Metadata.Title = "Thank you"
 	returnTo := req.URL.Query().Get("returnTo")
@@ -46,7 +47,7 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 	b, err := json.Marshal(p)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(ctx, "unable to marshal page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -55,7 +56,7 @@ func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
 
 	templateHTML, err := r.Do("feedback-thanks", b)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(ctx, "failed to render feedback-thanks template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +102,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 
 	b, err := json.Marshal(p)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(req.Context(), "unable to marshal feedback page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -110,7 +111,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 
 	templateHTML, err := r.Do("feedback", b)
 	if err != nil {
-		log.ErrorCtx(req.Context(), err, log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(req.Context(), "failed to render feedback template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -121,8 +122,9 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 // AddFeedback handles a users feedback request and sends a message to slack
 func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
 		if err := req.ParseForm(); err != nil {
-			log.ErrorCtx(req.Context(), err, nil)
+			log.Event(ctx, "unable to parse request form", log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -131,7 +133,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 
 		var f Feedback
 		if err := decoder.Decode(&f, req.Form); err != nil {
-			log.ErrorCtx(req.Context(), err, nil)
+			log.Event(ctx, "unable to decode request form", log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -164,7 +166,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 			[]string{to},
 			generateFeedbackMessage(f, from, to, isPositive),
 		); err != nil {
-			log.ErrorCtx(req.Context(), err, nil)
+			log.Event(ctx, "failed to send message", log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
