@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 
-export GOPATH=$(pwd)
+cwd=$(pwd)
 
-pushd $GOPATH/dp-frontend-dataset-controller
+pushd $cwd/dp-frontend-dataset-controller
   make test
 popd

@@ -79,7 +79,6 @@ func main() {
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
 	if err = registerCheckers(ctx, &healthcheck, f, zc, dc, rend); err != nil {
-		log.Event(ctx, "failed to add checkers", log.Error(err))
 		os.Exit(1)
 	}
 
