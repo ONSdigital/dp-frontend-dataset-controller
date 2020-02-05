@@ -11,7 +11,6 @@ import (
 	"regexp"
 
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/feedback"
 	"github.com/ONSdigital/log.go/log"
@@ -31,45 +30,47 @@ type Feedback struct {
 }
 
 // FeedbackThanks loads the Feedback Thank you page
-func FeedbackThanks(w http.ResponseWriter, req *http.Request) {
-	var p model.Page
-	ctx := req.Context()
+func FeedbackThanks(rendererURL string) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		var p model.Page
+		ctx := req.Context()
 
-	p.Metadata.Title = "Thank you"
-	returnTo := req.URL.Query().Get("returnTo")
+		p.Metadata.Title = "Thank you"
+		returnTo := req.URL.Query().Get("returnTo")
 
-	if returnTo == "Whole site" {
-		returnTo = "https://www.ons.gov.uk"
+		if returnTo == "Whole site" {
+			returnTo = "https://www.ons.gov.uk"
+		}
+		p.Metadata.Description = returnTo
+
+		b, err := json.Marshal(p)
+		if err != nil {
+			log.Event(ctx, "unable to marshal page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		r := renderer.New(rendererURL)
+
+		templateHTML, err := r.Do("feedback-thanks", b)
+		if err != nil {
+			log.Event(ctx, "failed to render feedback-thanks template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(templateHTML)
 	}
-	p.Metadata.Description = returnTo
-
-	cfg := config.Get()
-
-	b, err := json.Marshal(p)
-	if err != nil {
-		log.Event(ctx, "unable to marshal page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	r := renderer.New(cfg.RendererURL)
-
-	templateHTML, err := r.Do("feedback-thanks", b)
-	if err != nil {
-		log.Event(ctx, "failed to render feedback-thanks template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(templateHTML)
 }
 
 // GetFeedback handles the loading of a feedback page
-func GetFeedback(w http.ResponseWriter, req *http.Request) {
-	getFeedback(w, req, req.Referer(), "", "", "", "", "")
+func GetFeedback(rendererURL string) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		getFeedback(w, req, req.Referer(), rendererURL, "", "", "", "", "")
+	}
 }
 
-func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpose, description, name, email string) {
+func getFeedback(w http.ResponseWriter, req *http.Request, url, rendererURL, errorType, purpose, description, name, email string) {
 	var p feedback.Page
 
 	var services = make(map[string]string)
@@ -98,8 +99,6 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 	p.Email = email
 	p.PreviousURL = url
 
-	cfg := config.Get()
-
 	b, err := json.Marshal(p)
 	if err != nil {
 		log.Event(req.Context(), "unable to marshal feedback page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
@@ -107,7 +106,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 		return
 	}
 
-	r := renderer.New(cfg.RendererURL)
+	r := renderer.New(rendererURL)
 
 	templateHTML, err := r.Do("feedback", b)
 	if err != nil {
@@ -120,7 +119,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, errorType, purpo
 }
 
 // AddFeedback handles a users feedback request and sends a message to slack
-func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) http.HandlerFunc {
+func AddFeedback(auth smtp.Auth, mailAddr, to, from, rendererURL string, isPositive bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		if err := req.ParseForm(); err != nil {
@@ -139,18 +138,18 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from string, isPositive bool) htt
 		}
 
 		if f.FeedbackFormType == "page" && f.Purpose == "" && !isPositive {
-			getFeedback(w, req, f.URL, "purpose", f.Purpose, f.Description, f.Name, f.Email)
+			getFeedback(w, req, f.URL, rendererURL, "purpose", f.Purpose, f.Description, f.Name, f.Email)
 			return
 		}
 
 		if f.Description == "" && !isPositive {
-			getFeedback(w, req, f.URL, "description", f.Purpose, f.Description, f.Name, f.Email)
+			getFeedback(w, req, f.URL, rendererURL, "description", f.Purpose, f.Description, f.Name, f.Email)
 			return
 		}
 
 		if len(f.Email) > 0 && !isPositive {
 			if ok, err := regexp.MatchString(`^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$`, f.Email); !ok || err != nil {
-				getFeedback(w, req, f.URL, "email", f.Purpose, f.Description, f.Name, f.Email)
+				getFeedback(w, req, f.URL, rendererURL, "email", f.Purpose, f.Description, f.Name, f.Email)
 				return
 			}
 		}

@@ -524,6 +524,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 
 	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
+
 	for _, dimension := range dimensions.Items {
 		options, err := dc.GetOptions(req.Context(), userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version, dimension.Name)
 		if err != nil {
@@ -532,6 +533,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 
 		b.WriteString(options.String())
 	}
+
 	return b.Bytes(), nil
 }
 

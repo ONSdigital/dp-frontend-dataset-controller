@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	dataset "github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -140,7 +140,6 @@ func TestUnitHandlers(t *testing.T) {
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
-
 	})
 
 	Convey("test legacylanding handler with non /data endpoint", t, func() {
@@ -306,9 +305,9 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, errors.New("sorry"))
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
@@ -326,12 +325,12 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "1").Return(versions[0], nil)
-			mockClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1")
+			mockClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1").Return(dataset.Dimensions{}, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1")
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return(nil, errors.New("error from renderer"))
@@ -411,7 +410,7 @@ func TestUnitHandlers(t *testing.T) {
 
 }
 
-func testResponse(code int, respBody, url string, client FilterClient, dc DatasetClient, f http.HandlerFunc) *httptest.ResponseRecorder {
+func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient, f http.HandlerFunc) *httptest.ResponseRecorder {
 	mockConfig := config.Config{}
 	req, err := http.NewRequest("POST", url, nil)
 	So(err, ShouldBeNil)
@@ -419,7 +418,7 @@ func testResponse(code int, respBody, url string, client FilterClient, dc Datase
 	w := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(client, dc, mockConfig))
+	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc, mockConfig))
 
 	router.ServeHTTP(w, req)
 

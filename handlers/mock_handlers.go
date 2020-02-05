@@ -34,19 +34,6 @@ func (m *MockFilterClient) EXPECT() *MockFilterClientMockRecorder {
 	return m.recorder
 }
 
-// Healthcheck mocks base method
-func (m *MockFilterClient) Healthcheck() (string, error) {
-	ret := m.ctrl.Call(m, "Healthcheck")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Healthcheck indicates an expected call of Healthcheck
-func (mr *MockFilterClientMockRecorder) Healthcheck() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockFilterClient)(nil).Healthcheck))
-}
-
 // CreateBlueprint mocks base method
 func (m *MockFilterClient) CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error) {
 	ret := m.ctrl.Call(m, "CreateBlueprint", ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
@@ -81,19 +68,6 @@ func NewMockDatasetClient(ctrl *gomock.Controller) *MockDatasetClient {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockDatasetClient) EXPECT() *MockDatasetClientMockRecorder {
 	return m.recorder
-}
-
-// Healthcheck mocks base method
-func (m *MockDatasetClient) Healthcheck() (string, error) {
-	ret := m.ctrl.Call(m, "Healthcheck")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Healthcheck indicates an expected call of Healthcheck
-func (mr *MockDatasetClientMockRecorder) Healthcheck() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockDatasetClient)(nil).Healthcheck))
 }
 
 // Get mocks base method
@@ -234,19 +208,6 @@ func NewMockRenderClient(ctrl *gomock.Controller) *MockRenderClient {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockRenderClient) EXPECT() *MockRenderClientMockRecorder {
 	return m.recorder
-}
-
-// Healthcheck mocks base method
-func (m *MockRenderClient) Healthcheck() (string, error) {
-	ret := m.ctrl.Call(m, "Healthcheck")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Healthcheck indicates an expected call of Healthcheck
-func (mr *MockRenderClientMockRecorder) Healthcheck() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockRenderClient)(nil).Healthcheck))
 }
 
 // Do mocks base method
