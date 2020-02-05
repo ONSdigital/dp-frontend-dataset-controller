@@ -49,6 +49,12 @@ job "dp-frontend-dataset-controller" {
         name = "dp-frontend-dataset-controller"
         port = "http"
         tags = ["web"]
+        check {
+          type     = "http"
+          path     = "/health"
+          interval = "10s"
+          timeout  = "2s"
+        }
       }
 
       resources {
@@ -109,6 +115,12 @@ job "dp-frontend-dataset-controller" {
         name = "dp-frontend-dataset-controller"
         port = "http"
         tags = ["publishing"]
+        check {
+          type     = "http"
+          path     = "/health"
+          interval = "10s"
+          timeout  = "2s"
+        }
       }
 
       resources {
