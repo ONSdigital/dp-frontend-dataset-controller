@@ -47,7 +47,7 @@ func Get() (cfg *Config, err error) {
 		FeedbackFrom:               "",
 		ServiceToken:               "",
 		EnableLoop11:               false,
-		HealthCheckInterval:        1000 * time.Second,
+		HealthCheckInterval:        10 * time.Second,
 		HealthCheckCriticalTimeout: time.Minute,
 	}
 
