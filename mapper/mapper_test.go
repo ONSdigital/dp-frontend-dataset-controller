@@ -14,14 +14,16 @@ func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("test CreateFilterableLandingPage", t, func() {
-		d := dataset.Model{
+		contact := dataset.Contact{
+			Name:      "Matt Rout",
+			Telephone: "01622 734721",
+			Email:     "mattrout@test.com",
+		}
+
+		d := dataset.DatasetDetails{
 			CollectionID: "abcdefg",
-			Contacts: []dataset.Contact{
-				dataset.Contact{
-					Name:      "Matt Rout",
-					Telephone: "01622 734721",
-					Email:     "mattrout@test.com",
-				},
+			Contacts: &[]dataset.Contact{
+				contact,
 			},
 			Description: "A really awesome dataset for you to look at",
 			Links: dataset.Links{
@@ -121,9 +123,9 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Metadata.Title, ShouldEqual, d.Title)
 		So(p.URI, ShouldEqual, d.Links.Self.URL)
 		So(p.ShowFeedbackForm, ShouldEqual, true)
-		So(p.ContactDetails.Name, ShouldEqual, d.Contacts[0].Name)
-		So(p.ContactDetails.Telephone, ShouldEqual, d.Contacts[0].Telephone)
-		So(p.ContactDetails.Email, ShouldEqual, d.Contacts[0].Email)
+		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
+		So(p.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
+		So(p.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
@@ -159,7 +161,7 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
-	dummyModelData := dataset.Model{
+	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
 		Links: dataset.Links{

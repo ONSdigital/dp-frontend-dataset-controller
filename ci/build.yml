@@ -6,14 +6,14 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tags: 1.9.0
+    tags: 1.13.7
 
 inputs:
   - name: dp-frontend-dataset-controller
-    path: go/src/github.com/ONSdigital/dp-frontend-dataset-controller
+    path: dp-frontend-dataset-controller
 
 outputs:
   - name: build
 
 run:
-  path: go/src/github.com/ONSdigital/dp-frontend-dataset-controller/ci/scripts/build.sh
+  path: dp-frontend-dataset-controller/ci/scripts/build.sh
