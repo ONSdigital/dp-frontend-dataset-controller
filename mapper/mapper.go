@@ -119,7 +119,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 		}
 	}
 
-	if d.Publications != nil {
+	if d.RelatedDatasets != nil {
 		for _, link := range *d.RelatedDatasets {
 			p.DatasetLandingPage.RelatedLinks = append(p.DatasetLandingPage.RelatedLinks, datasetLandingPageFilterable.Publication{
 				Title: link.Title,
