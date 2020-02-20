@@ -117,7 +117,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true)
+		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true, false)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -209,7 +209,7 @@ func TestCreateVersionsList(t *testing.T) {
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummySingleVersionList, false)
+		page := CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummySingleVersionList, false, false)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -218,7 +218,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummyMultipleVersionList, false)
+		page = CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummyMultipleVersionList, false, false)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(len(page.Data.Versions), ShouldEqual, 3)
