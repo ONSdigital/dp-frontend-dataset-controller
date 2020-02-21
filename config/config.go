@@ -22,7 +22,6 @@ type Config struct {
 	FeedbackTo                 string        `envconfig:"FEEDBACK_TO"`
 	FeedbackFrom               string        `envconfig:"FEEDBACK_FROM"`
 	DownloadServiceURL         string        `envconfig:"DOWNLOAD_SERVICE_URL"`
-	ServiceToken               string        `envconfig:"SERVICE_TOKEN" json:"-"`
 	EnableLoop11               bool          `envconfig:"ENABLE_LOOP11"`
 	EnableCookiesControl       bool          `envconfig:"ENABLE_COOKIES_CONTROL"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -45,7 +44,6 @@ func Get() (cfg *Config, err error) {
 		MailPassword:               "",
 		FeedbackTo:                 "",
 		FeedbackFrom:               "",
-		ServiceToken:               "",
 		EnableLoop11:               false,
 		EnableCookiesControl:       false,
 		HealthCheckInterval:        10 * time.Second,
