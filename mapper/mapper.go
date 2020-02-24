@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
-	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -36,7 +36,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string, enableLoop11 bool) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL string, enableLoop11 bool) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -347,7 +347,7 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb, enableLoop11 bool) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, enableLoop11 bool) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
