@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-models/model"
-	"github.com/ONSdigital/go-ns/zebedee/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -72,9 +72,9 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		breadcrumbItem := data.Breadcrumb{
+		breadcrumbItem := zebedee.Breadcrumb{
 			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-			Description: data.NodeDescription{Title: "GDP: January 2018"},
+			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
 		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
@@ -121,7 +121,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true)
+		}, dataset.Dimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
