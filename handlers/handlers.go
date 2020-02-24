@@ -68,7 +68,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.Event(req.Context(), "client error", log.Error(err), log.Data{"setting-response-status": status})
+	log.Event(req.Context(), "client error", log.ERROR, log.Error(err), log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
@@ -92,7 +92,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 		userAccessToken := getUserAccessTokenFromContext(ctx)
 		collectionID := getCollectionIDFromContext(ctx)
 
-		dimensions, err := dc.GetDimensions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version)
+		dimensions, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -100,7 +100,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 
 		var names []string
 		for _, dim := range dimensions.Items {
-			opts, err := dc.GetOptions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version, dim.Name)
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
@@ -110,13 +110,13 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 				names = append(names, dim.Name)
 			}
 		}
-		fid, err := c.CreateBlueprint(ctx, userAccessToken, cfg.ServiceToken, "", collectionID, datasetID, edition, version, names)
+		fid, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
 		}
 
-		log.Event(ctx, "created filter id", log.Data{"filter_id": fid})
+		log.Event(ctx, "created filter id", log.INFO, log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
 	}
 }
@@ -157,19 +157,19 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	userAccessToken := getUserAccessTokenFromContext(ctx)
 	collectionID := getCollectionIDFromContext(ctx)
 
-	d, err := dc.Get(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID)
+	d, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	versions, err := dc.GetVersions(ctx, userAccessToken, cfg.ServiceToken, "", collectionID, datasetID, edition)
+	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	e, err := dc.GetEdition(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition)
+	e, err := dc.GetEdition(ctx, userAccessToken, "", collectionID, datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -200,7 +200,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	userAccessToken := getUserAccessTokenFromContext(ctx)
 	collectionID := getCollectionIDFromContext(ctx)
 
-	datasetModel, err := dc.Get(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID)
+	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -208,7 +208,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
 
 	if len(edition) == 0 {
@@ -225,7 +225,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	allVers, err := dc.GetVersions(ctx, userAccessToken, cfg.ServiceToken, "", collectionID, datasetID, edition)
+	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -245,13 +245,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, strconv.Itoa(latestVersionNumber))
 
-	ver, err := dc.GetVersion(ctx, userAccessToken, cfg.ServiceToken, "", collectionID, datasetID, edition, version)
+	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	dims, err := dc.GetDimensions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version)
+	dims, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -259,7 +259,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	var opts []dataset.Options
 	for _, dim := range dims.Items {
-		opt, err := dc.GetOptions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version, dim.Name)
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -268,7 +268,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		opts = append(opts, opt)
 	}
 
-	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version)
+	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -332,13 +332,13 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	userAccessToken := getUserAccessTokenFromContext(ctx)
 	collectionID := getCollectionIDFromContext(ctx)
 
-	datasetModel, err := dc.Get(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID)
+	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID)
+	datasetEditions, err := dc.GetEditions(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
@@ -350,16 +350,16 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
 		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
 		if err != nil {
-			log.Event(ctx, "unable to parse url, latest_version link", log.Error(err))
+			log.Event(ctx, "unable to parse url, latest_version link", log.WARN, log.Error(err))
 		} else {
-			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionURL.Path})
+			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionURL.Path})
 			http.Redirect(w, req, latestVersionURL.Path, 302)
 		}
 	}
@@ -432,10 +432,10 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			wg.Add(1)
 			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset data.Related) {
 				defer wg.Done()
-				d, err := dc.GetByPath(ctx, userAccessToken, cfg.ServiceToken, collectionID, relatedFilterableDataset.URI)
+				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
-					log.Event(req.Context(), "error fetching dataset details", log.Error(err), log.Data{
+					log.Event(req.Context(), "error fetching dataset details", log.ERROR, log.Error(err), log.Data{
 						"dataset": relatedFilterableDataset.URI,
 					})
 					return
@@ -455,7 +455,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		var ok bool
 		localeCode, ok = ctx.Value(common.LocaleHeaderKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving locale code", log.Error(errors.New("error casting locale code to string")))
+			log.Event(ctx, "error retrieving locale code", log.WARN, log.Error(errors.New("error casting locale code to string")))
 		}
 	}
 
@@ -495,13 +495,13 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 	userAccessToken := getUserAccessTokenFromContext(ctx)
 	collectionID := getCollectionIDFromContext(ctx)
 
-	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version)
+	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	dimensions, err := dc.GetDimensions(ctx, userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version)
+	dimensions, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -526,7 +526,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptions(req.Context(), userAccessToken, cfg.ServiceToken, collectionID, datasetID, edition, version, dimension.Name)
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -541,7 +541,7 @@ func getUserAccessTokenFromContext(ctx context.Context) string {
 	if ctx.Value(common.FlorenceIdentityKey) != nil {
 		accessToken, ok := ctx.Value(common.FlorenceIdentityKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving user access token", log.Error(errors.New("error casting access token context value to string")))
+			log.Event(ctx, "error retrieving user access token", log.WARN, log.Error(errors.New("error casting access token context value to string")))
 		}
 		return accessToken
 	}
@@ -552,7 +552,7 @@ func getCollectionIDFromContext(ctx context.Context) string {
 	if ctx.Value(common.CollectionIDHeaderKey) != nil {
 		collectionID, ok := ctx.Value(common.CollectionIDHeaderKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving collection ID", log.Error(errors.New("error casting collection ID context value to string")))
+			log.Event(ctx, "error retrieving collection ID", log.WARN, log.Error(errors.New("error casting collection ID context value to string")))
 		}
 		return collectionID
 	}

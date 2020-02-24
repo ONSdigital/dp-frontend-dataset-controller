@@ -45,7 +45,7 @@ func FeedbackThanks(rendererURL string) http.HandlerFunc {
 
 		b, err := json.Marshal(p)
 		if err != nil {
-			log.Event(ctx, "unable to marshal page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+			log.Event(ctx, "unable to marshal page data", log.ERROR, log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -54,7 +54,7 @@ func FeedbackThanks(rendererURL string) http.HandlerFunc {
 
 		templateHTML, err := r.Do("feedback-thanks", b)
 		if err != nil {
-			log.Event(ctx, "failed to render feedback-thanks template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+			log.Event(ctx, "failed to render feedback-thanks template", log.ERROR, log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -101,7 +101,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, rendererURL, err
 
 	b, err := json.Marshal(p)
 	if err != nil {
-		log.Event(req.Context(), "unable to marshal feedback page data", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(req.Context(), "unable to marshal feedback page data", log.ERROR, log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -110,7 +110,7 @@ func getFeedback(w http.ResponseWriter, req *http.Request, url, rendererURL, err
 
 	templateHTML, err := r.Do("feedback", b)
 	if err != nil {
-		log.Event(req.Context(), "failed to render feedback template", log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
+		log.Event(req.Context(), "failed to render feedback template", log.ERROR, log.Error(err), log.Data{"setting-response-status": http.StatusInternalServerError})
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -123,7 +123,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from, rendererURL string, isPosit
 	return func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		if err := req.ParseForm(); err != nil {
-			log.Event(ctx, "unable to parse request form", log.Error(err))
+			log.Event(ctx, "unable to parse request form", log.ERROR, log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -132,7 +132,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from, rendererURL string, isPosit
 
 		var f Feedback
 		if err := decoder.Decode(&f, req.Form); err != nil {
-			log.Event(ctx, "unable to decode request form", log.Error(err))
+			log.Event(ctx, "unable to decode request form", log.ERROR, log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -165,7 +165,7 @@ func AddFeedback(auth smtp.Auth, mailAddr, to, from, rendererURL string, isPosit
 			[]string{to},
 			generateFeedbackMessage(f, from, to, isPositive),
 		); err != nil {
-			log.Event(ctx, "failed to send message", log.Error(err))
+			log.Event(ctx, "failed to send message", log.ERROR, log.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
