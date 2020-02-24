@@ -458,7 +458,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		}
 	}
 
-	m := mapper.CreateLegacyDatasetLanding(ctx, dlp, bc, ds, localeCode)
+	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, localeCode)
 
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)

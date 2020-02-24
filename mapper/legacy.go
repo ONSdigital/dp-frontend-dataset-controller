@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"context"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,9 +17,11 @@ import (
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(ctx context.Context, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
 
 	var sdlp StaticDatasetLandingPage
+
+	MapCookiePreferences(req, &sdlp.CookiesPreferencesSet, &sdlp.CookiesPolicy)
 
 	sdlp.Type = dlp.Type
 	sdlp.URI = dlp.URI
