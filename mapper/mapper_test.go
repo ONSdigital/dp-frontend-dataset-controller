@@ -2,16 +2,20 @@ package mapper
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/go-ns/zebedee/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
+	req := httptest.NewRequest("", "/", nil)
 
 	Convey("test CreateFilterableLandingPage", t, func() {
 		contact := dataset.Contact{
@@ -73,7 +77,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: data.NodeDescription{Title: "GDP: January 2018"},
 		}
 
-		p := CreateFilterableLandingPage(ctx, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -161,6 +165,7 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
+	req := httptest.NewRequest("", "/", nil)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
@@ -209,7 +214,7 @@ func TestCreateVersionsList(t *testing.T) {
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummySingleVersionList, false)
+		page := CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList, false)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -218,7 +223,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummyMultipleVersionList, false)
+		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList, false)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(len(page.Data.Versions), ShouldEqual, 3)
@@ -238,5 +243,28 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions[1].Superseded, ShouldEqual, "/datasets/cpih01/editions/time-series/versions/1")
 			So(page.Data.Versions[2].Superseded, ShouldEqual, "")
 		})
+	})
+}
+
+func TestUnitMapCookiesPreferences(t *testing.T) {
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := model.Page{
+		CookiesPreferencesSet: false,
+		CookiesPolicy: model.CookiesPolicy{
+			Essential: false,
+			Usage:     false,
+		},
+	}
+
+	Convey("maps cookies preferences cookie data to page model correctly", t, func() {
+		So(pageModel.CookiesPreferencesSet, ShouldEqual, false)
+		So(pageModel.CookiesPolicy.Essential, ShouldEqual, false)
+		So(pageModel.CookiesPolicy.Usage, ShouldEqual, false)
+		req.AddCookie(&http.Cookie{Name: "cookies_preferences_set", Value: "true"})
+		req.AddCookie(&http.Cookie{Name: "cookies_policy", Value: "%7B%22essential%22%3Atrue%2C%22usage%22%3Atrue%7D"})
+		MapCookiePreferences(req, &pageModel.CookiesPreferencesSet, &pageModel.CookiesPolicy)
+		So(pageModel.CookiesPreferencesSet, ShouldEqual, true)
+		So(pageModel.CookiesPolicy.Essential, ShouldEqual, true)
+		So(pageModel.CookiesPolicy.Usage, ShouldEqual, true)
 	})
 }
