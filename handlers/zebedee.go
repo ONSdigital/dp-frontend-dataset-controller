@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
 )
 
 // To mock interfaces in this file
