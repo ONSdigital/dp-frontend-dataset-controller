@@ -20,6 +20,7 @@ An HTTP service for the controlling of data relevant to a particular dataset.
 | FEEDBACK_TO                  | ""                      | Receiver email address for feedback.
 | FEEDBACK_FROM                | ""                      | Sender email address for feedback.
 | ENABLE_COOKIES_CONTROL       | false                   | Enabled user cookie preferences
+| GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                      | The graceful shutdown timeout in seconds
 | HEALTHCHECK_INTERVAL         | 10s                     | The time between calling healthcheck endpoints for check subsystems
 | HEALTHCHECK_CRITICAL_TIMEOUT | 60s                     | The time taken for the health changes from warning state to critical due to subsystem check failures
 

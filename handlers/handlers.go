@@ -68,7 +68,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.Event(req.Context(), "client error", log.Error(err), log.Data{"setting-response-status": status})
+	log.Event(req.Context(), "client error", log.ERROR, log.Error(err), log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
@@ -116,7 +116,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 			return
 		}
 
-		log.Event(ctx, "created filter id", log.Data{"filter_id": fid})
+		log.Event(ctx, "created filter id", log.INFO, log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
 	}
 }
@@ -208,7 +208,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
 
 	if len(edition) == 0 {
@@ -350,16 +350,16 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
 		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
 		if err != nil {
-			log.Event(ctx, "unable to parse url, latest_version link", log.Error(err))
+			log.Event(ctx, "unable to parse url, latest_version link", log.WARN, log.Error(err))
 		} else {
-			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionURL.Path})
+			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionURL.Path})
 			http.Redirect(w, req, latestVersionURL.Path, 302)
 		}
 	}
@@ -435,7 +435,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
-					log.Event(req.Context(), "error fetching dataset details", log.Error(err), log.Data{
+					log.Event(req.Context(), "error fetching dataset details", log.ERROR, log.Error(err), log.Data{
 						"dataset": relatedFilterableDataset.URI,
 					})
 					return
@@ -455,7 +455,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		var ok bool
 		localeCode, ok = ctx.Value(common.LocaleHeaderKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving locale code", log.Error(errors.New("error casting locale code to string")))
+			log.Event(ctx, "error retrieving locale code", log.WARN, log.Error(errors.New("error casting locale code to string")))
 		}
 	}
 
@@ -541,7 +541,7 @@ func getUserAccessTokenFromContext(ctx context.Context) string {
 	if ctx.Value(common.FlorenceIdentityKey) != nil {
 		accessToken, ok := ctx.Value(common.FlorenceIdentityKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving user access token", log.Error(errors.New("error casting access token context value to string")))
+			log.Event(ctx, "error retrieving user access token", log.WARN, log.Error(errors.New("error casting access token context value to string")))
 		}
 		return accessToken
 	}
@@ -552,7 +552,7 @@ func getCollectionIDFromContext(ctx context.Context) string {
 	if ctx.Value(common.CollectionIDHeaderKey) != nil {
 		collectionID, ok := ctx.Value(common.CollectionIDHeaderKey).(string)
 		if !ok {
-			log.Event(ctx, "error retrieving collection ID", log.Error(errors.New("error casting collection ID context value to string")))
+			log.Event(ctx, "error retrieving collection ID", log.WARN, log.Error(errors.New("error casting collection ID context value to string")))
 		}
 		return collectionID
 	}

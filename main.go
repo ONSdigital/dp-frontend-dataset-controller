@@ -6,7 +6,6 @@ import (
 	"net/smtp"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/filter"
@@ -53,11 +52,11 @@ func main() {
 
 	cfg, err := config.Get()
 	if err != nil {
-		log.Event(ctx, "unable to retrieve service configuration", log.Error(err))
+		log.Event(ctx, "unable to retrieve service configuration", log.ERROR, log.Error(err))
 		os.Exit(1)
 	}
 
-	log.Event(ctx, "got service configuration", log.Data{"config": cfg})
+	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
 
 	versionInfo, err := health.NewVersionInfo(
 		BuildTime,
@@ -65,7 +64,7 @@ func main() {
 		Version,
 	)
 	if err != nil {
-		log.Event(ctx, "failed to create service version information", log.Error(err))
+		log.Event(ctx, "failed to create service version information", log.ERROR, log.Error(err))
 		os.Exit(1)
 	}
 
@@ -108,7 +107,7 @@ func main() {
 
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
-		log.Event(ctx, "adding feedback routes")
+		log.Event(ctx, "adding feedback routes", log.INFO)
 		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, cfg.RendererURL, false))
 		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, cfg.RendererURL, false))
 		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback(cfg.RendererURL))
@@ -117,7 +116,7 @@ func main() {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 
-	log.Event(ctx, "Starting server", log.Data{"config": cfg})
+	log.Event(ctx, "Starting server", log.INFO, log.Data{"config": cfg})
 
 	// Start healthcheck tickers
 	healthcheck.Start(ctx)
@@ -136,39 +135,55 @@ func main() {
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.Event(ctx, "failed to start http listen and serve", log.Error(err))
+			log.Event(ctx, "failed to start http listen and serve", log.ERROR, log.Error(err))
 			os.Exit(2)
 		}
 	}()
 
+	// Block until a signal is called to shutdown application
 	<-signals
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	log.Event(ctx, "shutting service down gracefully")
-	defer cancel()
+	log.Event(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout), log.INFO)
 
-	// Stop healthcheck tickers
-	healthcheck.Stop()
-	if err := s.Server.Shutdown(ctx); err != nil {
-		log.Event(ctx, "failed to shutdown http server", log.Error(err))
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.GracefulShutdownTimeout)
+
+	go func() {
+		log.Event(ctx, "stop health checkers", log.INFO)
+		healthcheck.Stop()
+
+		if err := s.Shutdown(ctx); err != nil {
+			log.Event(ctx, "failed to gracefully shutdown http server", log.ERROR, log.Error(err))
+		}
+
+		cancel() // stop timer
+	}()
+
+	// wait for timeout or success (via cancel)
+	<-ctx.Done()
+	if ctx.Err() == context.DeadlineExceeded {
+		log.Event(ctx, "context deadline exceeded", log.WARN, log.Error(ctx.Err()))
+	} else {
+		log.Event(ctx, "graceful shutdown complete", log.INFO, log.Data{"context": ctx.Err()})
 	}
+
+	os.Exit(0)
 }
 
 func registerCheckers(ctx context.Context, h *health.HealthCheck, f *filter.Client, z *zebedee.Client, d *dataset.Client, r *renderer.Renderer) (err error) {
 	if err = h.AddCheck("filter API", f.Checker); err != nil {
-		log.Event(ctx, "failed to add filter API checker", log.Error(err))
+		log.Event(ctx, "failed to add filter API checker", log.ERROR, log.Error(err))
 	}
 
 	if err = h.AddCheck("zebedee", z.Checker); err != nil {
-		log.Event(ctx, "failed to add zebedee checker", log.Error(err))
+		log.Event(ctx, "failed to add zebedee checker", log.ERROR, log.Error(err))
 	}
 
 	if err = h.AddCheck("dataset API", d.Checker); err != nil {
-		log.Event(ctx, "failed to add dataset API checker", log.Error(err))
+		log.Event(ctx, "failed to add dataset API checker", log.ERROR, log.Error(err))
 	}
 
 	if err = h.AddCheck("frontend renderer", r.Checker); err != nil {
-		log.Event(ctx, "failed to add frontend renderer checker", log.Error(err))
+		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
 	}
 
 	return
