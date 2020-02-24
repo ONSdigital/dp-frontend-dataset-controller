@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"context"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
@@ -15,8 +16,9 @@ func TestUnitMapperLegacy(t *testing.T) {
 		bcs := getTestBreadcrumbs()
 		ds := getTestDatsets()
 		lang := "cy"
+		req := httptest.NewRequest("GET", "/", nil)
 
-		sdlp := CreateLegacyDatasetLanding(ctx, dlp, bcs, ds, lang)
+		sdlp := CreateLegacyDatasetLanding(ctx, req, dlp, bcs, ds, lang)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, dlp.Type)

@@ -56,7 +56,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
-			mockConfig := config.Config{ServiceToken: serviceAuthToken}
+			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.Dimensions{

@@ -22,8 +22,8 @@ type Config struct {
 	FeedbackTo                 string        `envconfig:"FEEDBACK_TO"`
 	FeedbackFrom               string        `envconfig:"FEEDBACK_FROM"`
 	DownloadServiceURL         string        `envconfig:"DOWNLOAD_SERVICE_URL"`
-	ServiceToken               string        `envconfig:"SERVICE_TOKEN" json:"-"`
 	EnableLoop11               bool          `envconfig:"ENABLE_LOOP11"`
+	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 }
@@ -44,8 +44,8 @@ func Get() (cfg *Config, err error) {
 		MailPassword:               "",
 		FeedbackTo:                 "",
 		FeedbackFrom:               "",
-		ServiceToken:               "",
 		EnableLoop11:               false,
+		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        10 * time.Second,
 		HealthCheckCriticalTimeout: time.Minute,
 	}
