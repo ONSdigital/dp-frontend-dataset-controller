@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -147,8 +147,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
-			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
+			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
+			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
 
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI)
@@ -174,7 +174,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := data.DatasetLandingPage{}
+			dlp := zebedee.DatasetLandingPage{}
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
 
 			w := httptest.NewRecorder()
@@ -192,7 +192,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
+			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI).Return(nil, errors.New("something went wrong"))
 
@@ -211,8 +211,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := data.DatasetLandingPage{URI: "http://helloworld.com"}
-			dlp.Datasets = append(dlp.Datasets, data.Related{Title: "A dataset!", URI: "dataset.com"})
+			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
+			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
 
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI)

@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"github.com/ONSdigital/go-ns/zebedee/data"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
 )
 
 // To mock interfaces in this file
@@ -11,8 +11,8 @@ import (
 
 // ZebedeeClient is an interface for zebedee client
 type ZebedeeClient interface {
-	GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]data.Breadcrumb, error)
+	GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]zebedee.Breadcrumb, error)
 	Get(ctx context.Context, userAccessToken, path string) ([]byte, error)
-	GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error)
-	GetDataset(ctx context.Context, userAccessToken, path string) (data.Dataset, error)
+	GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (zebedee.DatasetLandingPage, error)
+	GetDataset(ctx context.Context, userAccessToken, path string) (zebedee.Dataset, error)
 }
