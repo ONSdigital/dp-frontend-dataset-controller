@@ -34,7 +34,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string, enableLoop11 bool) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string, enableLoop11 bool, enableCookiesControl bool) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -46,6 +46,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
 	p.EnableLoop11 = enableLoop11
+	p.EnableCookiesControl = enableCookiesControl
 
 	for _, breadcrumb := range breadcrumbs {
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
@@ -63,7 +64,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
 		datasetURL.Path = ""
-		log.Event(ctx, "failed to parse url, self link", log.Error(err))
+		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
 	datasetBreadcrumbs := []model.TaxonomyNode{
 		{
@@ -168,7 +169,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 			pDim.Title = title
 			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 			if err != nil {
-				log.Event(ctx, "failed to parse url, last_version link", log.Error(err))
+				log.Event(ctx, "failed to parse url, last_version link", log.WARN, log.Error(err))
 			}
 			for _, dimension := range dims.Items {
 				if dimension.Name == opt.Items[0].DimensionID {
@@ -186,7 +187,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 				for _, val := range opt.Items {
 					t, err := convertMMMYYToTime(val.Label)
 					if err != nil {
-						log.Event(ctx, "unable to convery date (MMYY) to time", log.Error(err), log.Data{"label": val.Label})
+						log.Event(ctx, "unable to convert date (MMYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
 					}
 					ts = append(ts, t)
 				}
@@ -211,7 +212,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 				for _, val := range opt.Items {
 					t, err := convertYYYYToTime(val.Label)
 					if err != nil {
-						log.Event(ctx, "unable to convery date (YYYY) to time", log.Error(err), log.Data{"label": val.Label})
+						log.Event(ctx, "unable to convert date (YYYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
 					}
 					ts = append(ts, t)
 				}
@@ -271,7 +272,7 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version, enableLoop11 bool) datasetVersionsList.Page {
+func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version, enableLoop11 bool, enableCookiesControl bool) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
@@ -281,9 +282,10 @@ func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition d
 	p.Metadata.Title += " dataset"
 	p.BetaBannerEnabled = true
 	p.EnableLoop11 = enableLoop11
+	p.EnableCookiesControl = enableCookiesControl
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
-		log.Event(ctx, "failed to parse url, latest_version link", log.Error(err))
+		log.Event(ctx, "failed to parse url, latest_version link", log.ERROR, log.Error(err))
 	}
 	p.Data.LatestVersionURL = uri.Path
 	p.DatasetId = d.ID
@@ -343,7 +345,7 @@ func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition d
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb, enableLoop11 bool) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb, enableLoop11 bool, enableCookiesControl bool) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	p.Type = "dataset_edition_list"
 	p.Metadata.Title = d.Title
@@ -353,6 +355,7 @@ func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions 
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
 	p.EnableLoop11 = enableLoop11
+	p.EnableCookiesControl = enableCookiesControl
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
@@ -381,7 +384,7 @@ func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions 
 
 			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
 			if err != nil {
-				log.Event(ctx, "failed to parse url, latest_version link", log.Error(err))
+				log.Event(ctx, "failed to parse url, latest_version link", log.ERROR, log.Error(err))
 			}
 			var latestVersionPath = latestVersionURL.Path
 			fmt.Println(latestVersionPath)
