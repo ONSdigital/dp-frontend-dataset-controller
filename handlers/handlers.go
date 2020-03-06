@@ -174,7 +174,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	p := mapper.CreateVersionsList(ctx, req, d, e, versions, cfg.EnableLoop11)
+	p := mapper.CreateVersionsList(ctx, req, d, e, versions)
 	b, err := json.Marshal(p)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -283,7 +283,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, cfg.EnableLoop11)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -363,7 +363,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, cfg.EnableLoop11)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
 
 	b, err := json.Marshal(m)
 	if err != nil {

@@ -136,7 +136,6 @@ func TestUnitMapper(t *testing.T) {
 		So(p.ShowFeedbackForm, ShouldEqual, true)
 		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
 		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
-		So(p.EnableLoop11, ShouldEqual, true)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
