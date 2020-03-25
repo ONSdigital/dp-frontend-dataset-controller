@@ -17,6 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
+
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -48,6 +49,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
+	p.HasJSONLD = true
 
 	for _, breadcrumb := range breadcrumbs {
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
