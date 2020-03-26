@@ -23,11 +23,18 @@ func CreateLegacyDatasetLanding(ctx context.Context, req *http.Request, dlp zebe
 
 	MapCookiePreferences(req, &sdlp.CookiesPreferencesSet, &sdlp.CookiesPolicy)
 
-	sdlp.Type = dlp.Type
+	// Prepend 'legacy_' to type value to make it easier to differentiate between
+	// filterable and legacy dataset pages - their models are different
+	var pageType strings.Builder
+	pageType.WriteString("legacy_")
+	pageType.WriteString(dlp.Type)
+
+	sdlp.Type = pageType.String()
 	sdlp.URI = dlp.URI
 	sdlp.Metadata.Title = dlp.Description.Title
 	sdlp.Metadata.Description = dlp.Description.Summary
 	sdlp.Language = localeCode
+	sdlp.HasJSONLD = true
 
 	for _, d := range dlp.RelatedDatasets {
 		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, model.Related(d))
