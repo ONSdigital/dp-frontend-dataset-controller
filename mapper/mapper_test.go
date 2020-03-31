@@ -2,16 +2,20 @@ package mapper
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/go-ns/zebedee/data"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-frontend-models/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
+	req := httptest.NewRequest("", "/", nil)
 
 	Convey("test CreateFilterableLandingPage", t, func() {
 		contact := dataset.Contact{
@@ -68,12 +72,12 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		breadcrumbItem := data.Breadcrumb{
+		breadcrumbItem := zebedee.Breadcrumb{
 			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-			Description: data.NodeDescription{Title: "GDP: January 2018"},
+			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
-		p := CreateFilterableLandingPage(ctx, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -117,7 +121,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []data.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", true, false)
+		}, dataset.Dimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -132,7 +136,6 @@ func TestUnitMapper(t *testing.T) {
 		So(p.ShowFeedbackForm, ShouldEqual, true)
 		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
 		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
-		So(p.EnableLoop11, ShouldEqual, true)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
@@ -161,6 +164,7 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
+	req := httptest.NewRequest("", "/", nil)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
@@ -209,7 +213,7 @@ func TestCreateVersionsList(t *testing.T) {
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummySingleVersionList, false, false)
+		page := CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -218,7 +222,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(ctx, dummyModelData, dummyEditionData, dummyMultipleVersionList, false, false)
+		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(len(page.Data.Versions), ShouldEqual, 3)
@@ -238,5 +242,28 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions[1].Superseded, ShouldEqual, "/datasets/cpih01/editions/time-series/versions/1")
 			So(page.Data.Versions[2].Superseded, ShouldEqual, "")
 		})
+	})
+}
+
+func TestUnitMapCookiesPreferences(t *testing.T) {
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := model.Page{
+		CookiesPreferencesSet: false,
+		CookiesPolicy: model.CookiesPolicy{
+			Essential: false,
+			Usage:     false,
+		},
+	}
+
+	Convey("maps cookies preferences cookie data to page model correctly", t, func() {
+		So(pageModel.CookiesPreferencesSet, ShouldEqual, false)
+		So(pageModel.CookiesPolicy.Essential, ShouldEqual, false)
+		So(pageModel.CookiesPolicy.Usage, ShouldEqual, false)
+		req.AddCookie(&http.Cookie{Name: "cookies_preferences_set", Value: "true"})
+		req.AddCookie(&http.Cookie{Name: "cookies_policy", Value: "%7B%22essential%22%3Atrue%2C%22usage%22%3Atrue%7D"})
+		MapCookiePreferences(req, &pageModel.CookiesPreferencesSet, &pageModel.CookiesPolicy)
+		So(pageModel.CookiesPreferencesSet, ShouldEqual, true)
+		So(pageModel.CookiesPolicy.Essential, ShouldEqual, true)
+		So(pageModel.CookiesPolicy.Usage, ShouldEqual, true)
 	})
 }

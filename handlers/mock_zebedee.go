@@ -6,7 +6,7 @@ package handlers
 
 import (
 	context "context"
-	data "github.com/ONSdigital/go-ns/zebedee/data"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -35,10 +35,10 @@ func (m *MockZebedeeClient) EXPECT() *MockZebedeeClientMockRecorder {
 }
 
 // GetBreadcrumb mocks base method
-func (m *MockZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]data.Breadcrumb, error) {
+func (m *MockZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]zebedee.Breadcrumb, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBreadcrumb", ctx, userAccessToken, path)
-	ret0, _ := ret[0].([]data.Breadcrumb)
+	ret0, _ := ret[0].([]zebedee.Breadcrumb)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +65,10 @@ func (mr *MockZebedeeClientMockRecorder) Get(ctx, userAccessToken, path interfac
 }
 
 // GetDatasetLandingPage mocks base method
-func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (data.DatasetLandingPage, error) {
+func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (zebedee.DatasetLandingPage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDatasetLandingPage", ctx, userAccessToken, path)
-	ret0, _ := ret[0].(data.DatasetLandingPage)
+	ret0, _ := ret[0].(zebedee.DatasetLandingPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +80,10 @@ func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(ctx, userAccessTo
 }
 
 // GetDataset mocks base method
-func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, path string) (data.Dataset, error) {
+func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, path string) (zebedee.Dataset, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDataset", ctx, userAccessToken, path)
-	ret0, _ := ret[0].(data.Dataset)
+	ret0, _ := ret[0].(zebedee.Dataset)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -92,19 +92,4 @@ func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, pat
 func (mr *MockZebedeeClientMockRecorder) GetDataset(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockZebedeeClient)(nil).GetDataset), ctx, userAccessToken, path)
-}
-
-// Healthcheck mocks base method
-func (m *MockZebedeeClient) Healthcheck() (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Healthcheck")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Healthcheck indicates an expected call of Healthcheck
-func (mr *MockZebedeeClientMockRecorder) Healthcheck() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Healthcheck", reflect.TypeOf((*MockZebedeeClient)(nil).Healthcheck))
 }

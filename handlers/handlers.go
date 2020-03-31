@@ -19,11 +19,10 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/go-ns/common"
-	"github.com/ONSdigital/go-ns/zebedee/data"
-	"github.com/ONSdigital/go-ns/zebedee/zebedeeMapper"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -175,7 +174,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	p := mapper.CreateVersionsList(ctx, d, e, versions, cfg.EnableLoop11, cfg.EnableCookiesControl)
+	p := mapper.CreateVersionsList(ctx, req, d, e, versions)
 	b, err := json.Marshal(p)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -284,7 +283,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, cfg.EnableLoop11, cfg.EnableCookiesControl)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -364,7 +363,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
-	m := mapper.CreateEditionsList(ctx, datasetModel, datasetEditions, datasetID, bc, cfg.EnableLoop11, cfg.EnableCookiesControl)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -413,7 +412,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		return
 	}
 
-	var ds []data.Dataset
+	var ds []zebedee.Dataset
 	for _, v := range dlp.Datasets {
 		d, err := zc.GetDataset(ctx, userAccessToken, v.URI)
 		if err != nil {
@@ -425,12 +424,12 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	// Check for filterable datasets and fetch details
 	if len(dlp.RelatedFilterableDatasets) > 0 {
-		var relatedFilterableDatasets []data.Related
+		var relatedFilterableDatasets []zebedee.Related
 		var wg sync.WaitGroup
 		var mutex = &sync.Mutex{}
 		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 			wg.Add(1)
-			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset data.Related) {
+			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset zebedee.Related) {
 				defer wg.Done()
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
@@ -442,7 +441,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 				}
 				mutex.Lock()
 				defer mutex.Unlock()
-				relatedFilterableDatasets = append(relatedFilterableDatasets, data.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
+				relatedFilterableDatasets = append(relatedFilterableDatasets, zebedee.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
 				return
 			}(req.Context(), dc, relatedFilterableDataset)
 		}
@@ -459,7 +458,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		}
 	}
 
-	m := zebedeeMapper.MapZebedeeDatasetLandingPageToFrontendModel(dlp, bc, ds, localeCode)
+	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, localeCode)
 
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)

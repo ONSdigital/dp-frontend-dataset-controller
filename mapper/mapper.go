@@ -3,6 +3,7 @@ package mapper
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"sort"
 	"strconv"
@@ -10,11 +11,12 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
-	"github.com/ONSdigital/go-ns/zebedee/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -34,8 +36,9 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []data.Breadcrumb, latestVersionNumber int, latestVersionURL string, enableLoop11 bool, enableCookiesControl bool) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.Dimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
@@ -45,8 +48,6 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
-	p.EnableLoop11 = enableLoop11
-	p.EnableCookiesControl = enableCookiesControl
 
 	for _, breadcrumb := range breadcrumbs {
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
@@ -272,8 +273,9 @@ func CreateFilterableLandingPage(ctx context.Context, d dataset.DatasetDetails, 
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version, enableLoop11 bool, enableCookiesControl bool) datasetVersionsList.Page {
+func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
 	if len(versions) > 0 {
@@ -281,8 +283,6 @@ func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition d
 	}
 	p.Metadata.Title += " dataset"
 	p.BetaBannerEnabled = true
-	p.EnableLoop11 = enableLoop11
-	p.EnableCookiesControl = enableCookiesControl
 	uri, err := url.Parse(edition.Links.LatestVersion.URL)
 	if err != nil {
 		log.Event(ctx, "failed to parse url, latest_version link", log.ERROR, log.Error(err))
@@ -345,8 +345,9 @@ func CreateVersionsList(ctx context.Context, d dataset.DatasetDetails, edition d
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []data.Breadcrumb, enableLoop11 bool, enableCookiesControl bool) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
@@ -354,8 +355,6 @@ func CreateEditionsList(ctx context.Context, d dataset.DatasetDetails, editions 
 	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
-	p.EnableLoop11 = enableLoop11
-	p.EnableCookiesControl = enableCookiesControl
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
@@ -406,4 +405,14 @@ func convertMMMYYToTime(input string) (t time.Time, err error) {
 
 func convertYYYYToTime(input string) (t time.Time, err error) {
 	return time.Parse("2006", input)
+}
+
+// MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *model.CookiesPolicy) {
+	preferencesCookie := cookies.GetCookiePreferences(req)
+	*preferencesIsSet = preferencesCookie.IsPreferenceSet
+	*policy = model.CookiesPolicy{
+		Essential: preferencesCookie.Policy.Essential,
+		Usage:     preferencesCookie.Policy.Usage,
+	}
 }
