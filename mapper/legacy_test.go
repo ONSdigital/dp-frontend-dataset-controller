@@ -21,7 +21,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		sdlp := CreateLegacyDatasetLanding(ctx, req, dlp, bcs, ds, lang)
 		So(sdlp, ShouldNotBeEmpty)
 
-		So(sdlp.Type, ShouldEqual, dlp.Type)
+		So(sdlp.Type, ShouldEqual, "legacy_dataset")
 		So(sdlp.URI, ShouldEqual, dlp.URI)
 		So(sdlp.Metadata.Title, ShouldEqual, dlp.Description.Title)
 		So(sdlp.Metadata.Description, ShouldEqual, dlp.Description.Summary)
