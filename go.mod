@@ -12,7 +12,9 @@ require (
 	github.com/golang/mock v1.4.0
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/schema v1.1.0
+	github.com/justinas/alice v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.6.4
+	gopkg.in/avro.v0 v0.0.0-20171217001914-a730b5802183 // indirect
 )
