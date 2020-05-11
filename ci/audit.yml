@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: onsdigital/dp-concourse-tools-nancy
+    tag: latest
+
+inputs:
+  - name: dp-frontend-dataset-controller
+    path: dp-frontend-dataset-controller
+
+run:
+  path: dp-frontend-dataset-controller/ci/scripts/audit.sh
