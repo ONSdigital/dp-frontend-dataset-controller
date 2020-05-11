@@ -161,17 +161,17 @@ func (mr *MockDatasetClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockDatasetClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
-// GetDimensions mocks base method
-func (m *MockDatasetClient) GetDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Dimensions, error) {
-	ret := m.ctrl.Call(m, "GetDimensions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-	ret0, _ := ret[0].(dataset.Dimensions)
+// GetVersionDimensions mocks base method
+func (m *MockDatasetClient) GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error) {
+	ret := m.ctrl.Call(m, "GetVersionDimensions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+	ret0, _ := ret[0].(dataset.VersionDimensions)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDimensions indicates an expected call of GetDimensions
-func (mr *MockDatasetClientMockRecorder) GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensions", reflect.TypeOf((*MockDatasetClient)(nil).GetDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+// GetVersionDimensions indicates an expected call of GetVersionDimensions
+func (mr *MockDatasetClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockDatasetClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // GetOptions mocks base method

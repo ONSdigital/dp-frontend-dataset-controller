@@ -121,7 +121,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.Dimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
