@@ -1,9 +1,8 @@
 #!/bin/bash -eux
 
-export BINPATH=$(pwd)/build
-export cwd=$(pwd)
+cwd=$(pwd)
 
 pushd $cwd/dp-frontend-dataset-controller
-  BINPATH=$BINPATH make build
-  cp Dockerfile.concourse $BINPATH
+  make build && cp build/dp-frontend-dataset-controller $cwd/build
+  cp Dockerfile.concourse $cwd/build
 popd
