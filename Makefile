@@ -22,4 +22,4 @@ test:
 convey:
 	goconvey ./...
 
-.PHONY: build debug audit
+.PHONY: all build debug audit
