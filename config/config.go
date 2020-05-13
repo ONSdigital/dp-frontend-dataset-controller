@@ -26,6 +26,7 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	EnableProfiler             bool          `envconfig:"ENABLE_PROFILER"`
+	PprofToken                 string        `envconfig:"PPROF_TOKEN" json:"-"`
 }
 
 // Get returns the default config with any modifications through environment
