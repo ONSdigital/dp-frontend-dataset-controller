@@ -18,7 +18,6 @@ import (
 	"github.com/ONSdigital/go-ns/handlers/accessToken"
 	"github.com/ONSdigital/go-ns/handlers/collectionID"
 	"github.com/ONSdigital/go-ns/handlers/localeCode"
-	"github.com/ONSdigital/go-ns/identity"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
@@ -97,8 +96,7 @@ func run(ctx context.Context) error {
 
 	// Enable profiling endpoint for authorised users
 	if cfg.EnableProfiler {
-		identityHandler := identity.Handler(cfg.ZebedeeURL)
-		middlewareChain := alice.New(identityHandler).Then(http.DefaultServeMux)
+		middlewareChain := alice.New(profileMiddleware(cfg.PprofToken)).Then(http.DefaultServeMux)
 		router.PathPrefix("/debug").Handler(middlewareChain)
 	}
 
@@ -239,4 +237,23 @@ func registerCheckers(ctx context.Context, h *health.HealthCheck, f *filter.Clie
 	}
 	return nil
 
+}
+
+// profileMiddleware to validate auth token before accessing endpoint
+func profileMiddleware(token string) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			ctx := req.Context()
+
+			pprofToken := req.Header.Get("Authorization")
+			if pprofToken == "Bearer " || pprofToken != "Bearer "+token {
+				log.Event(ctx, "invalid auth token", log.ERROR, log.Error(errors.New("invalid auth token")))
+				w.WriteHeader(404)
+				return
+			}
+
+			log.Event(ctx, "accessing profiling endpoint", log.INFO)
+			h.ServeHTTP(w, req)
+		})
+	}
 }

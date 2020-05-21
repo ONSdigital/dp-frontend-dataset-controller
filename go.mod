@@ -16,5 +16,4 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.6.4
-	gopkg.in/avro.v0 v0.0.0-20171217001914-a730b5802183 // indirect
 )
