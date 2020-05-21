@@ -45,7 +45,7 @@ type DatasetClient interface {
 	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string) (m []dataset.Version, err error)
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
-	GetDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Dimensions, err error)
+	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
 	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string) (m dataset.Options, err error)
 }
 
@@ -91,7 +91,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 		userAccessToken := getUserAccessTokenFromContext(ctx)
 		collectionID := getCollectionIDFromContext(ctx)
 
-		dimensions, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+		dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -250,7 +250,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	dims, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	dims, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -500,7 +500,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
-	dimensions, err := dc.GetDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -518,7 +518,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 
 }
 
-func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.Dimensions, req *http.Request, cfg config.Config) ([]byte, error) {
+func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
 	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString())

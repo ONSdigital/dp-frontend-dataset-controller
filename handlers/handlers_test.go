@@ -59,8 +59,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			dims := dataset.Dimensions{
-				Items: []dataset.Dimension{
+			dims := dataset.VersionDimensions{
+				Items: []dataset.VersionDimension{
 					{
 						Name: "aggregate",
 					},
@@ -79,7 +79,7 @@ func TestUnitHandlers(t *testing.T) {
 					},
 				},
 			}
-			mockDatasetClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dims, nil)
+			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dims, nil)
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "aggregate").Return(opts, nil)
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "time").Return(opts, nil)
 
@@ -97,7 +97,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockDatasetClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.Dimensions{}, nil)
+			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.VersionDimensions{}, nil)
 
 			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient, mockConfig))
 		})
@@ -243,8 +243,8 @@ func TestUnitHandlers(t *testing.T) {
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "2017").Return(versions[0], nil)
-			dims := dataset.Dimensions{
-				Items: []dataset.Dimension{
+			dims := dataset.VersionDimensions{
+				Items: []dataset.VersionDimension{
 					{
 						Name: "aggregate",
 					},
@@ -262,7 +262,7 @@ func TestUnitHandlers(t *testing.T) {
 					},
 				},
 			}
-			mockClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017").Return(dims, nil)
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017").Return(dims, nil)
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate").Return(opts, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate").Return(opts, nil)
@@ -329,7 +329,7 @@ func TestUnitHandlers(t *testing.T) {
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "1").Return(versions[0], nil)
-			mockClient.EXPECT().GetDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1").Return(dataset.Dimensions{}, nil)
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1").Return(dataset.VersionDimensions{}, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1")
 
 			mockRend := NewMockRenderClient(mockCtrl)

@@ -25,6 +25,8 @@ type Config struct {
 	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
+	EnableProfiler             bool          `envconfig:"ENABLE_PROFILER"`
+	PprofToken                 string        `envconfig:"PPROF_TOKEN" json:"-"`
 }
 
 // Get returns the default config with any modifications through environment
@@ -46,6 +48,7 @@ func Get() (cfg *Config, err error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
+		EnableProfiler:             false,
 	}
 
 	return cfg, envconfig.Process("", cfg)

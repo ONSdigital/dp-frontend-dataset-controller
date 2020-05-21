@@ -22,12 +22,34 @@ An HTTP service for the controlling of data relevant to a particular dataset.
 | GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                      | The graceful shutdown timeout in seconds
 | HEALTHCHECK_INTERVAL         | 30s                     | The time between calling healthcheck endpoints for check subsystems
 | HEALTHCHECK_CRITICAL_TIMEOUT | 90s                     | The time taken for the health changes from warning state to critical due to subsystem check failures
+| ENABLE_PROFILER              | false                   | Flag to enable go profiler
+| PPROF_TOKEN                  | ""                      | The profiling token to access service profiling
 
 ### Feedback service
 
 The feedback endpoints in this service rely on access to an SMTP service to process feedback.
 In order to submit feedback locally, you must have an SMTP service running (try [MailHog](https://www.github.com/mailhog/MailHog))
 and update the `MAIL_*` and `FEEDBACK_*` variables configured for this app.
+
+### Profiling
+
+An optional `/debug` endpoint has been added, in order to profile this service via `pprof` go library.
+In order to use this endpoint, you will need to enable profiler flag and set a PPROF_TOKEN:
+
+```
+export ENABLE_PROFILER=true
+export PPROF_TOKEN={generated uuid}
+```
+
+Then you can us the profiler as follows:
+
+1- Start service, load test or if on environment wait for a number of requests to be made.
+
+2- Send authenticated request and store response in a file (this can be best done in command line like so: `curl <host>:<port>/debug/pprof/heap -H "Authorization: Bearer {generated uuid} > heap.out` - see pprof documentation on other endpoints
+
+3- View profile either using a web ui to navigate data (a) or using pprof on command line to navigate data (b) 
+  a) `go tool pprof -http=:8080 heap.out`
+  b) `go tool pprof heap.out`, -o flag to see various options
 
 ### Licence
 

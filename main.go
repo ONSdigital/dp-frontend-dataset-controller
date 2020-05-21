@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"net/http"
 	"net/smtp"
 	"os"
 	"os/signal"
@@ -21,6 +21,10 @@ import (
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
+	"github.com/pkg/errors"
+
+	_ "net/http/pprof"
 )
 
 type unencryptedAuth struct {
@@ -44,17 +48,25 @@ var (
 )
 
 func main() {
+	ctx := context.Background()
 	log.Namespace = "dp-frontend-dataset-controller"
 
+	if err := run(ctx); err != nil {
+		log.Event(ctx, "application unexpectedly failed", log.ERROR, log.Error(err))
+		os.Exit(1)
+	}
+
+	os.Exit(0)
+}
+
+func run(ctx context.Context) error {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, os.Kill)
-
-	ctx := context.Background()
 
 	cfg, err := config.Get()
 	if err != nil {
 		log.Event(ctx, "unable to retrieve service configuration", log.ERROR, log.Error(err))
-		os.Exit(1)
+		return err
 	}
 
 	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
@@ -66,7 +78,7 @@ func main() {
 	)
 	if err != nil {
 		log.Event(ctx, "failed to create service version information", log.ERROR, log.Error(err))
-		os.Exit(1)
+		return err
 	}
 
 	router := mux.NewRouter()
@@ -80,6 +92,12 @@ func main() {
 
 	if err = registerCheckers(ctx, &healthcheck, f, zc, dc, rend); err != nil {
 		os.Exit(1)
+	}
+
+	// Enable profiling endpoint for authorised users
+	if cfg.EnableProfiler {
+		middlewareChain := alice.New(profileMiddleware(cfg.PprofToken)).Then(http.DefaultServeMux)
+		router.PathPrefix("/debug").Handler(middlewareChain)
 	}
 
 	router.StrictSlash(true).Path("/health").HandlerFunc(healthcheck.Handler)
@@ -134,40 +152,60 @@ func main() {
 	s.Middleware["LocaleCode"] = localeCode.CheckHeaderValueAndForwardWithRequestContext
 	s.MiddlewareOrder = append(s.MiddlewareOrder, "LocaleCode")
 
+	svcErrors := make(chan error, 1)
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.Event(ctx, "failed to start http listen and serve", log.ERROR, log.Error(err))
-			os.Exit(2)
+			svcErrors <- errors.Wrap(err, "failure in http listen and serve")
 		}
 	}()
 
 	// Block until a signal is called to shutdown application
-	<-signals
+	select {
+	case err := <-svcErrors:
+		log.Event(ctx, "service error received", log.ERROR, log.Error(err))
+	case signal := <-signals:
+		log.Event(ctx, "quitting after os signal received", log.INFO, log.Data{"signal": signal})
+	}
 
 	log.Event(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout), log.INFO)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.GracefulShutdownTimeout)
 
+	var gracefulShutdown bool
+
 	go func() {
+		defer cancel()
+		var hasShutdownErrs bool
+
 		log.Event(ctx, "stop health checkers", log.INFO)
 		healthcheck.Stop()
 
 		if err := s.Shutdown(ctx); err != nil {
 			log.Event(ctx, "failed to gracefully shutdown http server", log.ERROR, log.Error(err))
+			hasShutdownErrs = true
 		}
 
-		cancel() // stop timer
+		if !hasShutdownErrs {
+			gracefulShutdown = true
+		}
 	}()
 
 	// wait for timeout or success (via cancel)
 	<-ctx.Done()
 	if ctx.Err() == context.DeadlineExceeded {
 		log.Event(ctx, "context deadline exceeded", log.WARN, log.Error(ctx.Err()))
-	} else {
-		log.Event(ctx, "graceful shutdown complete", log.INFO, log.Data{"context": ctx.Err()})
+		return err
 	}
 
-	os.Exit(0)
+	if !gracefulShutdown {
+		err = errors.New("failed to shutdown gracefully")
+		log.Event(ctx, "failed to shutdown gracefully ", log.ERROR, log.Error(err))
+		return err
+	}
+
+	log.Event(ctx, "graceful shutdown complete", log.INFO, log.Data{"context": ctx.Err()})
+
+	return nil
 }
 
 func registerCheckers(ctx context.Context, h *health.HealthCheck, f *filter.Client, z *zebedee.Client, d *dataset.Client, r *renderer.Renderer) (err error) {
@@ -199,4 +237,23 @@ func registerCheckers(ctx context.Context, h *health.HealthCheck, f *filter.Clie
 	}
 	return nil
 
+}
+
+// profileMiddleware to validate auth token before accessing endpoint
+func profileMiddleware(token string) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			ctx := req.Context()
+
+			pprofToken := req.Header.Get("Authorization")
+			if pprofToken == "Bearer " || pprofToken != "Bearer "+token {
+				log.Event(ctx, "invalid auth token", log.ERROR, log.Error(errors.New("invalid auth token")))
+				w.WriteHeader(404)
+				return
+			}
+
+			log.Event(ctx, "accessing profiling endpoint", log.INFO)
+			h.ServeHTTP(w, req)
+		})
+	}
 }
