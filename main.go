@@ -15,14 +15,13 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
-	"github.com/ONSdigital/go-ns/handlers/accessToken"
-	"github.com/ONSdigital/go-ns/handlers/collectionID"
-	"github.com/ONSdigital/go-ns/handlers/localeCode"
-	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/pkg/errors"
+
+	dpnethandlers "github.com/ONSdigital/dp-net/handlers"
+	dpnethttp "github.com/ONSdigital/dp-net/http"
 
 	_ "net/http/pprof"
 
@@ -144,17 +143,13 @@ func run(ctx context.Context) error {
 	// Start healthcheck tickers
 	healthcheck.Start(ctx)
 
-	s := server.New(cfg.BindAddr, router)
+	collectionIDMiddleware := dpnethandlers.CheckHeader(dpnethandlers.CollectionID)
+	accessTokenMiddleware := dpnethandlers.CheckHeader(dpnethandlers.UserAccess)
+	localeMiddleware := dpnethandlers.CheckHeader(dpnethandlers.Locale)
+	middlewareChain := alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware).Then(router)
+
+	s := dpnethttp.NewServer(cfg.BindAddr, middlewareChain)
 	s.HandleOSSignals = false
-
-	s.Middleware["CollectionID"] = collectionID.CheckCookie
-	s.MiddlewareOrder = append(s.MiddlewareOrder, "CollectionID")
-
-	s.Middleware["AccessToken"] = accessToken.CheckCookieValueAndForwardWithRequestContext
-	s.MiddlewareOrder = append(s.MiddlewareOrder, "AccessToken")
-
-	s.Middleware["LocaleCode"] = localeCode.CheckHeaderValueAndForwardWithRequestContext
-	s.MiddlewareOrder = append(s.MiddlewareOrder, "LocaleCode")
 
 	svcErrors := make(chan error, 1)
 	go func() {
