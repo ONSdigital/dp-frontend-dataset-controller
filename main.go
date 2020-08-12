@@ -11,7 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/filter"
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
-	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -25,6 +25,8 @@ import (
 	"github.com/pkg/errors"
 
 	_ "net/http/pprof"
+
+	healthcheck "github.com/ONSdigital/dp-api-clients-go/health"
 )
 
 type unencryptedAuth struct {
@@ -83,14 +85,16 @@ func run(ctx context.Context) error {
 
 	router := mux.NewRouter()
 
-	f := filter.New(cfg.FilterAPIURL)
-	zc := zebedee.New(cfg.ZebedeeURL)
-	dc := dataset.NewAPIClient(cfg.DatasetAPIURL)
-	rend := renderer.New(cfg.RendererURL)
+	apiRouterCli := healthcheck.NewClient("api-router", cfg.APIRouterURL)
+
+	f := filter.NewWithHealthClient(apiRouterCli)
+	zc := zebedee.NewWithHealthClient(apiRouterCli)
+	dc := dataset.NewWithHealthClient(apiRouterCli)
+	rend := renderer.NewWithHealthClient(apiRouterCli)
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
-	if err = registerCheckers(ctx, &healthcheck, f, zc, dc, rend); err != nil {
+	if err = registerCheckers(ctx, &healthcheck, apiRouterCli); err != nil {
 		os.Exit(1)
 	}
 
@@ -127,10 +131,10 @@ func run(ctx context.Context) error {
 		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
 
 		log.Event(ctx, "adding feedback routes", log.INFO)
-		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, cfg.RendererURL, false))
-		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, cfg.RendererURL, false))
-		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback(cfg.RendererURL))
-		router.StrictSlash(true).Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks(cfg.RendererURL))
+		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, rend, false))
+		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, rend, false))
+		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback(rend))
+		router.StrictSlash(true).Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks(rend))
 	}
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
@@ -208,35 +212,20 @@ func run(ctx context.Context) error {
 	return nil
 }
 
-func registerCheckers(ctx context.Context, h *health.HealthCheck, f *filter.Client, z *zebedee.Client, d *dataset.Client, r *renderer.Renderer) (err error) {
+func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *healthcheck.Client) (err error) {
 
 	hasErrors := false
 
-	if err = h.AddCheck("filter API", f.Checker); err != nil {
+	if err = h.AddCheck("API router", apiRouterCli.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add filter API checker", log.ERROR, log.Error(err))
-	}
-
-	if err = h.AddCheck("zebedee", z.Checker); err != nil {
-		hasErrors = true
-		log.Event(ctx, "failed to add zebedee checker", log.ERROR, log.Error(err))
-	}
-
-	if err = h.AddCheck("dataset API", d.Checker); err != nil {
-		hasErrors = true
-		log.Event(ctx, "failed to add dataset API checker", log.ERROR, log.Error(err))
-	}
-
-	if err = h.AddCheck("frontend renderer", r.Checker); err != nil {
-		hasErrors = true
-		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
+		log.Event(ctx, "failed to add API router health checker", log.ERROR, log.Error(err))
 	}
 
 	if hasErrors {
 		return errors.New("Error(s) registering checkers for healthcheck")
 	}
-	return nil
 
+	return nil
 }
 
 // profileMiddleware to validate auth token before accessing endpoint
