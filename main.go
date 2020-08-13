@@ -87,13 +87,13 @@ func run(ctx context.Context) error {
 	apiRouterCli := healthcheck.NewClient("api-router", cfg.APIRouterURL)
 
 	f := filter.NewWithHealthClient(apiRouterCli)
-	zc := zebedee.NewWithHealthClient(apiRouterCli)
+	zc := zebedee.New(cfg.ZebedeeURL)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
-	rend := renderer.NewWithHealthClient(apiRouterCli)
+	rend := renderer.New(cfg.RendererURL)
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
-	if err = registerCheckers(ctx, &healthcheck, apiRouterCli); err != nil {
+	if err = registerCheckers(ctx, &healthcheck, zc, rend, apiRouterCli); err != nil {
 		os.Exit(1)
 	}
 
@@ -207,9 +207,19 @@ func run(ctx context.Context) error {
 	return nil
 }
 
-func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *healthcheck.Client) (err error) {
+func registerCheckers(ctx context.Context, h *health.HealthCheck, z *zebedee.Client, r *renderer.Renderer, apiRouterCli *healthcheck.Client) (err error) {
 
 	hasErrors := false
+
+	if err = h.AddCheck("zebedee", z.Checker); err != nil {
+		hasErrors = true
+		log.Event(ctx, "failed to add zebedee checker", log.ERROR, log.Error(err))
+	}
+
+	if err = h.AddCheck("frontend renderer", r.Checker); err != nil {
+		hasErrors = true
+		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
+	}
 
 	if err = h.AddCheck("API router", apiRouterCli.Checker); err != nil {
 		hasErrors = true
