@@ -31,7 +31,7 @@ type Config struct {
 func Get() (cfg *Config, err error) {
 	cfg = &Config{
 		BindAddr:                   ":20200",
-		APIRouterURL:               "http://localhost:23200",
+		APIRouterURL:               "http://localhost:23200/v1",
 		DownloadServiceURL:         "http://localhost:23600",
 		MailHost:                   "localhost",
 		MailPort:                   "1025",
