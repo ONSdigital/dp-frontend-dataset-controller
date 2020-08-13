@@ -143,8 +143,8 @@ func run(ctx context.Context) error {
 	// Start healthcheck tickers
 	healthcheck.Start(ctx)
 
-	collectionIDMiddleware := dpnethandlers.CheckHeader(dpnethandlers.CollectionID)
-	accessTokenMiddleware := dpnethandlers.CheckHeader(dpnethandlers.UserAccess)
+	collectionIDMiddleware := dpnethandlers.CheckCookie(dpnethandlers.CollectionID)
+	accessTokenMiddleware := dpnethandlers.CheckCookie(dpnethandlers.UserAccess)
 	localeMiddleware := dpnethandlers.CheckHeader(dpnethandlers.Locale)
 	middlewareChain := alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware).Then(router)
 
