@@ -242,7 +242,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, strconv.Itoa(latestVersionNumber))
+	latestVersionOfEditionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
@@ -354,13 +354,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
-		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
-		if err != nil {
-			log.Event(ctx, "unable to parse url, latest_version link", log.WARN, log.Error(err))
-		} else {
-			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionURL.Path})
-			http.Redirect(w, req, latestVersionURL.Path, 302)
-		}
+		latestVersionPath := helpers.DatasetVersionUrl(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
+		log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionPath})
+		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
 	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
