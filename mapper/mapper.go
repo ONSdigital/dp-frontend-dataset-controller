@@ -3,13 +3,14 @@ package mapper
 import (
 	"context"
 	"fmt"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"net/http"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
@@ -38,11 +39,12 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL string) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
+	p.Language = lang
 	p.URI = d.Links.Self.URL
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
@@ -346,10 +348,11 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
+	p.Language = lang
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description

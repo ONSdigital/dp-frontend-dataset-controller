@@ -279,7 +279,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -353,7 +353,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -437,16 +437,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
-	var localeCode string
-	if ctx.Value(request.LocaleHeaderKey) != nil {
-		var ok bool
-		localeCode, ok = ctx.Value(request.LocaleHeaderKey).(string)
-		if !ok {
-			log.Event(ctx, "error retrieving locale code", log.WARN, log.Error(errors.New("error casting locale code to string")))
-		}
-	}
-
-	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, localeCode)
+	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, lang)
 
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)
@@ -468,19 +459,17 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 // MetadataText generates a metadata text file
 func MetadataText(dc DatasetClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		metadataText(w, req, dc, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		metadataText(w, req, dc, cfg, userAccessToken, collectionID)
+	})
 }
 
-func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
+func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config, userAccessToken, collectionID string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
 	version := vars["version"]
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
