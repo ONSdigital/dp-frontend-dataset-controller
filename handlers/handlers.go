@@ -5,12 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ONSdigital/dp-net/request"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"sync"
+
+	"github.com/ONSdigital/dp-net/handlers"
+	"github.com/ONSdigital/dp-net/request"
 
 	"github.com/pkg/errors"
 
@@ -82,14 +84,12 @@ func forwardFlorenceTokenIfRequired(req *http.Request) *http.Request {
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
 func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
 		edition := vars["editionID"]
 		version := vars["versionID"]
 		ctx := req.Context()
-		userAccessToken := getUserAccessTokenFromContext(ctx)
-		collectionID := getCollectionIDFromContext(ctx)
 
 		dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
@@ -117,44 +117,42 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 
 		log.Event(ctx, "created filter id", log.INFO, log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
-	}
+	})
 }
 
 // LegacyLanding will load a zebedee landing page
 func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		legacyLanding(w, req, zc, dc, rend, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		legacyLanding(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken)
+	})
 }
 
 // FilterableLanding will load a filterable landing page
 func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		filterableLanding(w, req, dc, rend, zc, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, userAccessToken)
+	})
 }
 
 // EditionsList will load a list of editions for a filterable dataset
 func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		editionsList(w, req, dc, zc, rend, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, userAccessToken)
+	})
 }
 
 // VersionsList will load a list of versions for a filterable datase
 func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		versionsList(w, req, dc, rend, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		versionsList(w, req, dc, rend, cfg, collectionID, lang, userAccessToken)
+	})
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config) {
+func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	d, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
@@ -190,14 +188,12 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	w.Write(templateHTML)
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
@@ -205,7 +201,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
 		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
@@ -283,7 +279,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -324,12 +320,10 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
@@ -347,7 +341,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, datasetModel.Links.Taxonomy.URL)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
 		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
@@ -359,7 +353,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -378,11 +372,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
 	path := req.URL.Path
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
@@ -396,13 +388,13 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		return
 	}
 
-	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, path)
+	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, path)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, dlp.URI)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, dlp.URI)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -410,7 +402,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	var ds []zebedee.Dataset
 	for _, v := range dlp.Datasets {
-		d, err := zc.GetDataset(ctx, userAccessToken, v.URI)
+		d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
 			return
@@ -445,16 +437,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
-	var localeCode string
-	if ctx.Value(request.LocaleHeaderKey) != nil {
-		var ok bool
-		localeCode, ok = ctx.Value(request.LocaleHeaderKey).(string)
-		if !ok {
-			log.Event(ctx, "error retrieving locale code", log.WARN, log.Error(errors.New("error casting locale code to string")))
-		}
-	}
-
-	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, localeCode)
+	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, lang)
 
 	var templateJSON []byte
 	templateJSON, err = json.Marshal(m)
@@ -476,19 +459,17 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 // MetadataText generates a metadata text file
 func MetadataText(dc DatasetClient, cfg config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		metadataText(w, req, dc, cfg)
-	}
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		metadataText(w, req, dc, cfg, userAccessToken, collectionID)
+	})
 }
 
-func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config) {
+func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config, userAccessToken, collectionID string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
 	version := vars["version"]
 	ctx := req.Context()
-	userAccessToken := getUserAccessTokenFromContext(ctx)
-	collectionID := getCollectionIDFromContext(ctx)
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {

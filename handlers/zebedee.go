@@ -11,8 +11,8 @@ import (
 
 // ZebedeeClient is an interface for zebedee client
 type ZebedeeClient interface {
-	GetBreadcrumb(ctx context.Context, userAccessToken, path string) ([]zebedee.Breadcrumb, error)
+	GetBreadcrumb(ctx context.Context, userAccessToken, collectionID, lang, path string) ([]zebedee.Breadcrumb, error)
 	Get(ctx context.Context, userAccessToken, path string) ([]byte, error)
-	GetDatasetLandingPage(ctx context.Context, userAccessToken, path string) (zebedee.DatasetLandingPage, error)
-	GetDataset(ctx context.Context, userAccessToken, path string) (zebedee.Dataset, error)
+	GetDatasetLandingPage(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.DatasetLandingPage, error)
+	GetDataset(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.Dataset, error)
 }

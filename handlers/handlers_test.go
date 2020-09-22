@@ -23,6 +23,7 @@ func (e *testCliError) Code() int     { return http.StatusNotFound }
 const serviceAuthToken = ""
 const userAuthToken = ""
 const collectionID = ""
+const locale = "en"
 
 func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
@@ -108,7 +109,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test successful json response", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockZebedeeClient.EXPECT().Get(ctx, userAuthToken, "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
+			mockZebedeeClient.EXPECT().Get(ctx, "12345", "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
 			mockConfig := config.Config{}
 
 			w := httptest.NewRecorder()
@@ -150,9 +151,9 @@ func TestUnitHandlers(t *testing.T) {
 			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, "dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -175,7 +176,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			dlp := zebedee.DatasetLandingPage{}
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -193,8 +194,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI).Return(nil, errors.New("something went wrong"))
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI).Return(nil, errors.New("something went wrong"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -214,9 +215,9 @@ func TestUnitHandlers(t *testing.T) {
 			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
 
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, "/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, dlp.URI)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, "dataset.com")
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return(nil, errors.New("error from renderer"))
@@ -266,7 +267,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate").Return(opts, nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate").Return(opts, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
@@ -305,7 +306,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, errors.New("sorry"))
 
@@ -325,7 +326,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, "")
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 			versions := []dataset.Version{dataset.Version{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "1").Return(versions[0], nil)
