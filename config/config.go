@@ -11,10 +11,8 @@ var cfg *Config
 // Config represents service configuration for dp-frontend-dataset-controller
 type Config struct {
 	BindAddr                   string        `envconfig:"BIND_ADDR"`
-	ZebedeeURL                 string        `envconfig:"ZEBEDEE_URL"`
 	RendererURL                string        `envconfig:"RENDERER_URL"`
-	FilterAPIURL               string        `envconfig:"FILTER_API_URL"`
-	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"`
+	APIRouterURL               string        `envconfig:"API_ROUTER_URL"`
 	MailHost                   string        `envconfig:"MAIL_HOST"`
 	MailUser                   string        `envconfig:"MAIL_USER"`
 	MailPassword               string        `envconfig:"MAIL_PASSWORD" json:"-"`
@@ -34,10 +32,8 @@ type Config struct {
 func Get() (cfg *Config, err error) {
 	cfg = &Config{
 		BindAddr:                   ":20200",
-		ZebedeeURL:                 "http://localhost:8082",
 		RendererURL:                "http://localhost:20010",
-		FilterAPIURL:               "http://localhost:22100",
-		DatasetAPIURL:              "http://localhost:22000",
+		APIRouterURL:               "http://localhost:23200/v1",
 		DownloadServiceURL:         "http://localhost:23600",
 		MailHost:                   "localhost",
 		MailPort:                   "1025",

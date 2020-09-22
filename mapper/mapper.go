@@ -3,6 +3,7 @@ package mapper
 import (
 	"context"
 	"fmt"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"net/http"
 	"net/url"
 	"sort"
@@ -285,11 +286,8 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	}
 	p.Metadata.Title += " dataset"
 	p.BetaBannerEnabled = true
-	uri, err := url.Parse(edition.Links.LatestVersion.URL)
-	if err != nil {
-		log.Event(ctx, "failed to parse url, latest_version link", log.ERROR, log.Error(err))
-	}
-	p.Data.LatestVersionURL = uri.Path
+
+	p.Data.LatestVersionURL = helpers.DatasetVersionUrl(d.ID, edition.Edition, edition.Links.LatestVersion.ID)
 	p.DatasetId = d.ID
 
 	latestVersionNumber := 1
@@ -299,13 +297,14 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 		version.VersionNumber = ver.Version
 		version.Title = d.Title
 		version.Date = ver.ReleaseDate
-		version.VersionURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, ver.Version)
-		version.FilterURL = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d/filter", ver.Links.Dataset.ID, ver.Edition, ver.Version)
+		versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
+		version.VersionURL = versionUrl
+		version.FilterURL = versionUrl + "/filter"
 
 		// Not the 'created' first version and more than one stored version
 		if ver.Version > 1 && len(p.Data.Versions) >= 1 {
 			previousVersion := p.Data.Versions[len(p.Data.Versions)-1].VersionNumber
-			version.Superseded = fmt.Sprintf("/datasets/%s/editions/%s/versions/%d", ver.Links.Dataset.ID, ver.Edition, previousVersion)
+			version.Superseded = helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(previousVersion))
 		}
 
 		if ver.Version > latestVersionNumber {
@@ -382,18 +381,9 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 
 	if editions != nil && len(editions) > 0 {
 		for _, edition := range editions {
-
-			var latestVersionURL, err = url.Parse(edition.Links.LatestVersion.URL)
-			if err != nil {
-				log.Event(ctx, "failed to parse url, latest_version link", log.ERROR, log.Error(err))
-			}
-			var latestVersionPath = latestVersionURL.Path
-			fmt.Println(latestVersionPath)
-
 			var e datasetEditionsList.Edition
 			e.Title = edition.Edition
-			e.LatestVersionURL = latestVersionPath
-
+			e.LatestVersionURL = helpers.DatasetVersionUrl(datasetID, edition.Edition, edition.Links.LatestVersion.ID)
 			p.Editions = append(p.Editions, e)
 		}
 	}

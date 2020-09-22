@@ -15,3 +15,7 @@ func ExtractDatasetInfoFromPath(path string) (datasetID, edition, version string
 	}
 	return subs[1], subs[2], subs[3], nil
 }
+
+func DatasetVersionUrl(datasetID string, edition string, version string) string {
+	return fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version)
+}

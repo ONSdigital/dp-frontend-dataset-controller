@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ONSdigital/dp-net/request"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -22,7 +23,6 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	"github.com/ONSdigital/go-ns/common"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -72,8 +72,8 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 }
 
 func forwardFlorenceTokenIfRequired(req *http.Request) *http.Request {
-	if len(req.Header.Get(common.FlorenceHeaderKey)) > 0 {
-		ctx := common.SetFlorenceIdentity(req.Context(), req.Header.Get(common.FlorenceHeaderKey))
+	if len(req.Header.Get(request.FlorenceHeaderKey)) > 0 {
+		ctx := request.SetFlorenceIdentity(req.Context(), req.Header.Get(request.FlorenceHeaderKey))
 		return req.WithContext(ctx)
 	}
 	return req
@@ -242,7 +242,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	latestVersionOfEditionURL := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, strconv.Itoa(latestVersionNumber))
+	latestVersionOfEditionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
@@ -354,13 +354,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
-		var latestVersionURL, err = url.Parse(datasetEditions[0].Links.LatestVersion.URL)
-		if err != nil {
-			log.Event(ctx, "unable to parse url, latest_version link", log.WARN, log.Error(err))
-		} else {
-			log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionURL.Path})
-			http.Redirect(w, req, latestVersionURL.Path, 302)
-		}
+		latestVersionPath := helpers.DatasetVersionUrl(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
+		log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionPath})
+		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
 	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc)
@@ -450,9 +446,9 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	}
 
 	var localeCode string
-	if ctx.Value(common.LocaleHeaderKey) != nil {
+	if ctx.Value(request.LocaleHeaderKey) != nil {
 		var ok bool
-		localeCode, ok = ctx.Value(common.LocaleHeaderKey).(string)
+		localeCode, ok = ctx.Value(request.LocaleHeaderKey).(string)
 		if !ok {
 			log.Event(ctx, "error retrieving locale code", log.WARN, log.Error(errors.New("error casting locale code to string")))
 		}
@@ -537,8 +533,8 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 }
 
 func getUserAccessTokenFromContext(ctx context.Context) string {
-	if ctx.Value(common.FlorenceIdentityKey) != nil {
-		accessToken, ok := ctx.Value(common.FlorenceIdentityKey).(string)
+	if ctx.Value(request.FlorenceIdentityKey) != nil {
+		accessToken, ok := ctx.Value(request.FlorenceIdentityKey).(string)
 		if !ok {
 			log.Event(ctx, "error retrieving user access token", log.WARN, log.Error(errors.New("error casting access token context value to string")))
 		}
@@ -548,8 +544,8 @@ func getUserAccessTokenFromContext(ctx context.Context) string {
 }
 
 func getCollectionIDFromContext(ctx context.Context) string {
-	if ctx.Value(common.CollectionIDHeaderKey) != nil {
-		collectionID, ok := ctx.Value(common.CollectionIDHeaderKey).(string)
+	if ctx.Value(request.CollectionIDHeaderKey) != nil {
+		collectionID, ok := ctx.Value(request.CollectionIDHeaderKey).(string)
 		if !ok {
 			log.Event(ctx, "error retrieving collection ID", log.WARN, log.Error(errors.New("error casting collection ID context value to string")))
 		}
