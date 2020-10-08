@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
@@ -39,7 +38,7 @@ func (p TimeSlice) Swap(i, j int) {
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang string) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -54,10 +53,19 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.BetaBannerEnabled = true
 	p.HasJSONLD = true
 
+	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
+		trimmedURI := breadcrumb.URI
+		urlParsed, err := url.Parse(breadcrumb.URI)
+		if err != nil {
+			log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
+		} else {
+			urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
+			trimmedURI = urlParsed.RequestURI()
+		}
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
-			URI:   breadcrumb.URI,
+			URI:   trimmedURI,
 		})
 	}
 
@@ -72,10 +80,11 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 		datasetURL.Path = ""
 		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
+	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
 	datasetBreadcrumbs := []model.TaxonomyNode{
 		{
 			Title: d.Title,
-			URI:   datasetURL.Path,
+			URI:   datasetPath,
 		},
 		{
 			Title: currentPageBreadcrumbTitle,

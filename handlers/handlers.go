@@ -128,9 +128,9 @@ func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg co
 }
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, userAccessToken)
+		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
@@ -188,7 +188,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	w.Write(templateHTML)
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
@@ -279,7 +279,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {

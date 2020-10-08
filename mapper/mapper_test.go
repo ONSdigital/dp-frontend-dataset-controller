@@ -49,7 +49,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 
 		v := []dataset.Version{
-			dataset.Version{
+			{
 				CollectionID: "abcdefg",
 				Edition:      "2017",
 				ID:           "tehnskofjios-ashbc7",
@@ -63,7 +63,7 @@ func TestUnitMapper(t *testing.T) {
 				ReleaseDate: "11-11-2017",
 				State:       "published",
 				Downloads: map[string]dataset.Download{
-					"XLSX": dataset.Download{
+					"XLSX": {
 						Size: "438290",
 						URL:  "my-url",
 					},
@@ -72,10 +72,31 @@ func TestUnitMapper(t *testing.T) {
 		}
 		datasetID := "038847784-2874757-23784854905"
 
-		breadcrumbItem := zebedee.Breadcrumb{
+		// breadcrumbItem returned by zebedee after being proxied through API router
+		breadcrumbItem0 := zebedee.Breadcrumb{
+			URI:         "/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
+		}
+
+		// breadcrumbItem as expected as a result of CreateFilterableLandingPage
+		expectedBreadcrumbItem0 := zebedee.Breadcrumb{
 			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
+
+		// breadcrumbItem returned by zebedee directly (without proxying through API router)
+		breadcrumbItem1 := zebedee.Breadcrumb{
+			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2019",
+			Description: zebedee.NodeDescription{Title: "GDP: January 2019"},
+		}
+		expectedBreadcrumbItem1 := breadcrumbItem1
+
+		// breadcrumbItemWrongURI with wrong URI value
+		breadcrumbItemWrongURI := zebedee.Breadcrumb{
+			URI:         "/v1/%&*$^@$(@!@±£8",
+			Description: zebedee.NodeDescription{Title: "Something wrong"},
+		}
+		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
 		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
@@ -121,7 +142,8 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", "en")
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -134,8 +156,12 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(p.ShowFeedbackForm, ShouldEqual, true)
-		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
-		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
+		So(p.Breadcrumb[0].Title, ShouldEqual, expectedBreadcrumbItem0.Description.Title)
+		So(p.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)
+		So(p.Breadcrumb[1].Title, ShouldEqual, expectedBreadcrumbItem1.Description.Title)
+		So(p.Breadcrumb[1].URI, ShouldEqual, expectedBreadcrumbItem1.URI)
+		So(p.Breadcrumb[2].Title, ShouldEqual, expectedBreadcrumbItemWrongURI.Description.Title)
+		So(p.Breadcrumb[2].URI, ShouldEqual, expectedBreadcrumbItemWrongURI.URI)
 
 		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
