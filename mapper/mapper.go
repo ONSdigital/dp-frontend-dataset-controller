@@ -37,6 +37,19 @@ func (p TimeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
+// Trim API version path prefix from breadcrumb URI, if present.
+func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb, apiRouterVersion string) string {
+	trimmedURI := breadcrumb.URI
+	urlParsed, err := url.Parse(breadcrumb.URI)
+	if err != nil {
+		log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
+	} else {
+		urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
+		trimmedURI = urlParsed.String()
+	}
+	return trimmedURI
+}
+
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
@@ -55,17 +68,9 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
-		trimmedURI := breadcrumb.URI
-		urlParsed, err := url.Parse(breadcrumb.URI)
-		if err != nil {
-			log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
-		} else {
-			urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
-			trimmedURI = urlParsed.RequestURI()
-		}
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
-			URI:   trimmedURI,
+			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
 	}
 
@@ -357,7 +362,7 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang string) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
@@ -372,7 +377,7 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
 			Title: bc.Description.Title,
-			URI:   bc.URI,
+			URI:   getTrimmedBreadcrumbURI(ctx, bc, apiRouterVersion),
 		})
 	}
 

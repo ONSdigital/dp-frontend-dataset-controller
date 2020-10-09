@@ -135,9 +135,9 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cf
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, userAccessToken)
+		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
@@ -320,7 +320,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
@@ -353,7 +353,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
 
 	b, err := json.Marshal(m)
 	if err != nil {

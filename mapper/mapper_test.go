@@ -74,13 +74,13 @@ func TestUnitMapper(t *testing.T) {
 
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
 		// breadcrumbItem as expected as a result of CreateFilterableLandingPage
 		expectedBreadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
