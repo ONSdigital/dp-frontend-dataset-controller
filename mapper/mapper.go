@@ -60,7 +60,6 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.URI = d.Links.Self.URL
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
-	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
@@ -370,7 +369,6 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description
-	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
 
