@@ -9,6 +9,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.9
 	github.com/ONSdigital/log.go v1.0.1
+	github.com/davecgh/go-spew v1.1.1
 	github.com/golang/mock v1.4.4
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0

@@ -184,6 +184,39 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
 	})
 
+	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
+
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "time",
+						Label:       "Jan-05",
+						Option:      "Jan-05",
+					},
+					{
+						DimensionID: "time",
+						Label:       "May-07",
+						Option:      "May-07",
+					},
+					{
+						DimensionID: "time",
+						Label:       "Jun-07",
+						Option:      "Jun-07",
+					},
+				},
+			},
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+
+		So(p.Type, ShouldEqual, "dataset_landing_page")
+		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
+		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year 2005 contains data for the month January")
+		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All months between May 2007 and June 2007")
+
+	})
+
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
 
 		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
