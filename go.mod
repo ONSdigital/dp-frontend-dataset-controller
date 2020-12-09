@@ -16,5 +16,4 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.6.4
-	google.golang.org/genproto v0.0.0-20200918140846-d0d605568037 // indirect
 )

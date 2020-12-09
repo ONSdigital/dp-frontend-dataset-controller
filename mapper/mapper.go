@@ -244,10 +244,20 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 						if (ts[i+1].Year() - t.Year()) == 1 {
 							continue
 						}
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 						startDate = ts[i+1]
 					} else {
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 					}
 				}
 			} else {

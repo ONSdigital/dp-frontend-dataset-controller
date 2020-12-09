@@ -17,60 +17,60 @@ func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 	req := httptest.NewRequest("", "/", nil)
 
-	Convey("test CreateFilterableLandingPage", t, func() {
-		contact := dataset.Contact{
-			Name:      "Matt Rout",
-			Telephone: "01622 734721",
-			Email:     "mattrout@test.com",
-		}
-
-		d := dataset.DatasetDetails{
-			CollectionID: "abcdefg",
-			Contacts: &[]dataset.Contact{
-				contact,
+	contact := dataset.Contact{
+		Name:      "Matt Rout",
+		Telephone: "01622 734721",
+		Email:     "mattrout@test.com",
+	}
+	d := dataset.DatasetDetails{
+		CollectionID: "abcdefg",
+		Contacts: &[]dataset.Contact{
+			contact,
+		},
+		Description: "A really awesome dataset for you to look at",
+		Links: dataset.Links{
+			Self: dataset.Link{
+				URL: "/datasets/83jd98fkflg",
 			},
-			Description: "A really awesome dataset for you to look at",
+		},
+		NextRelease:      "11-11-2018",
+		ReleaseFrequency: "Yearly",
+		Publisher: &dataset.Publisher{
+			URL:  "ons.gov.uk",
+			Name: "ONS",
+			Type: "Government Agency",
+		},
+		State:   "created",
+		Theme:   "purple",
+		Title:   "Penguins of the Antarctic Ocean",
+		License: "ons",
+	}
+
+	v := []dataset.Version{
+		{
+			CollectionID: "abcdefg",
+			Edition:      "2017",
+			ID:           "tehnskofjios-ashbc7",
+			InstanceID:   "31241592",
+			Version:      1,
 			Links: dataset.Links{
 				Self: dataset.Link{
-					URL: "/datasets/83jd98fkflg",
+					URL: "/datasets/83jd98fkflg/editions/124/versions/1",
 				},
 			},
-			NextRelease:      "11-11-2018",
-			ReleaseFrequency: "Yearly",
-			Publisher: &dataset.Publisher{
-				URL:  "ons.gov.uk",
-				Name: "ONS",
-				Type: "Government Agency",
+			ReleaseDate: "11-11-2017",
+			State:       "published",
+			Downloads: map[string]dataset.Download{
+				"XLSX": {
+					Size: "438290",
+					URL:  "my-url",
+				},
 			},
-			State:   "created",
-			Theme:   "purple",
-			Title:   "Penguins of the Antarctic Ocean",
-			License: "ons",
-		}
+		},
+	}
+	datasetID := "038847784-2874757-23784854905"
 
-		v := []dataset.Version{
-			{
-				CollectionID: "abcdefg",
-				Edition:      "2017",
-				ID:           "tehnskofjios-ashbc7",
-				InstanceID:   "31241592",
-				Version:      1,
-				Links: dataset.Links{
-					Self: dataset.Link{
-						URL: "/datasets/83jd98fkflg/editions/124/versions/1",
-					},
-				},
-				ReleaseDate: "11-11-2017",
-				State:       "published",
-				Downloads: map[string]dataset.Download{
-					"XLSX": {
-						Size: "438290",
-						URL:  "my-url",
-					},
-				},
-			},
-		}
-		datasetID := "038847784-2874757-23784854905"
+	Convey("test CreateFilterableLandingPage", t, func() {
 
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
@@ -182,6 +182,44 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
 		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
+	})
+
+	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
+
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "time",
+						Label:       "2016",
+						Option:      "2016",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2018",
+						Option:      "2018",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2019",
+						Option:      "2019",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2020",
+						Option:      "2020",
+					},
+				},
+			},
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+
+		So(p.Type, ShouldEqual, "dataset_landing_page")
+		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
+		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year contains data for 2016")
+		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All years between 2018 and 2020")
+
 	})
 
 }
