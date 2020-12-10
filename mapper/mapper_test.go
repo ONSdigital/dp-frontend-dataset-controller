@@ -19,7 +19,7 @@ func TestUnitMapper(t *testing.T) {
 
 	contact := dataset.Contact{
 		Name:      "Matt Rout",
-		Telephone: "01622 734721",
+		Telephone: "01111 222222",
 		Email:     "mattrout@test.com",
 	}
 	d := dataset.DatasetDetails{
@@ -161,15 +161,15 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Breadcrumb[2].Title, ShouldEqual, expectedBreadcrumbItemWrongURI.Description.Title)
 		So(p.Breadcrumb[2].URI, ShouldEqual, expectedBreadcrumbItemWrongURI.URI)
 
-		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions, ShouldHaveLength, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
-		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 5)
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 5)
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "3")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "6")
 		So(p.DatasetLandingPage.Dimensions[0].Values[2], ShouldEqual, "19")
 		So(p.DatasetLandingPage.Dimensions[0].Values[3], ShouldEqual, "23")
 		So(p.DatasetLandingPage.Dimensions[0].Values[4], ShouldEqual, "24")
-		So(len(p.DatasetLandingPage.Dimensions[1].Values), ShouldEqual, 1)
+		So(p.DatasetLandingPage.Dimensions[1].Values, ShouldHaveLength, 1)
 		So(p.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[1].Values[0], ShouldEqual, "All months between January 2005 and February 2005")
 
@@ -210,7 +210,7 @@ func TestUnitMapper(t *testing.T) {
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
-		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year 2005 contains data for the month January")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All months between May 2007 and June 2007")
@@ -248,7 +248,7 @@ func TestUnitMapper(t *testing.T) {
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
-		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year contains data for 2016")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All years between 2018 and 2020")
@@ -313,14 +313,14 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
 		Convey("has correct number of versions when only one should be present", func() {
-			So(len(page.Data.Versions), ShouldEqual, 1)
+			So(page.Data.Versions, ShouldHaveLength, 1)
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
 		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
-			So(len(page.Data.Versions), ShouldEqual, 3)
+			So(page.Data.Versions, ShouldHaveLength, 3)
 		})
 		Convey("is latest version correctly tagged", func() {
 			So(page.Data.Versions[0].IsLatest, ShouldEqual, true)
