@@ -51,7 +51,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -199,7 +199,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 				}
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-			pDim.TotalItems = len(opt.Items)
+			pDim.TotalItems = opt.TotalCount
 
 			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
@@ -253,7 +253,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 			} else {
 
 				for i, val := range opt.Items {
-					if len(opt.Items) > 50 {
+					if opt.TotalCount > maxNumOpts {
 						if i > 9 {
 							break
 						}
