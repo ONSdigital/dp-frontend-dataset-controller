@@ -315,7 +315,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, datasetLandingPageFilterable.Download{
 		Extension: "txt",
 		// Commented out and a hardcoded size added for testing purposes (14/12/2020) - to be removed once testing complete or proper solution has been implemented
-		Size: "NaN",
+		Size: "0",
 		// Size:      strconv.Itoa(len(textBytes)),
 		URI: fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
