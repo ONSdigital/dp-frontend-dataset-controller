@@ -219,10 +219,18 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 						if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
 							continue
 						}
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						}
 						startDate = ts[i+1]
 					} else {
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						}
 					}
 				}
 
@@ -244,10 +252,20 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 						if (ts[i+1].Year() - t.Year()) == 1 {
 							continue
 						}
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 						startDate = ts[i+1]
 					} else {
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 					}
 				}
 			} else {
