@@ -277,17 +277,17 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
+	// metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	// if err != nil {
+	// 	setStatusCode(req, w, err)
+	// 	return
+	// }
 
-	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
+	// textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
+	// if err != nil {
+	// 	setStatusCode(req, w, err)
+	// 	return
+	// }
 
 	if ver.Downloads == nil {
 		ver.Downloads = make(map[string]dataset.Download)
@@ -314,8 +314,10 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// by this app
 	m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, datasetLandingPageFilterable.Download{
 		Extension: "txt",
-		Size:      strconv.Itoa(len(textBytes)),
-		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
+		// Commented out and a hardcoded size added for testing purposes (14/12/2020) - to be removed once testing complete or proper solution has been implemented
+		Size: "NaN",
+		// Size:      strconv.Itoa(len(textBytes)),
+		URI: fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
 
 	b, err := json.Marshal(m)
