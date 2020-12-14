@@ -195,6 +195,9 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
 	for _, dim := range dimensions.Items {
+		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
+			numOpts = 0
+		}
 		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, 0, numOpts)
 		if err != nil {
 			return opts, err

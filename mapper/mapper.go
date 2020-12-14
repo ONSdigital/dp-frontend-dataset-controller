@@ -25,6 +25,12 @@ import (
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
 
+// Dimension names
+const (
+	DimensionTime = "time"
+	DimensionAge  = "age"
+)
+
 func (p TimeSlice) Len() int {
 	return len(p)
 }
@@ -279,7 +285,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 					pDim.Values = append(pDim.Values, val.Label)
 				}
 
-				if opt.Items[0].DimensionID == "time" || opt.Items[0].DimensionID == "age" {
+				if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
 					isValid := true
 					var intVals []int
 					for _, val := range pDim.Values {
