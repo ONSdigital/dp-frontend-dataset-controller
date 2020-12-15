@@ -17,65 +17,86 @@ func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 	req := httptest.NewRequest("", "/", nil)
 
-	Convey("test CreateFilterableLandingPage", t, func() {
-		contact := dataset.Contact{
-			Name:      "Matt Rout",
-			Telephone: "01622 734721",
-			Email:     "mattrout@test.com",
-		}
-
-		d := dataset.DatasetDetails{
-			CollectionID: "abcdefg",
-			Contacts: &[]dataset.Contact{
-				contact,
+	contact := dataset.Contact{
+		Name:      "Matt Rout",
+		Telephone: "01111 222222",
+		Email:     "mattrout@test.com",
+	}
+	d := dataset.DatasetDetails{
+		CollectionID: "abcdefg",
+		Contacts: &[]dataset.Contact{
+			contact,
+		},
+		Description: "A really awesome dataset for you to look at",
+		Links: dataset.Links{
+			Self: dataset.Link{
+				URL: "/datasets/83jd98fkflg",
 			},
-			Description: "A really awesome dataset for you to look at",
+		},
+		NextRelease:      "11-11-2018",
+		ReleaseFrequency: "Yearly",
+		Publisher: &dataset.Publisher{
+			URL:  "ons.gov.uk",
+			Name: "ONS",
+			Type: "Government Agency",
+		},
+		State:   "created",
+		Theme:   "purple",
+		Title:   "Penguins of the Antarctic Ocean",
+		License: "ons",
+	}
+
+	v := []dataset.Version{
+		{
+			CollectionID: "abcdefg",
+			Edition:      "2017",
+			ID:           "tehnskofjios-ashbc7",
+			InstanceID:   "31241592",
+			Version:      1,
 			Links: dataset.Links{
 				Self: dataset.Link{
-					URL: "/datasets/83jd98fkflg",
+					URL: "/datasets/83jd98fkflg/editions/124/versions/1",
 				},
 			},
-			NextRelease:      "11-11-2018",
-			ReleaseFrequency: "Yearly",
-			Publisher: &dataset.Publisher{
-				URL:  "ons.gov.uk",
-				Name: "ONS",
-				Type: "Government Agency",
+			ReleaseDate: "11-11-2017",
+			State:       "published",
+			Downloads: map[string]dataset.Download{
+				"XLSX": {
+					Size: "438290",
+					URL:  "my-url",
+				},
 			},
-			State:   "created",
-			Theme:   "purple",
-			Title:   "Penguins of the Antarctic Ocean",
-			License: "ons",
-		}
+		},
+	}
+	datasetID := "038847784-2874757-23784854905"
 
-		v := []dataset.Version{
-			dataset.Version{
-				CollectionID: "abcdefg",
-				Edition:      "2017",
-				ID:           "tehnskofjios-ashbc7",
-				InstanceID:   "31241592",
-				Version:      1,
-				Links: dataset.Links{
-					Self: dataset.Link{
-						URL: "/datasets/83jd98fkflg/editions/124/versions/1",
-					},
-				},
-				ReleaseDate: "11-11-2017",
-				State:       "published",
-				Downloads: map[string]dataset.Download{
-					"XLSX": dataset.Download{
-						Size: "438290",
-						URL:  "my-url",
-					},
-				},
-			},
-		}
-		datasetID := "038847784-2874757-23784854905"
+	Convey("test CreateFilterableLandingPage", t, func() {
 
-		breadcrumbItem := zebedee.Breadcrumb{
-			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		// breadcrumbItem returned by zebedee after being proxied through API router
+		breadcrumbItem0 := zebedee.Breadcrumb{
+			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
+
+		// breadcrumbItem as expected as a result of CreateFilterableLandingPage
+		expectedBreadcrumbItem0 := zebedee.Breadcrumb{
+			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
+		}
+
+		// breadcrumbItem returned by zebedee directly (without proxying through API router)
+		breadcrumbItem1 := zebedee.Breadcrumb{
+			URI:         "/economy/grossdomesticproduct/datasets/gdpjanuary2019",
+			Description: zebedee.NodeDescription{Title: "GDP: January 2019"},
+		}
+		expectedBreadcrumbItem1 := breadcrumbItem1
+
+		// breadcrumbItemWrongURI with wrong URI value
+		breadcrumbItemWrongURI := zebedee.Breadcrumb{
+			URI:         "/v1/%&*$^@$(@!@±£8",
+			Description: zebedee.NodeDescription{Title: "Something wrong"},
+		}
+		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
 		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
@@ -121,31 +142,34 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", "en")
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
 		So(p.URI, ShouldEqual, d.Links.Self.URL)
-		So(p.ShowFeedbackForm, ShouldEqual, true)
 		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(p.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(p.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(p.DatasetLandingPage.NextRelease, ShouldEqual, d.NextRelease)
 		So(p.DatasetLandingPage.DatasetID, ShouldEqual, datasetID)
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
-		So(p.ShowFeedbackForm, ShouldEqual, true)
-		So(p.Breadcrumb[0].Title, ShouldEqual, breadcrumbItem.Description.Title)
-		So(p.Breadcrumb[0].URI, ShouldEqual, breadcrumbItem.URI)
+		So(p.Breadcrumb[0].Title, ShouldEqual, expectedBreadcrumbItem0.Description.Title)
+		So(p.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)
+		So(p.Breadcrumb[1].Title, ShouldEqual, expectedBreadcrumbItem1.Description.Title)
+		So(p.Breadcrumb[1].URI, ShouldEqual, expectedBreadcrumbItem1.URI)
+		So(p.Breadcrumb[2].Title, ShouldEqual, expectedBreadcrumbItemWrongURI.Description.Title)
+		So(p.Breadcrumb[2].URI, ShouldEqual, expectedBreadcrumbItemWrongURI.URI)
 
-		So(len(p.DatasetLandingPage.Dimensions), ShouldEqual, 2)
+		So(p.DatasetLandingPage.Dimensions, ShouldHaveLength, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
-		So(len(p.DatasetLandingPage.Dimensions[0].Values), ShouldEqual, 5)
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 5)
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "3")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "6")
 		So(p.DatasetLandingPage.Dimensions[0].Values[2], ShouldEqual, "19")
 		So(p.DatasetLandingPage.Dimensions[0].Values[3], ShouldEqual, "23")
 		So(p.DatasetLandingPage.Dimensions[0].Values[4], ShouldEqual, "24")
-		So(len(p.DatasetLandingPage.Dimensions[1].Values), ShouldEqual, 1)
+		So(p.DatasetLandingPage.Dimensions[1].Values, ShouldHaveLength, 1)
 		So(p.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[1].Values[0], ShouldEqual, "All months between January 2005 and February 2005")
 
@@ -158,6 +182,77 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
 		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
+	})
+
+	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
+
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "time",
+						Label:       "Jan-05",
+						Option:      "Jan-05",
+					},
+					{
+						DimensionID: "time",
+						Label:       "May-07",
+						Option:      "May-07",
+					},
+					{
+						DimensionID: "time",
+						Label:       "Jun-07",
+						Option:      "Jun-07",
+					},
+				},
+			},
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+
+		So(p.Type, ShouldEqual, "dataset_landing_page")
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
+		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year 2005 contains data for the month January")
+		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All months between May 2007 and June 2007")
+
+	})
+
+	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
+
+		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: "time",
+						Label:       "2016",
+						Option:      "2016",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2018",
+						Option:      "2018",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2019",
+						Option:      "2019",
+					},
+					{
+						DimensionID: "time",
+						Label:       "2020",
+						Option:      "2020",
+					},
+				},
+			},
+		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+
+		So(p.Type, ShouldEqual, "dataset_landing_page")
+		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
+		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
+		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year contains data for 2016")
+		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All years between 2018 and 2020")
+
 	})
 
 }
@@ -218,14 +313,14 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
 		Convey("has correct number of versions when only one should be present", func() {
-			So(len(page.Data.Versions), ShouldEqual, 1)
+			So(page.Data.Versions, ShouldHaveLength, 1)
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
 		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
-			So(len(page.Data.Versions), ShouldEqual, 3)
+			So(page.Data.Versions, ShouldHaveLength, 3)
 		})
 		Convey("is latest version correctly tagged", func() {
 			So(page.Data.Versions[0].IsLatest, ShouldEqual, true)
