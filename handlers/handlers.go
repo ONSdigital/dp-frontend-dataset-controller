@@ -30,6 +30,7 @@ import (
 
 const dataEndpoint = `\/data$`
 const numOptsSummary = 50
+const maxMetadataOptions = 1000
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
@@ -63,8 +64,14 @@ type ClientError interface {
 	Code() int
 }
 
+// errTooManyOptions is an error returned when a request can't complete because the dimension has too many options
+var errTooManyOptions = errors.New("too many options in dimension")
+
 func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
+	if err == errTooManyOptions {
+		status = http.StatusRequestEntityTooLarge
+	}
 	if err, ok := err.(ClientError); ok {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
@@ -277,17 +284,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	// metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
-	// if err != nil {
-	// 	setStatusCode(req, w, err)
-	// 	return
-	// }
+	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
 
-	// textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
-	// if err != nil {
-	// 	setStatusCode(req, w, err)
-	// 	return
-	// }
+	// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
+	if err != nil {
+		if err != errTooManyOptions {
+			setStatusCode(req, w, err)
+			return
+		}
+	}
 
 	if ver.Downloads == nil {
 		ver.Downloads = make(map[string]dataset.Download)
@@ -314,10 +324,8 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// by this app
 	m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, datasetLandingPageFilterable.Download{
 		Extension: "txt",
-		// Commented out and a hardcoded size added for testing purposes (14/12/2020) - to be removed once testing complete or proper solution has been implemented
-		Size: "0",
-		// Size:      strconv.Itoa(len(textBytes)),
-		URI: fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
+		Size:      strconv.Itoa(len(textBytes)),
+		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
 
 	b, err := json.Marshal(m)
@@ -511,6 +519,8 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 
 }
 
+// getText gets a byte array containing the metadata content, based on options returned by dataset API.
+// If a dimension has more than maxMetadataOptions, an error will be returned
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
 	var b bytes.Buffer
 
@@ -518,9 +528,12 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, 0, 0)
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, 0, maxMetadataOptions)
 		if err != nil {
 			return nil, err
+		}
+		if options.TotalCount > maxMetadataOptions {
+			return []byte{}, errTooManyOptions
 		}
 
 		b.WriteString(options.String())
