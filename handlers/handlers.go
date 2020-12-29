@@ -50,7 +50,7 @@ type DatasetClient interface {
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, offset, limit int) (m dataset.Options, err error)
+	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (m dataset.Options, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -58,7 +58,7 @@ type RenderClient interface {
 	Do(string, []byte) ([]byte, error)
 }
 
-// ClientError is an interface that can be used to retrieve the status code if a client has errored
+// ClientError is an interface that can be used to retrieve the status code if a client has errorred
 type ClientError interface {
 	Error() string
 	Code() int
@@ -108,9 +108,8 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 		var names []string
 		for _, dim := range dimensions.Items {
 			// we are only interested in the totalCount, no need to request more items.
-			offset := 0
-			limit := 1
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, offset, limit)
+			q := dataset.QueryParams{Offset: 0, Limit: 1}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
@@ -152,7 +151,7 @@ func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg con
 	})
 }
 
-// VersionsList will load a list of versions for a filterable datase
+// VersionsList will load a list of versions for a filterable dataset
 func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, rend, cfg, collectionID, lang, userAccessToken)
@@ -205,7 +204,8 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
 			numOpts = 0
 		}
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, 0, numOpts)
+		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
 		if err != nil {
 			return opts, err
 		}
@@ -528,7 +528,8 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, 0, maxMetadataOptions)
+		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, q)
 		if err != nil {
 			return nil, err
 		}

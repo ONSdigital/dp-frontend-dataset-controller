@@ -3,11 +3,11 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 go 1.13
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.31.0
+	github.com/ONSdigital/dp-api-clients-go v1.32.0
 	github.com/ONSdigital/dp-cookies v0.1.0
 	github.com/ONSdigital/dp-frontend-models v1.9.1
 	github.com/ONSdigital/dp-healthcheck v1.0.5
-	github.com/ONSdigital/dp-net v1.0.10
+	github.com/ONSdigital/dp-net v1.0.11
 	github.com/ONSdigital/log.go v1.0.1
 	github.com/golang/mock v1.4.4
 	github.com/gorilla/mux v1.8.0
