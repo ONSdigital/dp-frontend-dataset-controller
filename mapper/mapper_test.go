@@ -143,7 +143,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -207,7 +207,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
@@ -245,7 +245,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1")
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)

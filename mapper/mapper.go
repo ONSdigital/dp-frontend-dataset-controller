@@ -25,6 +25,12 @@ import (
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
 
+// Dimension names
+const (
+	DimensionTime = "time"
+	DimensionAge  = "age"
+)
+
 func (p TimeSlice) Len() int {
 	return len(p)
 }
@@ -51,7 +57,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -199,7 +205,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 				}
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-			pDim.TotalItems = len(opt.Items)
+			pDim.TotalItems = opt.TotalCount
 
 			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
@@ -271,7 +277,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 			} else {
 
 				for i, val := range opt.Items {
-					if len(opt.Items) > 50 {
+					if opt.TotalCount > maxNumOpts {
 						if i > 9 {
 							break
 						}
@@ -279,7 +285,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 					pDim.Values = append(pDim.Values, val.Label)
 				}
 
-				if opt.Items[0].DimensionID == "time" || opt.Items[0].DimensionID == "age" {
+				if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
 					isValid := true
 					var intVals []int
 					for _, val := range pDim.Values {
