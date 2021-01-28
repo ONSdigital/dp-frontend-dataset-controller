@@ -37,7 +37,7 @@ const maxMetadataOptions = 1000
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
-	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error)
+	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -119,7 +119,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 				names = append(names, dim.Name)
 			}
 		}
-		fid, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
+		fid, _, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
