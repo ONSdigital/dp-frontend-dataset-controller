@@ -208,6 +208,21 @@ func (mr *MockDatasetClientMockRecorder) GetOptions(ctx, userAuthToken, serviceA
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptions", reflect.TypeOf((*MockDatasetClient)(nil).GetOptions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q)
 }
 
+// GetOptionsInBatches mocks base method
+func (m *MockDatasetClient) GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (dataset.Options, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOptionsInBatches", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, batchSize, maxWorkers)
+	ret0, _ := ret[0].(dataset.Options)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOptionsInBatches indicates an expected call of GetOptionsInBatches
+func (mr *MockDatasetClientMockRecorder) GetOptionsInBatches(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, batchSize, maxWorkers interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionsInBatches", reflect.TypeOf((*MockDatasetClient)(nil).GetOptionsInBatches), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, batchSize, maxWorkers)
+}
+
 // MockRenderClient is a mock of RenderClient interface
 type MockRenderClient struct {
 	ctrl     *gomock.Controller

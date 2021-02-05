@@ -30,7 +30,6 @@ import (
 
 const dataEndpoint = `\/data$`
 const numOptsSummary = 50
-const maxMetadataOptions = 1000
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
@@ -51,6 +50,7 @@ type DatasetClient interface {
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
 	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (m dataset.Options, err error)
+	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (opts dataset.Options, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -64,14 +64,8 @@ type ClientError interface {
 	Code() int
 }
 
-// errTooManyOptions is an error returned when a request can't complete because the dimension has too many options
-var errTooManyOptions = errors.New("too many options in dimension")
-
 func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
-	if err == errTooManyOptions {
-		status = http.StatusRequestEntityTooLarge
-	}
 	if err, ok := err.(ClientError); ok {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
@@ -290,13 +284,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+	// get metadata file content
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
 	if err != nil {
-		if err != errTooManyOptions {
-			setStatusCode(req, w, err)
-			return
-		}
+		setStatusCode(req, w, err)
+		return
 	}
 
 	if ver.Downloads == nil {
@@ -513,10 +505,12 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
+	metadataFileSize := strconv.Itoa(len(b))
+
 	w.Header().Set("Content-Type", "plain/text")
+	w.Header().Set("Content-Length", metadataFileSize)
 
 	w.Write(b)
-
 }
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
@@ -528,13 +522,9 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, q)
+		options, err := dc.GetOptionsInBatches(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, cfg.BatchSizeLimit, cfg.BatchMaxWorkers)
 		if err != nil {
 			return nil, err
-		}
-		if options.TotalCount > maxMetadataOptions {
-			return []byte{}, errTooManyOptions
 		}
 
 		b.WriteString(options.String())
