@@ -194,7 +194,7 @@ func (mr *MockDatasetClientMockRecorder) GetVersionDimensions(ctx, userAuthToken
 }
 
 // GetOptions mocks base method
-func (m *MockDatasetClient) GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (dataset.Options, error) {
+func (m *MockDatasetClient) GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (dataset.Options, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOptions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q)
 	ret0, _ := ret[0].(dataset.Options)

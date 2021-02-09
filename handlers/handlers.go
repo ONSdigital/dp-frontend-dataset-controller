@@ -49,7 +49,7 @@ type DatasetClient interface {
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (m dataset.Options, err error)
+	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
 	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (opts dataset.Options, err error)
 }
 
@@ -101,9 +101,9 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 
 		var names []string
 		for _, dim := range dimensions.Items {
-			// we are only interested in the totalCount, no need to request more items.
-			q := dataset.QueryParams{Offset: 0, Limit: 1}
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
+			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
+			q := dataset.QueryParams{Offset: 0, Limit: 0}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
@@ -199,7 +199,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 			numOpts = 0
 		}
 		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 		if err != nil {
 			return opts, err
 		}
