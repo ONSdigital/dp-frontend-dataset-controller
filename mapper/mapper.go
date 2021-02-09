@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
@@ -25,6 +24,12 @@ import (
 
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
+
+// Dimension names
+const (
+	DimensionTime = "time"
+	DimensionAge  = "age"
+)
 
 func (p TimeSlice) Len() int {
 	return len(p)
@@ -38,8 +43,21 @@ func (p TimeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
+// Trim API version path prefix from breadcrumb URI, if present.
+func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb, apiRouterVersion string) string {
+	trimmedURI := breadcrumb.URI
+	urlParsed, err := url.Parse(breadcrumb.URI)
+	if err != nil {
+		log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
+	} else {
+		urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
+		trimmedURI = urlParsed.String()
+	}
+	return trimmedURI
+}
+
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang string) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -48,16 +66,16 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.URI = d.Links.Self.URL
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
-	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
 	p.HasJSONLD = true
 
+	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
 		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
-			URI:   breadcrumb.URI,
+			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
 	}
 
@@ -72,10 +90,11 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 		datasetURL.Path = ""
 		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
+	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
 	datasetBreadcrumbs := []model.TaxonomyNode{
 		{
 			Title: d.Title,
-			URI:   datasetURL.Path,
+			URI:   datasetPath,
 		},
 		{
 			Title: currentPageBreadcrumbTitle,
@@ -186,7 +205,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 				}
 			}
 			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-			pDim.TotalItems = len(opt.Items)
+			pDim.TotalItems = opt.TotalCount
 
 			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
@@ -206,10 +225,18 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 						if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
 							continue
 						}
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						}
 						startDate = ts[i+1]
 					} else {
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+						}
 					}
 				}
 
@@ -231,16 +258,26 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 						if (ts[i+1].Year() - t.Year()) == 1 {
 							continue
 						}
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 						startDate = ts[i+1]
 					} else {
-						pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+
+						if startDate.Year() == t.Year() {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+						} else {
+							pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+						}
 					}
 				}
 			} else {
 
 				for i, val := range opt.Items {
-					if len(opt.Items) > 50 {
+					if opt.TotalCount > maxNumOpts {
 						if i > 9 {
 							break
 						}
@@ -248,7 +285,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 					pDim.Values = append(pDim.Values, val.Label)
 				}
 
-				if opt.Items[0].DimensionID == "time" || opt.Items[0].DimensionID == "age" {
+				if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
 					isValid := true
 					var intVals []int
 					for _, val := range pDim.Values {
@@ -348,7 +385,7 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang string) datasetEditionsList.Page {
+func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
@@ -356,14 +393,13 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	p.Metadata.Title = d.Title
 	p.URI = d.Links.Self.URL
 	p.Metadata.Description = d.Description
-	p.ShowFeedbackForm = true
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
 			Title: bc.Description.Title,
-			URI:   bc.URI,
+			URI:   getTrimmedBreadcrumbURI(ctx, bc, apiRouterVersion),
 		})
 	}
 

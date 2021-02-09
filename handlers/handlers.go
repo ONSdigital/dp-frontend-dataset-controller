@@ -29,13 +29,14 @@ import (
 )
 
 const dataEndpoint = `\/data$`
+const numOptsSummary = 50
 
 // To mock interfaces in this file
-// mockgen -source=handlers/handlers.go -destination=handlers/mock_handlers.go -imports=handlers=github.com/ONSdigital/dp-frontend-dataset-controller/handlers -package=handlers
+//go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
-	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error)
+	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -48,7 +49,8 @@ type DatasetClient interface {
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string) (m dataset.Options, err error)
+	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (m dataset.Options, err error)
+	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (opts dataset.Options, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -56,7 +58,7 @@ type RenderClient interface {
 	Do(string, []byte) ([]byte, error)
 }
 
-// ClientError is an interface that can be used to retrieve the status code if a client has errored
+// ClientError is an interface that can be used to retrieve the status code if a client has errorred
 type ClientError interface {
 	Error() string
 	Code() int
@@ -99,17 +101,19 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 
 		var names []string
 		for _, dim := range dimensions.Items {
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name)
+			// we are only interested in the totalCount, no need to request more items.
+			q := dataset.QueryParams{Offset: 0, Limit: 1}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
 			}
 
-			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
+			if opts.TotalCount > 1 { // If there is only one option then it can't be filterable so don't add to filter api
 				names = append(names, dim.Name)
 			}
 		}
-		fid, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
+		fid, _, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -128,20 +132,20 @@ func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg co
 }
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, userAccessToken)
+		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, userAccessToken)
+		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-// VersionsList will load a list of versions for a filterable datase
+// VersionsList will load a list of versions for a filterable dataset
 func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, rend, cfg, collectionID, lang, userAccessToken)
@@ -188,7 +192,23 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	w.Write(templateHTML)
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+// getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
+func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
+	for _, dim := range dimensions.Items {
+		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
+			numOpts = 0
+		}
+		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
+		if err != nil {
+			return opts, err
+		}
+		opts = append(opts, opt)
+	}
+	return opts, nil
+}
+
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
@@ -252,15 +272,10 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	var opts []dataset.Options
-	for _, dim := range dims.Items {
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name)
-		if err != nil {
-			setStatusCode(req, w, err)
-			return
-		}
-
-		opts = append(opts, opt)
+	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
@@ -269,6 +284,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
+	// get metadata file content
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
 	if err != nil {
 		setStatusCode(req, w, err)
@@ -279,7 +295,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang)
+	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -320,7 +336,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
@@ -353,7 +369,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, 302)
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang)
+	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
 
 	b, err := json.Marshal(m)
 	if err != nil {
@@ -489,12 +505,16 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
+	metadataFileSize := strconv.Itoa(len(b))
+
 	w.Header().Set("Content-Type", "plain/text")
+	w.Header().Set("Content-Length", metadataFileSize)
 
 	w.Write(b)
-
 }
 
+// getText gets a byte array containing the metadata content, based on options returned by dataset API.
+// If a dimension has more than maxMetadataOptions, an error will be returned
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
 	var b bytes.Buffer
 
@@ -502,7 +522,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name)
+		options, err := dc.GetOptionsInBatches(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, cfg.BatchSizeLimit, cfg.BatchMaxWorkers)
 		if err != nil {
 			return nil, err
 		}
