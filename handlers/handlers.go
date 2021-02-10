@@ -513,30 +513,94 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 	w.Write(b)
 }
 
+// MetadataContent handles the metadata.txt file content generation from unsorted options
+type MetadataContent struct {
+	B             bytes.Buffer
+	optByOffset   map[int]string
+	limitByOffset map[int]int
+}
+
+// NewMetadataContent creates a new MetadataContent structure
+func NewMetadataContent() *MetadataContent {
+	return &MetadataContent{
+		B:             bytes.Buffer{},
+		optByOffset:   make(map[int]string),
+		limitByOffset: make(map[int]int),
+	}
+}
+
+// Len returns the number of batches currently stored in the maps
+func (m *MetadataContent) Len() int {
+	return len(m.optByOffset)
+}
+
+// Store stores the optStr and limit into the corresponding maps
+func (m *MetadataContent) Store(offset, limit int, optsStr string) {
+	m.optByOffset[offset] = optsStr
+	m.limitByOffset[offset] = limit
+}
+
+// Flush writes all available consecutive batches to the byte buffer, starting from the provided offset
+func (m *MetadataContent) Flush(offset int) (nextOffset int, err error) {
+
+	// get options for offset. If not found, abort (not yet available)
+	optStr, found := m.optByOffset[offset]
+	if !found {
+		return offset, nil
+	}
+
+	// get limit for this offset to calculate next offset. If not found, return error, because the options were found
+	limit, found := m.limitByOffset[offset]
+	if !found {
+		return -1, errors.Errorf("cannot build metadata file because no limit was found for offset %d", offset)
+	}
+	nextOffset = offset + limit
+
+	// write the string to the buffer
+	m.B.WriteString(optStr)
+
+	// delete items from maps, to allow GC to free the memory
+	delete(m.optByOffset, offset)
+	delete(m.limitByOffset, offset)
+
+	// recursive call to try to flush next item
+	return m.Flush(nextOffset)
+}
+
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
-	var b bytes.Buffer
+	m := NewMetadataContent()
 
-	// get options with in sequential batch processing to guarantee dimension order in the metadata file
-	maxWorkers := 1
-
-	b.WriteString(metadata.ToString())
-	b.WriteString("Dimensions:\n")
+	m.B.WriteString(metadata.ToString())
+	m.B.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
 
+		// keep track of next offset to flush
+		nextOffset := 0
+
+		// for each batch, store the options string and try to flush to the Buffer
 		var processBatch dataset.OptionsBatchProcessor = func(options dataset.Options) (abort bool, err error) {
-			b.WriteString(options.String())
-			return false, nil
+			m.Store(options.Offset, options.Limit, options.String())
+			if options.Offset == nextOffset {
+				nextOffset, err = m.Flush(options.Offset)
+			}
+			return false, err
 		}
 
-		if err := dc.GetOptionsBatchProcess(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, nil, processBatch, cfg.BatchSizeLimit, maxWorkers); err != nil {
+		// execute batch processor for each batch
+		if err := dc.GetOptionsBatchProcess(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, nil, processBatch, cfg.BatchSizeLimit, cfg.BatchMaxWorkers); err != nil {
 			return nil, err
+		}
+
+		// expect everything is flushed after all batches are processed for a dimension
+		if m.Len() != 0 {
+			return nil, errors.New("unexpected remaining options while generting the metadata file")
 		}
 	}
 
-	return b.Bytes(), nil
+	return m.B.Bytes(), nil
 }
 
 func getUserAccessTokenFromContext(ctx context.Context) string {

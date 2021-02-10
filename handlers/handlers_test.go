@@ -285,7 +285,7 @@ func TestUnitHandlers(t *testing.T) {
 				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptionsBatchProcess(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate",
-				nil, gomock.Any(), mockConfig.BatchSizeLimit, 1).Return(nil)
+				nil, gomock.Any(), mockConfig.BatchSizeLimit, mockConfig.BatchMaxWorkers).Return(nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -425,6 +425,110 @@ func TestUnitHandlers(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
+}
+
+func TestMetadataContent(t *testing.T) {
+
+	Convey("Store keeps track of the provided options string and limit, into the corresponding offset, without writing anything in the byte Buffer", t, func() {
+		m := NewMetadataContent()
+		m.Store(123, 321, "testOptionsBatch")
+		So(m.B.Bytes(), ShouldHaveLength, 0)
+		So(m.optByOffset, ShouldResemble, map[int]string{123: "testOptionsBatch"})
+		So(m.limitByOffset, ShouldResemble, map[int]int{123: 321})
+	})
+
+	Convey("Given a metadataContent with a gap in received batches", t, func() {
+		m := NewMetadataContent()
+		m.optByOffset = map[int]string{
+			0:  "testOptionsBatchOffsetZero ",
+			10: "testOptionsBatchOffsetTen ",
+			25: "testOptionsBatchOffsetTwentyFive ",
+			50: "testOptionsBatchOffsetFifty ",
+			62: "testOptionsBatchOffsetSixtyTwo ",
+		}
+		m.limitByOffset = map[int]int{
+			0:  10,
+			10: 15,
+			25: 20,
+			50: 12,
+			62: 13,
+		}
+
+		Convey("Then Len returns the number of items stored in the maps", func() {
+			So(m.Len(), ShouldEqual, 5)
+		})
+
+		Convey("Then flushing from offset zero results in all the consecutive batches being written to the byte Buffer and items being removed from the corresponding maps", func() {
+			nextOffset, err := m.Flush(0)
+			So(err, ShouldBeNil)
+			So(nextOffset, ShouldEqual, 45)
+			So(m.B.String(), ShouldResemble, "testOptionsBatchOffsetZero testOptionsBatchOffsetTen testOptionsBatchOffsetTwentyFive ")
+			So(m.optByOffset, ShouldResemble, map[int]string{
+				50: "testOptionsBatchOffsetFifty ",
+				62: "testOptionsBatchOffsetSixtyTwo ",
+			})
+			So(m.limitByOffset, ShouldResemble, map[int]int{
+				50: 12,
+				62: 13,
+			})
+		})
+
+		Convey("Then flushing from an inexistent offset results in no change in the map", func() {
+			nextOffset, err := m.Flush(3)
+			So(err, ShouldBeNil)
+			So(nextOffset, ShouldEqual, 3)
+			So(m.B.Bytes(), ShouldHaveLength, 0)
+			So(m.optByOffset, ShouldResemble, map[int]string{
+				0:  "testOptionsBatchOffsetZero ",
+				10: "testOptionsBatchOffsetTen ",
+				25: "testOptionsBatchOffsetTwentyFive ",
+				50: "testOptionsBatchOffsetFifty ",
+				62: "testOptionsBatchOffsetSixtyTwo ",
+			})
+			So(m.limitByOffset, ShouldResemble, map[int]int{
+				0:  10,
+				10: 15,
+				25: 20,
+				50: 12,
+				62: 13,
+			})
+		})
+
+		Convey("Then flushing from a valid offset results in all consecutive batches starting from that offset being flushed", func() {
+			nextOffset, err := m.Flush(50)
+			So(err, ShouldBeNil)
+			So(nextOffset, ShouldEqual, 75)
+			So(m.B.String(), ShouldResemble, "testOptionsBatchOffsetFifty testOptionsBatchOffsetSixtyTwo ")
+			So(m.optByOffset, ShouldResemble, map[int]string{
+				0:  "testOptionsBatchOffsetZero ",
+				10: "testOptionsBatchOffsetTen ",
+				25: "testOptionsBatchOffsetTwentyFive ",
+			})
+			So(m.limitByOffset, ShouldResemble, map[int]int{
+				0:  10,
+				10: 15,
+				25: 20,
+			})
+		})
+	})
+
+	Convey("Given a metadataContent with a missing limit for an offset", t, func() {
+		m := NewMetadataContent()
+		m.optByOffset = map[int]string{
+			0:  "testOptionsBatchOffsetZero ",
+			10: "testOptionsBatchOffsetTen ",
+		}
+		m.limitByOffset = map[int]int{
+			0: 10,
+		}
+
+		Convey("Then flushing the offset which does not have a limit results in the expected error being returned", func() {
+			nextOffset, err := m.Flush(10)
+			So(err.Error(), ShouldResemble, "cannot build metadata file because no limit was found for offset 10")
+			So(nextOffset, ShouldEqual, -1)
 		})
 	})
 

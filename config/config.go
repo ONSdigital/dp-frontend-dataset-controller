@@ -24,6 +24,7 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	BatchSizeLimit             int           `envconfig:"BATCH_SIZE_LIMIT"`
+	BatchMaxWorkers            int           `envconfig:"BATCH_MAX_WORKERS"`
 	EnableProfiler             bool          `envconfig:"ENABLE_PROFILER"`
 	PprofToken                 string        `envconfig:"PPROF_TOKEN" json:"-"`
 }
@@ -46,6 +47,7 @@ func Get() (cfg *Config, err error) {
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		BatchSizeLimit:             1000, // maximum limit value to get items from APIs in a single call
+		BatchMaxWorkers:            100,  // maximum number of concurrent go-routines requesting items from APIs with pagination
 		EnableProfiler:             false,
 	}
 
