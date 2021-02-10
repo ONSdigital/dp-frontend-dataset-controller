@@ -50,7 +50,7 @@ type DatasetClient interface {
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
 	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
-	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (opts dataset.Options, err error)
+	GetOptionsBatchProcess(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, optionIDs *[]string, processBatch dataset.OptionsBatchProcessor, batchSize, maxWorkers int) error
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -518,16 +518,22 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
 	var b bytes.Buffer
 
+	// get options with in sequential batch processing to guarantee dimension order in the metadata file
+	maxWorkers := 1
+
 	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		options, err := dc.GetOptionsInBatches(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, cfg.BatchSizeLimit, cfg.BatchMaxWorkers)
-		if err != nil {
-			return nil, err
+
+		var processBatch dataset.OptionsBatchProcessor = func(options dataset.Options) (abort bool, err error) {
+			b.WriteString(options.String())
+			return false, nil
 		}
 
-		b.WriteString(options.String())
+		if err := dc.GetOptionsBatchProcess(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, nil, processBatch, cfg.BatchSizeLimit, maxWorkers); err != nil {
+			return nil, err
+		}
 	}
 
 	return b.Bytes(), nil
