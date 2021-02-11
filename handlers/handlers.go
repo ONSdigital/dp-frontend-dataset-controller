@@ -513,80 +513,30 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 	w.Write(b)
 }
 
-// MetadataContent handles the metadata.txt file content generation from unsorted options
-type MetadataContent struct {
-	B             bytes.Buffer
-	optByOffset   map[int]string
-	limitByOffset map[int]int
-}
-
-// NewMetadataContent creates a new MetadataContent structure
-func NewMetadataContent() *MetadataContent {
-	return &MetadataContent{
-		B:             bytes.Buffer{},
-		optByOffset:   make(map[int]string),
-		limitByOffset: make(map[int]int),
-	}
-}
-
-// Len returns the number of batches currently stored in the maps
-func (m *MetadataContent) Len() int {
-	return len(m.optByOffset)
-}
-
-// Store stores the optStr and limit into the corresponding maps
-func (m *MetadataContent) Store(offset, limit int, optsStr string) {
-	m.optByOffset[offset] = optsStr
-	m.limitByOffset[offset] = limit
-}
-
-// Flush writes all available consecutive batches to the byte buffer, starting from the provided offset
-func (m *MetadataContent) Flush(offset int) (nextOffset int, err error) {
-
-	// get options for offset. If not found, abort (not yet available)
-	optStr, found := m.optByOffset[offset]
-	if !found {
-		return offset, nil
-	}
-
-	// get limit for this offset to calculate next offset. If not found, return error, because the options were found
-	limit, found := m.limitByOffset[offset]
-	if !found {
-		return -1, errors.Errorf("cannot build metadata file because no limit was found for offset %d", offset)
-	}
-	nextOffset = offset + limit
-
-	// write the string to the buffer
-	m.B.WriteString(optStr)
-
-	// delete items from maps, to allow GC to free the memory
-	delete(m.optByOffset, offset)
-	delete(m.limitByOffset, offset)
-
-	// recursive call to try to flush next item
-	return m.Flush(nextOffset)
-}
-
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
-	m := NewMetadataContent()
+	b := bytes.Buffer{}
 
-	m.B.WriteString(metadata.ToString())
-	m.B.WriteString("Dimensions:\n")
+	b.WriteString(metadata.ToString())
+	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
+		var labels []string
+		var options []string
 
-		// keep track of next offset to flush
-		nextOffset := 0
-
-		// for each batch, store the options string and try to flush to the Buffer
-		var processBatch dataset.OptionsBatchProcessor = func(options dataset.Options) (abort bool, err error) {
-			m.Store(options.Offset, options.Limit, options.String())
-			if options.Offset == nextOffset {
-				nextOffset, err = m.Flush(options.Offset)
+		// for each batch, store the options and labels in the arrays
+		var processBatch dataset.OptionsBatchProcessor = func(batch dataset.Options) (abort bool, err error) {
+			if len(labels) == 0 { // first batch response being handled
+				labels = make([]string, batch.TotalCount)
+				options = make([]string, batch.TotalCount)
+				b.WriteString(fmt.Sprintf("\n\tTitle: %s\n", batch.Items[0].DimensionID))
 			}
-			return false, err
+			for i := 0; i < len(batch.Items); i++ {
+				options[i+batch.Offset] = batch.Items[i].Option
+				labels[i+batch.Offset] = batch.Items[i].Label
+			}
+			return false, nil
 		}
 
 		// execute batch processor for each batch
@@ -594,13 +544,12 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 			return nil, err
 		}
 
-		// expect everything is flushed after all batches are processed for a dimension
-		if m.Len() != 0 {
-			return nil, errors.New("unexpected remaining options while generting the metadata file")
-		}
+		// write the labels and options to the buffer
+		b.WriteString(fmt.Sprintf("\tLabels: %s\n", labels))
+		b.WriteString(fmt.Sprintf("\tOptions: %v\n", options))
 	}
 
-	return m.B.Bytes(), nil
+	return b.Bytes(), nil
 }
 
 func getUserAccessTokenFromContext(ctx context.Context) string {
