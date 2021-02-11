@@ -31,6 +31,7 @@ import (
 const dataEndpoint = `\/data$`
 const numOptsSummary = 50
 const maxMetadataOptions = 1000
+const maxAgeAndTimeOptions = 1000
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
@@ -201,9 +202,26 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
 	for _, dim := range dimensions.Items {
+
+		// for time and age, request all the options (assumed less than maxAgeAndTimeOptions)
 		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
-			numOpts = 0
+
+			// query with limit maxAgeAndTimeOptions
+			q := dataset.QueryParams{Offset: 0, Limit: maxAgeAndTimeOptions}
+			opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			if err != nil {
+				return opts, err
+			}
+
+			if opt.TotalCount > maxAgeAndTimeOptions {
+				log.Event(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": opt.TotalCount}, log.WARN)
+			}
+
+			opts = append(opts, opt)
+			continue
 		}
+
+		// for other dimensions, cap the number of options to numOpts
 		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
 		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 		if err != nil {
