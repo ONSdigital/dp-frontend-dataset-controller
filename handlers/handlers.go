@@ -30,6 +30,7 @@ import (
 
 const dataEndpoint = `\/data$`
 const numOptsSummary = 50
+const maxMetadataOptions = 1000
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
@@ -50,7 +51,6 @@ type DatasetClient interface {
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
 	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
-	GetOptionsBatchProcess(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, optionIDs *[]string, processBatch dataset.OptionsBatchProcessor, batchSize, maxWorkers int) error
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -64,8 +64,14 @@ type ClientError interface {
 	Code() int
 }
 
+// errTooManyOptions is an error returned when a request can't complete because the dimension has too many options
+var errTooManyOptions = errors.New("too many options in dimension")
+
 func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
+	if err == errTooManyOptions {
+		status = http.StatusRequestEntityTooLarge
+	}
 	if err, ok := err.(ClientError); ok {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
@@ -284,11 +290,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	// get metadata file content
+	// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
 	if err != nil {
-		setStatusCode(req, w, err)
-		return
+		if err != errTooManyOptions {
+			setStatusCode(req, w, err)
+			return
+		}
 	}
 
 	if ver.Downloads == nil {
@@ -505,10 +513,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
-	metadataFileSize := strconv.Itoa(len(b))
-
 	w.Header().Set("Content-Type", "plain/text")
-	w.Header().Set("Content-Length", metadataFileSize)
 
 	w.Write(b)
 }
@@ -516,37 +521,22 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
 func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
-	b := bytes.Buffer{}
+	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
 
 	for _, dimension := range dimensions.Items {
-		var labels []string
-		var options []string
-
-		// for each batch, store the options and labels in the arrays
-		var processBatch dataset.OptionsBatchProcessor = func(batch dataset.Options) (abort bool, err error) {
-			if len(labels) == 0 { // first batch response being handled
-				labels = make([]string, batch.TotalCount)
-				options = make([]string, batch.TotalCount)
-				b.WriteString(fmt.Sprintf("\n\tTitle: %s\n", batch.Items[0].DimensionID))
-			}
-			for i := 0; i < len(batch.Items); i++ {
-				options[i+batch.Offset] = batch.Items[i].Option
-				labels[i+batch.Offset] = batch.Items[i].Label
-			}
-			return false, nil
-		}
-
-		// execute batch processor for each batch
-		if err := dc.GetOptionsBatchProcess(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, nil, processBatch, cfg.BatchSizeLimit, cfg.BatchMaxWorkers); err != nil {
+		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
+		if err != nil {
 			return nil, err
 		}
+		if options.TotalCount > maxMetadataOptions {
+			return []byte{}, errTooManyOptions
+		}
 
-		// write the labels and options to the buffer
-		b.WriteString(fmt.Sprintf("\tLabels: %s\n", labels))
-		b.WriteString(fmt.Sprintf("\tOptions: %v\n", options))
+		b.WriteString(options.String())
 	}
 
 	return b.Bytes(), nil
