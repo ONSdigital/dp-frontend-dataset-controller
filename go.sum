@@ -1,6 +1,6 @@
 github.com/ONSdigital/dp-api-clients-go v1.28.0/go.mod h1:iyJy6uRL4B6OYOJA0XMr5UHt6+Q8XmN9uwmURO+9Oj4=
-github.com/ONSdigital/dp-api-clients-go v1.33.0 h1:VVWJZSpmHOJvXUETwgAcFaizW6voxRU8RbsmPHma4GU=
-github.com/ONSdigital/dp-api-clients-go v1.33.0/go.mod h1:0pUK3MN1v7DTjq0JSAD+DqbsZ8AVTodrXSXgJecg9Pw=
+github.com/ONSdigital/dp-api-clients-go v1.33.3 h1:Qa38jlMWEdgKeSt7tLhcctHfAFtTMn70ARMpCIP5kUs=
+github.com/ONSdigital/dp-api-clients-go v1.33.3/go.mod h1:0pUK3MN1v7DTjq0JSAD+DqbsZ8AVTodrXSXgJecg9Pw=
 github.com/ONSdigital/dp-cookies v0.1.0 h1:dP9wN8slCCr3nkybFmGIMXPsEjKHNIKi2iRjMi9E2bY=
 github.com/ONSdigital/dp-cookies v0.1.0/go.mod h1:7HvRBm+mU0xz2pryTa+vwphKxe5HYpXtmPe/e6FEIJU=
 github.com/ONSdigital/dp-frontend-models v1.9.1 h1:FtoZAxoxjvCQpj8U23usBSv9MhDCsqj+TdpVndbEeXk=
