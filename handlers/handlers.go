@@ -221,10 +221,14 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
-	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+	var bc []zebedee.Breadcrumb
+	if datasetModel.Type != "nomis"{
+		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
+		if err != nil {
+			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		}
 	}
+
 
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
@@ -265,11 +269,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		setStatusCode(req, w, err)
 		return
 	}
-
-	dims, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
+	dims := dataset.VersionDimensions{nil}
+	if datasetModel.Type != "nomis" {
+		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
 	}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
@@ -326,7 +332,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	templateHTML, err := rend.Do("dataset-landing-page-filterable", b)
+	templateName := "dataset-landing-page-filterable"
+	if datasetModel.Type == "nomis" {
+		templateName = "dataset-landing-page-nomis"
+	}
+	templateHTML, err := rend.Do(templateName, b)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
