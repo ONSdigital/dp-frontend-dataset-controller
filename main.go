@@ -122,10 +122,6 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
 
-	// Nomis dataset landing page
-	//router.StrictSlash(true).Path("/datasets/nomis/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.NomisLanding(dc, rend, zc, *cfg))
-	//router.StrictSlash(true).Path("/datasets/nomis/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.NomisLanding(dc, rend, zc, *cfg))
-
 	if len(cfg.MailHost) > 0 {
 
 		auth := smtp.PlainAuth(

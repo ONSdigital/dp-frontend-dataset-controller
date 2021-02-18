@@ -68,7 +68,6 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.Metadata.Description = d.Description
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
-	log.Event(ctx, "Release date is: ", log.WARN, log.Data{"release date: ": ver.ReleaseDate})
 	p.BetaBannerEnabled = true
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL

@@ -246,13 +246,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	var bc []zebedee.Breadcrumb
-	if datasetModel.Type != "nomis"{
+	if datasetModel.Type != "nomis" {
 		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
 		if err != nil {
 			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 		}
 	}
-
 
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
