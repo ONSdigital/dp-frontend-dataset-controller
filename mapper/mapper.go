@@ -70,6 +70,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
 	if d.Type == "nomis" {
+		log.Event(ctx, "delete me", log.WARN, log.Data{"datasetDetails": d, "datasetVersion": ver})
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
 		homeBreadcrumb := model.TaxonomyNode{
 			Title: "Home",
