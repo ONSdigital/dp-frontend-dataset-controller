@@ -122,28 +122,6 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
 
-	if len(cfg.MailHost) > 0 {
-
-		auth := smtp.PlainAuth(
-			"",
-			cfg.MailUser,
-			cfg.MailPassword,
-			cfg.MailHost,
-		)
-
-		if cfg.MailHost == "localhost" {
-			auth = unencryptedAuth{auth}
-		}
-
-		mailAddr := fmt.Sprintf("%s:%s", cfg.MailHost, cfg.MailPort)
-
-		log.Event(ctx, "adding feedback routes", log.INFO)
-		router.StrictSlash(true).Path("/feedback").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, rend, false))
-		router.StrictSlash(true).Path("/feedback/positive").Methods("POST").HandlerFunc(handlers.AddFeedback(auth, mailAddr, cfg.FeedbackTo, cfg.FeedbackFrom, rend, false))
-		router.StrictSlash(true).Path("/feedback").Methods("GET").HandlerFunc(handlers.GetFeedback(rend))
-		router.StrictSlash(true).Path("/feedback/thanks").Methods("GET").HandlerFunc(handlers.FeedbackThanks(rend))
-	}
-
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 
 	log.Event(ctx, "Starting server", log.INFO, log.Data{"config": cfg})

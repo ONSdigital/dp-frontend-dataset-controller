@@ -49,11 +49,11 @@ func datasetOptions(offset, limit int) dataset.Options {
 
 func slice(full []dataset.Option, offset, limit int) (sliced []dataset.Option) {
 	end := offset + limit
-	if limit == 0 || end > len(full) {
+	if end > len(full) {
 		end = len(full)
 	}
 
-	if offset > len(full) {
+	if offset > len(full) || limit == 0 {
 		return []dataset.Option{}
 	}
 
@@ -91,7 +91,7 @@ func TestUnitHandlers(t *testing.T) {
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", nil)
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
@@ -107,9 +107,9 @@ func TestUnitHandlers(t *testing.T) {
 			}
 			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dims, nil)
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "aggregate",
-				dataset.QueryParams{Offset: 0, Limit: 1}).Return(datasetOptions(0, 1), nil)
+				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "time",
-				dataset.QueryParams{Offset: 0, Limit: 1}).Return(datasetOptions(0, 1), nil)
+				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 
 			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient, mockConfig))
 
@@ -121,7 +121,7 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", errors.New("unable to create filter blueprint"))
+			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", "", errors.New("unable to create filter blueprint"))
 			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
@@ -280,10 +280,10 @@ func TestUnitHandlers(t *testing.T) {
 			}
 			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017").Return(dims, nil)
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate",
-				dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
 			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017")
 			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "2017", "aggregate",
-				dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}).Return(datasetOptions(0, maxMetadataOptions), nil)
+				&dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}).Return(datasetOptions(0, maxMetadataOptions), nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)

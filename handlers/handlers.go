@@ -31,13 +31,14 @@ import (
 const dataEndpoint = `\/data$`
 const numOptsSummary = 50
 const maxMetadataOptions = 1000
+const maxAgeAndTimeOptions = 1000
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
-	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (string, error)
+	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -50,7 +51,7 @@ type DatasetClient interface {
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q dataset.QueryParams) (m dataset.Options, err error)
+	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
@@ -107,9 +108,9 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 
 		var names []string
 		for _, dim := range dimensions.Items {
-			// we are only interested in the totalCount, no need to request more items.
-			q := dataset.QueryParams{Offset: 0, Limit: 1}
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
+			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
+			q := dataset.QueryParams{Offset: 0, Limit: 0}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
@@ -119,7 +120,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 				names = append(names, dim.Name)
 			}
 		}
-		fid, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
+		fid, _, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -201,11 +202,28 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
 	for _, dim := range dimensions.Items {
+
+		// for time and age, request all the options (assumed less than maxAgeAndTimeOptions)
 		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
-			numOpts = 0
+
+			// query with limit maxAgeAndTimeOptions
+			q := dataset.QueryParams{Offset: 0, Limit: maxAgeAndTimeOptions}
+			opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			if err != nil {
+				return opts, err
+			}
+
+			if opt.TotalCount > maxAgeAndTimeOptions {
+				log.Event(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": opt.TotalCount}, log.WARN)
+			}
+
+			opts = append(opts, opt)
+			continue
 		}
+
+		// for other dimensions, cap the number of options to numOpts
 		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, q)
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 		if err != nil {
 			return opts, err
 		}
@@ -227,9 +245,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
-	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+	var bc []zebedee.Breadcrumb
+	if datasetModel.Type != "nomis" {
+		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
+		if err != nil {
+			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		}
 	}
 
 	if len(edition) == 0 {
@@ -271,11 +292,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		setStatusCode(req, w, err)
 		return
 	}
-
-	dims, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
+	dims := dataset.VersionDimensions{nil}
+	if datasetModel.Type != "nomis" {
+		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
 	}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
@@ -334,7 +357,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	templateHTML, err := rend.Do("dataset-landing-page-filterable", b)
+	templateName := "dataset-landing-page-filterable"
+	if datasetModel.Type == "nomis" {
+		templateName = "dataset-landing-page-nomis"
+	}
+	templateHTML, err := rend.Do(templateName, b)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -516,7 +543,6 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 	w.Header().Set("Content-Type", "plain/text")
 
 	w.Write(b)
-
 }
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
@@ -529,7 +555,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 
 	for _, dimension := range dimensions.Items {
 		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, q)
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
 			return nil, err
 		}

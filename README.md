@@ -13,23 +13,11 @@ An HTTP service for the controlling of data relevant to a particular dataset.
 | FILTER_API_URL               | http://localhost:22100  | The URL of [dp-filter-api](https://www.github.com/ONSdigital/dp-filter-api).
 | ZEBEDEE_URL                  | http://localhost:8082   | The URL of [zebedee](https://www.github.com/ONSdigital/zebedee).
 | DOWNLOAD_SERVICE_URL         | http://localhost:23600  | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).
-| MAIL_HOST                    | ""                      | The host for the mail server.
-| MAIL_PORT                    | ""                      | The port for the mail server.
-| MAIL_USER                    | ""                      | A user on the mail server.
-| MAIL_PASSWORD                | ""                      | The password for the mail server user.
-| FEEDBACK_TO                  | ""                      | Receiver email address for feedback.
-| FEEDBACK_FROM                | ""                      | Sender email address for feedback.
 | GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                      | The graceful shutdown timeout in seconds
 | HEALTHCHECK_INTERVAL         | 30s                     | The time between calling healthcheck endpoints for check subsystems
 | HEALTHCHECK_CRITICAL_TIMEOUT | 90s                     | The time taken for the health changes from warning state to critical due to subsystem check failures
 | ENABLE_PROFILER              | false                   | Flag to enable go profiler
 | PPROF_TOKEN                  | ""                      | The profiling token to access service profiling
-
-### Feedback service
-
-The feedback endpoints in this service rely on access to an SMTP service to process feedback.
-In order to submit feedback locally, you must have an SMTP service running (try [MailHog](https://www.github.com/mailhog/MailHog))
-and update the `MAIL_*` and `FEEDBACK_*` variables configured for this app.
 
 ### Profiling
 
