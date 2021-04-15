@@ -122,6 +122,9 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
 
+	// TODO: fix this path
+	router.StrictSlash(true).Path("/economy/inflationandpriceindices/datasets/understandingthedifferentapproachesofmeasuringowneroccupiershousingcosts/current").Methods("GET").HandlerFunc(handlers.DatasetPage(zc, dc, rend, *cfg))
+
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 
 	log.Event(ctx, "Starting server", log.INFO, log.Data{"config": cfg})

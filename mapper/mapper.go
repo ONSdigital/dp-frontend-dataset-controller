@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
+	"github.com/ONSdigital/dp-frontend-models/model/datasetPage"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
 
 	"github.com/ONSdigital/log.go/log"
@@ -467,4 +469,48 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *mod
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}
+}
+
+func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, lang string) datasetPage.Page {
+	dp := datasetPage.Page{}
+
+	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
+	dp.Type = "dataset_page"
+	dp.Metadata.Title = dlp.Description.Title
+	dp.Language = lang
+	dp.URI = d.URI
+	// TODO confirm if this is needed
+	//	dp.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
+	dp.Metadata.Description = dlp.Description.Summary
+	dp.ReleaseDate = d.Description.ReleaseDate
+	dp.BetaBannerEnabled = false
+	dp.HasJSONLD = true
+
+	// Trim API version path prefix from breadcrumb URIs, if present.
+	// TODO: determine router version
+	/*
+		for _, breadcrumb := range bc {
+			dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+				Title: breadcrumb.Description.Title,
+				URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
+			})
+		}*/
+
+	dp.ContactDetails.Email = dlp.Description.Contact.Email
+	dp.ContactDetails.Name = dlp.Description.Contact.Name
+	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
+
+	for _, download := range d.Downloads {
+		dp.DatasetPage.Downloads = append(dp.DatasetPage.Downloads, datasetPage.Download{filepath.Ext(download.File), download.Size, download.File})
+	}
+
+	for _, supplementaryFile := range d.SupplementaryFiles {
+		dp.DatasetPage.SupplementaryFiles = append(dp.DatasetPage.SupplementaryFiles, datasetPage.SupplementaryFile{supplementaryFile.Title, filepath.Ext(supplementaryFile.File), supplementaryFile.Size, supplementaryFile.File})
+	}
+
+	for _, version := range d.Versions {
+		dp.DatasetPage.Versions = append(dp.DatasetPage.Versions, datasetPage.Version{version.URI, version.ReleaseDate, version.Notice, version.Label})
+	}
+
+	return dp
 }

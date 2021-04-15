@@ -159,6 +159,13 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
+// Datasetpage will load a zebedee dataset page
+func DatasetPage(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		datasetPage(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken)
+	})
+}
+
 func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
@@ -368,6 +375,70 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	w.Write(templateHTML)
+
+}
+
+func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+	path := req.URL.Path
+	ctx := req.Context()
+
+	// Since MatchString will only error if the regex is invalid, and the regex is
+	// constant, don't capture the error
+	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
+		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+path)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
+		w.Write(b)
+		return
+	}
+
+	ds, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, path)
+	if err != nil {
+		setStatusCode(req, w, errors.Wrap(err, "zebedee client get dataset returned an error"))
+		return
+	}
+
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, ds.URI)
+	if err != nil {
+		log.Event(ctx, "unable to get breadcrumb for dataset page uri", log.WARN, log.Error(err))
+		setStatusCode(req, w, err)
+		return
+	}
+
+	if len(bc) < 2 {
+		log.Event(ctx, "invalid breadcrumb length for dataset page uri")
+		setStatusCode(req, w, fmt.Errorf("invalid breadcrumb length"))
+		return
+	}
+
+	parentPath := bc[len(bc)-1].URI
+
+	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, "", lang, parentPath)
+	if err != nil {
+		log.Event(ctx, "unable to get dataset page parent", log.WARN, log.Error(err))
+		setStatusCode(req, w, err)
+		return
+	}
+
+	m := mapper.CreateDatasetPage(ctx, req, ds, dlp, bc, lang)
+
+	var templateJSON []byte
+	templateJSON, err = json.Marshal(m)
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
+	templateHTML, err := rend.Do("dataset-page", templateJSON)
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
+	w.Write(templateHTML)
+	return
 
 }
 
