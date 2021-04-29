@@ -20,3 +20,5 @@ require (
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20210218145245-beda7e5e158e // indirect
 )
+
+replace github.com/ONSdigital/dp-frontend-models => /Users/nicklupton/src/github.com/ONSdigital/dp-frontend-models

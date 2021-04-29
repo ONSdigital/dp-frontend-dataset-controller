@@ -471,7 +471,7 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *mod
 	}
 }
 
-func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, lang string) datasetPage.Page {
+func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, apiRouterVersion string) datasetPage.Page {
 	dp := datasetPage.Page{}
 
 	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
@@ -479,38 +479,115 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 	dp.Metadata.Title = dlp.Description.Title
 	dp.Language = lang
 	dp.URI = d.URI
-	// TODO confirm if this is needed
-	//	dp.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
+	dp.DatasetPage.URI = dlp.URI
 	dp.Metadata.Description = dlp.Description.Summary
-	dp.ReleaseDate = d.Description.ReleaseDate
+	dp.DatasetPage.ReleaseDate = dlp.Description.ReleaseDate
 	dp.BetaBannerEnabled = false
 	dp.HasJSONLD = true
+	dp.DatasetPage.Edition = d.Description.Edition
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	// TODO: determine router version
-	/*
-		for _, breadcrumb := range bc {
-			dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
-				Title: breadcrumb.Description.Title,
-				URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
-			})
-		}*/
+	for _, breadcrumb := range bc {
+		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+			Title: breadcrumb.Description.Title,
+			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
+		})
+	}
 
-	dp.ContactDetails.Email = dlp.Description.Contact.Email
+	dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+		Title: dp.DatasetPage.Edition,
+	})
+
+	dp.DatasetPage.IsNationalStatistic = dlp.Description.NationalStatistic
+	dp.DatasetPage.NextRelease = dlp.Description.NextRelease
+	dp.DatasetPage.DatasetID = dlp.Description.DatasetID
+
+	dp.ContactDetails.Email = strings.TrimSpace(dlp.Description.Contact.Email)
 	dp.ContactDetails.Name = dlp.Description.Contact.Name
 	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
 
 	for _, download := range d.Downloads {
-		dp.DatasetPage.Downloads = append(dp.DatasetPage.Downloads, datasetPage.Download{filepath.Ext(download.File), download.Size, download.File})
+		dp.DatasetPage.Downloads = append(
+			dp.DatasetPage.Downloads,
+			datasetPage.Download{
+				Extension: filepath.Ext(download.File),
+				Size:      download.Size,
+				URI:       dp.URI + "/" + download.File,
+				File:      download.File})
 	}
 
 	for _, supplementaryFile := range d.SupplementaryFiles {
-		dp.DatasetPage.SupplementaryFiles = append(dp.DatasetPage.SupplementaryFiles, datasetPage.SupplementaryFile{supplementaryFile.Title, filepath.Ext(supplementaryFile.File), supplementaryFile.Size, supplementaryFile.File})
+		dp.DatasetPage.SupplementaryFiles = append(
+			dp.DatasetPage.SupplementaryFiles,
+			datasetPage.SupplementaryFile{
+				Title:     supplementaryFile.Title,
+				Extension: filepath.Ext(supplementaryFile.File),
+				Size:      supplementaryFile.Size,
+				URI:       supplementaryFile.File})
 	}
 
-	for _, version := range d.Versions {
-		dp.DatasetPage.Versions = append(dp.DatasetPage.Versions, datasetPage.Version{version.URI, version.ReleaseDate, version.Notice, version.Label})
+	for _, ver := range d.Versions {
+		dp.DatasetPage.Versions = append(
+			dp.DatasetPage.Versions,
+			datasetPage.Version{
+				URI:              ver.URI,
+				UpdateDate:       ver.ReleaseDate,
+				CorrectionNotice: ver.Notice,
+				Label:            ver.Label,
+				Downloads:        MapDownloads(FindVersion(versions, ver.URI).Downloads, ver.URI)})
 	}
+	sort.Slice(dp.DatasetPage.Versions, func(i, j int) bool {
+		layout := "2006-01-02T15:04:05.000Z"
+		current, cerr := time.Parse(layout, dp.DatasetPage.Versions[i].UpdateDate)
+		if cerr != nil {
+			log.Event(ctx, "unable to convert date UTC string to time", log.WARN, log.Error(cerr), log.Data{"version": dp.DatasetPage.Versions[i].URI})
+		}
+		next, nerr := time.Parse(layout, dp.DatasetPage.Versions[j].UpdateDate)
+		if nerr != nil {
+			log.Event(ctx, "unable to convert date UTC string to time", log.WARN, log.Error(nerr), log.Data{"version": dp.DatasetPage.Versions[j].URI})
+		}
+		return current.After(next)
+	})
+
+	// var reversed = dp.DatasetPage.Versions
+	// for _, ver := range d.Versions {
+	// 	dp.DatasetPage.Versions = append(
+	// 		dp.DatasetPage.Versions,
+	// 		datasetPage.Version{
+	// 			URI:              ver.URI,
+	// 			UpdateDate:       ver.ReleaseDate,
+	// 			CorrectionNotice: ver.Notice,
+	// 			Label:            ver.Label,
+	// 			Downloads:        MapDownloads(FindVersion(versions, ver.URI).Downloads, ver.URI)})
+	// }
+
+	// for i := range dp.DatasetPage.Versions {
+	// 	n := dp.DatasetPage.Versions[len(dp.DatasetPage.Versions)-1-i]
+	// 	reversed = append(reversed, n)
+	// }
+
+	// dp.DatasetPage.Versions = reversed
 
 	return dp
+}
+
+func FindVersion(versionList []zebedee.Dataset, versionURI string) zebedee.Dataset {
+	for _, ver := range versionList {
+		if versionURI == ver.URI {
+			return ver
+		}
+	}
+	return zebedee.Dataset{}
+}
+
+func MapDownloads(downloadsList []zebedee.Download, versionURI string) []datasetPage.Download {
+	var dl []datasetPage.Download
+	for _, d := range downloadsList {
+		dl = append(dl, datasetPage.Download{
+			Extension: filepath.Ext(d.File),
+			Size:      d.Size,
+			URI:       versionURI + "/" + d.File})
+	}
+	return dl
 }

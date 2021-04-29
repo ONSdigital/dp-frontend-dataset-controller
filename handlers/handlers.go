@@ -160,9 +160,9 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 }
 
 // Datasetpage will load a zebedee dataset page
-func DatasetPage(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func DatasetPage(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		datasetPage(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken)
+		datasetPage(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken, apiRouterVersion)
 	})
 }
 
@@ -378,7 +378,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 }
 
-func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string, apiRouterVersion string) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -415,17 +415,25 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc 
 
 	parentPath := bc[len(bc)-1].URI
 
-	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, "", lang, parentPath)
+	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, parentPath)
 	if err != nil {
 		log.Event(ctx, "unable to get dataset page parent", log.WARN, log.Error(err))
 		setStatusCode(req, w, err)
 		return
 	}
 
-	m := mapper.CreateDatasetPage(ctx, req, ds, dlp, bc, lang)
+	var versions []zebedee.Dataset
+	for _, ver := range ds.Versions {
+		version, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, ver.URI)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "zebedee client get previous dataset versions returned an error"))
+			return
+		}
+		versions = append(versions, version)
+	}
 
-	var templateJSON []byte
-	templateJSON, err = json.Marshal(m)
+	m := mapper.CreateDatasetPage(ctx, req, ds, dlp, bc, versions, lang, apiRouterVersion)
+	templateJSON, err := json.Marshal(m)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
