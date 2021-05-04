@@ -485,9 +485,9 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 	dp.BetaBannerEnabled = false
 	dp.HasJSONLD = true
 	dp.DatasetPage.Edition = d.Description.Edition
+	dp.DatasetPage.Markdown = dlp.Section.Markdown
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
-	// TODO: determine router version
 	for _, breadcrumb := range bc {
 		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
@@ -549,25 +549,6 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 		}
 		return current.After(next)
 	})
-
-	// var reversed = dp.DatasetPage.Versions
-	// for _, ver := range d.Versions {
-	// 	dp.DatasetPage.Versions = append(
-	// 		dp.DatasetPage.Versions,
-	// 		datasetPage.Version{
-	// 			URI:              ver.URI,
-	// 			UpdateDate:       ver.ReleaseDate,
-	// 			CorrectionNotice: ver.Notice,
-	// 			Label:            ver.Label,
-	// 			Downloads:        MapDownloads(FindVersion(versions, ver.URI).Downloads, ver.URI)})
-	// }
-
-	// for i := range dp.DatasetPage.Versions {
-	// 	n := dp.DatasetPage.Versions[len(dp.DatasetPage.Versions)-1-i]
-	// 	reversed = append(reversed, n)
-	// }
-
-	// dp.DatasetPage.Versions = reversed
 
 	return dp
 }
