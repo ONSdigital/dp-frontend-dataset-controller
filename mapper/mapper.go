@@ -63,12 +63,13 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
 	p.Language = lang
-	p.URI = d.Links.Self.URL
+	p.URI = req.URL.Path
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
+	
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
 		homeBreadcrumb := model.TaxonomyNode{
@@ -349,6 +350,7 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 
 	p.Data.LatestVersionURL = helpers.DatasetVersionUrl(d.ID, edition.Edition, edition.Links.LatestVersion.ID)
 	p.DatasetId = d.ID
+	p.URI = req.URL.Path
 
 	latestVersionNumber := 1
 	for _, ver := range versions {
@@ -412,7 +414,7 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	p.Type = "dataset_edition_list"
 	p.Language = lang
 	p.Metadata.Title = d.Title
-	p.URI = d.Links.Self.URL
+	p.URI = req.URL.Path
 	p.Metadata.Description = d.Description
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
