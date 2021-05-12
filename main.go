@@ -122,8 +122,7 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
 
-	// TODO: fix this path
-	router.StrictSlash(true).Path("/economy/inflationandpriceindices/datasets/understandingthedifferentapproachesofmeasuringowneroccupiershousingcosts/current").Methods("GET").HandlerFunc(handlers.DatasetPage(zc, dc, rend, *cfg, apiRouterVersion))
+	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", http.HandlerFunc(handlers.DatasetPage(zc, dc, rend, *cfg, apiRouterVersion))))
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 

@@ -527,6 +527,7 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 				URI:       supplementaryFile.File})
 	}
 
+	var reversed = dp.DatasetPage.Versions
 	for _, ver := range d.Versions {
 		dp.DatasetPage.Versions = append(
 			dp.DatasetPage.Versions,
@@ -537,18 +538,13 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 				Label:            ver.Label,
 				Downloads:        MapDownloads(FindVersion(versions, ver.URI).Downloads, ver.URI)})
 	}
-	sort.Slice(dp.DatasetPage.Versions, func(i, j int) bool {
-		layout := "2006-01-02T15:04:05.000Z"
-		current, cerr := time.Parse(layout, dp.DatasetPage.Versions[i].UpdateDate)
-		if cerr != nil {
-			log.Event(ctx, "unable to convert date UTC string to time", log.WARN, log.Error(cerr), log.Data{"version": dp.DatasetPage.Versions[i].URI})
-		}
-		next, nerr := time.Parse(layout, dp.DatasetPage.Versions[j].UpdateDate)
-		if nerr != nil {
-			log.Event(ctx, "unable to convert date UTC string to time", log.WARN, log.Error(nerr), log.Data{"version": dp.DatasetPage.Versions[j].URI})
-		}
-		return current.After(next)
-	})
+
+	for i := range dp.DatasetPage.Versions {
+		n := dp.DatasetPage.Versions[len(dp.DatasetPage.Versions)-1-i]
+		reversed = append(reversed, n)
+	}
+
+	dp.DatasetPage.Versions = reversed
 
 	return dp
 }
