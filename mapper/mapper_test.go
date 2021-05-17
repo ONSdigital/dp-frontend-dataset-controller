@@ -173,7 +173,7 @@ func TestUnitMapper(t *testing.T) {
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
-		So(p.URI, ShouldEqual, d.Links.Self.URL)
+		So(p.URI, ShouldEqual, req.URL.Path)
 		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(p.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(p.ContactDetails.Email, ShouldEqual, contact.Email)
@@ -285,7 +285,7 @@ func TestUnitMapper(t *testing.T) {
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
-		So(p.URI, ShouldEqual, d.Links.Self.URL)
+		So(p.URI, ShouldEqual, req.URL.Path)
 		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(p.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(p.ContactDetails.Email, ShouldEqual, contact.Email)

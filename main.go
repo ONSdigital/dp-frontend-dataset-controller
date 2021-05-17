@@ -71,6 +71,7 @@ func run(ctx context.Context) error {
 		log.Event(ctx, "unable to retrieve service configuration", log.ERROR, log.Error(err))
 		return err
 	}
+
 	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
 
 	// Get API version from its URL
@@ -196,7 +197,6 @@ func run(ctx context.Context) error {
 }
 
 func registerCheckers(ctx context.Context, h *health.HealthCheck, r *renderer.Renderer, apiRouterCli *healthcheck.Client) (err error) {
-
 	hasErrors := false
 
 	if err = h.AddCheck("frontend renderer", r.Checker); err != nil {
