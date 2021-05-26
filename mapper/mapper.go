@@ -526,7 +526,7 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 				Title:     supplementaryFile.Title,
 				Extension: filepath.Ext(supplementaryFile.File),
 				Size:      supplementaryFile.Size,
-				URI:       supplementaryFile.File})
+				URI:       dp.URI + "/" + supplementaryFile.File})
 	}
 
 	var reversed = dp.DatasetPage.Versions
