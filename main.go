@@ -124,6 +124,7 @@ func run(ctx context.Context) error {
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", http.HandlerFunc(handlers.DatasetPage(zc, dc, rend, *cfg, apiRouterVersion))))
+	router.PathPrefix("/dataset_reference_table/").Methods("GET").Handler(http.StripPrefix("/dataset_reference_table/", http.HandlerFunc(handlers.DatasetReferenceTablePage(zc, dc, rend, *cfg, apiRouterVersion))))
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 

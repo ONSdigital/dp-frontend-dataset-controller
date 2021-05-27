@@ -71,7 +71,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
-	
+
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
 		homeBreadcrumb := model.TaxonomyNode{
@@ -474,6 +474,84 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *mod
 }
 
 func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, apiRouterVersion string) datasetPage.Page {
+	dp := datasetPage.Page{}
+
+	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
+	dp.Type = "dataset_page"
+	dp.Metadata.Title = dlp.Description.Title
+	dp.Language = lang
+	dp.URI = d.URI
+	dp.DatasetPage.URI = dlp.URI
+	dp.Metadata.Description = dlp.Description.Summary
+	dp.DatasetPage.ReleaseDate = dlp.Description.ReleaseDate
+	dp.BetaBannerEnabled = false
+	dp.HasJSONLD = true
+	dp.DatasetPage.Edition = d.Description.Edition
+	dp.DatasetPage.Markdown = dlp.Section.Markdown
+
+	// Trim API version path prefix from breadcrumb URIs, if present.
+	for _, breadcrumb := range bc {
+		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+			Title: breadcrumb.Description.Title,
+			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
+		})
+	}
+
+	dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+		Title: dp.DatasetPage.Edition,
+	})
+
+	dp.DatasetPage.IsNationalStatistic = dlp.Description.NationalStatistic
+	dp.DatasetPage.NextRelease = dlp.Description.NextRelease
+	dp.DatasetPage.DatasetID = dlp.Description.DatasetID
+
+	dp.ContactDetails.Email = strings.TrimSpace(dlp.Description.Contact.Email)
+	dp.ContactDetails.Name = dlp.Description.Contact.Name
+	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
+
+	for _, download := range d.Downloads {
+		dp.DatasetPage.Downloads = append(
+			dp.DatasetPage.Downloads,
+			datasetPage.Download{
+				Extension: filepath.Ext(download.File),
+				Size:      download.Size,
+				URI:       dp.URI + "/" + download.File,
+				File:      download.File})
+	}
+
+	for _, supplementaryFile := range d.SupplementaryFiles {
+		dp.DatasetPage.SupplementaryFiles = append(
+			dp.DatasetPage.SupplementaryFiles,
+			datasetPage.SupplementaryFile{
+				Title:     supplementaryFile.Title,
+				Extension: filepath.Ext(supplementaryFile.File),
+				Size:      supplementaryFile.Size,
+				URI:       supplementaryFile.File})
+	}
+
+	var reversed = dp.DatasetPage.Versions
+	for _, ver := range d.Versions {
+		dp.DatasetPage.Versions = append(
+			dp.DatasetPage.Versions,
+			datasetPage.Version{
+				URI:              ver.URI,
+				UpdateDate:       ver.ReleaseDate,
+				CorrectionNotice: ver.Notice,
+				Label:            ver.Label,
+				Downloads:        MapDownloads(FindVersion(versions, ver.URI).Downloads, ver.URI)})
+	}
+
+	for i := range dp.DatasetPage.Versions {
+		n := dp.DatasetPage.Versions[len(dp.DatasetPage.Versions)-1-i]
+		reversed = append(reversed, n)
+	}
+
+	dp.DatasetPage.Versions = reversed
+
+	return dp
+}
+
+func CreateReferenceTablePage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, apiRouterVersion string) datasetPage.Page {
 	dp := datasetPage.Page{}
 
 	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
