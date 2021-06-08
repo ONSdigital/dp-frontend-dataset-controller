@@ -159,7 +159,7 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-// Datasetpage will load a zebedee dataset page
+// DatasetPage will load a zebedee dataset page
 func DatasetPage(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		datasetPage(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken, apiRouterVersion)
