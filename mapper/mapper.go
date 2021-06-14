@@ -484,8 +484,6 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 	dp.DatasetPage.URI = dlp.URI
 	dp.Metadata.Description = dlp.Description.Summary
 	dp.DatasetPage.ReleaseDate = dlp.Description.ReleaseDate
-	dp.BetaBannerEnabled = false
-	dp.HasJSONLD = true
 	dp.DatasetPage.Edition = d.Description.Edition
 	dp.DatasetPage.Markdown = dlp.Section.Markdown
 
