@@ -489,7 +489,7 @@ func TestUnitMapCookiesPreferences(t *testing.T) {
 // TestCreateDatasetPage tests the CreateDatasetPage method in the mapper
 func TestCreateDatasetPage(t *testing.T) {
 	req := httptest.NewRequest("", "/", nil)
-	expectedType := "dataset_page"
+	expectedType := "dataset"
 	dummyModelData := zebedee.Dataset{
 		Type: "dataset",
 		URI:  "/economy/inflationandpriceindices/datasets/consumerpriceinflation/current",
@@ -503,7 +503,7 @@ func TestCreateDatasetPage(t *testing.T) {
 			{
 				Title: "Re-referencing of the CPI and CPIH indices to 2015\u003d100",
 				File:  "cpirereferenceddata2015100tcm77432809.xls",
-				Size: "900",
+				Size:  "900",
 			},
 		},
 		Versions: []zebedee.Version{
