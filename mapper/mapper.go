@@ -71,7 +71,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
-	
+
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
 		homeBreadcrumb := model.TaxonomyNode{
@@ -477,7 +477,7 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 	dp := datasetPage.Page{}
 
 	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
-	dp.Type = "dataset_page"
+	dp.Type = "dataset"
 	dp.Metadata.Title = dlp.Description.Title
 	dp.Language = lang
 	dp.URI = d.URI
