@@ -12,7 +12,6 @@ import (
 	"sync"
 
 	"github.com/ONSdigital/dp-net/handlers"
-	"github.com/ONSdigital/dp-net/request"
 
 	"github.com/pkg/errors"
 
@@ -82,14 +81,6 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	w.WriteHeader(status)
 }
 
-func forwardFlorenceTokenIfRequired(req *http.Request) *http.Request {
-	if len(req.Header.Get(request.FlorenceHeaderKey)) > 0 {
-		ctx := request.SetFlorenceIdentity(req.Context(), req.Header.Get(request.FlorenceHeaderKey))
-		return req.WithContext(ctx)
-	}
-	return req
-}
-
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
 func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.HandlerFunc {
@@ -127,7 +118,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 		}
 
 		log.Event(ctx, "created filter id", log.INFO, log.Data{"filter_id": fid})
-		http.Redirect(w, req, "/filters/"+fid+"/dimensions", 301)
+		http.Redirect(w, req, "/filters/"+fid+"/dimensions", http.StatusMovedPermanently)
 	})
 }
 
@@ -245,14 +236,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	var bc []zebedee.Breadcrumb
-	if datasetModel.Type != "nomis" {
-		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
-		if err != nil {
-			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
-		}
-	}
-
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 		if err != nil {
@@ -287,12 +270,18 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	latestVersionOfEditionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
+	if version == "" {
+		log.Event(ctx, "no version provided, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionOfEditionURL": latestVersionOfEditionURL})
+		http.Redirect(w, req, latestVersionOfEditionURL, http.StatusFound)
+		return
+	}
+
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
-	dims := dataset.VersionDimensions{nil}
+	dims := dataset.VersionDimensions{Items: nil}
 	if datasetModel.Type != "nomis" {
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
@@ -324,6 +313,14 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	if ver.Downloads == nil {
 		ver.Downloads = make(map[string]dataset.Download)
+	}
+
+	var bc []zebedee.Breadcrumb
+	if datasetModel.Type != "nomis" {
+		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
+		if err != nil {
+			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		}
 	}
 
 	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
@@ -401,7 +398,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	if numberOfEditions == 1 {
 		latestVersionPath := helpers.DatasetVersionUrl(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
 		log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionPath})
-		http.Redirect(w, req, latestVersionPath, 302)
+		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
 	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
@@ -419,8 +416,6 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	}
 
 	w.Write(templateHTML)
-	return
-
 }
 
 func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
@@ -481,7 +476,6 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 				mutex.Lock()
 				defer mutex.Unlock()
 				relatedFilterableDatasets = append(relatedFilterableDatasets, zebedee.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
-				return
 			}(req.Context(), dc, relatedFilterableDataset)
 		}
 		wg.Wait()
@@ -504,8 +498,6 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	}
 
 	w.Write(templateHTML)
-	return
-
 }
 
 // MetadataText generates a metadata text file
@@ -567,26 +559,4 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	}
 
 	return b.Bytes(), nil
-}
-
-func getUserAccessTokenFromContext(ctx context.Context) string {
-	if ctx.Value(request.FlorenceIdentityKey) != nil {
-		accessToken, ok := ctx.Value(request.FlorenceIdentityKey).(string)
-		if !ok {
-			log.Event(ctx, "error retrieving user access token", log.WARN, log.Error(errors.New("error casting access token context value to string")))
-		}
-		return accessToken
-	}
-	return ""
-}
-
-func getCollectionIDFromContext(ctx context.Context) string {
-	if ctx.Value(request.CollectionIDHeaderKey) != nil {
-		collectionID, ok := ctx.Value(request.CollectionIDHeaderKey).(string)
-		if !ok {
-			log.Event(ctx, "error retrieving collection ID", log.WARN, log.Error(errors.New("error casting collection ID context value to string")))
-		}
-		return collectionID
-	}
-	return ""
 }
