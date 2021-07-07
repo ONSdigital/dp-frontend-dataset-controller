@@ -1,0 +1,98 @@
+# Primarily used in static dataset landing page
+[Dataset]
+description = "Dataset"
+one = "Dataset"
+
+[CorrectionsAndNotices]
+description = "Corrections and notices"
+one = "Corrections and notices"
+
+[Notice]
+description = "Notice"
+one = "Notice"
+other = "Notices"
+
+[Correction]
+description = "Correction"
+one = "Correction"
+other = "Corrections"
+
+[Contact]
+description = "Contact:"
+one = "Contact:"
+
+[ReleaseDate]
+description = "Release date"
+one = "Release date"
+
+[NextRelease]
+description = "Next release:"
+one = "Next release:"
+
+[TBA]
+description = "To be announced"
+one = "To be announced"
+
+[DatasetID]
+description = "Dataset ID:"
+one = "Dataset ID:"
+
+[AboutThisDataset]
+description = "About this Dataset"
+one = "About this Dataset"
+
+[TryFilterAndDownload]
+description = "Try the new way to filter and download this data:"
+one = "Try the new way to filter and download this data:"
+
+[EditionsInDataset]
+description = "Editions in this dataset"
+one = "Edition in this dataset"
+other = "Editions in this dataset"
+
+[DownloadInFormatWithSingleTitle]
+description = "Download {{title}} in {{download extension}} format"
+one = "Download {{.arg0}} in {{.arg1}} format"
+
+[DownloadInFormatWithFullTitle]
+description = "Download {{title}}: {{dataset.Title}} in {{download extension}} format"
+one = "Download {{.arg0}}: {{.arg1}} in {{.arg2}} format"
+
+[StructuredText]
+description = "structured text"
+one = "structured text"
+
+[PreviousVersionAvailable]
+description = "Previous versions </a> of this data are available."
+one = "Previous version </a> of this data is available."
+other = "Previous versions </a> of this data are available."
+
+[UsefulSupportingFiles]
+description = "Supporting files you may find useful"
+one = "Supporting files you may find useful"
+
+[NotesAndUsage]
+description = "Important notes and usage information"
+one = "Important notes and usage information"
+
+[ViewAllData]
+description = "View all data related to"
+one = "View all data related to"
+
+[DatasetContactDetails]
+description = "Contact details for this dataset"
+one = "Contact details for this dataset"
+
+[UsedInPublication]
+description = "Publications that use this data"
+one = "Publications that use this data"
+
+[Methodology]
+description = "Methodology"
+one = "Methodology"
+other = "Methodology"
+
+[RelatedLinks]
+description = "Related links"
+one = "Related link"
+other = "Related links"

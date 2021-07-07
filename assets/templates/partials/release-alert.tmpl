@@ -1,0 +1,18 @@
+{{ if .DatasetLandingPage.IsLatestVersionOfEdition }}
+<div class="alert-release-banner alert-release-banner__latest margin-bottom-sm--2 margin-bottom-md--2 margin-bottom-lg--4 padding-left--1 padding-top--1 padding-bottom--1 padding-right--1">
+        <div class="alert-release-banner__title margin-bottom--0 margin-top--0">
+            This is the latest data.
+            <a href="/datasets/{{.DatasetLandingPage.DatasetID}}/editions/{{.DatasetLandingPage.Edition}}/versions"> View previous versions</a>
+        </div>
+    </div>
+{{ else }}
+    <div class="alert-release-banner alert-release-banner__not-latest margin-bottom-sm--2 margin-bottom-md--2 margin-bottom-lg--4 padding-left--1 padding-top--1 padding-bottom--1 padding-right--1">
+        <div class="alert-release-banner__title margin-bottom--0 margin-top--0">
+        This is not the latest data.
+        <a href="{{.DatasetLandingPage.LatestVersionURL}}"> View the latest version</a>
+        </div>
+    </div>
+{{ end }}
+
+
+

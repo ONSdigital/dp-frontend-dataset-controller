@@ -1,0 +1,113 @@
+# Primarily used in static dataset landing page
+[Dataset]
+description = "Dataset"
+one = "Set ddata"
+
+[CorrectionsAndNotices]
+description = "Corrections and notices"
+one = "Corrections and notices"
+
+[Notice]
+description = "Notice"
+one = "Notice"
+two = "Notices"
+few = "Notices"
+many = "Notices"
+other = "Notices"
+
+[Correction]
+description = "Correction"
+one = "Correction"
+two = "Corrections"
+few = "Corrections"
+many = "Corrections"
+other = "Corrections"
+
+[Contact]
+description = "Contact:"
+one = "Cyswllt:"
+
+[ReleaseDate]
+description = "Release date"
+one = "Dyddiad y datganiad"
+
+[NextRelease]
+description = "Next release:"
+one = "Cyhoeddiad nesaf:"
+
+[TBA]
+description = "To be announced"
+one = "To be announced"
+
+[DatasetID]
+description = "Dataset ID:"
+one = "ID y set ddata:"
+
+[AboutThisDataset]
+description = "About this Dataset"
+one = "About this Dataset"
+
+[TryFilterAndDownload]
+description = "Try the new way to filter and download this data:"
+one = "Try the new way to filter and download this data:"
+
+[EditionsInDataset]
+description = "Editions in the dataset"
+one = "Edition in the dataset"
+two = "Editions in the dataset"
+few = "Editions in the dataset"
+many = "Editions in the dataset"
+other = "Editions in the dataset"
+
+[DownloadInFormatWithSingleTitle]
+description = "Download {{title}} in {{download extension}} format"
+one = "Download {{.arg0}} in {{.arg1}} format"
+
+[DownloadInFormatWithFullTitle]
+description = "Download {{title}}: {{dataset.Title}} in {{download extension}} format"
+one = "Download {{.arg0}}: {{.arg1}} in {{.arg2}} format"
+
+[StructuredText]
+description = "structured text"
+one = "structured text"
+
+[PreviousVersionAvailable]
+description = "Previous versions </a> of this data are available."
+one = "Previous version </a> of this data is available."
+two = "Previous versions </a> of this data are available."
+few = "Previous versions </a> of this data are available."
+many = "Previous versions </a> of this data are available."
+other = "Previous versions </a> of this data are available."
+
+[UsefulSupportingFiles]
+description = "Supporting files you may find useful"
+one = "Supporting files you may find useful"
+
+[NotesAndUsage]
+description = "Important notes and usage information"
+one = "Nodiadau pwysig a gwybodaeth ynghylch defnyddio"
+
+[ViewAllData]
+description = "View all data related to"
+one = "View all data related to"
+
+[DatasetContactDetails]
+description = "Contact details for this dataset"
+one = "Manylion cyswllt ar gyfer y set ddata hon"
+
+[UsedInPublication]
+description = "Publications that use this data"
+one = "Cyhoeddiadau sy'n defnyddio'r data hwn"
+
+[Methodology]
+description = "Methodology"
+one = "Methodoleg"
+other = "Methodoleg"
+
+[RelatedLinks]
+description = "Related links"
+one = "Related links"
+two = "Related links"
+few = "Related links"
+many = "Related links"
+other = "Related links"

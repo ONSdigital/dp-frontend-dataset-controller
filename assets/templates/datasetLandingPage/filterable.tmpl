@@ -1,0 +1,258 @@
+<div class="page-intro background--gallery">
+   <div class="wrapper">
+      <div class="col-wrap">
+         <div class="col">
+            {{ template "partials/breadcrumb" . }}
+            <h1 class="font-size--38 line-height--48 font-weight-700 page-intro__title margin-bottom--3">
+               <span class="page-intro__type padding-top--0 padding-bottom--0">Dataset:</span>
+               <strong>{{ .Metadata.Title }}{{ if .DatasetLandingPage.ShowEditionName }}: {{ .DatasetLandingPage.Edition }} {{ end }}</strong>
+            </h1>
+            {{ template "partials/release-alert" . }}
+         </div>
+      </div>
+   </div>
+</div>
+<div class="meta-wrap meta-wrap--thin">
+   <div class="wrapper">
+      <dl class="col-wrap">
+         <div class="col col--md-16 col--lg-20 padding-left-sm--0 meta__item">
+            <dt class="meta__term inline">Release date:</dt>
+            <dd class="inline">{{dateFormat .ReleaseDate}}</dd>
+         </div>
+         <div class="col col--md-16 col--lg-20 padding-left-sm--0 meta__item">
+           <dt class="meta__term inline">Release frequency:</dt>
+           <dd class="inline">{{.DatasetLandingPage.ReleaseFrequency}}</dd>
+         </div>
+         <div class="col col--md-16 col--lg-20 padding-left-sm--0 meta__item">
+            <dt class="meta__term inline">Next release:</dt>
+            <dd class="inline">{{dateFormat .DatasetLandingPage.NextRelease }}</dd>
+         </div>
+      </dl>
+   </div>
+</div>
+<div class="wrapper adjust-font-size--18 line-height--32">
+  <div class="col-wrap">
+    <div class="col col--lg-two-thirds col--md-two-thirds margin-top--4 link-adjust">
+      <section>
+        <div class="margin-bottom--4"><span class="dataset-description">{{ .Metadata.Description }}</span></div>
+      </section>
+      <section>
+        {{$datasetID := .DatasetLandingPage.DatasetID}}{{$v := .DatasetLandingPage.Version}}
+          <h2 class="font-size--32 line-height--40 font-weight-700 margin-bottom--2">Get the data</h2>
+          <form action="/datasets/{{$datasetID}}/editions/{{$v.Edition}}/versions/{{$v.Version}}/filter" method="post">
+            <input type="submit" value="Filter and download" class="btn btn--primary btn--thick margin-bottom--4 btn--focus font-weight-700">
+          </form>
+          {{ if gt (len $v.Downloads) 0}}
+          <div class="margin-top--2 js-show-hide show-hide show-hide--light show-hide--dark-bg border-top--iron-sm border-top--iron-md border-bottom--iron-sm border-bottom--iron-md col--lg-two-thirds col--md-two-thirds">
+            <div class="js-show-hide__title show-hide__title show-hide__title--link-style margin-top--0 margin-bottom--0 padding-right--0">
+              <button class="js-show-hide__button js-show-hide__button--slim btn--focus padding-left--1" type="button" aria-expanded="false" aria-controls="collapsible-0">
+                <h3 class="margin-top--0 underline-link font-size--18 line-height--32 font-weight-700">Other download options</h3>
+              </button>
+            </div>
+            <div class="js-show-hide__content show-hide__content padding-top--1 padding-right--1 padding-left--1">
+              <div class="margin-bottom--2">
+                <ul class="list--neutral">
+                {{range $i, $download := $v.Downloads}}
+                {{if gt (len $download.Size) 0}}{{if gt (len $download.Size) 0}}<li class="line-height--32 padding-left--1 margin-top--0 margin-bottom--1 white-background clearfix"><span class="inline-block padding-top--2">{{if eq $download.Extension "txt"}}Supporting information{{else}}Complete dataset (<span class="uppercase">{{$download.Extension}}</span> format){{end}}</span>
+                  <div class="width--12 inline-block float-right float-el--left-sm text-left--sm"><a id="{{$download.Extension}}-download"                                     data-gtm-download-file="{{$download.URI}}"
+                  data-gtm-download-type="{{$download.Extension}}" class="btn line-height--32 btn--primary margin-top--1 margin-bottom--1 margin-right--half width--11" href="{{$download.URI}}"><strong>{{$download.Extension}}</strong> ({{humanSize $download.Size}})</a></div></li>{{end}}{{end}}
+                {{end}}
+                </ul>
+              </div>
+            </div>
+          </div>
+          {{ end }}
+         </section>
+         <section>
+           <div class="table-of-contents print--avoid-break border-bottom--iron-sm border-bottom--iron-md">
+             <h2 class="font-size--32 line-height--40 font-weight-700 table-of-contents__title font-weight-700">Supporting information: table of contents</h2>
+             <ol id="toc" class="table-of-contents__list">
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-dimensions" class="js-scroll">In this dataset</a>
+               </li>
+               {{if .DatasetLandingPage.LatestChanges}}
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-changes" class="js-scroll">What has changed in this edition</a>
+               </li>
+               {{end}}
+               {{if .DatasetLandingPage.QMIURL}}
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-qmi" class="js-scroll">Quality and methodology information</a>
+               </li>
+               {{end}}
+               {{if .DatasetLandingPage.Methodologies}}
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-methodology" class="js-scroll">Methodologies</a>
+               </li>
+               {{end}}
+               {{if .DatasetLandingPage.Citation}}
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-license" class="js-scroll">Usage information</a>
+               </li>
+               {{end}}
+               {{if .DatasetLandingPage.HasOlderVersions}}
+               <li class="line-height--32 table-of-contents__item margin-bottom--1 margin-left--1">
+                 <a href="#id-previous" class="js-scroll">Previous versions</a>
+               </li>
+               {{end}}
+             </ol>
+           </div>
+        </section>
+
+         <section>
+           <ol class="list list--custom-numbered">
+              <li>
+                <div id="id-dimensions" class="section__content--markdown margin-right--0">
+                  <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">In this dataset</h2>
+                  {{if .DatasetLandingPage.UnitOfMeasurement}}
+                  <div class="margin-bottom--3">
+                     <h3 class="font-size--24 line-height--32 font-weight-700 padding-top--0">Unit of measurement</h3>
+                     <p class="padding-top--0">{{.DatasetLandingPage.UnitOfMeasurement}}</p>
+                  </div>
+                  {{end}}
+                  {{range .DatasetLandingPage.Dimensions}}
+                  <div class="margin-bottom--3">
+                  <div class="margin-bottom--3">
+                     <h3 class="font-size--24 line-height--32 font-weight-700 padding-top--0">{{.Title}}</h3>
+                     <ul class="dimension-values list list--pipe-seperated js-show-more-list padding-left--0">
+                        {{$val_length := len .Values}}
+                        {{$total_length := .TotalItems}}
+                        {{$vals := .Values}}{{range $i, $v := $vals}}
+                        <li class="line-height--32">{{.}}</li>
+                        {{end}}
+                     </ul>
+                     {{if gt $val_length 9}}
+                     <span class="list-size">... (plus {{subtract $total_length 10}} more) </span>
+                     {{end}}
+                     {{if .Description}}
+                     <details class="margin-bottom--4 margin-top--1">
+                        <summary><span class="summary">Learn more <span class="visuallyhidden">about {{.Title}}</span></span></summary>
+                        <div class="panel">
+                           <p class="margin-top--0">{{.Description}}</p>
+                        </div>
+                     </details>
+                     {{end}}
+                 </div>
+                 {{ end }}
+                 <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+               </div>
+             </li>
+             {{ if .DatasetLandingPage.LatestChanges}}
+             <li>
+              <div id="id-changes" class="section__content--markdown margin-right--0">
+                <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">What has changed in this edition</h2>
+                {{range .DatasetLandingPage.LatestChanges}}
+                <div class="margin-bottom--3">
+                   <h3 class="font-size--24 line-height--32 font-weight-700 padding-top--0">{{.Name}}</h3>
+                   <p class="padding-top--0">{{.Description}}</p>
+                </div>
+                {{ end }}
+                <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+              </div>
+            </li>
+            {{end}}
+            {{if .DatasetLandingPage.QMIURL}}
+            <li>
+             <div id="id-qmi" class="section__content--markdown margin-right--0">
+               <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">Quality and methodology information</h2>
+               <p class="margin-bottom--0">Includes:</p>
+               <ul>
+                 <li class="line-height--32">Where the data comes from (source)</li>
+                 <li class="line-height--32">The accuracy and reliability of the data</li>
+                 <li class="line-height--32">The relevance of the data to certain applications or uses</li>
+                 <li class="line-height--32">Things to consider when using the data</li>
+               </ul>
+               <p>Read the full <a href="{{.DatasetLandingPage.QMIURL}}">Quality and methodology information (QMI)</a> for this dataset.</p>
+               <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+             </div>
+            </li>
+            {{end}}
+            {{if .DatasetLandingPage.Methodologies}}
+            <li>
+             <div id="id-methodology" class="section__content--markdown margin-right--0">
+               <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">Methodologies</h2>
+               {{range .DatasetLandingPage.Methodologies}}
+                <h3 class="font-size--24 line-height--32 font-weight-700"><a href="{{.URL}}">{{.Title}}</a></h3>
+                <p>{{.Description}}</p>
+               {{end}}
+               <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+             </div>
+            </li>
+            {{end}}
+            {{if .DatasetLandingPage.Citation}}
+            <li>
+             <div id="id-license" class="section__content--markdown margin-right--0">
+               <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">Usage information</h2>
+               <p class="margin-bottom--0 padding-bottom--0">{{.DatasetLandingPage.Citation}}</p>
+               <a class="inline-block margin-bottom--2" href="/help/termsandconditions">Terms and conditions</a><br>
+               <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+             </div>
+            </li>
+            {{end}}
+            {{if .DatasetLandingPage.HasOlderVersions}}
+            <li>
+              <div id="id-previous" class="section__content--markdown margin-right--0">
+                 <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">Previous versions</h2>
+                 <p><a href="/datasets/{{.DatasetLandingPage.DatasetID}}/editions/{{.DatasetLandingPage.Edition}}/versions">Previous versions</a> of this dataset are available.</p>
+                 <a class="print--hide js-scroll" href="#toc">Back to table of contents</a>
+              </div>
+            </li>
+            {{end}}
+          </ol>
+        </section>
+      </div>
+      <div class="col col--lg-one-third col--md-one-third margin-top margin-bottom">
+         <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav">Contact details for this dataset</h3>
+            <div class="tiles__content tiles__content--nav wrapper adjust-font-size--14">
+               <address>
+                  {{ if .ContactDetails.Name}}
+                  <span class="contact-name block">{{ .ContactDetails.Name }}</span>
+                  {{ end }}
+                  {{ if .ContactDetails.Email}}
+                  <span class="contact-email block"><a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Email }}</a></span>
+                  {{ end }}
+                  {{ if .ContactDetails.Telephone }}
+                  <span class="contact-phone block">{{ .ContactDetails.Telephone }}</span>
+                  {{ end }}
+               </address>
+            </div>
+         </div>
+         {{ if .DatasetLandingPage.Publications }}
+         <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav">Publications that use this data</h3>
+            <div class="tiles__content tiles__content--nav">
+               <ul class="list--neutral">
+                  {{ range .DatasetLandingPage.Publications }}
+                  <li class="line-height--32"><a href="{{ .URL }}">{{ .Title }}</a></li>
+                  {{ end }}
+               </ul>
+            </div>
+         </div>
+         {{ end }}
+         {{ if .DatasetLandingPage.RelatedLinks }}
+         <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav">Related datasets</h3>
+            <div class="tiles__content tiles__content--nav">
+               <ul class="list--neutral">
+                  {{ range .DatasetLandingPage.RelatedLinks }}
+                  <li class="line-height--32"><a href="{{ .URL }}">{{ .Title }}</a></li>
+                  {{ end }}
+               </ul>
+            </div>
+         </div>
+         {{ end }}
+         {{ if .DatasetLandingPage.IsNationalStatistic }}
+         <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav"><img class="meta__image" src="/img/national-statistics.png" alt="National Statistics logo"><div class="padding-top--1 padding-bottom--1">National Statistic</div></h3>
+            <div class="tiles__content tiles__content--nav">
+               <p class="margin-bottom--0">
+                  Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.
+                  <a class="block underline-link" href="https://uksa.statisticsauthority.gov.uk/about-the-authority/what-we-do/uk-statistical-system/types-of-official-statistics/">Learn more</a>
+               </p>
+            </div>
+         </div>
+         {{ end }}
+      </div>
+   </div>
+</div>

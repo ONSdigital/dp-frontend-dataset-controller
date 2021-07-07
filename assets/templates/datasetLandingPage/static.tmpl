@@ -1,0 +1,294 @@
+{{$Language := .Language}}
+<div class="page-intro background--gallery">
+    <div class="wrapper">
+        <div class="col-wrap">
+            <div class="col">
+                {{ template "partials/breadcrumb" . }}
+                <h1 class="page-intro__title margin-bottom--4">
+                    <span class="page-intro__type">{{ localise "Dataset" .Language 1  }}</span>
+                    {{ .Metadata.Title }}
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
+{{ if or .DatasetLandingPage.Corrections .DatasetLandingPage.Notices }}
+<div class="background--abbey padding-top--3 padding-bottom--3">
+    <div class="wrapper">
+        <div class="col-wrap">
+            <div class="col">
+                <div class="js-show-hide show-hide show-hide--dark info-box">
+                    <div class="js-show-hide__title">
+                        <h2 class="show-hide__title padding-left-sm--1 padding-left-md--4">
+                            <span class="icon icon-info icon-info--info-box hide--sm"></span>
+                            {{ if and .DatasetLandingPage.Corrections .DatasetLandingPage.Notices }}
+                                {{ localise "CorrectionsAndNotices" .Language 1  }}
+                            {{ else if .DatasetLandingPage.Corrections}}
+                                {{ if (gt (len .DatasetLandingPage.Corrections) 1) }}
+                                    {{ localise "Correction" .Language 4  }}
+                                {{ else }}
+                                    {{ localise "Correction" .Language 1  }}
+                                 {{ end }}
+                            {{ else if .DatasetLandingPage.Notices}}
+                                {{ if (gt (len .DatasetLandingPage.Notices) 1) }}
+                                    {{ localise "Notice" .Language 4  }}
+                                {{ else }}
+                                    {{ localise "Notice" .Language 1  }}
+                                {{ end }}
+                            {{ end }}
+                        </h2>
+                    </div>
+                    <div class="js-show-hide__content">
+                        {{ if .DatasetLandingPage.Corrections}}
+                            <div class="show-hide__content alert--warning__content section__content--markdown padding-bottom--1">
+                                {{ if .DatasetLandingPage.Notices }}
+                                    <h3>{{ localise "Correction" .Language 4  }}</h3>
+                                {{ end }}
+                                <section>
+                                    {{ range .DatasetLandingPage.Corrections }}
+                                        <p class="alert__date">{{ dateFormat .Date }}</p>
+                                        {{ .Markdown | markdown}}
+                                    {{ end }}
+                                </section>
+                            </div>
+                        {{ end }}
+
+                        {{ if .DatasetLandingPage.Notices}}
+                            <div class="show-hide__content alert--warning__content section__content--markdown padding-bottom--1">
+                                {{ if .DatasetLandingPage.Corrections }}
+                                    <h3>{{ localise "Notice" .Language 4  }}</h3>
+                                {{ end }}
+                                <section>
+                                    {{ range .DatasetLandingPage.Notices }}
+                                        <p class="alert__date">{{ dateFormat .Date }}</p>
+                                        {{ .Markdown | markdown}}
+                                    {{ end }}
+                                </section>
+                            </div>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+<div class="meta-wrap">
+    <div class="wrapper">
+        <ul class="col-wrap meta__list">
+            <li class="col col--md-12 col--lg-15 meta__item">
+                {{ if .DatasetLandingPage.IsNationalStatistic}}
+                <a href="https://uksa.statisticsauthority.gov.uk/about-the-authority/what-we-do/uk-statistical-system/types-of-official-statistics/">
+                    <img class="meta__image" src="/img/national-statistics.png" alt="This is an accredited National Statistic. Click for information about types of official statistics.">
+                </a>
+                {{ end }}
+                <div class="meta__term">{{ localise "Contact" .Language 1  }}</div>
+                <div>
+                    {{ if .ContactDetails.Email}}
+                        <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Name }}</a>
+                    {{ else }}
+                        {{ .ContactDetails.Name }}
+                    {{ end }}
+                </div>
+            </li>
+            <li class="col col--md-12 col--lg-15 meta__item">
+                <div class="meta__term">{{ localise "ReleaseDate" .Language 1  }}:</div>
+                <div>{{ dateFormat .DatasetLandingPage.ReleaseDate }}</div>
+            </li>
+            <li class="col col--md-12 col--lg-15 meta__item">
+                <div class="meta__term">{{ localise "NextRelease" .Language 1  }}</div>
+                <div>
+                    {{ if .DatasetLandingPage.NextRelease }}
+                        {{ .DatasetLandingPage.NextRelease }}
+                    {{ else }}
+                        {{ localise "TBA" .Language 1  }}
+                    {{ end }}
+                </div>
+            </li>
+            {{ if .DatasetLandingPage.DatasetID}}
+                <li class="col col--md-12 col--lg-15 meta__item">
+                    <div class="meta__term">{{ localise "DatasetID" .Language 1  }}</div>
+                    <div>{{ .DatasetLandingPage.DatasetID }}</div>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+</div>
+
+<div class="wrapper">
+        <div class="col-wrap margin-bottom--4">
+            <div class="col col--lg-two-thirds col--md-two-thirds">
+                {{ if .Metadata.Description}}
+                    <section>
+                        <h2>{{ localise "AboutThisDataset" .Language 1  }}</h2>
+                        {{ .Metadata.Description }}
+                    </section>
+                {{ end }}
+                <section>
+                    {{ if .DatasetLandingPage.Related.FilterableDatasets }}
+                        <div class="status status--blue margin-top--6">
+                            <p class="margin-top--0">{{ localise "TryFilterAndDownload" .Language 1 }}</p>
+                            <ul class="list--neutral margin-bottom--0">
+                                {{ range .DatasetLandingPage.Related.FilterableDatasets }}
+                                    <li> <a href="{{ .URI }}">{{ .Title }}</a></li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    {{ end }}
+                    <h2 class="margin-bottom--2">{{ localise "EditionsInDataset" .Language 1 }}</h2>
+                    {{ if .DatasetLandingPage.IsTimeseries }}
+                    {{ $timeseriesDataset := index .DatasetLandingPage.Datasets 0 }}
+                        {{ range $timeseriesDataset.Downloads }}
+                            <div class="inline-block--md margin-bottom-sm--1">
+                                <a href="{{ legacyDatasetDownloadURI $timeseriesDataset.URI .URI }}" 
+                                    class="btn btn--primary btn--thick"
+                                    data-gtm-download-file="{{.URI}}"
+                                    data-gtm-download-type="{{.Extension}}"
+                                    aria-label="{{ localise "DownloadInFormatWithSingleTitle" $Language 1  $.Metadata.Title .Extension  }}"
+                                    >
+                                    {{ if eq .Extension "csdb" }}
+                                        {{ localise "StructuredText" $Language 1 }} ({{ humanSize .Size }})
+                                    {{ else }}
+                                        {{ .Extension }} ({{ humanSize .Size }})
+                                    {{ end }}
+                                </a>
+                            </div>
+                        {{ end }}
+                        {{ if $timeseriesDataset.HasVersions }}
+                            <p class="margin-top--0">
+                                <span class="icon icon-info--inline"></span>
+                                <a href="{{ $timeseriesDataset.URI }}" class="underline-link margin-left--3"> {{ localise "PreviousVersionAvailable" $Language 4 | safeHTML}}
+                            </p>
+                        {{ end }}
+                        {{ if $timeseriesDataset.SupplementaryFiles }}
+                            <h4 class="margin-bottom--0">{{ localise "UsefulSupportingFiles" $Language 1 }}</h4>
+                            <ul class="list--neutral margin-top--0">
+                                {{ range $timeseriesDataset.SupplementaryFiles }}
+                                    <li class="margin-top--0 margin-bottom--0">
+                                        <a href="/file?uri={{ $timeseriesDataset.URI }}/{{ .URI }}">{{ .Title }}</a>
+                                        <span class="uppercase">({{ .Extension }}, {{ humanSize .Size }})</span>
+                                    </li>
+                                {{ end }}
+                            </ul>
+                        {{ end }}
+                    {{else}}
+                        {{ range $key, $value := .DatasetLandingPage.Datasets }}
+                            {{ $dataset := . }}
+                            <div class="show-hide show-hide--light js-show-hide border-top--abbey-sm border-top--abbey-md border-top--abbey-lg{{if .IsLast}} border-bottom--abbey-sm border-bottom--abbey-md border-bottom--abbey-lg{{end}}">
+                                <div class="js-show-hide__title{{if eq $key 0}} is-shown{{end}}">
+                                    <h3 class="margin-top--0 margin-bottom--0">{{ $dataset.Title }} edition of this dataset {{ if .VersionLabel }} {{ .VersionLabel }} {{ end }}</h3>
+                                </div>
+                                <div class="js-show-hide__content">
+                                    <div class="margin-bottom--2">
+                                        {{ range .Downloads }}
+                                            <div class="inline-block--md margin-bottom-sm--1">
+                                                <a href="/file?uri={{ $dataset.URI }}/{{ .URI }}" class="btn btn--primary btn--thick" aria-label="{{ localise "DownloadInFormatWithFullTitle" $Language 1  $.Metadata.Title $dataset.Title .Extension }}">
+                                                    {{ if eq .Extension "csdb" }}
+                                                        {{ localise "StructuredText" $Language 1 }} ({{ humanSize .Size }})
+                                                    {{ else }}
+                                                        <span>{{ .Extension }} ({{ humanSize .Size }})</span>
+                                                    {{ end }}
+                                                </a>
+                                            </div>
+                                        {{ end }}
+                                    </div>
+                                    {{ if .HasVersions }}
+                                        <p class="margin-top--0">
+                                            <span class="icon icon-info--inline"></span>
+                                            <a href="{{ .URI }}" class="underline-link margin-left--3">{{ localise "PreviousVersionAvailable" $Language 4 | safeHTML}}
+                                        </p>
+                                    {{ end }}
+                                    {{ if .SupplementaryFiles }}
+                                        <h4 class="margin-bottom--0">{{ localise "UsefulSupportingFiles" $Language 1 }}</h4>
+                                        <ul class="list--neutral margin-top--0">
+                                            {{ range .SupplementaryFiles }}
+                                                <li class="margin-top--0 margin-bottom--0">
+                                                    <a href="/file?uri={{ $dataset.URI }}/{{ .URI }}">{{ .Title }}</a>
+                                                    <span class="uppercase">({{ .Extension }}, {{ humanSize .Size }})</span>
+                                                </li>
+                                            {{ end }}
+                                        </ul>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        {{ end }}
+                    {{ end }}
+                </section>
+
+                {{ if .DatasetLandingPage.Notes}}
+                    <section>
+                        <h2>{{ localise "NotesAndUsage" $Language 1 }}</h2>
+                        <div class="section__content--static-markdown margin-top-sm--2 margin-top-md--3">
+                            {{ .DatasetLandingPage.Notes | markdown }}
+                        </div>
+                    </section>
+                {{ end }}
+
+            </div>
+            <div class="col col--lg-one-third col--md-one-third margin-top margin-bottom">
+
+                <div class="print--hide margin-bottom--2">
+                    <a href="../datalist?filter=datasets" class="btn btn--primary btn--full-width">{{ localise "ViewAllData" $Language 1 }} <span class="lowercase">{{ .DatasetLandingPage.ParentPath }}</span></a>
+                </div>
+
+                <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+                    <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "DatasetContactDetails" $Language 1 }}</h3>
+                    <div class="tiles__content tiles__content--nav">
+                        <address>
+                            {{ if .ContactDetails.Name}}
+                                {{ .ContactDetails.Name }}
+                            {{ end }}
+                            {{ if .ContactDetails.Email}}
+                                <br>
+                                <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
+                            {{ end }}
+                            {{ if .ContactDetails.Telephone }}
+                                <br>
+                                {{ .ContactDetails.Telephone }}
+                            {{ end }}
+                        </address>
+                    </div>
+                </div>
+
+                {{ if .DatasetLandingPage.Related.Publications }}
+                    <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+                        <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "UsedInPublication" $Language 1 }}</h3>
+                        <div class="tiles__content tiles__content--nav">
+                            <ul class="list--neutral">
+                                {{ range .DatasetLandingPage.Related.Publications }}
+                                    <li><a href="{{ .URI }}">{{ .Title }}</a></li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                {{ end }}
+
+                {{ if .DatasetLandingPage.Related.Methodology }}
+                    <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+                        <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "Methodology" $Language 1 }}</h3>
+                        <div class="tiles__content tiles__content--nav">
+                            <ul class="list--neutral">
+                                {{ range .DatasetLandingPage.Related.Methodology }}
+                                    <li><a href="{{ .URI }}">{{ .Title }}</a></li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                {{ end }}
+
+                {{ if .DatasetLandingPage.Related.Links }}
+                    <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
+                        <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "RelatedLinks" $Language 4 }}</h3>
+                        <div class="tiles__content tiles__content--nav">
+                            <ul class="list--neutral">
+                                {{ range .DatasetLandingPage.Related.Links }}
+                                    <li><a href="{{ .URI }}">{{ .Title }}</a></li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
