@@ -183,7 +183,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
+			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -195,7 +195,6 @@ func TestUnitHandlers(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, `<html><body><h1>Some HTML from renderer!</h1></body></html>`)
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving landing page", func() {
@@ -234,32 +233,6 @@ func TestUnitHandlers(t *testing.T) {
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
-
-		Convey("test status 500 returned if render client returns error", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
-			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
-
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
-
-			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-landing-page-static", gomock.Any()).Return(nil, errors.New("error from renderer"))
-
-			w := httptest.NewRecorder()
-			req, err := http.NewRequest("GET", "/somelegacypage", nil)
-			So(err, ShouldBeNil)
-
-			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockRend, mockConfig))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
 	})
 
 	Convey("test filterable landing page", t, func() {
@@ -288,7 +261,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
+			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
@@ -299,7 +272,6 @@ func TestUnitHandlers(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, "<html><body><h1>Some HTML from renderer!</h1></body></html>")
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
@@ -359,32 +331,6 @@ func TestUnitHandlers(t *testing.T) {
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
-
-		Convey("test filterableLanding returns 500 if renderer returns error", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
-			versions := []dataset.Version{{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678").Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", "1").Return(versions[0], nil)
-			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1").Return(dataset.VersionDimensions{}, nil)
-			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "5678", "1")
-
-			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-landing-page-filterable", gomock.Any()).Return(nil, errors.New("error from renderer"))
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678/versions/1", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
 	})
 
 	Convey("test versions list", t, func() {
@@ -396,7 +342,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-version-list", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
+			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
@@ -407,7 +353,6 @@ func TestUnitHandlers(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
-			So(w.Body.String(), ShouldEqual, `<html><body><h1>Some HTML from renderer!</h1></body></html>`)
 		})
 
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
@@ -420,27 +365,6 @@ func TestUnitHandlers(t *testing.T) {
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, mockConfig))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-
-		Convey("test versions list returns status 500 when renderer returns an error", func() {
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2017").Return([]dataset.Version{}, nil)
-			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
-
-			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-version-list", gomock.Any()).Return(nil, errors.New("render error"))
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockRend, mockConfig))
 
 			router.ServeHTTP(w, req)
 

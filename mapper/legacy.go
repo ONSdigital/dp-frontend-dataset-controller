@@ -8,8 +8,11 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
-	"github.com/ONSdigital/dp-frontend-models/model"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageStatic"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/contactDetails"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageStatic"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/related"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-renderer/model"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -17,7 +20,7 @@ import (
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(cfg config.Config, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
 
 	var sdlp StaticDatasetLandingPage
 
@@ -37,31 +40,31 @@ func CreateLegacyDatasetLanding(ctx context.Context, req *http.Request, dlp zebe
 	sdlp.HasJSONLD = true
 
 	for _, d := range dlp.RelatedDatasets {
-		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, model.Related(d))
+		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, related.Related(d))
 	}
 
 	for _, d := range dlp.RelatedFilterableDatasets {
-		sdlp.DatasetLandingPage.Related.FilterableDatasets = append(sdlp.DatasetLandingPage.Related.FilterableDatasets, model.Related(d))
+		sdlp.DatasetLandingPage.Related.FilterableDatasets = append(sdlp.DatasetLandingPage.Related.FilterableDatasets, related.Related(d))
 	}
 
 	for _, d := range dlp.RelatedDocuments {
-		sdlp.DatasetLandingPage.Related.Publications = append(sdlp.DatasetLandingPage.Related.Publications, model.Related(d))
+		sdlp.DatasetLandingPage.Related.Publications = append(sdlp.DatasetLandingPage.Related.Publications, related.Related(d))
 	}
 
 	for _, d := range dlp.RelatedMethodology {
-		sdlp.DatasetLandingPage.Related.Methodology = append(sdlp.DatasetLandingPage.Related.Methodology, model.Related(d))
+		sdlp.DatasetLandingPage.Related.Methodology = append(sdlp.DatasetLandingPage.Related.Methodology, related.Related(d))
 	}
 	for _, d := range dlp.RelatedMethodologyArticle {
-		sdlp.DatasetLandingPage.Related.Methodology = append(sdlp.DatasetLandingPage.Related.Methodology, model.Related(d))
+		sdlp.DatasetLandingPage.Related.Methodology = append(sdlp.DatasetLandingPage.Related.Methodology, related.Related(d))
 	}
 
 	for _, d := range dlp.RelatedLinks {
-		sdlp.DatasetLandingPage.Related.Links = append(sdlp.DatasetLandingPage.Related.Links, model.Related(d))
+		sdlp.DatasetLandingPage.Related.Links = append(sdlp.DatasetLandingPage.Related.Links, related.Related(d))
 	}
 
 	sdlp.DatasetLandingPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	sdlp.DatasetLandingPage.IsTimeseries = dlp.Timeseries
-	sdlp.ContactDetails = model.ContactDetails(dlp.Description.Contact)
+	sdlp.ContactDetails = contactDetails.ContactDetails(dlp.Description.Contact)
 
 	// HACK FIX TODO REMOVE WHEN TIME IS SAVED CORRECTLY (GMT/UTC Issue)
 	if strings.Contains(dlp.Description.ReleaseDate, "T23:00:00") {

@@ -13,11 +13,12 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetEditionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageFilterable"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetVersionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-models/model"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
+	"github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/ONSdigital/log.go/log"
 )
@@ -57,7 +58,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
@@ -69,7 +70,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
-	
+
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
 		homeBreadcrumb := model.TaxonomyNode{
@@ -337,7 +338,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+func CreateVersionsList(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	var p datasetVersionsList.Page
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
@@ -408,7 +409,7 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
+func CreateEditionsList(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"

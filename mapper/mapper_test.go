@@ -9,11 +9,13 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
-	"github.com/ONSdigital/dp-frontend-models/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
+	cfg := config.Config{}
 	ctx := context.Background()
 	req := httptest.NewRequest("", "/", nil)
 
@@ -124,7 +126,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(cfg, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -236,7 +238,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
 
-		p := CreateFilterableLandingPage(ctx, req, nomisD, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(cfg, ctx, req, nomisD, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -309,7 +311,7 @@ func TestUnitMapper(t *testing.T) {
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(cfg, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -342,7 +344,7 @@ func TestUnitMapper(t *testing.T) {
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(cfg, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -382,6 +384,7 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
+	cfg := config.Config{}
 	req := httptest.NewRequest("", "/", nil)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
@@ -431,7 +434,7 @@ func TestCreateVersionsList(t *testing.T) {
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList)
+		page := CreateVersionsList(cfg, ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -440,7 +443,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
+		page = CreateVersionsList(cfg, ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(page.Data.Versions, ShouldHaveLength, 3)

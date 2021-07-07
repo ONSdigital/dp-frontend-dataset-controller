@@ -3,8 +3,8 @@ package handlers
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -15,8 +15,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 
 	"github.com/gorilla/mux"
 
@@ -55,7 +55,7 @@ type DatasetClient interface {
 
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
-	Do(string, []byte) ([]byte, error)
+	Page(w io.Writer, page interface{}, templateName string)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errorred
@@ -174,20 +174,8 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	p := mapper.CreateVersionsList(ctx, req, d, e, versions)
-	b, err := json.Marshal(p)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	templateHTML, err := rend.Do("dataset-version-list", b)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	w.Write(templateHTML)
+	m := mapper.CreateVersionsList(cfg, ctx, req, d, e, versions)
+	rend.Page(w, m, "dataset-version-list")
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
@@ -323,7 +311,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	m := mapper.CreateFilterableLandingPage(ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
+	m := mapper.CreateFilterableLandingPage(cfg, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -348,24 +336,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
 
-	b, err := json.Marshal(m)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
 	templateName := "dataset-landing-page-filterable"
 	if datasetModel.Type == "nomis" {
 		templateName = "dataset-landing-page-nomis"
 	}
-	templateHTML, err := rend.Do(templateName, b)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
 
-	w.Write(templateHTML)
-
+	rend.Page(w, m, templateName)
 }
 
 func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
@@ -401,21 +377,8 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
-	m := mapper.CreateEditionsList(ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
-
-	b, err := json.Marshal(m)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	templateHTML, err := rend.Do("dataset-edition-list", b)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	w.Write(templateHTML)
+	m := mapper.CreateEditionsList(cfg, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
+	rend.Page(w, m, "dataset-edition-list")
 }
 
 func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
@@ -482,22 +445,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
-	m := mapper.CreateLegacyDatasetLanding(ctx, req, dlp, bc, ds, lang)
-
-	var templateJSON []byte
-	templateJSON, err = json.Marshal(m)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	templateHTML, err := rend.Do("dataset-landing-page-static", templateJSON)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	w.Write(templateHTML)
+	m := mapper.CreateLegacyDatasetLanding(cfg, ctx, req, dlp, bc, ds, lang)
+	rend.Page(w, m, "dataset-landing-page-static")
 }
 
 // MetadataText generates a metadata text file

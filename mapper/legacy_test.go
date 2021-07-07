@@ -6,11 +6,13 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapperLegacy(t *testing.T) {
 	Convey("test MapZebedeeDatasetLandingPageToFrontendModel", t, func() {
+		cfg := config.Config{}
 		ctx := context.Background()
 		dlp := getTestDatasetLandingPage()
 		bcs := getTestBreadcrumbs()
@@ -18,7 +20,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		lang := "cy"
 		req := httptest.NewRequest("GET", "/", nil)
 
-		sdlp := CreateLegacyDatasetLanding(ctx, req, dlp, bcs, ds, lang)
+		sdlp := CreateLegacyDatasetLanding(cfg, ctx, req, dlp, bcs, ds, lang)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, "legacy_dataset")

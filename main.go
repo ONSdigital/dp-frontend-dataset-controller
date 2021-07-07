@@ -10,12 +10,13 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/filter"
-	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
+	render "github.com/ONSdigital/dp-renderer"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
@@ -98,13 +99,16 @@ func run(ctx context.Context) error {
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
-	rend := renderer.New(cfg.RendererURL)
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
-	if err = registerCheckers(ctx, &healthcheck, rend, apiRouterCli); err != nil {
+	if err = registerCheckers(ctx, &healthcheck, apiRouterCli); err != nil {
 		os.Exit(1)
 	}
+
+	// Initialise render client, routes and initialise localisations bundles
+	//rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
+	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Enable profiling endpoint for authorised users
 	if cfg.EnableProfiler {
@@ -194,13 +198,8 @@ func run(ctx context.Context) error {
 	return nil
 }
 
-func registerCheckers(ctx context.Context, h *health.HealthCheck, r *renderer.Renderer, apiRouterCli *healthcheck.Client) (err error) {
+func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *healthcheck.Client) (err error) {
 	hasErrors := false
-
-	if err = h.AddCheck("frontend renderer", r.Checker); err != nil {
-		hasErrors = true
-		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
-	}
 
 	if err = h.AddCheck("API router", apiRouterCli.Checker); err != nil {
 		hasErrors = true
