@@ -8,11 +8,10 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/contactDetails"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageStatic"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/related"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -20,9 +19,11 @@ import (
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(cfg config.Config, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
 
-	var sdlp StaticDatasetLandingPage
+	sdlp := StaticDatasetLandingPage{
+		Page: basePage,
+	}
 
 	MapCookiePreferences(req, &sdlp.CookiesPreferencesSet, &sdlp.CookiesPolicy)
 
@@ -83,7 +84,7 @@ func CreateLegacyDatasetLanding(cfg config.Config, ctx context.Context, req *htt
 	sdlp.DatasetLandingPage.Notes = dlp.Section.Markdown
 
 	for _, bc := range bcs {
-		sdlp.Page.Breadcrumb = append(sdlp.Page.Breadcrumb, model.TaxonomyNode{
+		sdlp.Page.Breadcrumb = append(sdlp.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})

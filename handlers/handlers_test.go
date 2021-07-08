@@ -13,6 +13,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
+
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 type testCliError struct{}
@@ -64,6 +66,7 @@ func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
+	cfg := initialiseMockConfig()
 
 	Convey("test setStatusCode", t, func() {
 
@@ -183,7 +186,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -261,7 +265,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
@@ -342,7 +347,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Page(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
@@ -394,4 +400,12 @@ func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetCli
 	So(string(b), ShouldEqual, respBody)
 
 	return w
+}
+
+func initialiseMockConfig() config.Config {
+	return config.Config{
+		PatternLibraryAssetsPath: "http://localhost:9000/dist",
+		SiteDomain:               "ons",
+		SupportedLanguages:       [2]string{"en", "cy"},
+	}
 }

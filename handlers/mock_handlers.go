@@ -10,6 +10,7 @@ import (
 	reflect "reflect"
 
 	dataset "github.com/ONSdigital/dp-api-clients-go/dataset"
+	model "github.com/ONSdigital/dp-renderer/model"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -233,16 +234,30 @@ func (m *MockRenderClient) EXPECT() *MockRenderClientMockRecorder {
 	return m.recorder
 }
 
-// Page mocks base method.
-func (m *MockRenderClient) Page(w io.Writer, page interface{}, templateName string) {
+// BuildPage mocks base method.
+func (m *MockRenderClient) BuildPage(w io.Writer, pageModel interface{}, templateName string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Page", w, page, templateName)
+	m.ctrl.Call(m, "BuildPage", w, pageModel, templateName)
 }
 
-// Page indicates an expected call of Page.
-func (mr *MockRenderClientMockRecorder) Page(w, page, templateName interface{}) *gomock.Call {
+// BuildPage indicates an expected call of BuildPage.
+func (mr *MockRenderClientMockRecorder) BuildPage(w, pageModel, templateName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Page", reflect.TypeOf((*MockRenderClient)(nil).Page), w, page, templateName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildPage", reflect.TypeOf((*MockRenderClient)(nil).BuildPage), w, pageModel, templateName)
+}
+
+// NewBasePageModel mocks base method.
+func (m *MockRenderClient) NewBasePageModel() model.Page {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewBasePageModel")
+	ret0, _ := ret[0].(model.Page)
+	return ret0
+}
+
+// NewBasePageModel indicates an expected call of NewBasePageModel.
+func (mr *MockRenderClientMockRecorder) NewBasePageModel() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewBasePageModel", reflect.TypeOf((*MockRenderClient)(nil).NewBasePageModel))
 }
 
 // MockClientError is a mock of ClientError interface.

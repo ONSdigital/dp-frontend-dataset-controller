@@ -13,12 +13,11 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetEditionsList"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageFilterable"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetVersionsList"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/ONSdigital/log.go/log"
 )
@@ -58,8 +57,10 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
-	p := datasetLandingPageFilterable.Page{}
+func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
+	p := datasetLandingPageFilterable.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -73,7 +74,7 @@ func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *ht
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
-		homeBreadcrumb := model.TaxonomyNode{
+		homeBreadcrumb := coreModel.TaxonomyNode{
 			Title: "Home",
 			URI:   "/",
 		}
@@ -85,7 +86,7 @@ func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *ht
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
-		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
+		p.Page.Breadcrumb = append(p.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
@@ -103,7 +104,7 @@ func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *ht
 		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
-	datasetBreadcrumbs := []model.TaxonomyNode{
+	datasetBreadcrumbs := []coreModel.TaxonomyNode{
 		{
 			Title: d.Title,
 			URI:   datasetPath,
@@ -338,8 +339,10 @@ func CreateFilterableLandingPage(cfg config.Config, ctx context.Context, req *ht
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
-	var p datasetVersionsList.Page
+func CreateVersionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+	p := datasetVersionsList.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
@@ -409,8 +412,10 @@ func CreateVersionsList(cfg config.Config, ctx context.Context, req *http.Reques
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(cfg config.Config, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
-	p := datasetEditionsList.Page{}
+func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
+	p := datasetEditionsList.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
 	p.Language = lang
@@ -421,14 +426,14 @@ func CreateEditionsList(cfg config.Config, ctx context.Context, req *http.Reques
 	p.BetaBannerEnabled = true
 
 	for _, bc := range breadcrumbs {
-		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, bc, apiRouterVersion),
 		})
 	}
 
 	// breadcrumbs won't contain this page in it's response from Zebedee, so add it to the slice
-	p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+	p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
 		Title: d.Title,
 	})
 
@@ -463,10 +468,10 @@ func convertYYYYToTime(input string) (t time.Time, err error) {
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
-func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *model.CookiesPolicy) {
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
 	preferencesCookie := cookies.GetCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
-	*policy = model.CookiesPolicy{
+	*policy = coreModel.CookiesPolicy{
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}

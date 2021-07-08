@@ -12,11 +12,12 @@ import (
 	"sync"
 
 	"github.com/ONSdigital/dp-net/handlers"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/pkg/errors"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 
 	"github.com/gorilla/mux"
 
@@ -55,7 +56,8 @@ type DatasetClient interface {
 
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
-	Page(w io.Writer, page interface{}, templateName string)
+	BuildPage(w io.Writer, pageModel interface{}, templateName string)
+	NewBasePageModel() coreModel.Page
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errorred
@@ -174,8 +176,9 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	m := mapper.CreateVersionsList(cfg, ctx, req, d, e, versions)
-	rend.Page(w, m, "dataset-version-list")
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateVersionsList(basePage, ctx, req, d, e, versions)
+	rend.BuildPage(w, m, "version-list")
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
@@ -311,7 +314,8 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	m := mapper.CreateFilterableLandingPage(cfg, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateFilterableLandingPage(basePage, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionOfEditionURL, lang, apiRouterVersion, numOptsSummary)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -336,12 +340,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
 
-	templateName := "dataset-landing-page-filterable"
+	templateName := "filterable"
 	if datasetModel.Type == "nomis" {
-		templateName = "dataset-landing-page-nomis"
+		templateName = "nomis"
 	}
 
-	rend.Page(w, m, templateName)
+	rend.BuildPage(w, m, templateName)
 }
 
 func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
@@ -377,8 +381,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
-	m := mapper.CreateEditionsList(cfg, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
-	rend.Page(w, m, "dataset-edition-list")
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateEditionsList(basePage, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
+	rend.BuildPage(w, m, "edition-list")
 }
 
 func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
@@ -445,8 +450,9 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
-	m := mapper.CreateLegacyDatasetLanding(cfg, ctx, req, dlp, bc, ds, lang)
-	rend.Page(w, m, "dataset-landing-page-static")
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang)
+	rend.BuildPage(w, m, "static")
 }
 
 // MetadataText generates a metadata text file

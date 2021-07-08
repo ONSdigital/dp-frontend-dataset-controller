@@ -1,7 +1,7 @@
 package datasetPage
 
 import (
-	"github.com/ONSdigital/dp-frontend-dataset-controller/assets/model/contactDetails"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-renderer/model"
 )
 
