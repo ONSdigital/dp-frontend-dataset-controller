@@ -9,11 +9,12 @@ An HTTP service for the controlling of data relevant to a particular dataset.
 | Environment variable         | Default                 | Description
 | -----------------------------| ----------------------- | --------------------------------------
 | BIND_ADDR                    | :20200                  | The host and port to bind to.
-| DATASET_API_URL              | http://localhost:22000  | The URL of [dp-dataset-api](https://www.github.com/ONSdigital/dp-dataset-api).
-| FILTER_API_URL               | http://localhost:22100  | The URL of [dp-filter-api](https://www.github.com/ONSdigital/dp-filter-api).
-| ZEBEDEE_URL                  | http://localhost:8082   | The URL of [zebedee](https://www.github.com/ONSdigital/zebedee).
-| DOWNLOAD_SERVICE_URL         | http://localhost:23600  | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).
+| DEBUG                        | false                   | Enable debug mode
+| API_ROUTER_URL               | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)
 | SITE_DOMAIN                  | localhost               |
+| PATTERN_LIBRARY_ASSETS_PATH  | ""                      | Pattern library location
+| SUPPORTED_LANGUAGES          | [2]string{"en", "cy"}   | Supported languages
+| DOWNLOAD_SERVICE_URL         | http://localhost:23600  | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).
 | GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                      | The graceful shutdown timeout in seconds
 | HEALTHCHECK_INTERVAL         | 30s                     | The time between calling healthcheck endpoints for check subsystems
 | HEALTHCHECK_CRITICAL_TIMEOUT | 90s                     | The time taken for the health changes from warning state to critical due to subsystem check failures

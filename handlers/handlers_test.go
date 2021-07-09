@@ -187,7 +187,7 @@ func TestUnitHandlers(t *testing.T) {
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static")
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
@@ -266,7 +266,7 @@ func TestUnitHandlers(t *testing.T) {
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "filterable")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
@@ -348,7 +348,7 @@ func TestUnitHandlers(t *testing.T) {
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), gomock.Any())
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "version-list")
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
