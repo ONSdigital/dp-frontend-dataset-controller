@@ -5,14 +5,14 @@ import (
 	"github.com/ONSdigital/dp-renderer/model"
 )
 
-//Page contains data re-used for each page type a Data struct for data specific to the page type
+// Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
 	DatasetPage DatasetPage `json:"data"`
 	contactDetails.ContactDetails
 }
 
-//Dataset has the file and title information for an individual dataset
+// Dataset has the file and title information for an individual dataset
 type DatasetPage struct {
 	Versions            []Version           `json:"versions"`
 	SupplementaryFiles  []SupplementaryFile `json:"supplementary_files"`
@@ -26,7 +26,7 @@ type DatasetPage struct {
 	Markdown            string              `json:"markdown"`
 }
 
-//Download has the details for the an individual dataset's downloadable files
+// Download has the details for the an individual dataset's downloadable files
 type Download struct {
 	Extension string `json:"extension"`
 	Size      string `json:"size"`
@@ -34,7 +34,7 @@ type Download struct {
 	File      string `json:"file"`
 }
 
-//SupplementaryFile is a downloadable file that is associated to an individual dataset
+// SupplementaryFile is a downloadable file that is associated to an individual dataset
 type SupplementaryFile struct {
 	Title     string `json:"title"`
 	Extension string `json:"extension"`
@@ -42,7 +42,7 @@ type SupplementaryFile struct {
 	URI       string `json:"uri"`
 }
 
-//Version has the details for a previous version of the dataset
+// Version has the details for a previous version of the dataset
 type Version struct {
 	URI              string     `json:"url"`
 	UpdateDate       string     `json:"update_date"`

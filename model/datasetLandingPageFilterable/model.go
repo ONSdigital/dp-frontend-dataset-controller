@@ -77,7 +77,7 @@ type Version struct {
 	Contact     contactDetails.ContactDetails `json:"contact"`
 }
 
-//Download has the details for the an individual dataset's downloadable files
+// Download has the details for the an individual dataset's downloadable files
 type Download struct {
 	Extension string `json:"extension"`
 	Size      string `json:"size"`

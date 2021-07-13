@@ -6,7 +6,7 @@ import (
 	"github.com/ONSdigital/dp-renderer/model"
 )
 
-//Page contains data re-used for each page type a Data struct for data specific to the page type
+// Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage `json:"data"`
@@ -14,7 +14,7 @@ type Page struct {
 	contactDetails.ContactDetails
 }
 
-//DatasetLandingPage represents a frontend dataset landing page
+// DatasetLandingPage represents a frontend dataset landing page
 type DatasetLandingPage struct {
 	DatasetID           string    `json:"dataset_id"`
 	FilterID            string    `json:"filter_id"`
@@ -31,7 +31,7 @@ type DatasetLandingPage struct {
 	ParentPath          string    `json:"parent_path"`
 }
 
-//Related content (split by type) to this page
+// Related content (split by type) to this page
 type Related struct {
 	Publications       []related.Related `json:"related_publications"`
 	FilterableDatasets []related.Related `json:"related_filterable_datasets"`
@@ -40,7 +40,7 @@ type Related struct {
 	Links              []related.Related `json:"related_links"`
 }
 
-//Dataset has the file and title information for an individual dataset
+// Dataset has the file and title information for an individual dataset
 type Dataset struct {
 	Title              string              `json:"title"`
 	Downloads          []Download          `json:"downloads"`
@@ -51,14 +51,14 @@ type Dataset struct {
 	IsLast             bool                `json:"is_last"`
 }
 
-//Download has the details for the an individual dataset's downloadable files
+// Download has the details for the an individual dataset's downloadable files
 type Download struct {
 	Extension string `json:"extension"`
 	Size      string `json:"size"`
 	URI       string `json:"uri"`
 }
 
-//SupplementaryFile is a downloadable file that is associated to an individual dataset
+// SupplementaryFile is a downloadable file that is associated to an individual dataset
 type SupplementaryFile struct {
 	Title     string `json:"title"`
 	Extension string `json:"extension"`
@@ -66,7 +66,7 @@ type SupplementaryFile struct {
 	URI       string `json:"uri"`
 }
 
-//Message has a date and time, used for either correction or notices
+// Message has a date and time, used for either correction or notices
 type Message struct {
 	Date     string `json:"date"`
 	Markdown string `json:"markdown"`
