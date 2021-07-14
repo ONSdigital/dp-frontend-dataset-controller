@@ -9,13 +9,14 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
-	"github.com/ONSdigital/dp-frontend-models/model"
+	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 	req := httptest.NewRequest("", "/", nil)
+	mdl := model.Page{}
 
 	nomisRefURL := "https://www.nomisweb.co.uk/census/2011/ks101ew"
 	contact := dataset.Contact{
@@ -100,13 +101,13 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage for CMD pages", t, func() {
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
 		// breadcrumbItem as expected as a result of CreateFilterableLandingPage
 		expectedBreadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
@@ -124,7 +125,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -213,7 +214,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage for Nomis pages", t, func() {
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
@@ -225,7 +226,7 @@ func TestUnitMapper(t *testing.T) {
 
 		// breadcrumbItem returned by zebedee directly (without proxying through API router)
 		breadcrumbItem1 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 		expectedBreadcrumbItem1 := breadcrumbItem1
@@ -236,7 +237,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
 
-		p := CreateFilterableLandingPage(ctx, req, nomisD, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(mdl, ctx, req, nomisD, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -309,7 +310,7 @@ func TestUnitMapper(t *testing.T) {
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -342,7 +343,7 @@ func TestUnitMapper(t *testing.T) {
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
 
-		p := CreateFilterableLandingPage(ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -382,6 +383,7 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
+	mdl := model.Page{}
 	req := httptest.NewRequest("", "/", nil)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
@@ -427,11 +429,10 @@ func TestCreateVersionsList(t *testing.T) {
 	dummyVersion3 := dummyVersion1
 	dummyVersion3.Version = 3
 
-	ctx := context.Background()
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList)
+		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -440,7 +441,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
+		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(page.Data.Versions, ShouldHaveLength, 3)
