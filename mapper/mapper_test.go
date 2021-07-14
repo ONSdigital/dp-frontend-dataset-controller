@@ -101,13 +101,13 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage for CMD pages", t, func() {
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
 		// breadcrumbItem as expected as a result of CreateFilterableLandingPage
 		expectedBreadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
@@ -214,7 +214,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("test CreateFilterableLandingPage for Nomis pages", t, func() {
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 
@@ -226,7 +226,7 @@ func TestUnitMapper(t *testing.T) {
 
 		// breadcrumbItem returned by zebedee directly (without proxying through API router)
 		breadcrumbItem1 := zebedee.Breadcrumb{
-			URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			URI:         "https://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 			Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 		}
 		expectedBreadcrumbItem1 := breadcrumbItem1
@@ -429,11 +429,10 @@ func TestCreateVersionsList(t *testing.T) {
 	dummyVersion3 := dummyVersion1
 	dummyVersion3.Version = 3
 
-	ctx := context.Background()
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(mdl, ctx, req, dummyModelData, dummyEditionData, dummySingleVersionList)
+		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -442,7 +441,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(mdl, ctx, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
+		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(page.Data.Versions, ShouldHaveLength, 3)

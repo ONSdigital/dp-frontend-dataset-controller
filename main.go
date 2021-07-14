@@ -27,7 +27,7 @@ import (
 
 	_ "net/http/pprof"
 
-	healthcheck "github.com/ONSdigital/dp-api-clients-go/health"
+	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/health"
 )
 
 type unencryptedAuth struct {
@@ -94,7 +94,7 @@ func run(ctx context.Context) error {
 
 	router := mux.NewRouter()
 
-	apiRouterCli := healthcheck.NewClient("api-router", cfg.APIRouterURL)
+	apiRouterCli := apihealthcheck.NewClient("api-router", cfg.APIRouterURL)
 
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
@@ -125,7 +125,7 @@ func run(ctx context.Context) error {
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
 
-	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc, *cfg))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 
@@ -153,8 +153,8 @@ func run(ctx context.Context) error {
 	select {
 	case err := <-svcErrors:
 		log.Event(ctx, "service error received", log.ERROR, log.Error(err))
-	case signal := <-signals:
-		log.Event(ctx, "quitting after os signal received", log.INFO, log.Data{"signal": signal})
+	case osSignal := <-signals:
+		log.Event(ctx, "quitting after os signal received", log.INFO, log.Data{"signal": osSignal})
 	}
 
 	log.Event(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout), log.INFO)
@@ -198,7 +198,7 @@ func run(ctx context.Context) error {
 	return nil
 }
 
-func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *healthcheck.Client) (err error) {
+func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *apihealthcheck.Client) (err error) {
 	hasErrors := false
 
 	if err = h.AddCheck("API router", apiRouterCli.Checker); err != nil {

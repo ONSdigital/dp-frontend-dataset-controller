@@ -85,7 +85,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is
 // requested
-func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.HandlerFunc {
+func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -127,7 +127,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient, cfg config.Config) http.Ha
 // LegacyLanding will load a zebedee landing page
 func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		legacyLanding(w, req, zc, dc, rend, cfg, collectionID, lang, userAccessToken)
+		legacyLanding(w, req, zc, dc, rend, collectionID, lang, userAccessToken)
 	})
 }
 
@@ -141,18 +141,18 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cf
 // EditionsList will load a list of editions for a filterable dataset
 func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		editionsList(w, req, dc, zc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		editionsList(w, req, dc, zc, rend, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // VersionsList will load a list of versions for a filterable dataset
 func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		versionsList(w, req, dc, rend, cfg, collectionID, lang, userAccessToken)
+		versionsList(w, req, dc, rend, collectionID, userAccessToken)
 	})
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, collectionID, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
@@ -177,7 +177,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateVersionsList(basePage, ctx, req, d, e, versions)
+	m := mapper.CreateVersionsList(basePage, req, d, e, versions)
 	rend.BuildPage(w, m, "version-list")
 }
 
@@ -294,7 +294,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
-	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req, cfg)
+	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req)
 	if err != nil {
 		if err != errTooManyOptions {
 			setStatusCode(req, w, err)
@@ -348,7 +348,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	rend.BuildPage(w, m, templateName)
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
@@ -386,7 +386,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	rend.BuildPage(w, m, "edition-list")
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config, collectionID, lang, userAccessToken string) {
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, collectionID, lang, userAccessToken string) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -398,7 +398,12 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			setStatusCode(req, w, err)
 			return
 		}
-		w.Write(b)
+		_, err = w.Write(b)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "failed to write zebedee client get response"))
+
+		}
+
 		return
 	}
 
@@ -481,20 +486,22 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 		return
 	}
 
-	b, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dimensions, req, cfg)
+	b, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dimensions, req)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "plain/text")
-
-	w.Write(b)
+	_, err = w.Write(b)
+	if err != nil {
+		setStatusCode(req, w, errors.Wrap(err, "failed to write metadata text response"))
+	}
 }
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request, cfg config.Config) ([]byte, error) {
+func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString())

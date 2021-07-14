@@ -12,7 +12,7 @@ type Page struct {
 	contactDetails.ContactDetails
 }
 
-// Dataset has the file and title information for an individual dataset
+// DatasetPage has the file and title information for an individual dataset
 type DatasetPage struct {
 	Versions            []Version           `json:"versions"`
 	SupplementaryFiles  []SupplementaryFile `json:"supplementary_files"`

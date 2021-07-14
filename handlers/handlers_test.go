@@ -95,7 +95,6 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
-			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.VersionDimensions{
@@ -114,7 +113,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "time",
 				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 
-			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient, mockConfig))
+			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -125,12 +124,11 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", "", errors.New("unable to create filter blueprint"))
-			mockConfig := config.Config{}
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.VersionDimensions{}, nil)
 
-			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, CreateFilterID(mockClient, mockDatasetClient, mockConfig))
+			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient)
 		})
 	})
 
@@ -178,7 +176,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
+			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
 
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
@@ -223,7 +221,7 @@ func TestUnitHandlers(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
-			dlp := zebedee.DatasetLandingPage{URI: "http://helloworld.com"}
+			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI).Return(nil, errors.New("something went wrong"))
 
@@ -380,15 +378,14 @@ func TestUnitHandlers(t *testing.T) {
 
 }
 
-func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient, f http.HandlerFunc) *httptest.ResponseRecorder {
-	mockConfig := config.Config{}
+func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient) *httptest.ResponseRecorder {
 	req, err := http.NewRequest("POST", url, nil)
 	So(err, ShouldBeNil)
 
 	w := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc, mockConfig))
+	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc))
 
 	router.ServeHTTP(w, req)
 

@@ -100,7 +100,6 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	}
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
-		datasetURL.Path = ""
 		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
@@ -242,24 +241,26 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					}
 					sort.Sort(ts)
 
-					startDate := ts[0]
+					if len(ts) > 0 {
+						startDate := ts[0]
 
-					for i, t := range ts {
-						if i != len(ts)-1 {
-							if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
-								continue
-							}
-							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						for i, t := range ts {
+							if i != len(ts)-1 {
+								if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
+									continue
+								}
+								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								}
+								startDate = ts[i+1]
 							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
-							}
-							startDate = ts[i+1]
-						} else {
-							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
-							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								}
 							}
 						}
 					}
@@ -275,29 +276,32 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					}
 					sort.Sort(ts)
 
-					startDate := ts[0]
+					if len(ts) > 0 {
+						startDate := ts[0]
 
-					for i, t := range ts {
-						if i != len(ts)-1 {
-							if (ts[i+1].Year() - t.Year()) == 1 {
-								continue
-							}
+						for i, t := range ts {
+							if i != len(ts)-1 {
+								if (ts[i+1].Year() - t.Year()) == 1 {
+									continue
+								}
 
-							if startDate.Year() == t.Year() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								if startDate.Year() == t.Year() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								}
+								startDate = ts[i+1]
 							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
-							}
-							startDate = ts[i+1]
-						} else {
 
-							if startDate.Year() == t.Year() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
-							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								if startDate.Year() == t.Year() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								}
 							}
 						}
 					}
+
 				} else {
 
 					for i, val := range opt.Items {
@@ -339,7 +343,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
 	p := datasetVersionsList.Page{
 		Page: basePage,
 	}
