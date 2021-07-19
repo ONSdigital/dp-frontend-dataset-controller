@@ -20,6 +20,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetPage"
 	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/ONSdigital/log.go/log"
 )
@@ -59,8 +60,10 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
-	p := datasetLandingPageFilterable.Page{}
+func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
+	p := datasetLandingPageFilterable.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
 	p.Metadata.Title = d.Title
@@ -74,7 +77,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
-		homeBreadcrumb := model.TaxonomyNode{
+		homeBreadcrumb := coreModel.TaxonomyNode{
 			Title: "Home",
 			URI:   "/",
 		}
@@ -86,7 +89,7 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
-		p.Page.Breadcrumb = append(p.Page.Breadcrumb, model.TaxonomyNode{
+		p.Page.Breadcrumb = append(p.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
@@ -100,11 +103,10 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 	}
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
-		datasetURL.Path = ""
 		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
-	datasetBreadcrumbs := []model.TaxonomyNode{
+	datasetBreadcrumbs := []coreModel.TaxonomyNode{
 		{
 			Title: d.Title,
 			URI:   datasetPath,
@@ -242,24 +244,26 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 					}
 					sort.Sort(ts)
 
-					startDate := ts[0]
+					if len(ts) > 0 {
+						startDate := ts[0]
 
-					for i, t := range ts {
-						if i != len(ts)-1 {
-							if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
-								continue
-							}
-							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+						for i, t := range ts {
+							if i != len(ts)-1 {
+								if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
+									continue
+								}
+								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								}
+								startDate = ts[i+1]
 							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
-							}
-							startDate = ts[i+1]
-						} else {
-							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
-							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+								}
 							}
 						}
 					}
@@ -275,29 +279,32 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 					}
 					sort.Sort(ts)
 
-					startDate := ts[0]
+					if len(ts) > 0 {
+						startDate := ts[0]
 
-					for i, t := range ts {
-						if i != len(ts)-1 {
-							if (ts[i+1].Year() - t.Year()) == 1 {
-								continue
-							}
+						for i, t := range ts {
+							if i != len(ts)-1 {
+								if (ts[i+1].Year() - t.Year()) == 1 {
+									continue
+								}
 
-							if startDate.Year() == t.Year() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								if startDate.Year() == t.Year() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								}
+								startDate = ts[i+1]
 							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
-							}
-							startDate = ts[i+1]
-						} else {
 
-							if startDate.Year() == t.Year() {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
-							} else {
-								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								if startDate.Year() == t.Year() {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+								} else {
+									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+								}
 							}
 						}
 					}
+
 				} else {
 
 					for i, val := range opt.Items {
@@ -339,8 +346,10 @@ func CreateFilterableLandingPage(ctx context.Context, req *http.Request, d datas
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
-	var p datasetVersionsList.Page
+func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+	p := datasetVersionsList.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + d.Title
@@ -410,8 +419,10 @@ func CreateVersionsList(ctx context.Context, req *http.Request, d dataset.Datase
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
-	p := datasetEditionsList.Page{}
+func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
+	p := datasetEditionsList.Page{
+		Page: basePage,
+	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_edition_list"
 	p.Language = lang
@@ -422,14 +433,14 @@ func CreateEditionsList(ctx context.Context, req *http.Request, d dataset.Datase
 	p.BetaBannerEnabled = true
 
 	for _, bc := range breadcrumbs {
-		p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, bc, apiRouterVersion),
 		})
 	}
 
 	// breadcrumbs won't contain this page in it's response from Zebedee, so add it to the slice
-	p.Breadcrumb = append(p.Breadcrumb, model.TaxonomyNode{
+	p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
 		Title: d.Title,
 	})
 
@@ -464,10 +475,10 @@ func convertYYYYToTime(input string) (t time.Time, err error) {
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
-func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *model.CookiesPolicy) {
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
 	preferencesCookie := cookies.GetCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
-	*policy = model.CookiesPolicy{
+	*policy = coreModel.CookiesPolicy{
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}

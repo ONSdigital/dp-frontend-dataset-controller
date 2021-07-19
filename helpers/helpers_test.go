@@ -19,7 +19,7 @@ func TestUnitHelpers(t *testing.T) {
 
 		Convey("returns an error if it is unable to extract the information", func() {
 			datasetID, edition, version, err := ExtractDatasetInfoFromPath("invalid")
-			So(err.Error(), ShouldEqual, "unabled to extract datasetID, edition and version from path: invalid")
+			So(err, ShouldBeError, "unable to extract datasetID, edition and version from path: invalid")
 			So(datasetID, ShouldEqual, "")
 			So(edition, ShouldEqual, "")
 			So(version, ShouldEqual, "")
