@@ -39,7 +39,7 @@ func DatasetTestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "/datasets/somedatasetpage/current").Return(dp, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-page", gomock.Any()).Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "dataset-page").Return([]byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil)
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/datasets/somedatasetpage/current", nil)
@@ -142,7 +142,7 @@ func DatasetTestUnitHandlers(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "/datasets/somedatasetpage/current").Return(dp, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().Do("dataset-page", gomock.Any()).Return(nil, errors.New("error from renderer"))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "dataset-page").Return(nil, errors.New("error from renderer"))
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/datasets/somedatasetpage/current", nil)

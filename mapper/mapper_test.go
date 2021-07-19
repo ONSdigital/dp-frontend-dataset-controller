@@ -713,8 +713,10 @@ func TestCreateDatasetPage(t *testing.T) {
 	expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
 	ctx := context.Background()
+	mdl := model.Page{}
+
 	Convey("test dataset page correctly returns", t, func() {
-		dp := CreateDatasetPage(ctx, req, dummyModelData, dummyLandingPage,
+		dp := CreateDatasetPage(mdl, ctx, req, dummyModelData, dummyLandingPage,
 			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
 			dummyVersions, "en", "/v1")
 

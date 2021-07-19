@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -77,19 +76,8 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc 
 		versions = append(versions, version)
 	}
 
-	m := mapper.CreateDatasetPage(ctx, req, ds, dlp, bc, versions, lang, apiRouterVersion)
-	templateJSON, err := json.Marshal(m)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, apiRouterVersion)
 
-	templateHTML, err := rend.Do("dataset-page", templateJSON)
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
-
-	w.Write(templateHTML)
-	return
+	rend.BuildPage(w, m, "dataset-page")
 }

@@ -15,11 +15,10 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-models/model"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetEditionsList"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetLandingPageFilterable"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetPage"
-	"github.com/ONSdigital/dp-frontend-models/model/datasetVersionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/ONSdigital/log.go/log"
@@ -484,8 +483,10 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *cor
 	}
 }
 
-func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, apiRouterVersion string) datasetPage.Page {
-	dp := datasetPage.Page{}
+func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, apiRouterVersion string) datasetPage.Page {
+	dp := datasetPage.Page{
+		Page: basePage,
+	}
 
 	MapCookiePreferences(req, &dp.Page.CookiesPreferencesSet, &dp.Page.CookiesPolicy)
 	dp.Type = "dataset"
@@ -500,13 +501,13 @@ func CreateDatasetPage(ctx context.Context, req *http.Request, d zebedee.Dataset
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range bc {
-		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
 	}
 
-	dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, model.TaxonomyNode{
+	dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, coreModel.TaxonomyNode{
 		Title: dp.DatasetPage.Edition,
 	})
 
