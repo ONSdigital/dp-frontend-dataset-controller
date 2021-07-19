@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/ONSdigital/dp-api-clients-go v1.33.6
+	github.com/ONSdigital/dp-frontend-models v1.11.0
 	github.com/ONSdigital/dp-cookies v0.2.0
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
@@ -18,4 +19,6 @@ require (
 	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.6.4
+	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
+	golang.org/x/sys v0.0.0-20210218145245-beda7e5e158e // indirect
 )

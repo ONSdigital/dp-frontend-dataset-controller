@@ -172,7 +172,7 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("test legacylanding handler with non /data endpoint", t, func() {
-		Convey("test sucessful data retrieval and rendering", func() {
+		Convey("test successful data retrieval and rendering", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
@@ -375,7 +375,6 @@ func TestUnitHandlers(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
-
 }
 
 func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient) *httptest.ResponseRecorder {
