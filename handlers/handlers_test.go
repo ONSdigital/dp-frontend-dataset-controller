@@ -403,6 +403,6 @@ func initialiseMockConfig() config.Config {
 	return config.Config{
 		PatternLibraryAssetsPath: "http://localhost:9000/dist",
 		SiteDomain:               "ons",
-		SupportedLanguages:       [2]string{"en", "cy"},
+		SupportedLanguages:       []string{"en", "cy"},
 	}
 }

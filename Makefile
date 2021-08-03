@@ -3,6 +3,7 @@ BINPATH ?= build
 BUILD_TIME=$(shell date +%s)
 GIT_COMMIT=$(shell git rev-parse HEAD)
 VERSION ?= $(shell git tag --points-at HEAD | grep ^v | head -n 1)
+LOCAL_DP_RENDERER_IN_USE = $(shell grep -c "\"github.com/ONSdigital/dp-renderer\" =" go.mod)
 
 .PHONY: all
 all: audit test build
@@ -30,13 +31,14 @@ convey:
 
 .PHONY: all build debug audit
 
-.PHONY: get-renderer-version
-get-renderer-version:
-	$(eval APP_RENDERER_VERSION=$(shell grep "github.com/ONSdigital/dp-renderer" go.mod | cut -d ' ' -f2 ))
-
 .PHONY: fetch-renderer-lib
-fetch-renderer-lib: get-renderer-version
-	$(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer))
+fetch-renderer-lib:
+ifeq ($(LOCAL_DP_RENDERER_IN_USE), 1)
+ $(eval CORE_ASSETS_PATH = $(shell grep -w "\"github.com/ONSdigital/dp-renderer\" =>" go.mod | awk -F '=> ' '{print $$2}' | tr -d '"'))
+else
+ $(eval APP_RENDERER_VERSION=$(shell grep "github.com/ONSdigital/dp-renderer" go.mod | cut -d ' ' -f2 ))
+ $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer))
+endif
 
 .PHONY: generate-debug
 generate-debug: fetch-renderer-lib
