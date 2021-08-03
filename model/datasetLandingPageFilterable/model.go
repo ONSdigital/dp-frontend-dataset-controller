@@ -6,12 +6,14 @@ import (
 	"github.com/ONSdigital/dp-renderer/model"
 )
 
+// Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
 }
 
+// DatasetLandingPage represents the data on the dataset landing page
 type DatasetLandingPage struct {
 	datasetLandingPageStatic.DatasetLandingPage
 	Dimensions               []Dimension   `json:"dimensions"`
@@ -36,27 +38,32 @@ type DatasetLandingPage struct {
 	UsageNotes               []UsageNote   `json:"UsageNotes"`
 }
 
+// UsageNote represents data for a single usage note
 type UsageNote struct {
 	Note  string `json:"note,omitempty"`
 	Title string `json:"title,omitempty"`
 }
 
+// Publication represents the data for a single publication
 type Publication struct {
 	Title string `json:"title"`
 	URL   string `json:"url"`
 }
 
+// Change represents the data for a single change
 type Change struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
+// Publisher represents the data for a single publisher
 type Publisher struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 	URL  string `json:"url"`
 }
 
+// Dimension represents the data for a single dimension
 type Dimension struct {
 	Title       string   `json:"title"`
 	Values      []string `json:"values"`
@@ -65,6 +72,7 @@ type Dimension struct {
 	Description string   `json:"description"`
 }
 
+// Version represents the data for a single version
 type Version struct {
 	Title       string                        `json:"title"`
 	Description string                        `json:"description"`
