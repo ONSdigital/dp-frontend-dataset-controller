@@ -6,50 +6,36 @@ package handlers
 
 import (
 	context "context"
+	reflect "reflect"
+
 	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
 	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 )
 
-// MockZebedeeClient is a mock of ZebedeeClient interface
+// MockZebedeeClient is a mock of ZebedeeClient interface.
 type MockZebedeeClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockZebedeeClientMockRecorder
 }
 
-// MockZebedeeClientMockRecorder is the mock recorder for MockZebedeeClient
+// MockZebedeeClientMockRecorder is the mock recorder for MockZebedeeClient.
 type MockZebedeeClientMockRecorder struct {
 	mock *MockZebedeeClient
 }
 
-// NewMockZebedeeClient creates a new mock instance
+// NewMockZebedeeClient creates a new mock instance.
 func NewMockZebedeeClient(ctrl *gomock.Controller) *MockZebedeeClient {
 	mock := &MockZebedeeClient{ctrl: ctrl}
 	mock.recorder = &MockZebedeeClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockZebedeeClient) EXPECT() *MockZebedeeClientMockRecorder {
 	return m.recorder
 }
 
-// GetBreadcrumb mocks base method
-func (m *MockZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, collectionID, lang, path string) ([]zebedee.Breadcrumb, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBreadcrumb", ctx, userAccessToken, collectionID, lang, path)
-	ret0, _ := ret[0].([]zebedee.Breadcrumb)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetBreadcrumb indicates an expected call of GetBreadcrumb
-func (mr *MockZebedeeClientMockRecorder) GetBreadcrumb(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBreadcrumb", reflect.TypeOf((*MockZebedeeClient)(nil).GetBreadcrumb), ctx, userAccessToken, collectionID, lang, path)
-}
-
-// Get mocks base method
+// Get mocks base method.
 func (m *MockZebedeeClient) Get(ctx context.Context, userAccessToken, path string) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, userAccessToken, path)
@@ -58,28 +44,28 @@ func (m *MockZebedeeClient) Get(ctx context.Context, userAccessToken, path strin
 	return ret0, ret1
 }
 
-// Get indicates an expected call of Get
+// Get indicates an expected call of Get.
 func (mr *MockZebedeeClientMockRecorder) Get(ctx, userAccessToken, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockZebedeeClient)(nil).Get), ctx, userAccessToken, path)
 }
 
-// GetDatasetLandingPage mocks base method
-func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.DatasetLandingPage, error) {
+// GetBreadcrumb mocks base method.
+func (m *MockZebedeeClient) GetBreadcrumb(ctx context.Context, userAccessToken, collectionID, lang, path string) ([]zebedee.Breadcrumb, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDatasetLandingPage", ctx, userAccessToken, collectionID, lang, path)
-	ret0, _ := ret[0].(zebedee.DatasetLandingPage)
+	ret := m.ctrl.Call(m, "GetBreadcrumb", ctx, userAccessToken, collectionID, lang, path)
+	ret0, _ := ret[0].([]zebedee.Breadcrumb)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDatasetLandingPage indicates an expected call of GetDatasetLandingPage
-func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
+// GetBreadcrumb indicates an expected call of GetBreadcrumb.
+func (mr *MockZebedeeClientMockRecorder) GetBreadcrumb(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), ctx, userAccessToken, collectionID, lang, path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBreadcrumb", reflect.TypeOf((*MockZebedeeClient)(nil).GetBreadcrumb), ctx, userAccessToken, collectionID, lang, path)
 }
 
-// GetDataset mocks base method
+// GetDataset mocks base method.
 func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.Dataset, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDataset", ctx, userAccessToken, collectionID, lang, path)
@@ -88,8 +74,23 @@ func (m *MockZebedeeClient) GetDataset(ctx context.Context, userAccessToken, col
 	return ret0, ret1
 }
 
-// GetDataset indicates an expected call of GetDataset
+// GetDataset indicates an expected call of GetDataset.
 func (mr *MockZebedeeClientMockRecorder) GetDataset(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockZebedeeClient)(nil).GetDataset), ctx, userAccessToken, collectionID, lang, path)
+}
+
+// GetDatasetLandingPage mocks base method.
+func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.DatasetLandingPage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDatasetLandingPage", ctx, userAccessToken, collectionID, lang, path)
+	ret0, _ := ret[0].(zebedee.DatasetLandingPage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDatasetLandingPage indicates an expected call of GetDatasetLandingPage.
+func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), ctx, userAccessToken, collectionID, lang, path)
 }
