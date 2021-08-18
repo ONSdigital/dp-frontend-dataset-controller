@@ -118,6 +118,10 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).Path("/health").HandlerFunc(healthcheck.Handler)
 
+	if cfg.EnableCensusPages {
+		router.StrictSlash(true).Path("/datasets/census").Methods("GET").HandlerFunc(handlers.CensusDatasetLanding(rend, apiRouterVersion))
+	}
+
 	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc, *cfg, apiRouterVersion))

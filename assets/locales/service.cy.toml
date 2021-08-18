@@ -91,9 +91,21 @@ one = "Nodiadau pwysig a gwybodaeth ynghylch defnyddio"
 description = "View all data related to"
 one = "View all data related to"
 
+[ContactDetails]
+description = "Contact details"
+one = "Contact details"
+
 [DatasetContactDetails]
 description = "Contact details for this dataset"
 one = "Manylion cyswllt ar gyfer y set ddata hon"
+
+[Email]
+description = "Email"
+one = "Email"
+
+[Phone]
+description = "Phone"
+one = "Phone"
 
 [UsedInPublication]
 description = "Publications that use this data"
@@ -111,3 +123,39 @@ two = "Related links"
 few = "Related links"
 many = "Related links"
 other = "Related links"
+
+[StatsDisclosureTitle]
+description = "Statistical disclosure control"
+one = "Statistical disclosure control"
+
+[StatsDisclosureReasoning]
+description = "Reasoning for why we have statistical disclosure controls in place"
+one = "In order to protect against disclosure of personal information from the 2021 Census, there has been swapping of records in the Census database between different geographic areas, and so some counts will be affected."
+
+[StatsDisclosureEffect]
+description = "The primary effect of statistical disclosure controls on the dataset"
+one = "In the main, the greatest effects will be at the lowest geographies, since the record swapping is targeted towards those households with unusual characteristics in small areas."
+
+[Summary]
+description = "Summary"
+one = "Summary"
+
+[WhyIsThisUseful]
+description = "Why is this useful collapsible section on dataset landing page (census)"
+one = "Why is this useful?"
+
+[WhyIsThisUsefulObligations]
+description = "Why is this useful - obligations"
+one = "This information helps public bodies meet statutory obligations relating to race equality. It is also used for resource allocation and to develop and monitor policy on improving the life-chances for disadvantaged groups, including many ethnic minority groups."
+
+[WhyIsThisUsefulUnderstanding]
+description = "Why is this useful - better understanding"
+one = "The statistics also provide a better understanding of communities and are used for the government-wide race equality and community cohesion strategy, which seeks to improve race equality outcomes in areas such as housing, education, health and criminal justice for all groups across society."
+
+[HideThis]
+description = "Hide this"
+one = "Hide this"
+
+[RelatedLinksForCensus]
+description = "Related links to help with the census"
+one = "Related links to help with the census"

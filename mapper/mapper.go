@@ -463,6 +463,51 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	return p
 }
 
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) datasetLandingPageFilterable.Page {
+	p := datasetLandingPageFilterable.Page{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+
+	p.Type = "census_dataset_landing_page"
+	p.Language = "en"
+	p.URI = req.URL.Path
+
+	p.Metadata.Title = "POC Dataset Landing Page"
+	p.Metadata.Description = "This is a POC dataset landing page"
+
+	p.ContactDetails.Email = "census.customerservices@ons.gov.uk"
+	p.ContactDetails.Telephone = "+44 (0)1633 456120"
+
+	p.DatasetLandingPage.Methodologies = []datasetLandingPageFilterable.Methodology{
+		{
+			URL:         "/",
+			Title:       "",
+			Description: "Methodology description goes here",
+		},
+	}
+
+	p.Breadcrumb = []coreModel.TaxonomyNode{
+		{
+			Title: "Home",
+			URI:   "/",
+		},
+		{
+			Title: "Census",
+			URI:   "/census",
+		},
+		{
+			Title: "Datasets",
+		},
+	}
+
+	p.BetaBannerEnabled = true
+	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
+
+	return p
+}
+
 func convertMMMYYToTime(input string) (t time.Time, err error) {
 	return time.Parse("Jan-06", input)
 }
