@@ -1,21 +1,19 @@
 <section class="u-mt-m u-mb-s" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
-    <div>
-        <h2 class="u-fw-b" id="related-content">{{ localise "ContactDetails" .Language 1 }}</h2>
-        <nav class="related-content__navigation" aria-labelledby="related-content">
-            <ul class="list list--bare u-fs-r">
-                {{ if .ContactDetails.Email }}
-                    <li class="list__item u-mt-no u-mb-no u-pl-no u-fs-r">
-                        <p class="u-mt-no u-mt-no u-mb-no u-fs-r u-pb-no">{{ localise "Email" .Language 1 }}</p>
-                        <a href="mailto:{{.ContactDetails.Email}}" class="list__link underline-link">{{ .ContactDetails.Email }}</a>
-                    </li>
-                {{ end }}
-                {{ if .ContactDetails.Telephone }}
-                    <li class="list__item u-mt-no u-pl-no u-fs-r">
-                        <p class="u-mt-no u-mb-no u-fs-r u-pb-no">{{ localise "Phone" .Language 1 }}</p>
-                        <a href="#0" class="list__link underline-link">{{ .ContactDetails.Telephone }}</a>
-                    </li>
-                {{ end }}
-            </ul>
-        </nav>
-    </div>
+    <h2 class="u-fw-b" id="contact-details">{{ localise "ContactDetails" .Language 1 }}</h2>
+    <nav class="related-content__navigation" aria-labelledby="contact-details">
+        <ul class="list list--bare u-fs-r">
+            {{ if .ContactDetails.Email }}
+                <li class="list__item u-mt-no u-mb-no u-pl-no u-fs-r">
+                    <p class="u-mt-no u-mt-no u-mb-no u-fs-r u-pb-no">{{ localise "Email" .Language 1 }}</p>
+                    <a href="mailto:{{.ContactDetails.Email}}" class="list__link underline-link">{{ .ContactDetails.Email }}</a>
+                </li>
+            {{ end }}
+            {{ if .ContactDetails.Telephone }}
+                <li class="list__item u-mt-no u-pl-no u-fs-r">
+                    <p class="u-mt-no u-mb-no u-fs-r u-pb-no">{{ localise "Phone" .Language 1 }}</p>
+                    <a href="#0" class="list__link underline-link">{{ .ContactDetails.Telephone }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </nav>
 </section>
