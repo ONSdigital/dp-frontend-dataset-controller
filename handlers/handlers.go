@@ -138,6 +138,7 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cf
 	})
 }
 
+// CensusDatasetLanding will load a census dataset landing page
 func CensusDatasetLanding(rend RenderClient, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		censusLanding(w, req, rend, collectionID, lang, apiRouterVersion, userAccessToken)

@@ -140,18 +140,6 @@ one = "In the main, the greatest effects will be at the lowest geographies, sinc
 description = "Summary"
 one = "Summary"
 
-[WhyIsThisUseful]
-description = "Why is this useful collapsible section on dataset landing page (census)"
-one = "Why is this useful?"
-
-[WhyIsThisUsefulObligations]
-description = "Why is this useful - obligations"
-one = "This information helps public bodies meet statutory obligations relating to race equality. It is also used for resource allocation and to develop and monitor policy on improving the life-chances for disadvantaged groups, including many ethnic minority groups."
-
-[WhyIsThisUsefulUnderstanding]
-description = "Why is this useful - better understanding"
-one = "The statistics also provide a better understanding of communities and are used for the government-wide race equality and community cohesion strategy, which seeks to improve race equality outcomes in areas such as housing, education, health and criminal justice for all groups across society."
-
 [HideThis]
 description = "Hide this"
 one = "Hide this"

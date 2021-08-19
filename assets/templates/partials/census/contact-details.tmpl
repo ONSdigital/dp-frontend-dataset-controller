@@ -11,7 +11,7 @@
             {{ if .ContactDetails.Telephone }}
                 <li class="list__item u-mt-no u-pl-no u-fs-r">
                     <p class="u-mt-no u-mb-no u-fs-r u-pb-no">{{ localise "Phone" .Language 1 }}</p>
-                    <a href="#0" class="list__link underline-link">{{ .ContactDetails.Telephone }}</a>
+                    <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}" class="list__link underline-link">{{ .ContactDetails.Telephone }}</a>
                 </li>
             {{ end }}
         </ul>

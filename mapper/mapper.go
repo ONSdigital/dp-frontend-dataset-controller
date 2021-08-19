@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -463,8 +464,8 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	return p
 }
 
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) datasetLandingPageFilterable.Page {
-	p := datasetLandingPageFilterable.Page{
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) datasetLandingPageCensus.Page {
+	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
 
@@ -478,9 +479,26 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) 
 	p.Metadata.Description = "This is a POC dataset landing page"
 
 	p.ContactDetails.Email = "census.customerservices@ons.gov.uk"
-	p.ContactDetails.Telephone = "+44 (0)1633 456120"
+	p.ContactDetails.Telephone = "+44 1633 456120"
 
-	p.DatasetLandingPage.Methodologies = []datasetLandingPageFilterable.Methodology{
+	sections := make(map[string]datasetLandingPageCensus.Section)
+
+	sections["summary"] = datasetLandingPageCensus.Section{
+		Title:       "Summary",
+		Description: []string{"This is a POC dataset landing page"},
+		Collapsible: datasetLandingPageCensus.Collapsible{
+			Language: p.Language,
+			Title:    "Why is this useful",
+			Content: []string{
+				"Information about why this is useful goes here.",
+				"Second paragraph expanding on why this is useful goes here.",
+			},
+		},
+	}
+
+	p.DatasetLandingPage.Sections = sections
+
+	p.DatasetLandingPage.Methodologies = []datasetLandingPageCensus.Methodology{
 		{
 			URL:         "/",
 			Title:       "",
