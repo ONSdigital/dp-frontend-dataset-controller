@@ -464,7 +464,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	return p
 }
 
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, lang string) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -472,7 +472,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 
 	p.Type = "census_dataset_landing_page"
-	p.Language = "en"
+	p.Language = lang
 	p.URI = req.URL.Path
 
 	p.Metadata.Title = "POC Dataset Landing Page"
@@ -520,7 +520,8 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) 
 		},
 	}
 
-	p.DatasetLandingPage.ShareLocations = []datasetLandingPageCensus.Share{
+	p.DatasetLandingPage.ShareDetails.Language = lang
+	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
 		{
 			Title: "Facebook",
 			Link:  "#",

@@ -161,7 +161,7 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 
 func censusLanding(w http.ResponseWriter, req *http.Request, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(req, basePage)
+	m := mapper.CreateCensusDatasetLandingPage(req, basePage, lang)
 	rend.BuildPage(w, m, "census-landing")
 }
 

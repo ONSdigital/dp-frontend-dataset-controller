@@ -132,3 +132,11 @@ one = "Hide this"
 [RelatedLinksForCensus]
 description = "Related links to help with the census"
 one = "Related links to help with the census"
+
+[ShareDataset]
+description = "Title text for share component on dataset landing page"
+one = "Share this dataset"
+
+[ShareLinkA11yText]
+description = "Visually hidden text so screen reader users know that clicking on a share link will open in a new tab"
+one = "this link will open in a new tab"

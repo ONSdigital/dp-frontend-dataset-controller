@@ -14,9 +14,15 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	Sections       map[string]Section
-	ShareLocations []Share
-	Methodologies  []Methodology `json:"methodology"`
+	Sections      map[string]Section
+	ShareDetails  ShareDetails
+	Methodologies []Methodology `json:"methodology"`
+}
+
+// ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
+type ShareDetails struct {
+	ShareLocations []Share `json:"share_locations"`
+	Language       string  `json:"language"`
 }
 
 // Section corresponds to a section of the landing page with title, description and collapsible section (optional)
