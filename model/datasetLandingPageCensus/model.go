@@ -14,8 +14,9 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	Sections      map[string]Section
-	Methodologies []Methodology `json:"methodology"`
+	Sections       map[string]Section
+	ShareLocations []Share
+	Methodologies  []Methodology `json:"methodology"`
 }
 
 // Section corresponds to a section of the landing page with title, description and collapsible section (optional)
@@ -23,6 +24,15 @@ type Section struct {
 	Title       string      `json:"title"`
 	Description []string    `json:"description"`
 	Collapsible Collapsible `json:"collapsible"`
+}
+
+/* Share includes details for a specific place the dataset can be shared
+   Included icons: 'facebook', 'twitter'
+*/
+type Share struct {
+	Title string `json:"title"`
+	Link  string `json:"link"`
+	Icon  string `json:"icon"`
 }
 
 // Collapsible is a representation of the data required in a collapsible UI component

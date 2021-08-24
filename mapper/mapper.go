@@ -520,6 +520,29 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page) 
 		},
 	}
 
+	p.DatasetLandingPage.ShareLocations = []datasetLandingPageCensus.Share{
+		{
+			Title: "Facebook",
+			Link:  "#",
+			Icon:  "facebook",
+		},
+		{
+			Title: "Twitter",
+			Link:  "#",
+			Icon:  "twitter",
+		},
+		{
+			Title: "LinkedIn",
+			Link:  "#",
+			Icon:  "linkedin",
+		},
+		{
+			Title: "Email",
+			Link:  "mailto:#",
+			Icon:  "email",
+		},
+	}
+
 	p.BetaBannerEnabled = true
 	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
 

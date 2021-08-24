@@ -11,5 +11,8 @@
             {{ template "partials/census/stats-disclosure" . }}
             {{ if .DatasetLandingPage.Methodologies }}{{ template "partials/census/methodologies" . }}{{ end }}
         </div>
+    {{ if .DatasetLandingPage.ShareLocations }}
+        {{ template "partials/census/share-this-dataset" .DatasetLandingPage.ShareLocations }}
+    {{ end }}
     </div>
 </div>

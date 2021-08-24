@@ -1,0 +1,11 @@
+{{ $icon := . }}
+{{ if eq $icon "facebook" }}
+    {{ template "partials/share-dataset/icons/facebook" }}
+{{ else if eq $icon "twitter" }}
+    {{ template "partials/share-dataset/icons/twitter" }}
+{{ else if eq $icon "linkedin" }}
+    {{ template "partials/share-dataset/icons/linkedin" }}
+{{ else if eq $icon "email" }}
+    {{ template "partials/share-dataset/icons/email" }}
+{{ end }}
+
