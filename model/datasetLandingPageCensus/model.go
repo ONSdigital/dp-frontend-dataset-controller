@@ -33,7 +33,7 @@ type Section struct {
 }
 
 /* Share includes details for a specific place the dataset can be shared
-   Included icons: 'facebook', 'twitter'
+   Included icons: 'facebook', 'twitter', 'email', 'linkedin'
 */
 type Share struct {
 	Title string `json:"title"`
