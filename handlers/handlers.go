@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ONSdigital/dp-net/handlers"
@@ -138,13 +139,6 @@ func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cf
 	})
 }
 
-// CensusDatasetLanding will load a census dataset landing page
-func CensusDatasetLanding(rend RenderClient, apiRouterVersion string) http.HandlerFunc {
-	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		censusLanding(w, req, rend, collectionID, lang, apiRouterVersion, userAccessToken)
-	})
-}
-
 // EditionsList will load a list of editions for a filterable dataset
 func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
@@ -159,9 +153,9 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-func censusLanding(w http.ResponseWriter, req *http.Request, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func censusLanding(w http.ResponseWriter, req *http.Request, datasetModel dataset.DatasetDetails, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(req, basePage, lang)
+	m := mapper.CreateCensusDatasetLandingPage(req, basePage, datasetModel, lang)
 	rend.BuildPage(w, m, "census-landing")
 }
 
@@ -237,6 +231,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(req, w, err)
+		return
+	}
+
+	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
+		censusLanding(w, req, datasetModel, rend, collectionID, lang, apiRouterVersion, userAccessToken)
 		return
 	}
 
