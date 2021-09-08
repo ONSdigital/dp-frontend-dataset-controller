@@ -4,7 +4,7 @@
 <ul class="list list--inline list--bare list--icons">
   {{ range .ShareLocations }}
   <li class="list__item u-pl-no u-pr-xs">
-    <span class="list__prefix" >
+    <span class="list__prefix">
     {{ template "partials/share-dataset/icon-handler" .Icon }}
     </span><a href="{{.Link}}" class="list__link u-fs-r u-pt-xxs underline-link" target="_blank" rel="noreferrer external">{{ .Title }}<span class="u-vh">{{ localise "ShareLinkA11yText" $shareDetails.Language 1 }}</span></a>
   </li>
