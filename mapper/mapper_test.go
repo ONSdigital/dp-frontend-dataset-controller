@@ -486,3 +486,42 @@ func TestUnitMapCookiesPreferences(t *testing.T) {
 		So(pageModel.CookiesPolicy.Usage, ShouldEqual, true)
 	})
 }
+
+func TestCreateCensusDatasetLandingPage(t *testing.T) {
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := model.Page{}
+	contact := dataset.Contact{
+		Name:      "Test contact",
+		Telephone: "01232 123 123",
+		Email:     "hello@testing.com",
+	}
+	methodology := dataset.Methodology{
+		Description: "An interesting methodology description",
+		URL:         "http://www.google.com",
+		Title:       "The methodology title",
+	}
+	datasetModel := dataset.DatasetDetails{
+		Contacts: &[]dataset.Contact{
+			contact,
+		},
+		Description: "An interesting test description",
+		Methodologies: &[]dataset.Methodology{
+			methodology,
+		},
+		Title: "Test title",
+		Type:  "cantabular",
+	}
+
+	Convey("Census dataset landing page maps correctly", t, func() {
+		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, "")
+		So(page.Type, ShouldEqual, datasetModel.Type)
+		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
+		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
+		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
+		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
+		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
+		So(page.DatasetLandingPage.Methodologies[0].Description, ShouldEqual, methodology.Description)
+		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
+		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
+	})
+}

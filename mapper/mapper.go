@@ -464,28 +464,33 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	return p
 }
 
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, lang string) datasetLandingPageCensus.Page {
+// CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, lang string) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 
-	p.Type = "census_dataset_landing_page"
+	p.Type = d.Type
 	p.Language = lang
 	p.URI = req.URL.Path
 
-	p.Metadata.Title = "POC Dataset Landing Page"
-	p.Metadata.Description = "This is a POC dataset landing page"
+	p.Metadata.Title = d.Title
+	p.Metadata.Description = d.Description
 
-	p.ContactDetails.Email = "census.customerservices@ons.gov.uk"
-	p.ContactDetails.Telephone = "+44 1633 456120"
+	if d.Contacts != nil && len(*d.Contacts) > 0 {
+		contacts := *d.Contacts
+		p.ContactDetails.Name = contacts[0].Name
+		p.ContactDetails.Telephone = contacts[0].Telephone
+		p.ContactDetails.Email = contacts[0].Email
+	}
 
 	sections := make(map[string]datasetLandingPageCensus.Section)
 
 	sections["summary"] = datasetLandingPageCensus.Section{
 		Title:       "Summary",
-		Description: []string{"This is a POC dataset landing page"},
+		Description: []string{d.Description},
 		Collapsible: datasetLandingPageCensus.Collapsible{
 			Language: p.Language,
 			Title:    "Why is this useful",
@@ -498,12 +503,14 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 
 	p.DatasetLandingPage.Sections = sections
 
-	p.DatasetLandingPage.Methodologies = []datasetLandingPageCensus.Methodology{
-		{
-			URL:         "/",
-			Title:       "",
-			Description: "Methodology description goes here",
-		},
+	if d.Methodologies != nil {
+		for _, meth := range *d.Methodologies {
+			p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, datasetLandingPageCensus.Methodology{
+				Title:       meth.Title,
+				URL:         meth.URL,
+				Description: meth.Description,
+			})
+		}
 	}
 
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -516,7 +523,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 			URI:   "/census",
 		},
 		{
-			Title: "Datasets",
+			Title: d.Title,
 		},
 	}
 

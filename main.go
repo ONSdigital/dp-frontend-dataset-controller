@@ -107,7 +107,6 @@ func run(ctx context.Context) error {
 	}
 
 	// Initialise render client, routes and initialise localisations bundles
-	//rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Enable profiling endpoint for authorised users
@@ -117,10 +116,6 @@ func run(ctx context.Context) error {
 	}
 
 	router.StrictSlash(true).Path("/health").HandlerFunc(healthcheck.Handler)
-
-	if cfg.EnableCensusPages {
-		router.StrictSlash(true).Path("/datasets/census").Methods("GET").HandlerFunc(handlers.CensusDatasetLanding(rend, apiRouterVersion))
-	}
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
