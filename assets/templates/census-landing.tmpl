@@ -4,15 +4,21 @@
         <section class="u-mb-s">
             <h1 class="u-fs-xxl u-mt-l u-mb-s">{{ .Metadata.Title }}</h1>
         </section>
-        <div class="grid__col col-4@m u-pl-no"></div>
+        <div class="grid__col col-4@m u-pl-no">
+            {{ template "partials/table-of-contents" .DatasetLandingPage.GuideContents }}
+        </div>
         <div class="grid__col col-8@m u-pl-no">
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
-            {{ if .ContactDetails }}{{ template "partials/census/contact-details" . }}{{ end }}
+            {{ if .HasContactDetails }}
+                {{ template "partials/census/contact-details" . }}
+            {{ end }}
             {{ template "partials/census/stats-disclosure" . }}
-            {{ if .DatasetLandingPage.Methodologies }}{{ template "partials/census/methodologies" . }}{{ end }}
+            {{ if .DatasetLandingPage.Methodologies }}
+                {{ template "partials/census/methodologies" . }}
+            {{ end }}
         </div>
-    {{ if .DatasetLandingPage.ShareDetails }}
-        {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
-    {{ end }}
+        {{ if .DatasetLandingPage.ShareDetails }}
+            {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
+        {{ end }}
     </div>
 </div>

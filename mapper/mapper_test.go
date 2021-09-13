@@ -520,8 +520,47 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
+		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.Methodologies[0].Description, ShouldEqual, methodology.Description)
 		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
 		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
+	})
+
+	noContact := dataset.Contact{
+		Name:      "",
+		Telephone: "",
+		Email:     "",
+	}
+	noContactDM := dataset.DatasetDetails{
+		Contacts: &[]dataset.Contact{
+			noContact,
+		},
+	}
+
+	Convey("No contacts provided, contact section is not displayed", t, func() {
+		page := CreateCensusDatasetLandingPage(req, pageModel, noContactDM, "")
+		So(page.ContactDetails.Name, ShouldEqual, noContact.Name)
+		So(page.ContactDetails.Email, ShouldEqual, noContact.Email)
+		So(page.ContactDetails.Telephone, ShouldEqual, noContact.Telephone)
+		So(page.HasContactDetails, ShouldBeFalse)
+	})
+
+	oneContactDetail := dataset.Contact{
+		Name:      "Only a name",
+		Telephone: "",
+		Email:     "",
+	}
+	oneContactDetailDM := dataset.DatasetDetails{
+		Contacts: &[]dataset.Contact{
+			oneContactDetail,
+		},
+	}
+
+	Convey("One contact detail provided, contact section is displayed", t, func() {
+		page := CreateCensusDatasetLandingPage(req, pageModel, oneContactDetailDM, "")
+		So(page.ContactDetails.Name, ShouldEqual, oneContactDetail.Name)
+		So(page.ContactDetails.Email, ShouldEqual, oneContactDetail.Email)
+		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
+		So(page.HasContactDetails, ShouldBeTrue)
 	})
 }
