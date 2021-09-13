@@ -2,12 +2,13 @@
     <div class="grid u-ml-m u-mr-m">
         {{ template "partials/breadcrumb" . }}
         <section class="u-mb-s">
-            <h1 class="u-fs-xxl u-mt-l u-mb-s">{{ .Metadata.Title }}</h1>
+            <h1 class="u-fs-xxxl u-mt-l u-mb-s u-pb-no u-pt-no">{{ .Metadata.Title }}</h1>
         </section>
         <div class="grid__col col-4@m u-pl-no">
             {{ template "partials/table-of-contents" .DatasetLandingPage.GuideContents }}
         </div>
         <div class="grid__col col-8@m u-pl-no">
+            <section class="u-mt-l u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}

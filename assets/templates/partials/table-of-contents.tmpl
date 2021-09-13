@@ -1,8 +1,8 @@
 {{ $guideContents := . }}
-<aside>
+<aside class="u-mt-l">
     <a class="skiplink" href="#guide-content">{{ localise "ContentsSkipLink" .Language 1 }}</a>
     <nav class="toc" aria-label="Pages in this guide">
-        <h2 class="toc__title u-fs-r--b u-mb-s">{{ localise "Contents" .Language 1 }}</h2>
+        <h2 class="toc__title u-fs-r--b u-mb-s u-pt-no u-mt-no">{{ localise "Contents" .Language 1 }}</h2>
         <ol id="guide-content" class="list list--dashed u-mb-m">
             {{ range .GuideContent }}
                 <li class="list__item u-mb-xs u-p-no u-fs-r">

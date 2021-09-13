@@ -1,4 +1,4 @@
-<div id="collapsible" class="collapsible js-collapsible collapsible--initialised u-pb-s" data-btn-close="{{ localise "HideThis" .Language 1 }}">
+<div id="collapsible" class="collapsible js-collapsible collapsible--initialised u-pb-no" data-btn-close="{{ localise "HideThis" .Language 1 }}">
     <div class="collapsible__heading js-collapsible-heading">
         <div class="collapsible__controls">
             <h2 class="collapsible__title u-mt-no">{{ .Title }}</h2>
@@ -11,7 +11,7 @@
     </div>
     <div id="collapsible-content" class="collapsible__content js-collapsible-content">
         {{ range $i, $v := .Content }}
-            <p class="u-fs-r">{{ $v }}</p>
+            <p class="u-fs-r u-mb-s u-p-no">{{ $v }}</p>
         {{ end }}
         <button type="button" class="btn btn--small u-fs-r js-collapsible-button btn--secondary u-d-no u-p-no" aria-controls="collapsible">
             <span class="btn__inner js-collapsible-button-inner u-fs-r">{{ localise "HideThis" .Language 1 }}</span>
