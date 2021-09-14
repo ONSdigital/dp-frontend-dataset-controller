@@ -20,7 +20,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // TimeSlice allows sorting of a list of time.Time
@@ -49,7 +49,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 	trimmedURI := breadcrumb.URI
 	urlParsed, err := url.Parse(breadcrumb.URI)
 	if err != nil {
-		log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
+		log.Warn(ctx, "wrong format for breadcrumb uri", log.Data{"breadcrumb": breadcrumb})
 	} else {
 		urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
 		trimmedURI = urlParsed.String()
@@ -101,7 +101,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	}
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
-		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
+		log.Warn(ctx, "failed to parse url, self link", log.FormatErrors([]error{err}))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
 	datasetBreadcrumbs := []coreModel.TaxonomyNode{
@@ -218,7 +218,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 				pDim.Title = title
 				versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 				if err != nil {
-					log.Event(ctx, "failed to parse url, last_version link", log.WARN, log.Error(err))
+					log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 				}
 				for _, dimension := range dims.Items {
 					if dimension.Name == opt.Items[0].DimensionID {
@@ -236,7 +236,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					for _, val := range opt.Items {
 						t, err := convertMMMYYToTime(val.Label)
 						if err != nil {
-							log.Event(ctx, "unable to convert date (MMYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
+							log.Warn(ctx, "unable to convert date (MMYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
 						}
 						ts = append(ts, t)
 					}
@@ -271,7 +271,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					for _, val := range opt.Items {
 						t, err := convertYYYYToTime(val.Label)
 						if err != nil {
-							log.Event(ctx, "unable to convert date (YYYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
+							log.Warn(ctx, "unable to convert date (YYYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
 						}
 						ts = append(ts, t)
 					}
