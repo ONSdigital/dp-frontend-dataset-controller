@@ -29,7 +29,8 @@ type GuideContents struct {
 
 /* Content maps the content details.
 The visible text can be either a 'Title' or a 'LocaliseKey'.
-ID refers to the html element's ID that is needed to form the href
+The 'LocaliseKey' has to correspond to the localisation key found in the toml files within assets/locales, otherwise the page will error.
+ID refers to the html element's ID that is needed to form the href.
 */
 type Content struct {
 	Title       string `json:"title"`
