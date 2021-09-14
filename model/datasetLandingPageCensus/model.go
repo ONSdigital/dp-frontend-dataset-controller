@@ -10,13 +10,32 @@ type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
+	HasContactDetails  bool                          `json:"has_contact_details"`
 }
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
+	GuideContents GuideContents
 	Sections      map[string]Section
 	ShareDetails  ShareDetails
 	Methodologies []Methodology `json:"methodology"`
+}
+
+// GuideContents contains the contents of the page and the language attribute
+type GuideContents struct {
+	GuideContent []Content `json:"guide_content"`
+	Language     string    `json:"language"`
+}
+
+/* Content maps the content details.
+The visible text can be either a 'Title' or a 'LocaliseKey'.
+The 'LocaliseKey' has to correspond to the localisation key found in the toml files within assets/locales, otherwise the page will error.
+ID refers to the html element's ID that is needed to form the href.
+*/
+type Content struct {
+	Title       string `json:"title"`
+	ID          string `json:"id"`
+	LocaliseKey string `json:"localise_key"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
@@ -28,6 +47,7 @@ type ShareDetails struct {
 // Section corresponds to a section of the landing page with title, description and collapsible section (optional)
 type Section struct {
 	Title       string      `json:"title"`
+	ID          string      `json:"id"`
 	Description []string    `json:"description"`
 	Collapsible Collapsible `json:"collapsible"`
 }

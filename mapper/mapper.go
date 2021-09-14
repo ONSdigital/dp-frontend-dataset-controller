@@ -481,15 +481,25 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
-		p.ContactDetails.Name = contacts[0].Name
-		p.ContactDetails.Telephone = contacts[0].Telephone
-		p.ContactDetails.Email = contacts[0].Email
+		if contacts[0].Name != "" {
+			p.ContactDetails.Name = contacts[0].Name
+			p.HasContactDetails = true
+		}
+		if contacts[0].Telephone != "" {
+			p.ContactDetails.Telephone = contacts[0].Telephone
+			p.HasContactDetails = true
+		}
+		if contacts[0].Email != "" {
+			p.ContactDetails.Email = contacts[0].Email
+			p.HasContactDetails = true
+		}
 	}
 
 	sections := make(map[string]datasetLandingPageCensus.Section)
 
 	sections["summary"] = datasetLandingPageCensus.Section{
 		Title:       "Summary",
+		ID:          "summary",
 		Description: []string{d.Description},
 		Collapsible: datasetLandingPageCensus.Collapsible{
 			Language: p.Language,
@@ -503,6 +513,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 
 	p.DatasetLandingPage.Sections = sections
 
+	hasMethodologies := false
 	if d.Methodologies != nil {
 		for _, meth := range *d.Methodologies {
 			p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, datasetLandingPageCensus.Methodology{
@@ -511,6 +522,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 				Description: meth.Description,
 			})
 		}
+		hasMethodologies = true
 	}
 
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -525,6 +537,44 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 		{
 			Title: d.Title,
 		},
+	}
+
+	p.DatasetLandingPage.GuideContents.Language = lang
+	p.DatasetLandingPage.GuideContents.GuideContent = []datasetLandingPageCensus.Content{
+		{
+			Title: sections["summary"].Title,
+			ID:    sections["summary"].ID,
+		},
+		{
+			LocaliseKey: "Variables",
+			ID:          "variables",
+		},
+		{
+			LocaliseKey: "GetData",
+			ID:          "get-data",
+		},
+		{
+			LocaliseKey: "StatisticalDisclosureControl",
+			ID:          "stats-disclosure",
+		},
+	}
+
+	if p.HasContactDetails {
+		contactsContents := []datasetLandingPageCensus.Content{
+			{
+				LocaliseKey: "ContactDetails",
+				ID:          "contact",
+			},
+		}
+		temp := append(contactsContents, p.DatasetLandingPage.GuideContents.GuideContent[3:]...)
+		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent[:3], temp...)
+	}
+
+	if hasMethodologies {
+		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
+			LocaliseKey: "Methodology",
+			ID:          "methodology",
+		})
 	}
 
 	p.DatasetLandingPage.ShareDetails.Language = lang
