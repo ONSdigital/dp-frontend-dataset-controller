@@ -10,6 +10,7 @@
         <div class="grid__col col-8@m u-pl-no">
             <section class="u-mt-l u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
+            </section>
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}
             {{ end }}
