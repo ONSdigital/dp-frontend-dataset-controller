@@ -9,16 +9,25 @@ import (
 type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
+	Version            Version                       `json:"version"`
+	InitialReleaseDate string                        `json:"initial_release_date"`
+	ID                 string                        `json:"id"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
 	HasContactDetails  bool                          `json:"has_contact_details"`
 }
 
+// Version contains dataset version specific metadata
+type Version struct {
+	ReleaseDate string `json:"release_date"`
+}
+
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	GuideContents GuideContents
-	Sections      map[string]Section
-	ShareDetails  ShareDetails
-	Methodologies []Methodology `json:"methodology"`
+	HasOtherVersions bool `json:"has_other_versions"`
+	GuideContents    GuideContents
+	Sections         map[string]Section
+	ShareDetails     ShareDetails
+	Methodologies    []Methodology `json:"methodology"`
 }
 
 // GuideContents contains the contents of the page and the language attribute

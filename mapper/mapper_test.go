@@ -504,6 +504,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Contacts: &[]dataset.Contact{
 			contact,
 		},
+		ID:          "12345",
 		Description: "An interesting test description",
 		Methodologies: &[]dataset.Methodology{
 			methodology,
@@ -512,9 +513,21 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Type:  "cantabular",
 	}
 
-	Convey("Census dataset landing page maps correctly", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, "")
+	versionOneDetails := dataset.Version{
+		ReleaseDate: "01-01-2021",
+	}
+
+	versionTwoDetails := dataset.Version{
+		ReleaseDate: "15-02-2021",
+	}
+
+	Convey("Census dataset landing page maps correctly as version 1", t, func() {
+		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionOneDetails, "", false, "")
 		So(page.Type, ShouldEqual, datasetModel.Type)
+		So(page.ID, ShouldEqual, datasetModel.ID)
+		So(page.Version.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
+		So(page.InitialReleaseDate, ShouldEqual, page.Version.ReleaseDate)
+		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, false)
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
@@ -524,6 +537,13 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Methodologies[0].Description, ShouldEqual, methodology.Description)
 		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
 		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
+	})
+
+	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
+		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionTwoDetails, versionOneDetails.ReleaseDate, true, "")
+		So(page.InitialReleaseDate, ShouldEqual, "01-01-2021")
+		So(page.Version.ReleaseDate, ShouldEqual, "15-02-2021")
+		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, true)
 	})
 
 	noContact := dataset.Contact{
@@ -538,7 +558,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("No contacts provided, contact section is not displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, noContactDM, "")
+		page := CreateCensusDatasetLandingPage(req, pageModel, noContactDM, versionOneDetails, "", false, "")
 		So(page.ContactDetails.Name, ShouldEqual, noContact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, noContact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, noContact.Telephone)
@@ -557,7 +577,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("One contact detail provided, contact section is displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, oneContactDetailDM, "")
+		page := CreateCensusDatasetLandingPage(req, pageModel, oneContactDetailDM, versionOneDetails, "", false, "")
 		So(page.ContactDetails.Name, ShouldEqual, oneContactDetail.Name)
 		So(page.ContactDetails.Email, ShouldEqual, oneContactDetail.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
