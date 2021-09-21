@@ -541,8 +541,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
 		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionTwoDetails, versionOneDetails.ReleaseDate, true, "")
-		So(page.InitialReleaseDate, ShouldEqual, "01-01-2021")
-		So(page.Version.ReleaseDate, ShouldEqual, "15-02-2021")
+		So(page.InitialReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
+		So(page.Version.ReleaseDate, ShouldEqual, versionTwoDetails.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, true)
 	})
 

@@ -153,8 +153,7 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, apiRouterVersion, userAccessToken string) {
-
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, userAccessToken string) {
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
 	var err error
@@ -296,7 +295,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, collectionID, lang, apiRouterVersion, userAccessToken)
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, collectionID, lang, userAccessToken)
 		return
 	}
 

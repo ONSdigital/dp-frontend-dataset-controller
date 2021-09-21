@@ -1,21 +1,21 @@
-<dl class="metadata metadata__list grid grid--gutterless u-cf u-mb-l" title="Dataset ID and datestamp" aria-label="Dataset ID and datestamp">
+{{ $releaseDateColWidth := "col-12@m" }}
+{{ if .DatasetLandingPage.HasOtherVersions }}
+    {{ $releaseDateColWidth = "col-4@m" }}
+{{ end }}
+
+<dl class="metadata metadata__list grid grid--gutterless u-cf u-mb-l" title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
     <div class="grid__col col-12@m">
-        <dt class="metadata__term u-mr-xs">Dataset ID:</dt>
+        <dt class="metadata__term u-mr-xs">{{ localise "DatasetID" .Language 1 }}</dt>
         <dd class="metadata__value u-f-no">{{ .ID }}</dd>
     </div>
+    <div class="grid__col {{$releaseDateColWidth}}">
+        <dt class="metadata__term u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+        <dd class="metadata__value u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
+    </div>
     {{ if .DatasetLandingPage.HasOtherVersions }}
-        <div class="grid__col col-4@m">
-            <dt class="metadata__term u-mr-xs">Release Date:</dt>
-            <dd class="metadata__value u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
-        </div>
         <div class="grid__col col-8@m">
-            <dt class="metadata__term u-mr-xs">Last updated:</dt>
-            <dd class="metadata__value u-f-no">{{ dateFormat .Version.ReleaseDate }} &mdash; <a href="#version-history">See version history</a></dd>
-        </div>
-    {{ else }}
-        <div class="grid__col col-12@m">
-            <dt class="metadata__term u-mr-xs">Release Date:</dt>
-            <dd class="metadata__value u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
+            <dt class="metadata__term u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
+            <dd class="metadata__value u-f-no">{{ dateFormat .Version.ReleaseDate }} &mdash; <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a></dd>
         </div>
     {{ end }}
 </dl>
