@@ -190,3 +190,19 @@ one = "Get the data"
 [StatisticalDisclosureControl]
 description = "Statistical disclosure control"
 one = "Statistical disclosure control"
+
+[Released]
+description = "Released"
+one = "Released"
+
+[LastUpdated]
+description = "Last updated"
+one = "Last updated"
+
+[SeeVersionHistory]
+description = "See version history"
+one = "See version history"
+
+[CensusDatasetLandingPageMetadataLabel]
+description = "Census DLP metadata label - datestamp and dataset ID"
+one = "Dataset ID and release date information"

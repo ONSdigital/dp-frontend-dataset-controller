@@ -1,0 +1,19 @@
+<dl class="metadata metadata__list grid grid--gutterless u-cf u-mb-l" title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
+    <div class="grid__col col-12@m">
+        <dt class="metadata__term u-mr-xs">{{ localise "DatasetID" .Language 1 }}</dt>
+        <dd class="metadata__value u-f-no">{{ .ID }}</dd>
+    </div>
+    {{ if .DatasetLandingPage.HasOtherVersions }}
+        <div class="grid__col col-12@m">
+            <dt class="metadata__term u-mr-xs u-dib u-f-no">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="metadata__value u-f-no u-dib">{{ dateFormat .InitialReleaseDate }}</dd>
+            <dt class="metadata__term u-dib u-mt-no u-f-no">{{ localise "LastUpdated" .Language 1 }}:</dt>
+            <dd class="metadata__value u-f-no u-dib">{{ dateFormat .Version.ReleaseDate }} &mdash; <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a></dd>
+        </div>
+    {{ else }}
+        <div class="grid__col col-12@m u-mt-xs">
+            <dt class="metadata__term u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="metadata__value u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
+        </div>
+    {{ end }}
+</dl>

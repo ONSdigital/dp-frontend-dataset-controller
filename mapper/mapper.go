@@ -465,7 +465,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, lang string) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, lang string) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -475,6 +475,16 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 	p.Type = d.Type
 	p.Language = lang
 	p.URI = req.URL.Path
+	p.ID = d.ID
+
+	p.Version.ReleaseDate = version.ReleaseDate
+	if initialVersionReleaseDate == "" {
+		p.InitialReleaseDate = p.Version.ReleaseDate
+	} else {
+		p.InitialReleaseDate = initialVersionReleaseDate
+	}
+
+	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
