@@ -1,29 +1,10 @@
-<section id="get-data" class="u-mt-l u-mb-l" aria-label="Get the data">
-    <h2 class="u-fw-b u-mt-l u-pb-no u-pt-no">Get the data</h2>
-    <p class="u-fs-r u-mt-s u-mb-s u-pt-no u-pb-s">Download the data in the following formats</p>
+{{ $length := len .Version.Downloads }}
+<section id="get-data" class="u-mt-l u-mb-l" aria-label="{{ localise "GetData" .Language 1 }}">
+    <h2 class="u-fw-b u-mt-l u-pb-no u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
+    <p class="u-fs-r u-mt-s u-mb-s u-pt-no u-pb-s">{{ localise "GetDataLeadText" .Language 1 }}</p>
     <ul class="list list--bare list--icons u-fs-r u-pb-s">
-        <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
-            <span class="list__prefix">
-                <svg
-                    class="svg-icon"
-                    width="14"
-                    height="17"
-                    viewBox="0 0 14 17"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    focusable="false">
-                    <path d="M0 17H14V15H0V17ZM14 6H10V0H4V6H0L7 13L14 6Z" fill="#222222"/>
-                </svg>
-            </span>
-            <span class="u-fs-r u-m-no u-p-no">
-                <a href="#" class="list__link underline-link">ethnic-group.xls</a>
-                <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
-                    Includes supporting information, XLS (78.6KB)
-                </span>
-            </span>
-        </li>
-        <hr class="u-mt-no">
-            <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
+        {{ range $i, $el := .Version.Downloads }}
+            <li class="list__item u-mt-s u-mb-no u-pl-no u-pb-s u-pt-no u-fs-r{{if notLastItem $length $i }} u-bb{{end}}">
                 <span class="list__prefix">
                     <svg
                         class="svg-icon"
@@ -37,74 +18,17 @@
                     </svg>
                 </span>
                 <span class="u-fs-r u-m-no u-p-no">
-                    <a href="#" class="list__link underline-link">ethnic-group.csv</a>
+                    <a href="{{ .URI }}" class="list__link underline-link">{{ .Name }}</a>
                     <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
-                        CSV (554.7KB)
+                        {{ if eq .Extension "XLS" }}
+                            {{ localise "GetDataIncludesSupportingInfo" $.Language 1 }}
+                        {{ else if eq .Extension "TXT" }}
+                            {{ localise "GetDataSupportingInfo" $.Language 1 }}
+                        {{ end }}
+                        {{ .Extension }} ({{ humanSize .Size }})
                     </span>
                 </span>
             </li>
-            <hr class="u-mt-no">
-                <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
-                    <span class="list__prefix">
-                        <svg
-                            class="svg-icon"
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            focusable="false">
-                            <path d="M0 17H14V15H0V17ZM14 6H10V0H4V6H0L7 13L14 6Z" fill="#222222"/>
-                        </svg>
-                    </span>
-                    <span class="u-fs-r u-m-no u-p-no">
-                        <a href="#" class="list__link underline-link">ethnic-group.csvw</a>
-                        <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
-                            CSV (1.9KB)
-                        </span>
-                    </span>
-                </li>
-                <hr class="u-mt-no">
-                    <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
-                        <span class="list__prefix">
-                            <svg
-                                class="svg-icon"
-                                width="14"
-                                height="17"
-                                viewBox="0 0 14 17"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                focusable="false">
-                                <path d="M0 17H14V15H0V17ZM14 6H10V0H4V6H0L7 13L14 6Z" fill="#222222"/>
-                            </svg>
-                        </span>
-                        <span class="u-fs-r u-m-no u-p-no">
-                            <a href="#" class="list__link underline-link">ethnic-group.json</a>
-                            <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
-                                JSON (10.9KB)
-                            </span>
-                        </span>
-                    </li>
-                    <hr class="u-mt-no">
-                        <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
-                            <span class="list__prefix">
-                                <svg
-                                    class="svg-icon"
-                                    width="14"
-                                    height="17"
-                                    viewBox="0 0 14 17"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    focusable="false">
-                                    <path d="M0 17H14V15H0V17ZM14 6H10V0H4V6H0L7 13L14 6Z" fill="#222222"/>
-                                </svg>
-                            </span>
-                            <span class="u-fs-r u-m-no u-p-no">
-                                <a href="#" class="list__link underline-link">ethnic-group-metadata.txt</a>
-                                <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
-                                    Supporting information, TXT (2.6KB)
-                                </span>
-                            </span>
-                        </li>
-                    </ul>
-                </section>
+        {{ end }}
+    </ul>
+</section>

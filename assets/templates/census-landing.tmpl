@@ -12,7 +12,7 @@
             <section class="u-mt-l u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
             </section>
-            {{ template "partials/census/get-data" }}
+            {{ template "partials/census/get-data" . }}
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}
             {{ end }}

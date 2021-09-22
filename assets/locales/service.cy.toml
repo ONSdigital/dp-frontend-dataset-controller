@@ -206,3 +206,15 @@ one = "See version history"
 [CensusDatasetLandingPageMetadataLabel]
 description = "Census DLP metadata label - datestamp and dataset ID"
 one = "Dataset ID and release date information"
+
+[GetDataLeadText]
+description = "Get the data component lead text"
+one = "Download the data in the following formats"
+
+[GetDataIncludesSupportingInfo]
+description = "Includes supporting information" 
+one = "Includes supporting information,"
+
+[GetDataSupportingInfo]
+description = "Supporting information" 
+one = "Supporting information,"
