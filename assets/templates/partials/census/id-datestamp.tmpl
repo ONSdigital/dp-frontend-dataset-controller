@@ -12,7 +12,7 @@
         </div>
     {{ else }}
         <div class="grid__col col-12@m u-mt-xs">
-            <dt class="metadata__term u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dt class="metadata__term u-mr-xs u-dib u-f-no">{{ localise "Released" .Language 1 }}:</dt>
             <dd class="metadata__value u-f-no u-dib">{{ dateFormat .InitialReleaseDate }}</dd>
         </div>
     {{ end }}
