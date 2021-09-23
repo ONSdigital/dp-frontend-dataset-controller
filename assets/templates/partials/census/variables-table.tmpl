@@ -1,0 +1,32 @@
+{{$dims := .DatasetLandingPage.Dimensions}}
+{{$language := .Language }}
+<section id="variables" class="u-mt-l u-mb-l" aria-label="{{ localise "Variables" .Language 1}}">
+    <h2 class="u-fw-b u-mt-l u-mb-l u-pb-no u-pt-no" id="{{ localise "Variables" .Language 1}}">{{ localise "Variables" .Language 1}}</h2>
+    <table id="variables-table" class="table">
+    {{range $i, $dim := $dims}}
+        <tr class="table__row">
+            <th scope="col" class="table__header u-pb-no"><span>{{ $dim.Title }}</span></th>
+            <td scope="col" class="table__header u-pb-no">
+                <div>
+                {{ $length := len $dim.Values }}
+                {{ $length }}
+                {{ if gt $length 1 }}
+                    {{ localise "Category" $language 4 }}
+                {{else}}
+                    {{ localise "Category" $language 1 }}
+                {{end}}
+                </div>
+                <div class="u-mt-s u-pb-s">
+                {{ range $j, $val := $dim.Values}}
+                    {{ if notLastItem $length $j }}
+                        <small class="u-fs-s">{{ $val }} •</small>
+                    {{ else }}
+                        <small class="u-fs-s">{{ $val }}</small>
+                    {{ end }}
+                {{ end }}
+                </div>
+            </td>
+        </tr>
+    {{ end }}
+    </table>
+</section>

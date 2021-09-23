@@ -465,7 +465,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, lang string) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, lang string, maxNumberOfOptions int) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -614,6 +614,63 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 	p.BetaBannerEnabled = true
 	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
 
+	if len(opts) > 0 {
+		for _, opt := range opts {
+
+			var pDim datasetLandingPageCensus.Dimension
+
+			var title string
+			if len(opt.Items) > 0 {
+				title = strings.Title(opt.Items[0].DimensionID)
+			}
+
+			pDim.Title = title
+			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
+			if err != nil {
+				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
+			}
+			for _, dimension := range dims.Items {
+				if dimension.Name == opt.Items[0].DimensionID {
+					pDim.Description = dimension.Description
+					if len(dimension.Label) > 0 {
+						pDim.Title = dimension.Label
+					}
+				}
+			}
+
+			for i, val := range opt.Items {
+				if opt.TotalCount > maxNumberOfOptions {
+					if i > 9 {
+						break
+					}
+				}
+				pDim.Values = append(pDim.Values, val.Label)
+			}
+
+			if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
+				isValid := true
+				var intVals []int
+				for _, val := range pDim.Values {
+					intVal, err := strconv.Atoi(val)
+					if err != nil {
+						isValid = false
+						break
+					}
+					intVals = append(intVals, intVal)
+				}
+
+				if isValid {
+					sort.Ints(intVals)
+					for i, val := range intVals {
+						pDim.Values[i] = strconv.Itoa(val)
+					}
+				}
+			}
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+			pDim.TotalItems = opt.TotalCount
+			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
+		}
+	}
 	return p
 }
 

@@ -164,6 +164,11 @@ one = "Skip to page content"
 description = "Variables"
 one = "Variables"
 
+[Category]
+description = "Category"
+one = "Category"
+other = "Categories"
+
 [GetData]
 description = "Get the data"
 one = "Get the data"

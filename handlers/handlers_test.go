@@ -341,6 +341,13 @@ func TestUnitHandlers(t *testing.T) {
 		mockClient := NewMockDatasetClient(mockCtrl)
 		mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 		mockRend := NewMockRenderClient(mockCtrl)
+		dims := dataset.VersionDimensions{
+			Items: []dataset.VersionDimension{
+				{
+					Name: "city",
+				},
+			},
+		}
 
 		Convey("filterable landing handler returns census landing template for cantabular types", func() {
 			mockConfig := config.Config{EnableCensusPages: true}
@@ -349,7 +356,9 @@ func TestUnitHandlers(t *testing.T) {
 			versions := []dataset.Version{{ReleaseDate: "02-01-2005", Version: 1, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
-
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1").Return(dims, nil)
+			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1", "city",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
@@ -375,7 +384,9 @@ func TestUnitHandlers(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "2").Return(versions[1], nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
-
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "2").Return(dims, nil)
+			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "2", "city",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 

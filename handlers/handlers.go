@@ -168,8 +168,21 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		return
 	}
 
+	dims := dataset.VersionDimensions{Items: nil}
+	dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version))
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
+	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(req, basePage, datasetModel, version, initialVersionReleaseDate, hasOtherVersions, lang)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, lang, numOptsSummary)
 	rend.BuildPage(w, m, "census-landing")
 }
 
