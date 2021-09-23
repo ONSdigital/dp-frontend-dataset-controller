@@ -211,10 +211,16 @@ one = "Dataset ID and release date information"
 description = "Get the data component lead text"
 one = "Download the data in the following formats"
 
-[GetDataIncludesSupportingInfo]
+[IncludesSupportingInfo]
 description = "Includes supporting information" 
 one = "Includes supporting information,"
+other = "includes supporting information,"
 
-[GetDataSupportingInfo]
+[SupportingInfo]
 description = "Supporting information" 
 one = "Supporting information,"
+other = "supporting information,"
+
+[Download]
+description = "Download"
+one = "download,"
