@@ -153,9 +153,23 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-func censusLanding(w http.ResponseWriter, req *http.Request, datasetModel dataset.DatasetDetails, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, userAccessToken string) {
+	var initialVersion dataset.Version
+	var initialVersionReleaseDate string
+	var err error
+
+	if version.Version != 1 {
+		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
+		initialVersionReleaseDate = initialVersion.ReleaseDate
+	}
+
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(req, basePage, datasetModel, lang)
+	m := mapper.CreateCensusDatasetLandingPage(req, basePage, datasetModel, version, initialVersionReleaseDate, hasOtherVersions, lang)
 	rend.BuildPage(w, m, "census-landing")
 }
 
@@ -234,11 +248,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(w, req, datasetModel, rend, collectionID, lang, apiRouterVersion, userAccessToken)
-		return
-	}
-
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 		if err != nil {
@@ -284,6 +293,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		setStatusCode(req, w, err)
 		return
 	}
+
+	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, collectionID, lang, userAccessToken)
+		return
+	}
+
 	dims := dataset.VersionDimensions{Items: nil}
 	if datasetModel.Type != "nomis" {
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
