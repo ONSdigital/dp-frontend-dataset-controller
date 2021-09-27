@@ -1,7 +1,9 @@
 package datasetLandingPageCensus
 
 import (
+	commonModels "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
+
 	"github.com/ONSdigital/dp-renderer/model"
 )
 
@@ -9,35 +11,21 @@ import (
 type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
-	Version            Version                       `json:"version"`
+	Version            commonModels.Version          `json:"version"`
 	InitialReleaseDate string                        `json:"initial_release_date"`
 	ID                 string                        `json:"id"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
 	HasContactDetails  bool                          `json:"has_contact_details"`
 }
 
-// Version contains dataset version specific metadata
-type Version struct {
-	ReleaseDate string `json:"release_date"`
-}
-
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	HasOtherVersions bool        `json:"has_other_versions"`
-	Dimensions       []Dimension `json:"dimensions"`
+	HasOtherVersions bool                     `json:"has_other_versions"`
+	Dimensions       []commonModels.Dimension `json:"dimensions"`
 	GuideContents    GuideContents
 	Sections         map[string]Section
 	ShareDetails     ShareDetails
 	Methodologies    []Methodology `json:"methodology"`
-}
-
-// Dimension represents the data for a single dimension
-type Dimension struct {
-	Title       string   `json:"title"`
-	Values      []string `json:"values"`
-	OptionsURL  string   `json:"options_url"`
-	TotalItems  int      `json:"total_items"`
-	Description string   `json:"description"`
 }
 
 // GuideContents contains the contents of the page and the language attribute

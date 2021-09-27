@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	commonModels "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
@@ -184,7 +185,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 		})
 	}
 
-	var v datasetLandingPageFilterable.Version
+	var v commonModels.Version
 	v.Title = d.Title
 	v.Description = d.Description
 	v.Edition = ver.Edition
@@ -194,7 +195,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 
 	for k, download := range ver.Downloads {
 		if len(download.URL) > 0 {
-			v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{
+			v.Downloads = append(v.Downloads, commonModels.Download{
 				Extension: k,
 				Size:      download.Size,
 				URI:       download.URL,
@@ -207,7 +208,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	if len(opts) > 0 {
 		for _, opt := range opts {
 
-			var pDim datasetLandingPageFilterable.Dimension
+			var pDim commonModels.Dimension
 
 			var title string
 			if len(opt.Items) > 0 {
@@ -615,63 +616,69 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
 
 	if len(opts) > 0 {
-		for _, opt := range opts {
-
-			var pDim datasetLandingPageCensus.Dimension
-
-			var title string
-			if len(opt.Items) > 0 {
-				title = strings.Title(opt.Items[0].DimensionID)
-			}
-
-			pDim.Title = title
-			versionURL, err := url.Parse(d.Links.LatestVersion.URL)
-			if err != nil {
-				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
-			}
-			for _, dimension := range dims.Items {
-				if dimension.Name == opt.Items[0].DimensionID {
-					pDim.Description = dimension.Description
-					if len(dimension.Label) > 0 {
-						pDim.Title = dimension.Label
-					}
-				}
-			}
-
-			for i, val := range opt.Items {
-				if opt.TotalCount > maxNumberOfOptions {
-					if i > 9 {
-						break
-					}
-				}
-				pDim.Values = append(pDim.Values, val.Label)
-			}
-
-			if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
-				isValid := true
-				var intVals []int
-				for _, val := range pDim.Values {
-					intVal, err := strconv.Atoi(val)
-					if err != nil {
-						isValid = false
-						break
-					}
-					intVals = append(intVals, intVal)
-				}
-
-				if isValid {
-					sort.Ints(intVals)
-					for i, val := range intVals {
-						pDim.Values[i] = strconv.Itoa(val)
-					}
-				}
-			}
-			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-			pDim.TotalItems = opt.TotalCount
-			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
-		}
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
 	}
 	return p
+}
+
+func mapOptionsToDimensions(ctx context.Context, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []commonModels.Dimension {
+	dimensions := []commonModels.Dimension{}
+	for _, opt := range opts {
+
+		var pDim commonModels.Dimension
+
+		var title string
+		if len(opt.Items) > 0 {
+			title = strings.Title(opt.Items[0].DimensionID)
+		}
+
+		pDim.Title = title
+		versionURL, err := url.Parse(latestVersionURL)
+		if err != nil {
+			log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
+		}
+		for _, dimension := range dims.Items {
+			if dimension.Name == opt.Items[0].DimensionID {
+				pDim.Description = dimension.Description
+				if len(dimension.Label) > 0 {
+					pDim.Title = dimension.Label
+				}
+			}
+		}
+
+		for i, val := range opt.Items {
+			if opt.TotalCount > maxNumberOfOptions {
+				if i > 9 {
+					break
+				}
+			}
+			pDim.Values = append(pDim.Values, val.Label)
+		}
+
+		if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
+			isValid := true
+			var intVals []int
+			for _, val := range pDim.Values {
+				intVal, err := strconv.Atoi(val)
+				if err != nil {
+					isValid = false
+					break
+				}
+				intVals = append(intVals, intVal)
+			}
+
+			if isValid {
+				sort.Ints(intVals)
+				for i, val := range intVals {
+					pDim.Values[i] = strconv.Itoa(val)
+				}
+			}
+		}
+		pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+		pDim.TotalItems = opt.TotalCount
+		dimensions = append(dimensions, pDim)
+	}
+	return dimensions
 }
 
 func convertMMMYYToTime(input string) (t time.Time, err error) {
