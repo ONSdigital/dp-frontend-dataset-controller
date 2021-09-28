@@ -7,12 +7,10 @@ require (
 	github.com/ONSdigital/dp-cookies v0.2.0
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
-	github.com/ONSdigital/dp-renderer v0.0.0-20210713095816-28d4b2c33e42
-	github.com/ONSdigital/log.go v1.0.1
-	github.com/fatih/color v1.12.0 // indirect
+	github.com/ONSdigital/dp-renderer v1.3.0
+	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
 	github.com/justinas/alice v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect

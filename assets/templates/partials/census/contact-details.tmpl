@@ -1,0 +1,19 @@
+<section id="contact" class="u-mt-l u-mb-l" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
+    <h2 class="u-fw-b u-mt-l u-pb-no u-pt-no" id="contact-details">{{ localise "ContactDetails" .Language 1 }}</h2>
+    <nav class="related-content__navigation" aria-labelledby="contact-details">
+        <ul class="list list--bare u-fs-r">
+            {{ if .ContactDetails.Email }}
+                <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
+                    <p class="u-mt-no u-mt-no u-mb-no u-fs-r u-pt-no u-pb-no">{{ localise "Email" .Language 1 }}</p>
+                    <a href="mailto:{{.ContactDetails.Email}}" class="list__link underline-link">{{ .ContactDetails.Email }}</a>
+                </li>
+            {{ end }}
+            {{ if .ContactDetails.Telephone }}
+                <li class="list__item u-mt-s u-mb-s u-pl-no u-pb-no u-pt-no u-fs-r">
+                    <p class="u-mt-no u-mb-no u-fs-r u-pt-no u-pb-no">{{ localise "Phone" .Language 1 }}</p>
+                    <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}" class="list__link underline-link">{{ .ContactDetails.Telephone }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </nav>
+</section>

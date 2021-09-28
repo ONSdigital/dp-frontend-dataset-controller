@@ -17,7 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
 	render "github.com/ONSdigital/dp-renderer"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/pkg/errors"
@@ -55,7 +55,7 @@ func main() {
 	log.Namespace = "dp-frontend-dataset-controller"
 
 	if err := run(ctx); err != nil {
-		log.Event(ctx, "application unexpectedly failed", log.ERROR, log.Error(err))
+		log.Error(ctx, "application unexpectedly failed", err)
 		os.Exit(1)
 	}
 
@@ -69,11 +69,11 @@ func run(ctx context.Context) error {
 	// Get config
 	cfg, err := config.Get()
 	if err != nil {
-		log.Event(ctx, "unable to retrieve service configuration", log.ERROR, log.Error(err))
+		log.Error(ctx, "unable to retrieve service configuration", err)
 		return err
 	}
 
-	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
+	log.Info(ctx, "got service configuration", log.Data{"config": cfg})
 
 	// Get API version from its URL
 	apiRouterVersion, err := helpers.GetAPIRouterVersion(cfg.APIRouterURL)
@@ -88,7 +88,7 @@ func run(ctx context.Context) error {
 		Version,
 	)
 	if err != nil {
-		log.Event(ctx, "failed to create service version information", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to create service version information", err)
 		return err
 	}
 
@@ -107,7 +107,6 @@ func run(ctx context.Context) error {
 	}
 
 	// Initialise render client, routes and initialise localisations bundles
-	//rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Enable profiling endpoint for authorised users
@@ -129,7 +128,7 @@ func run(ctx context.Context) error {
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 
-	log.Event(ctx, "Starting server", log.INFO, log.Data{"config": cfg})
+	log.Info(ctx, "Starting server", log.Data{"config": cfg})
 
 	// Start healthcheck tickers
 	healthcheck.Start(ctx)
@@ -152,12 +151,12 @@ func run(ctx context.Context) error {
 	// Block until a signal is called to shutdown application
 	select {
 	case err := <-svcErrors:
-		log.Event(ctx, "service error received", log.ERROR, log.Error(err))
+		log.Error(ctx, "service error received", err)
 	case osSignal := <-signals:
-		log.Event(ctx, "quitting after os signal received", log.INFO, log.Data{"signal": osSignal})
+		log.Info(ctx, "quitting after os signal received", log.Data{"signal": osSignal})
 	}
 
-	log.Event(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout), log.INFO)
+	log.Info(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout))
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.GracefulShutdownTimeout)
 
@@ -167,11 +166,11 @@ func run(ctx context.Context) error {
 		defer cancel()
 		var hasShutdownErrs bool
 
-		log.Event(ctx, "stop health checkers", log.INFO)
+		log.Info(ctx, "stop health checkers")
 		healthcheck.Stop()
 
 		if err := s.Shutdown(ctx); err != nil {
-			log.Event(ctx, "failed to gracefully shutdown http server", log.ERROR, log.Error(err))
+			log.Error(ctx, "failed to gracefully shutdown http server", err)
 			hasShutdownErrs = true
 		}
 
@@ -183,17 +182,17 @@ func run(ctx context.Context) error {
 	// wait for timeout or success (via cancel)
 	<-ctx.Done()
 	if ctx.Err() == context.DeadlineExceeded {
-		log.Event(ctx, "context deadline exceeded", log.WARN, log.Error(ctx.Err()))
+		log.Warn(ctx, "context deadline exceeded", log.FormatErrors([]error{ctx.Err()}))
 		return err
 	}
 
 	if !gracefulShutdown {
 		err = errors.New("failed to shutdown gracefully")
-		log.Event(ctx, "failed to shutdown gracefully ", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to shutdown gracefully ", err)
 		return err
 	}
 
-	log.Event(ctx, "graceful shutdown complete", log.INFO, log.Data{"context": ctx.Err()})
+	log.Info(ctx, "graceful shutdown complete", log.Data{"context": ctx.Err()})
 
 	return nil
 }
@@ -203,7 +202,7 @@ func registerCheckers(ctx context.Context, h *health.HealthCheck, apiRouterCli *
 
 	if err = h.AddCheck("API router", apiRouterCli.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add API router health checker", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to add API router health checker", err)
 	}
 
 	if hasErrors {
@@ -221,12 +220,12 @@ func profileMiddleware(token string) func(http.Handler) http.Handler {
 
 			pprofToken := req.Header.Get("Authorization")
 			if pprofToken == "Bearer " || pprofToken != "Bearer "+token {
-				log.Event(ctx, "invalid auth token", log.ERROR, log.Error(errors.New("invalid auth token")))
+				log.Error(ctx, "invalid auth token", errors.New("invalid auth token"))
 				w.WriteHeader(404)
 				return
 			}
 
-			log.Event(ctx, "accessing profiling endpoint", log.INFO)
+			log.Info(ctx, "accessing profiling endpoint")
 			h.ServeHTTP(w, req)
 		})
 	}

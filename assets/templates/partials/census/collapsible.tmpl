@@ -1,0 +1,20 @@
+<div id="collapsible" class="collapsible js-collapsible collapsible--initialised u-pb-no" data-btn-close="{{ localise "HideThis" .Language 1 }}">
+    <div class="collapsible__heading js-collapsible-heading">
+        <div class="collapsible__controls">
+            <h2 class="collapsible__title u-mt-no">{{ .Title }}</h2>
+            <span class="collapsible__icon u-pt-xxs">
+                <svg class="svg-icon" viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                    <path d="M5.74,14.28l-.57-.56a.5.5,0,0,1,0-.71h0l5-5-5-5a.5.5,0,0,1,0-.71h0l.57-.56a.5.5,0,0,1,.71,0h0l5.93,5.93a.5.5,0,0,1,0,.7L6.45,14.28a.5.5,0,0,1-.71,0Z" transform="translate(-5.02 -1.59)"></path>
+                </svg>
+            </span>
+        </div>
+    </div>
+    <div id="collapsible-content" class="collapsible__content js-collapsible-content">
+        {{ range $i, $v := .Content }}
+            <p class="u-fs-r u-mb-s u-p-no">{{ $v }}</p>
+        {{ end }}
+        <button type="button" class="btn btn--small u-fs-r js-collapsible-button btn--secondary u-d-no u-p-no" aria-controls="collapsible">
+            <span class="btn__inner js-collapsible-button-inner u-fs-r">{{ localise "HideThis" .Language 1 }}</span>
+        </button>
+    </div>
+</div>

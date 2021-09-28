@@ -1,3 +1,14 @@
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Notes
+# - Documentation: https://github.com/nicksnyder/go-i18n/blob/master/README.md
+# - Description should be the English version of the text, unless English version is a shorthand e.g. Home button is shorthand in English for Homepage
+# - Arguments can be added via {{.argN}} where N is integer index starting at 0 e.g. {{.arg0}} {{.arg1}}
+# - To inject HTML (Avoid where possible as it is messy) use "| safeHTML" e.g. {{ localise Foo .Language 1 | safeHTML }} where Foo might be "<strong>test</strong>"
+# count - 1 = one
+# count - any other number = other; typically use this for general plurals
+# Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Primarily used in static dataset landing page
 [Dataset]
 description = "Dataset"
@@ -79,9 +90,21 @@ one = "Important notes and usage information"
 description = "View all data related to"
 one = "View all data related to"
 
+[ContactDetails]
+description = "Contact details"
+one = "Contact details"
+
 [DatasetContactDetails]
 description = "Contact details for this dataset"
 one = "Contact details for this dataset"
+
+[Email]
+description = "Email"
+one = "Email"
+
+[Phone]
+description = "Phone"
+one = "Phone"
 
 [UsedInPublication]
 description = "Publications that use this data"
@@ -96,3 +119,89 @@ other = "Methodology"
 description = "Related links"
 one = "Related link"
 other = "Related links"
+
+[StatsDisclosureTitle]
+description = "Statistical disclosure control"
+one = "Statistical disclosure control"
+
+[StatsDisclosureReasoning]
+description = "Reasoning for why we have statistical disclosure controls in place"
+one = "In order to protect against disclosure of personal information from the 2021 Census, there has been swapping of records in the Census database between different geographic areas, and so some counts will be affected."
+
+[StatsDisclosureEffect]
+description = "The primary effect of statistical disclosure controls on the dataset"
+one = "In the main, the greatest effects will be at the lowest geographies, since the record swapping is targeted towards those households with unusual characteristics in small areas."
+
+[Summary]
+description = "Summary"
+one = "Summary"
+
+[HideThis]
+description = "Hide this"
+one = "Hide this"
+
+[RelatedLinksForCensus]
+description = "Related links to help with the census"
+one = "Related links to help with the census"
+
+[ShareDataset]
+description = "Title text for share component on dataset landing page"
+one = "Share this dataset"
+
+[ShareLinkA11yText]
+description = "Visually hidden text so screen reader users know that clicking on a share link will open in a new tab"
+one = "this link will open in a new tab"
+
+[Contents]
+description = "Contents section heading"
+one = "Page contents"
+
+[ContentsSkipLink]
+description = "Contents skip link"
+one = "Skip to page content"
+
+[Variables]
+description = "Variables"
+one = "Variables"
+
+[GetData]
+description = "Get the data"
+one = "Get the data"
+
+[StatisticalDisclosureControl]
+description = "Statistical disclosure control"
+one = "Statistical disclosure control"
+
+[Released]
+description = "Released"
+one = "Released"
+
+[LastUpdated]
+description = "Last updated"
+one = "Last updated"
+
+[SeeVersionHistory]
+description = "See version history"
+one = "See version history"
+
+[CensusDatasetLandingPageMetadataLabel]
+description = "Census DLP metadata label - datestamp and dataset ID"
+one = "Dataset ID and release date information"
+
+[GetDataLeadText]
+description = "Get the data component lead text"
+one = "Download the data in the following formats"
+
+[IncludesSupportingInfo]
+description = "Includes supporting information" 
+one = "Includes supporting information,"
+other = "includes supporting information,"
+
+[SupportingInfo]
+description = "Supporting information" 
+one = "Supporting information,"
+other = "supporting information,"
+
+[Download]
+description = "Download"
+one = "download,"

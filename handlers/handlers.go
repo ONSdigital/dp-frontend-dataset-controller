@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ONSdigital/dp-net/handlers"
@@ -25,7 +26,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const dataEndpoint = `\/data$`
@@ -79,7 +80,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.Event(req.Context(), "client error", log.ERROR, log.Error(err), log.Data{"setting-response-status": status})
+	log.Error(req.Context(), "client error", err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
@@ -119,7 +120,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
-		log.Event(ctx, "created filter id", log.INFO, log.Data{"filter_id": fid})
+		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", http.StatusMovedPermanently)
 	})
 }
@@ -150,6 +151,30 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, rend, collectionID, userAccessToken)
 	})
+}
+
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, userAccessToken string) {
+	var initialVersion dataset.Version
+	var initialVersionReleaseDate string
+	var err error
+
+	if version.Version != 1 {
+		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
+		initialVersionReleaseDate = initialVersion.ReleaseDate
+	}
+
+	if err != nil {
+		setStatusCode(req, w, err)
+		return
+	}
+
+	if version.Downloads == nil {
+		version.Downloads = make(map[string]dataset.Download)
+	}
+
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateCensusDatasetLandingPage(req, basePage, datasetModel, version, initialVersionReleaseDate, hasOtherVersions, lang)
+	rend.BuildPage(w, m, "census-landing")
 }
 
 func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, collectionID, userAccessToken string) {
@@ -196,7 +221,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 			}
 
 			if opt.TotalCount > maxAgeAndTimeOptions {
-				log.Event(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": opt.TotalCount}, log.WARN)
+				log.Warn(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": opt.TotalCount})
 			}
 
 			opts = append(opts, opt)
@@ -262,7 +287,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	latestVersionOfEditionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	if version == "" {
-		log.Event(ctx, "no version provided, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionOfEditionURL": latestVersionOfEditionURL})
+		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionOfEditionURL": latestVersionOfEditionURL})
 		http.Redirect(w, req, latestVersionOfEditionURL, http.StatusFound)
 		return
 	}
@@ -272,6 +297,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		setStatusCode(req, w, err)
 		return
 	}
+
+	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, collectionID, lang, userAccessToken)
+		return
+	}
+
 	dims := dataset.VersionDimensions{Items: nil}
 	if datasetModel.Type != "nomis" {
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
@@ -310,7 +341,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if datasetModel.Type != "nomis" {
 		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
 		if err != nil {
-			log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+			log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 		}
 	}
 
@@ -371,13 +402,13 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
-		log.Event(ctx, "unable to get breadcrumb for dataset uri", log.WARN, log.Error(err), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
 	}
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
 		latestVersionPath := helpers.DatasetVersionUrl(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
-		log.Event(ctx, "only one edition, therefore redirecting to latest version", log.INFO, log.Data{"latestVersionPath": latestVersionPath})
+		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
@@ -441,7 +472,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
-					log.Event(req.Context(), "error fetching dataset details", log.ERROR, log.Error(err), log.Data{
+					log.Error(req.Context(), "error fetching dataset details", err, log.Data{
 						"dataset": relatedFilterableDataset.URI,
 					})
 					return

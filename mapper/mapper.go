@@ -15,11 +15,12 @@ import (
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // TimeSlice allows sorting of a list of time.Time
@@ -48,7 +49,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 	trimmedURI := breadcrumb.URI
 	urlParsed, err := url.Parse(breadcrumb.URI)
 	if err != nil {
-		log.Event(ctx, "wrong format for breadcrumb uri", log.WARN, log.Data{"breadcrumb": breadcrumb})
+		log.Warn(ctx, "wrong format for breadcrumb uri", log.Data{"breadcrumb": breadcrumb})
 	} else {
 		urlParsed.Path = strings.TrimPrefix(urlParsed.Path, apiRouterVersion)
 		trimmedURI = urlParsed.String()
@@ -100,7 +101,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	}
 	datasetURL, err := url.Parse(d.Links.Self.URL)
 	if err != nil {
-		log.Event(ctx, "failed to parse url, self link", log.WARN, log.Error(err))
+		log.Warn(ctx, "failed to parse url, self link", log.FormatErrors([]error{err}))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
 	datasetBreadcrumbs := []coreModel.TaxonomyNode{
@@ -217,7 +218,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 				pDim.Title = title
 				versionURL, err := url.Parse(d.Links.LatestVersion.URL)
 				if err != nil {
-					log.Event(ctx, "failed to parse url, last_version link", log.WARN, log.Error(err))
+					log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 				}
 				for _, dimension := range dims.Items {
 					if dimension.Name == opt.Items[0].DimensionID {
@@ -235,7 +236,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					for _, val := range opt.Items {
 						t, err := convertMMMYYToTime(val.Label)
 						if err != nil {
-							log.Event(ctx, "unable to convert date (MMYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
+							log.Warn(ctx, "unable to convert date (MMYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
 						}
 						ts = append(ts, t)
 					}
@@ -270,7 +271,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 					for _, val := range opt.Items {
 						t, err := convertYYYYToTime(val.Label)
 						if err != nil {
-							log.Event(ctx, "unable to convert date (YYYY) to time", log.WARN, log.Error(err), log.Data{"label": val.Label})
+							log.Warn(ctx, "unable to convert date (YYYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
 						}
 						ts = append(ts, t)
 					}
@@ -459,6 +460,172 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 			p.Editions = append(p.Editions, e)
 		}
 	}
+
+	return p
+}
+
+// CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
+func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, lang string) datasetLandingPageCensus.Page {
+	p := datasetLandingPageCensus.Page{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+
+	p.Type = d.Type
+	p.Language = lang
+	p.URI = req.URL.Path
+	p.ID = d.ID
+
+	p.Version.ReleaseDate = version.ReleaseDate
+	if initialVersionReleaseDate == "" {
+		p.InitialReleaseDate = p.Version.ReleaseDate
+	} else {
+		p.InitialReleaseDate = initialVersionReleaseDate
+	}
+
+	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
+
+	p.Metadata.Title = d.Title
+	p.Metadata.Description = d.Description
+
+	filename := strings.TrimSpace(d.Title)
+	filename = strings.ReplaceAll(filename, " ", "-")
+	filename = strings.ToLower(filename)
+
+	for ext, download := range version.Downloads {
+		p.Version.Downloads = append(p.Version.Downloads, datasetLandingPageCensus.Download{
+			Extension: ext,
+			Size:      download.Size,
+			URI:       download.URL,
+			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
+		})
+	}
+
+	if d.Contacts != nil && len(*d.Contacts) > 0 {
+		contacts := *d.Contacts
+		if contacts[0].Name != "" {
+			p.ContactDetails.Name = contacts[0].Name
+			p.HasContactDetails = true
+		}
+		if contacts[0].Telephone != "" {
+			p.ContactDetails.Telephone = contacts[0].Telephone
+			p.HasContactDetails = true
+		}
+		if contacts[0].Email != "" {
+			p.ContactDetails.Email = contacts[0].Email
+			p.HasContactDetails = true
+		}
+	}
+
+	sections := make(map[string]datasetLandingPageCensus.Section)
+
+	sections["summary"] = datasetLandingPageCensus.Section{
+		Title:       "Summary",
+		ID:          "summary",
+		Description: []string{d.Description},
+		Collapsible: datasetLandingPageCensus.Collapsible{
+			Language: p.Language,
+			Title:    "Why is this useful",
+			Content: []string{
+				"Information about why this is useful goes here.",
+				"Second paragraph expanding on why this is useful goes here.",
+			},
+		},
+	}
+
+	p.DatasetLandingPage.Sections = sections
+
+	hasMethodologies := false
+	if d.Methodologies != nil {
+		for _, meth := range *d.Methodologies {
+			p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, datasetLandingPageCensus.Methodology{
+				Title:       meth.Title,
+				URL:         meth.URL,
+				Description: meth.Description,
+			})
+		}
+		hasMethodologies = true
+	}
+
+	p.Breadcrumb = []coreModel.TaxonomyNode{
+		{
+			Title: "Home",
+			URI:   "/",
+		},
+		{
+			Title: "Census",
+			URI:   "/census",
+		},
+		{
+			Title: d.Title,
+		},
+	}
+
+	p.DatasetLandingPage.GuideContents.Language = lang
+	p.DatasetLandingPage.GuideContents.GuideContent = []datasetLandingPageCensus.Content{
+		{
+			Title: sections["summary"].Title,
+			ID:    sections["summary"].ID,
+		},
+		{
+			LocaliseKey: "Variables",
+			ID:          "variables",
+		},
+		{
+			LocaliseKey: "GetData",
+			ID:          "get-data",
+		},
+		{
+			LocaliseKey: "StatisticalDisclosureControl",
+			ID:          "stats-disclosure",
+		},
+	}
+
+	if p.HasContactDetails {
+		contactsContents := []datasetLandingPageCensus.Content{
+			{
+				LocaliseKey: "ContactDetails",
+				ID:          "contact",
+			},
+		}
+		temp := append(contactsContents, p.DatasetLandingPage.GuideContents.GuideContent[3:]...)
+		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent[:3], temp...)
+	}
+
+	if hasMethodologies {
+		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
+			LocaliseKey: "Methodology",
+			ID:          "methodology",
+		})
+	}
+
+	p.DatasetLandingPage.ShareDetails.Language = lang
+	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
+		{
+			Title: "Facebook",
+			Link:  "#",
+			Icon:  "facebook",
+		},
+		{
+			Title: "Twitter",
+			Link:  "#",
+			Icon:  "twitter",
+		},
+		{
+			Title: "LinkedIn",
+			Link:  "#",
+			Icon:  "linkedin",
+		},
+		{
+			Title: "Email",
+			Link:  "mailto:#",
+			Icon:  "email",
+		},
+	}
+
+	p.BetaBannerEnabled = true
+	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
 
 	return p
 }

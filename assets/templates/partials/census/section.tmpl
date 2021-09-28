@@ -1,0 +1,7 @@
+<h2 id="{{ .ID }}" class="u-fw-b u-pb-no u-mt-no u-pt-no">{{ .Title }}</h2>
+{{ range $i, $v := .Description }}
+<p class="u-fs-r u-mt-s u-mb-s u-pt-no u-pb-no">{{ $v }}</p>
+{{ end }}
+{{ if .Collapsible.Title }}
+    {{ template "partials/census/collapsible" .Collapsible }}
+{{ end }}

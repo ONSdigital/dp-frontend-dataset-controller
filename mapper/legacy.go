@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // StaticDatasetLandingPage is a StaticDatasetLandingPage representation
@@ -71,7 +72,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	if strings.Contains(dlp.Description.ReleaseDate, "T23:00:00") {
 		releaseDateInTimeFormat, err := time.Parse(time.RFC3339, dlp.Description.ReleaseDate)
 		if err != nil {
-			log.Event(ctx, "failed to parse release date", log.Error(err), log.Data{"release_date": dlp.Description.ReleaseDate})
+			log.Error(ctx, "failed to parse release date", err, log.Data{"release_date": dlp.Description.ReleaseDate})
 			sdlp.DatasetLandingPage.ReleaseDate = dlp.Description.ReleaseDate
 		}
 		sdlp.DatasetLandingPage.ReleaseDate = releaseDateInTimeFormat.Add(1 * time.Hour).Format(time.RFC3339)
@@ -124,7 +125,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	for _, value := range dlp.Alerts {
 		switch value.Type {
 		default:
-			log.Event(ctx, "Unrecognised alert type", log.Data{"alert": value})
+			log.Error(ctx, "Unrecognised alert type", errors.New("Unrecognised alert type"), log.Data{"alert": value})
 			fallthrough
 		case "alert":
 			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, datasetLandingPageStatic.Message{
