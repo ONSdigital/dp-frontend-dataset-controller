@@ -29,8 +29,9 @@ type TimeSlice []time.Time
 
 // Dimension names
 const (
-	DimensionTime = "time"
-	DimensionAge  = "age"
+	DimensionTime      = "time"
+	DimensionAge       = "age"
+	DimensionGeography = "geography"
 )
 
 func (p TimeSlice) Len() int {

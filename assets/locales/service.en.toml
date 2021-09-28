@@ -192,3 +192,7 @@ one = "See version history"
 [CensusDatasetLandingPageMetadataLabel]
 description = "Census DLP metadata label - datestamp and dataset ID"
 one = "Dataset ID and release date information"
+
+[GeographyDimensionDescription]
+description = "Specific description for the Geography dimension on Census dataset landing pages"
+one = "All output areas (OA) in England and Wales"
