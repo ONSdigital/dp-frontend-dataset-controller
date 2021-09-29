@@ -26,7 +26,7 @@
                         <div class="u-mt-s u-pb-s">
                             {{ range $j, $val := $dim.Values}}
                                 {{ if notLastItem $length $j }}
-                                    <small class="u-fs-s">{{ $val }} •</small>
+                                    <small class="u-fs-s">{{ $val }},</small>
                                 {{ else }}
                                     <small class="u-fs-s">{{ $val }}</small>
                                 {{ end }}
