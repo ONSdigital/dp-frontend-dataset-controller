@@ -5,4 +5,5 @@ type Download struct {
 	Extension string `json:"extension"`
 	Size      string `json:"size"`
 	URI       string `json:"uri"`
+	Name      string `json:"name"`
 }

@@ -13,6 +13,7 @@
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
             </section>
             {{ template "partials/census/variables-table" . }}
+            {{ template "partials/census/get-data" . }}
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}
             {{ end }}

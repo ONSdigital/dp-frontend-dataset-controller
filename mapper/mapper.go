@@ -359,6 +359,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 
+	filename := strings.TrimSpace(d.Title)
+	filename = strings.ReplaceAll(filename, " ", "-")
+	filename = strings.ToLower(filename)
+
+	for ext, download := range version.Downloads {
+		p.Version.Downloads = append(p.Version.Downloads, commonModels.Download{
+			Extension: ext,
+			Size:      download.Size,
+			URI:       download.URL,
+			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
+		})
+	}
+
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
 		if contacts[0].Name != "" {

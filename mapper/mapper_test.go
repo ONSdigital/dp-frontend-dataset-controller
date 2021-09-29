@@ -515,6 +515,12 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	versionOneDetails := dataset.Version{
 		ReleaseDate: "01-01-2021",
+		Downloads: map[string]dataset.Download{
+			"XLSX": {
+				Size: "438290",
+				URL:  "my-url",
+			},
+		},
 	}
 
 	versionTwoDetails := dataset.Version{
@@ -555,6 +561,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Version.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
 		So(page.InitialReleaseDate, ShouldEqual, page.Version.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, false)
+		So(page.Version.Downloads[0].Size, ShouldEqual, "438290")
+		So(page.Version.Downloads[0].Extension, ShouldEqual, "XLSX")
+		So(page.Version.Downloads[0].URI, ShouldEqual, "my-url")
+		So(page.Version.Downloads[0].Name, ShouldEqual, "test-title.xlsx")
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
@@ -571,6 +581,35 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.InitialReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
 		So(page.Version.ReleaseDate, ShouldEqual, versionTwoDetails.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, true)
+	})
+
+	Convey("Filename builder should not add hyphens when no spaces are provided", t, func() {
+		datasetModel := dataset.DatasetDetails{
+			Title: "NoSPACES",
+		}
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
+		So(page.Version.Downloads[0].Name, ShouldEqual, "nospaces.xlsx")
+	})
+
+	Convey("Filename builder should trim whitespace before and after string", t, func() {
+		datasetModel := dataset.DatasetDetails{
+			Title: " spaces before and after ",
+		}
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
+		So(page.Version.Downloads[0].Name, ShouldEqual, "spaces-before-and-after.xlsx")
+	})
+
+	Convey("Filename builder should suffix file extension in lower case", t, func() {
+		versionDetails := dataset.Version{
+			Downloads: map[string]dataset.Download{
+				"XLSX": {
+					Size: "438290",
+					URL:  "my-url",
+				},
+			},
+		}
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
+		So(page.Version.Downloads[0].Name, ShouldEqual, "test-title.xlsx")
 	})
 
 	noContact := dataset.Contact{

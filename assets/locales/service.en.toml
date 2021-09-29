@@ -196,3 +196,21 @@ one = "Dataset ID and release date information"
 [GeographyDimensionDescription]
 description = "Specific description for the Geography dimension on Census dataset landing pages"
 one = "All output areas (OA) in England and Wales"
+
+[GetDataLeadText]
+description = "Get the data component lead text"
+one = "Download the data in the following formats"
+
+[IncludesSupportingInfo]
+description = "Includes supporting information" 
+one = "Includes supporting information,"
+other = "includes supporting information,"
+
+[SupportingInfo]
+description = "Supporting information" 
+one = "Supporting information,"
+other = "supporting information,"
+
+[Download]
+description = "Download"
+one = "download,"

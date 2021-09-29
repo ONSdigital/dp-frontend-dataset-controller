@@ -181,6 +181,10 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		return
 	}
 
+	if version.Downloads == nil {
+		version.Downloads = make(map[string]dataset.Download)
+	}
+
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, lang, numOptsSummary)
 	rend.BuildPage(w, m, "census-landing")
