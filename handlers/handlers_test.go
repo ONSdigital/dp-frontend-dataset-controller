@@ -346,7 +346,20 @@ func TestUnitHandlers(t *testing.T) {
 			mockConfig := config.Config{EnableCensusPages: true}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 
-			versions := []dataset.Version{{ReleaseDate: "02-01-2005", Version: 1, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}}}
+			versions := []dataset.Version{{
+				Downloads: map[string]dataset.Download{
+					"XLS": {
+						Size: "78600",
+						URL:  "https://www.my-url.com/file.xls",
+					}},
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/12345/editions/2021/versions/1",
+					},
+				},
+			}}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
 
@@ -374,6 +387,37 @@ func TestUnitHandlers(t *testing.T) {
 			}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "2").Return(versions[1], nil)
+			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
+
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("census dataset landing page returns 200 when no downloadable files provided", func() {
+			mockConfig := config.Config{EnableCensusPages: true}
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+
+			versions := []dataset.Version{{
+				Downloads:   nil,
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/12345/editions/2021/versions/1",
+					},
+				},
+			}}
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
 
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))

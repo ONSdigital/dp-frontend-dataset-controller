@@ -1,0 +1,35 @@
+{{ $length := len .Version.Downloads }}
+<section id="get-data" class="u-mt-l u-mb-l" aria-label="{{ localise "GetData" .Language 1 }}">
+    <h2 class="u-fw-b u-mt-l u-pb-no u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
+    <p class="u-fs-r u-mt-s u-mb-s u-pt-no u-pb-s">{{ localise "GetDataLeadText" .Language 1 }}</p>
+    <ul class="list list--bare list--icons u-fs-r u-pb-s">
+        {{ range $i, $el := .Version.Downloads }}
+            <li class="list__item u-mt-s u-mb-no u-pl-no u-pb-s u-pt-no u-fs-r{{if notLastItem $length $i }} u-bb{{end}}">
+                <span class="list__prefix u-pt-xxs">
+                    {{ template "icons/download" }}
+                </span>
+                <span class="u-fs-r u-m-no u-p-no">
+                    <a href="{{ .URI }}" class="list__link underline-link">{{ .Name }}
+                        <span class="u-vh">
+                            {{ localise "Download" $.Language 1 }}
+                            {{ if eq .Extension "XLS" }}
+                                {{ localise "IncludesSupportingInfo" $.Language 2 }}
+                            {{ else if or (eq .Extension "TXT") (eq .Extension "CSVW") }}
+                                {{ localise "SupportingInfo" $.Language 2 }}
+                            {{ end }}
+                            {{ humanSize .Size }}
+                        </span>
+                    </a>
+                    <span class="u-fs-s u-mb-xs u-mt-xs download__meta">
+                        {{ if eq .Extension "XLS" }}
+                            {{ localise "IncludesSupportingInfo" $.Language 1 }}
+                        {{ else if or (eq .Extension "TXT") (eq .Extension "CSVW") }}
+                            {{ localise "SupportingInfo" $.Language 1 }}
+                        {{ end }}
+                        {{ .Extension }} ({{ humanSize .Size }})
+                    </span>
+                </span>
+            </li>
+        {{ end }}
+    </ul>
+</section>

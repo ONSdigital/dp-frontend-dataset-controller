@@ -18,7 +18,16 @@ type Page struct {
 
 // Version contains dataset version specific metadata
 type Version struct {
-	ReleaseDate string `json:"release_date"`
+	ReleaseDate string     `json:"release_date"`
+	Downloads   []Download `json:"downloads"`
+}
+
+// Download has the details for the an individual dataset's downloadable files
+type Download struct {
+	Extension string `json:"extension"`
+	Size      string `json:"size"`
+	URI       string `json:"uri"`
+	Name      string `json:"name"`
 }
 
 // DatasetLandingPage contains properties related to the census dataset landing page
