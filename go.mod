@@ -7,7 +7,7 @@ require (
 	github.com/ONSdigital/dp-cookies v0.2.0
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
-	github.com/ONSdigital/dp-renderer v1.3.0
+	github.com/ONSdigital/dp-renderer v1.4.0
 	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
