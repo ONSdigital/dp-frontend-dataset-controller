@@ -13,8 +13,8 @@
         {{ range $i, $v := .Content }}
             <p class="ons-u-fs-r ons-u-mb-s ons-u-p-no">{{ $v }}</p>
         {{ end }}
-        <button type="button" class="ons-btn ons-btn--small ons-u-fs-r ons-js-collapsible-button ons-btn--secondary ons-u-d-no ons-u-p-no" aria-controls="collapsible">
-            <span class="ons-btn__inner ons-js-collapsible-button-inner ons-u-fs-r">{{ localise "HideThis" .Language 1 }}</span>
+        <button type="button" class="ons-btn ons-btn--small ons-js-collapsible-button ons-btn--secondary ons-u-d-no ons-u-p-no" aria-controls="collapsible">
+            <span class="ons-btn__inner ons-js-collapsible-button-inner">{{ localise "HideThis" .Language 1 }}</span>
         </button>
     </div>
 </div>
