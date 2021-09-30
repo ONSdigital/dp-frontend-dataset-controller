@@ -1,17 +1,17 @@
 {{$dims := .DatasetLandingPage.Dimensions}}
 {{$language := .Language }}
-<section id="variables" class="u-mt-l u-mb-l" aria-label="{{ localise "Variables" .Language 1}}">
-    <h2 class="u-fw-b u-mt-l u-mb-l u-pb-no u-pt-no" id="{{ localise "Variables" .Language 1}}">{{ localise "Variables" .Language 1}}</h2>
-    <table id="variables-table" class="table">
+<section id="variables" class="ons-u-mt-l ons-u-mb-l" aria-label="{{ localise "Variables" .Language 1}}">
+    <h2 class="ons-u-fw-b ons-u-mt-l ons-u-pb-s ons-u-pt-no ons-u-bb" id="{{ localise "Variables" .Language 1}}">{{ localise "Variables" .Language 1}}</h2>
+    <table id="variables-table" class="ons-table">
         {{range $i, $dim := $dims}}
-            <tr class="table__row">
-                <th scope="row" class="table__header u-pb-no" colspan="2">
+            <tr class="ons-table__row ons-u-bt">
+                <th scope="row" class="ons-table__header ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pr-l">
                     <span>{{ $dim.Title }}</span>
                 </th>
-                <td class="table__header u-pb-no">
+                <td class="ons-table__header ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pl-l">
                     {{ if eq $dim.Title "Geography" }}
                         <div>
-                            <div class="u-pb-s">{{ localise "GeographyDimensionDescription" $language 1 }}</div>
+                            <div class="ons-u-pb-s">{{ localise "GeographyDimensionDescription" $language 1 }}</div>
                         </div>
                     {{else}}
                         <div>
@@ -23,7 +23,7 @@
                                 {{ localise "Category" $language 1 }}
                             {{end}}
                         </div>
-                        <div class="u-mt-s u-pb-s">
+                        <div class="ons-u-mt-s">
                             {{ range $j, $val := $dim.Values}}
                                 {{ if notLastItem $length $j }}
                                     <small class="u-fs-s">{{ $val }},</small>
