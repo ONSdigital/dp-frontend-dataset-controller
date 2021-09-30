@@ -1,15 +1,15 @@
-<div class="page__container container ">
-    <div class="grid u-ml-m u-mr-m">
+<div class="ons-page__container ons-container ">
+    <div class="ons-grid ons-u-ml-m ons-u-mr-m">
         {{ template "partials/breadcrumb" . }}
-        <section class="u-mb-xl">
-            <h1 class="u-fs-xxxl u-mt-l u-mb-m u-pb-no u-pt-no">{{ .Metadata.Title }}</h1>
+        <section class="ons-u-mb-xl">
+            <h1 class="ons-u-fs-xxxl ons-u-mt-l ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
             {{ template "partials/census/id-datestamp" . }}
         </section>
-        <div class="grid__col col-4@m u-pl-no">
+        <div class="ons-grid__col ons-col-4@m ons-u-pl-no">
             {{ template "partials/table-of-contents" .DatasetLandingPage.GuideContents }}
         </div>
-        <div class="grid__col col-8@m u-pl-no">
-            <section class="u-mt-no u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
+        <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
+            <section class="ons-u-mt-no ons-u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
             {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
             </section>
             {{ template "partials/census/variables-table" . }}

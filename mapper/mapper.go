@@ -495,7 +495,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	p.BetaBannerEnabled = true
-	p.FeatureFlags.ONSDesignSystemVersion = "37.0.0"
+	p.FeatureFlags.ONSDesignSystemVersion = "40.0.1"
 
 	if len(opts) > 0 {
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
