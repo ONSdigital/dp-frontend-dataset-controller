@@ -1,16 +1,16 @@
 <div class="ons-page__container ons-container ">
-    <div class="ons-grid ons-u-ml-m ons-u-mr-m">
+    <div class="ons-grid ons-u-ml-m ons-u-mr-m ons-js-toc-container">
         {{ template "partials/breadcrumb" . }}
         <section class="ons-u-mb-xl">
             <h1 class="ons-u-fs-xxxl ons-u-mt-l ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
             {{ template "partials/census/id-datestamp" . }}
         </section>
-        <div class="ons-grid__col ons-col-4@m ons-u-pl-no">
+        <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m">
             {{ template "partials/table-of-contents" .DatasetLandingPage.GuideContents }}
         </div>
         <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
-            <section class="ons-u-mt-no ons-u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
-            {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
+            <section id="{{ .DatasetLandingPage.Sections.summary.ID }}" class="ons-u-mt-no ons-u-mb-l" aria-label="{{ localise "Summary" .Language 1 }}">
+                {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
             </section>
             {{ template "partials/census/get-data" . }}
             {{ if .HasContactDetails }}
@@ -21,6 +21,8 @@
                 {{ template "partials/census/methodologies" . }}
             {{ end }}
         </div>
+    </div>
+    <div class="ons-grid ons-u-ml-m ons-u-mr-m">
         {{ if .DatasetLandingPage.ShareDetails }}
             {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
         {{ end }}
