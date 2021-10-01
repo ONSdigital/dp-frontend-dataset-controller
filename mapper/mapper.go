@@ -14,7 +14,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	commonModels "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
@@ -186,7 +186,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 		})
 	}
 
-	var v commonModels.Version
+	var v sharedModel.Version
 	v.Title = d.Title
 	v.Description = d.Description
 	v.Edition = ver.Edition
@@ -196,7 +196,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 
 	for k, download := range ver.Downloads {
 		if len(download.URL) > 0 {
-			v.Downloads = append(v.Downloads, commonModels.Download{
+			v.Downloads = append(v.Downloads, sharedModel.Download{
 				Extension: k,
 				Size:      download.Size,
 				URI:       download.URL,
@@ -364,7 +364,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	filename = strings.ToLower(filename)
 
 	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, commonModels.Download{
+		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
 			URI:       download.URL,
@@ -503,11 +503,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	return p
 }
 
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []commonModels.Dimension {
-	dimensions := []commonModels.Dimension{}
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 
-		var pDim commonModels.Dimension
+		var pDim sharedModel.Dimension
 
 		var title string
 		if len(opt.Items) > 0 {

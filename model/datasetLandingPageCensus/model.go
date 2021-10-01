@@ -1,7 +1,7 @@
 package datasetLandingPageCensus
 
 import (
-	commonModels "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 
 	"github.com/ONSdigital/dp-renderer/model"
@@ -11,7 +11,7 @@ import (
 type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
-	Version            commonModels.Version          `json:"version"`
+	Version            sharedModel.Version           `json:"version"`
 	InitialReleaseDate string                        `json:"initial_release_date"`
 	ID                 string                        `json:"id"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
@@ -20,8 +20,8 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	HasOtherVersions bool                     `json:"has_other_versions"`
-	Dimensions       []commonModels.Dimension `json:"dimensions"`
+	HasOtherVersions bool                    `json:"has_other_versions"`
+	Dimensions       []sharedModel.Dimension `json:"dimensions"`
 	GuideContents    GuideContents
 	Sections         map[string]Section
 	ShareDetails     ShareDetails
