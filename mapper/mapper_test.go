@@ -491,7 +491,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	req := httptest.NewRequest("", "/", nil)
 	pageModel := model.Page{}
 	contact := dataset.Contact{
-		Name:      "Test contact",
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
 	}
@@ -517,8 +516,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		ReleaseDate: "01-01-2021",
 		Downloads: map[string]dataset.Download{
 			"XLSX": {
-				Size: "438290",
-				URL:  "my-url",
+				Size:   "438290",
+				Public: "my-url",
 			},
 		},
 	}
@@ -603,8 +602,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		versionDetails := dataset.Version{
 			Downloads: map[string]dataset.Download{
 				"XLSX": {
-					Size: "438290",
-					URL:  "my-url",
+					Size:   "438290",
+					Public: "my-url",
 				},
 			},
 		}
@@ -613,7 +612,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	})
 
 	noContact := dataset.Contact{
-		Name:      "",
 		Telephone: "",
 		Email:     "",
 	}
@@ -625,15 +623,13 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("No contacts provided, contact section is not displayed", t, func() {
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, noContactDM, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, "", 50)
-		So(page.ContactDetails.Name, ShouldEqual, noContact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, noContact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, noContact.Telephone)
 		So(page.HasContactDetails, ShouldBeFalse)
 	})
 
 	oneContactDetail := dataset.Contact{
-		Name:      "Only a name",
-		Telephone: "",
+		Telephone: "123",
 		Email:     "",
 	}
 	oneContactDetailDM := dataset.DatasetDetails{
@@ -644,7 +640,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("One contact detail provided, contact section is displayed", t, func() {
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, "", 50)
-		So(page.ContactDetails.Name, ShouldEqual, oneContactDetail.Name)
 		So(page.ContactDetails.Email, ShouldEqual, oneContactDetail.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)

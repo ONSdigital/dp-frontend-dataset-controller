@@ -367,17 +367,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
-			URI:       download.URL,
+			URI:       download.Public,
 			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
 		})
 	}
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
-		if contacts[0].Name != "" {
-			p.ContactDetails.Name = contacts[0].Name
-			p.HasContactDetails = true
-		}
 		if contacts[0].Telephone != "" {
 			p.ContactDetails.Telephone = contacts[0].Telephone
 			p.HasContactDetails = true
