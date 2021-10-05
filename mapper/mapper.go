@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
@@ -28,8 +29,9 @@ type TimeSlice []time.Time
 
 // Dimension names
 const (
-	DimensionTime = "time"
-	DimensionAge  = "age"
+	DimensionTime      = "time"
+	DimensionAge       = "age"
+	DimensionGeography = "geography"
 )
 
 func (p TimeSlice) Len() int {
@@ -184,7 +186,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 		})
 	}
 
-	var v datasetLandingPageFilterable.Version
+	var v sharedModel.Version
 	v.Title = d.Title
 	v.Description = d.Description
 	v.Edition = ver.Edition
@@ -194,7 +196,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 
 	for k, download := range ver.Downloads {
 		if len(download.URL) > 0 {
-			v.Downloads = append(v.Downloads, datasetLandingPageFilterable.Download{
+			v.Downloads = append(v.Downloads, sharedModel.Download{
 				Extension: k,
 				Size:      download.Size,
 				URI:       download.URL,
@@ -205,139 +207,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
-		for _, opt := range opts {
-
-			var pDim datasetLandingPageFilterable.Dimension
-
-			var title string
-			if len(opt.Items) > 0 {
-				title = strings.Title(opt.Items[0].DimensionID)
-			}
-
-			if d.Type != "nomis" {
-				pDim.Title = title
-				versionURL, err := url.Parse(d.Links.LatestVersion.URL)
-				if err != nil {
-					log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
-				}
-				for _, dimension := range dims.Items {
-					if dimension.Name == opt.Items[0].DimensionID {
-						pDim.Description = dimension.Description
-						if len(dimension.Label) > 0 {
-							pDim.Title = dimension.Label
-						}
-					}
-				}
-				pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-				pDim.TotalItems = opt.TotalCount
-
-				if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
-					var ts TimeSlice
-					for _, val := range opt.Items {
-						t, err := convertMMMYYToTime(val.Label)
-						if err != nil {
-							log.Warn(ctx, "unable to convert date (MMYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
-						}
-						ts = append(ts, t)
-					}
-					sort.Sort(ts)
-
-					if len(ts) > 0 {
-						startDate := ts[0]
-
-						for i, t := range ts {
-							if i != len(ts)-1 {
-								if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
-									continue
-								}
-								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
-								} else {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
-								}
-								startDate = ts[i+1]
-							} else {
-								if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
-								} else {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
-								}
-							}
-						}
-					}
-
-				} else if _, err = time.Parse("2006", opt.Items[0].Label); err == nil {
-					var ts TimeSlice
-					for _, val := range opt.Items {
-						t, err := convertYYYYToTime(val.Label)
-						if err != nil {
-							log.Warn(ctx, "unable to convert date (YYYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
-						}
-						ts = append(ts, t)
-					}
-					sort.Sort(ts)
-
-					if len(ts) > 0 {
-						startDate := ts[0]
-
-						for i, t := range ts {
-							if i != len(ts)-1 {
-								if (ts[i+1].Year() - t.Year()) == 1 {
-									continue
-								}
-
-								if startDate.Year() == t.Year() {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
-								} else {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
-								}
-								startDate = ts[i+1]
-							} else {
-
-								if startDate.Year() == t.Year() {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
-								} else {
-									pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
-								}
-							}
-						}
-					}
-
-				} else {
-
-					for i, val := range opt.Items {
-						if opt.TotalCount > maxNumOpts {
-							if i > 9 {
-								break
-							}
-						}
-						pDim.Values = append(pDim.Values, val.Label)
-					}
-
-					if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
-						isValid := true
-						var intVals []int
-						for _, val := range pDim.Values {
-							intVal, err := strconv.Atoi(val)
-							if err != nil {
-								isValid = false
-								break
-							}
-							intVals = append(intVals, intVal)
-						}
-
-						if isValid {
-							sort.Ints(intVals)
-							for i, val := range intVals {
-								pDim.Values[i] = strconv.Itoa(val)
-							}
-						}
-					}
-
-				}
-			}
-			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, pDim)
-		}
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumOpts)
 	}
 
 	return p
@@ -465,7 +335,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, lang string) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, lang string, maxNumberOfOptions int) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -494,7 +364,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 	filename = strings.ToLower(filename)
 
 	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, datasetLandingPageCensus.Download{
+		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
 			URI:       download.URL,
@@ -627,7 +497,144 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 	p.BetaBannerEnabled = true
 	p.FeatureFlags.ONSDesignSystemVersion = "41.0.1"
 
+	if len(opts) > 0 {
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+	}
 	return p
+}
+
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+	dimensions := []sharedModel.Dimension{}
+	for _, opt := range opts {
+
+		var pDim sharedModel.Dimension
+
+		var title string
+		if len(opt.Items) > 0 {
+			title = strings.Title(opt.Items[0].DimensionID)
+		}
+
+		if datasetType != "nomis" {
+			pDim.Title = title
+			versionURL, err := url.Parse(latestVersionURL)
+			if err != nil {
+				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
+			}
+			for _, dimension := range dims.Items {
+				if dimension.Name == opt.Items[0].DimensionID {
+					pDim.Description = dimension.Description
+					if len(dimension.Label) > 0 {
+						pDim.Title = dimension.Label
+					}
+				}
+			}
+
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
+			pDim.TotalItems = opt.TotalCount
+
+			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
+				var ts TimeSlice
+				for _, val := range opt.Items {
+					t, err := convertMMMYYToTime(val.Label)
+					if err != nil {
+						log.Warn(ctx, "unable to convert date (MMYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
+					}
+					ts = append(ts, t)
+				}
+				sort.Sort(ts)
+
+				if len(ts) > 0 {
+					startDate := ts[0]
+
+					for i, t := range ts {
+						if i != len(ts)-1 {
+							if ((ts[i+1].Month() - t.Month()) == 1) || (t.Month() == 12 && ts[i+1].Month() == 1) {
+								continue
+							}
+							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+							} else {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+							}
+							startDate = ts[i+1]
+						} else {
+							if startDate.Year() == t.Year() && startDate.Month().String() == t.Month().String() {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("This year %d contains data for the month %s", startDate.Year(), startDate.Month().String()))
+							} else {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("All months between %s %d and %s %d", startDate.Month().String(), startDate.Year(), t.Month().String(), t.Year()))
+							}
+						}
+					}
+				}
+			} else if _, err = time.Parse("2006", opt.Items[0].Label); err == nil {
+				var ts TimeSlice
+				for _, val := range opt.Items {
+					t, err := convertYYYYToTime(val.Label)
+					if err != nil {
+						log.Warn(ctx, "unable to convert date (YYYY) to time", log.FormatErrors([]error{err}), log.Data{"label": val.Label})
+					}
+					ts = append(ts, t)
+				}
+				sort.Sort(ts)
+
+				if len(ts) > 0 {
+					startDate := ts[0]
+
+					for i, t := range ts {
+						if i != len(ts)-1 {
+							if (ts[i+1].Year() - t.Year()) == 1 {
+								continue
+							}
+							if startDate.Year() == t.Year() {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+							} else {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+							}
+							startDate = ts[i+1]
+						} else {
+
+							if startDate.Year() == t.Year() {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("This year contains data for %d", startDate.Year()))
+							} else {
+								pDim.Values = append(pDim.Values, fmt.Sprintf("All years between %d and %d", startDate.Year(), t.Year()))
+							}
+						}
+					}
+				}
+			} else {
+				for i, val := range opt.Items {
+					if opt.TotalCount > maxNumberOfOptions {
+						if i > 9 {
+							break
+						}
+					}
+					pDim.Values = append(pDim.Values, val.Label)
+				}
+
+				if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
+					isValid := true
+					var intVals []int
+					for _, val := range pDim.Values {
+						intVal, err := strconv.Atoi(val)
+						if err != nil {
+							isValid = false
+							break
+						}
+						intVals = append(intVals, intVal)
+					}
+
+					if isValid {
+						sort.Ints(intVals)
+						for i, val := range intVals {
+							pDim.Values[i] = strconv.Itoa(val)
+						}
+					}
+				}
+			}
+		}
+		dimensions = append(dimensions, pDim)
+	}
+	return dimensions
 }
 
 func convertMMMYYToTime(input string) (t time.Time, err error) {
