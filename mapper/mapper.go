@@ -625,7 +625,7 @@ func CreateCensusDatasetLandingPage(req *http.Request, basePage coreModel.Page, 
 	}
 
 	p.BetaBannerEnabled = true
-	p.FeatureFlags.ONSDesignSystemVersion = "40.0.1"
+	p.FeatureFlags.ONSDesignSystemVersion = "41.0.1"
 
 	return p
 }
