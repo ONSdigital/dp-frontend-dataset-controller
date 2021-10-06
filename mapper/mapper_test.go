@@ -516,8 +516,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		ReleaseDate: "01-01-2021",
 		Downloads: map[string]dataset.Download{
 			"XLSX": {
-				Size:   "438290",
-				Public: "https://mydomain.com/my-request",
+				Size: "438290",
+				URL:  "https://mydomain.com/my-request",
 			},
 		},
 	}
@@ -602,8 +602,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		versionDetails := dataset.Version{
 			Downloads: map[string]dataset.Download{
 				"XLSX": {
-					Size:   "438290",
-					Public: "https://mydomain.com/my-request",
+					Size: "438290",
+					URL:  "https://mydomain.com/my-request",
 				},
 			},
 		}
