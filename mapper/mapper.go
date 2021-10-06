@@ -363,11 +363,12 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	filename = strings.ReplaceAll(filename, " ", "-")
 	filename = strings.ToLower(filename)
 
+	// TODO: remove this base domain, used for show and tell only!
 	for ext, download := range version.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
-			URI:       download.Public,
+			URI:       fmt.Sprintf("ons-dp-develop-cantabular-csv-exported.s3.eu-west-1.amazonaws.com%s", returnRequestURI(ctx, download.URL)),
 			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
 		})
 	}
@@ -497,6 +498,15 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
 	}
 	return p
+}
+
+// Helper to return request URI
+func returnRequestURI(ctx context.Context, downloadLink string) string {
+	u, err := url.Parse(downloadLink)
+	if err != nil {
+		log.Warn(ctx, "failed to parse download url", log.FormatErrors([]error{err}))
+	}
+	return u.RequestURI()
 }
 
 func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
