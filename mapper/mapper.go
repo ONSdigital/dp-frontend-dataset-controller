@@ -368,7 +368,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
-			URI:       fmt.Sprintf("ons-dp-develop-cantabular-csv-exported.s3.eu-west-1.amazonaws.com%s", returnRequestURI(ctx, download.URL)),
+			URI:       fmt.Sprintf("https://ons-dp-develop-cantabular-csv-exported.s3.eu-west-1.amazonaws.com%s", returnRequestURI(ctx, download.URL)),
 			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
 		})
 	}
