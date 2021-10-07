@@ -425,7 +425,8 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 			URI:   "/census",
 		},
 		{
-			Title: d.Title,
+			Title: "Datasets",
+			URI:   "/census/datasets",
 		},
 	}
 

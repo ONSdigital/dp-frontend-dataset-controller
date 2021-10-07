@@ -1,8 +1,8 @@
 <div class="ons-page__container ons-container ">
-    <div class="ons-grid ons-u-ml-m ons-u-mr-m ons-js-toc-container">
+    <div class="ons-grid ons-u-ml-m@m ons-u-mr-m@m ons-u-ml-no ons-js-toc-container">
         {{ template "partials/breadcrumb" . }}
         <section class="ons-u-mb-xl">
-            <h1 class="ons-u-fs-xxxl ons-u-mt-l ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
+            <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
             {{ template "partials/census/id-datestamp" . }}
         </section>
         <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m">
@@ -23,7 +23,7 @@
             {{ end }}
         </div>
     </div>
-    <div class="ons-grid ons-u-ml-m ons-u-mr-m">
+    <div class="ons-grid ons-u-ml-m@m ons-u-mr-m@m ons-u-ml-no">
         {{ if .DatasetLandingPage.ShareDetails }}
             {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
         {{ end }}
