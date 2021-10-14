@@ -21,9 +21,9 @@ debug: generate-debug
 	go build -tags 'debug' -o $(BINPATH)/dp-frontend-dataset-controller -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)"
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-dataset-controller
 
-.PHONY: debug-run
-debug-run:
-	HUMAN_LOG=1 DEBUG=1 go run -tags 'debug' -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)" -race $(LDFLAGS) main.go
+.PHONY: run
+run:
+	HUMAN_LOG=1 go run -tags 'production' -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)" -race $(LDFLAGS) main.go
 
 .PHONY: test
 test: generate-prod
