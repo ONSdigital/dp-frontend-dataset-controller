@@ -4,11 +4,15 @@
         <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ .ID }}</dd>
     </div>
     {{ if .DatasetLandingPage.HasOtherVersions }}
-        <div class="ons-grid__col ons-col-12@m">
-            <dt class="ons-metadata__term ons-u-mr-xs ons-u-dib u-f-no">{{ localise "Released" .Language 1 }}:</dt>
+        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+            <dt class="ons-metadata__term ons-u-mr-xs ons-u-dib ons-u-f-no">{{ localise "Released" .Language 1 }}:</dt>
             <dd class="ons-metadata__value ons-u-f-no ons-u-mr-xs ons-u-dib">{{ dateFormat .InitialReleaseDate }}</dd>
+        </div>
+        <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
             <dt class="ons-metadata__term ons-u-dib ons-u-mt-no ons-u-f-no">{{ localise "LastUpdated" .Language 1 }}:</dt>
-            <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ dateFormat .Version.ReleaseDate }} &mdash; <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a></dd>
+            <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ dateFormat .Version.ReleaseDate }} &mdash;
+                <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a>
+            </dd>
         </div>
     {{ else }}
         <div class="ons-grid__col ons-col-12@m ons-u-mt-xs">
