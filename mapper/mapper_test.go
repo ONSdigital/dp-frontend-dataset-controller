@@ -491,7 +491,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	req := httptest.NewRequest("", "/", nil)
 	pageModel := model.Page{}
 	contact := dataset.Contact{
-		Name:      "Test contact",
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
 	}
@@ -518,7 +517,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Downloads: map[string]dataset.Download{
 			"XLSX": {
 				Size: "438290",
-				URL:  "my-url",
+				URL:  "https://mydomain.com/my-request",
 			},
 		},
 	}
@@ -527,8 +526,35 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		ReleaseDate: "15-02-2021",
 	}
 
+	datasetOptions := []dataset.Options{
+		{
+			Items: []dataset.Option{
+				{
+					DimensionID: "time",
+					Label:       "2016",
+					Option:      "2016",
+				},
+				{
+					DimensionID: "time",
+					Label:       "2018",
+					Option:      "2018",
+				},
+				{
+					DimensionID: "time",
+					Label:       "2019",
+					Option:      "2019",
+				},
+				{
+					DimensionID: "time",
+					Label:       "2020",
+					Option:      "2020",
+				},
+			},
+		},
+	}
+
 	Convey("Census dataset landing page maps correctly as version 1", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionOneDetails, "", false, "")
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, "", 50)
 		So(page.Type, ShouldEqual, datasetModel.Type)
 		So(page.ID, ShouldEqual, datasetModel.ID)
 		So(page.Version.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
@@ -536,7 +562,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, false)
 		So(page.Version.Downloads[0].Size, ShouldEqual, "438290")
 		So(page.Version.Downloads[0].Extension, ShouldEqual, "XLSX")
-		So(page.Version.Downloads[0].URI, ShouldEqual, "my-url")
+		So(page.Version.Downloads[0].URI, ShouldEqual, "https://mydomain.com/my-request")
 		So(page.Version.Downloads[0].Name, ShouldEqual, "test-title.xlsx")
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
@@ -550,7 +576,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionTwoDetails, versionOneDetails.ReleaseDate, true, "")
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, true, "", 50)
 		So(page.InitialReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
 		So(page.Version.ReleaseDate, ShouldEqual, versionTwoDetails.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldEqual, true)
@@ -560,7 +586,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		datasetModel := dataset.DatasetDetails{
 			Title: "NoSPACES",
 		}
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionOneDetails, versionOneDetails.ReleaseDate, false, "")
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
 		So(page.Version.Downloads[0].Name, ShouldEqual, "nospaces.xlsx")
 	})
 
@@ -568,7 +594,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		datasetModel := dataset.DatasetDetails{
 			Title: " spaces before and after ",
 		}
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionOneDetails, versionOneDetails.ReleaseDate, false, "")
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
 		So(page.Version.Downloads[0].Name, ShouldEqual, "spaces-before-and-after.xlsx")
 	})
 
@@ -577,16 +603,15 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			Downloads: map[string]dataset.Download{
 				"XLSX": {
 					Size: "438290",
-					URL:  "my-url",
+					URL:  "https://mydomain.com/my-request",
 				},
 			},
 		}
-		page := CreateCensusDatasetLandingPage(req, pageModel, datasetModel, versionDetails, "", false, "")
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, dataset.VersionDimensions{}, versionOneDetails.ReleaseDate, false, "", 50)
 		So(page.Version.Downloads[0].Name, ShouldEqual, "test-title.xlsx")
 	})
 
 	noContact := dataset.Contact{
-		Name:      "",
 		Telephone: "",
 		Email:     "",
 	}
@@ -597,16 +622,14 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("No contacts provided, contact section is not displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, noContactDM, versionOneDetails, "", false, "")
-		So(page.ContactDetails.Name, ShouldEqual, noContact.Name)
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, noContactDM, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, "", 50)
 		So(page.ContactDetails.Email, ShouldEqual, noContact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, noContact.Telephone)
 		So(page.HasContactDetails, ShouldBeFalse)
 	})
 
 	oneContactDetail := dataset.Contact{
-		Name:      "Only a name",
-		Telephone: "",
+		Telephone: "123",
 		Email:     "",
 	}
 	oneContactDetailDM := dataset.DatasetDetails{
@@ -616,8 +639,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("One contact detail provided, contact section is displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(req, pageModel, oneContactDetailDM, versionOneDetails, "", false, "")
-		So(page.ContactDetails.Name, ShouldEqual, oneContactDetail.Name)
+		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, "", 50)
 		So(page.ContactDetails.Email, ShouldEqual, oneContactDetail.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)

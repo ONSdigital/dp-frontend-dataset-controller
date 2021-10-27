@@ -27,8 +27,6 @@ type Config struct {
 
 // Get returns the default config with any modifications through environment
 // variables
-//
-
 func Get() (*Config, error) {
 	cfg, err := get()
 	if err != nil {

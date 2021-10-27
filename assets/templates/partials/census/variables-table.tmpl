@@ -1,0 +1,42 @@
+{{$dims := .DatasetLandingPage.Dimensions}}
+{{$language := .Language }}
+<section id="variables" class="ons-u-mt-l ons-u-mb-l" aria-label="{{ localise "Variables" .Language 1}}">
+    <h2 class="ons-u-fw-b ons-u-mt-l ons-u-pb-s ons-u-pt-no ons-u-bb">{{ localise "Variables" .Language 1}}</h2>
+    <table class="ons-table">
+        <tbody class="ons-table__body">
+            {{range $i, $dim := $dims}}
+                <tr class="ons-table__row ons-u-bt">
+                    <th scope="col" class="ons-table__header ons-table__cell ons-u-pb-s ons-u-pt-s">
+                        <span>{{ $dim.Title }}</span>
+                    </th>
+                    <td class="ons-table__cell ons-u-pb-s ons-u-pt-s">
+                        {{ if eq $dim.Title "Geography" }}
+                            <div>
+                                <div class="ons-u-pb-s">{{ localise "GeographyDimensionDescription" $language 1 }}</div>
+                            </div>
+                        {{else}}
+                            <div>
+                                {{ $length := len $dim.Values }}
+                                {{ $length }}
+                                {{ if gt $length 1 }}
+                                    {{ localise "Category" $language 4 }}
+                                {{else}}
+                                    {{ localise "Category" $language 1 }}
+                                {{end}}
+                            </div>
+                            <div class="ons-u-mt-s">
+                                {{ range $j, $val := $dim.Values}}
+                                    {{ if notLastItem $length $j }}
+                                        <small class="u-fs-s">{{ $val }},</small>
+                                    {{ else }}
+                                        <small class="u-fs-s">{{ $val }}</small>
+                                    {{ end }}
+                                {{ end }}
+                            </div>
+                        {{end}}
+                    </td>
+                </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</section>
