@@ -29,9 +29,10 @@ type TimeSlice []time.Time
 
 // Dimension names
 const (
-	DimensionTime      = "time"
-	DimensionAge       = "age"
-	DimensionGeography = "geography"
+	DimensionTime          = "time"
+	DimensionAge           = "age"
+	DimensionGeography     = "geography"
+	CurrentSixteensVersion = "67f6982"
 )
 
 func (p TimeSlice) Len() int {
@@ -74,6 +75,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
+	p.FeatureFlags.SixteensVersion = CurrentSixteensVersion
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
@@ -230,6 +232,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.Data.LatestVersionURL = helpers.DatasetVersionUrl(d.ID, edition.Edition, edition.Links.LatestVersion.ID)
 	p.DatasetId = d.ID
 	p.URI = req.URL.Path
+	p.FeatureFlags.SixteensVersion = CurrentSixteensVersion
 
 	latestVersionNumber := 1
 	for _, ver := range versions {
@@ -299,6 +302,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	p.Metadata.Description = d.Description
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
+	p.FeatureFlags.SixteensVersion = CurrentSixteensVersion
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
@@ -493,7 +497,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	p.BetaBannerEnabled = true
-	p.FeatureFlags.ONSDesignSystemVersion = "42.0.0"
 
 	if len(opts) > 0 {
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
