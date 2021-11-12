@@ -1,6 +1,6 @@
-<h2 class="ons-u-fw-b ons-u-pb-no ons-u-mt-no ons-u-pt-no">{{ .Title }}</h2>
+<h2>{{ .Title }}</h2>
 {{ range $i, $v := .Description }}
-<p class="ons-u-fs-r ons-u-mt-s ons-u-mb-s ons-u-pt-no ons-u-pb-no">{{ $v }}</p>
+<p>{{ $v }}</p>
 {{ end }}
 {{ if .Collapsible.Title }}
     {{ template "partials/census/collapsible" .Collapsible }}

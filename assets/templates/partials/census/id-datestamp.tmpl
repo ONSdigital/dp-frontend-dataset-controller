@@ -1,23 +1,23 @@
-<dl class="ons-metadata ons-metadata__list ons-grid ons-grid--gutterless ons-u-cf" title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
+<dl class="ons-metadata metadata__list ons-grid ons-grid--gutterless ons-u-cf ons-u-mb-l" title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
     <div class="ons-grid__col ons-col-12@m">
-        <dt class="ons-metadata__term ons-u-mr-xs ons-u-dib ons-u-f-no">{{ localise "DatasetID" .Language 1 }}</dt>
-        <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ .ID }}</dd>
+        <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "DatasetID" .Language 1 }}</dt>
+        <dd class="ons-metadata__value ons-u-f-no">{{ .ID }}</dd>
     </div>
     {{ if .DatasetLandingPage.HasOtherVersions }}
         <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
-            <dt class="ons-metadata__term ons-u-mr-xs ons-u-dib ons-u-f-no">{{ localise "Released" .Language 1 }}:</dt>
-            <dd class="ons-metadata__value ons-u-f-no ons-u-mr-xs ons-u-dib">{{ dateFormat .InitialReleaseDate }}</dd>
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
         </div>
         <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
-            <dt class="ons-metadata__term ons-u-dib ons-u-mt-no ons-u-f-no">{{ localise "LastUpdated" .Language 1 }}:</dt>
-            <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ dateFormat .Version.ReleaseDate }} &mdash;
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ dateFormat .Version.ReleaseDate }} &mdash;
                 <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a>
             </dd>
         </div>
     {{ else }}
         <div class="ons-grid__col ons-col-12@m ons-u-mt-xs">
-            <dt class="ons-metadata__term ons-u-mr-xs ons-u-dib ons-u-f-no">{{ localise "Released" .Language 1 }}:</dt>
-            <dd class="ons-metadata__value ons-u-f-no ons-u-dib">{{ dateFormat .InitialReleaseDate }}</dd>
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ dateFormat .InitialReleaseDate }}</dd>
         </div>
     {{ end }}
 </dl>

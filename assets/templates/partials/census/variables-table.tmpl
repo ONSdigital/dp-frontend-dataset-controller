@@ -1,11 +1,11 @@
 {{$dims := .DatasetLandingPage.Dimensions}}
 {{$language := .Language }}
-<section id="variables" class="ons-u-mt-l ons-u-mb-l" aria-label="{{ localise "Variables" .Language 1}}">
-    <h2 class="ons-u-fw-b ons-u-mt-l ons-u-pb-s ons-u-pt-no ons-u-bb">{{ localise "Variables" .Language 1}}</h2>
+<section id="variables" aria-label="{{ localise "Variables" .Language 1}}">
+    <h2 class="ons-u-mt-l">{{ localise "Variables" .Language 1}}</h2>
     <table class="ons-table">
         <tbody class="ons-table__body">
             {{range $i, $dim := $dims}}
-                <tr class="ons-table__row ons-u-bt">
+                <tr class="ons-table__row ons-u-bb{{ if eq $i 0 }} ons-u-bt{{ end }}">
                     <th scope="col" class="ons-table__header ons-table__cell ons-u-pb-s ons-u-pt-s">
                         <span>{{ $dim.Title }}</span>
                     </th>
