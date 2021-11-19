@@ -154,6 +154,7 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 }
 
 func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, userAccessToken string) {
+	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
 	var err error
