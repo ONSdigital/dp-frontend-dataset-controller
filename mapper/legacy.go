@@ -40,6 +40,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	sdlp.Metadata.Description = dlp.Description.Summary
 	sdlp.Language = localeCode
 	sdlp.HasJSONLD = true
+	sdlp.FeatureFlags.SixteensVersion = SixteensVersion
 
 	for _, d := range dlp.RelatedDatasets {
 		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, related.Related(d))

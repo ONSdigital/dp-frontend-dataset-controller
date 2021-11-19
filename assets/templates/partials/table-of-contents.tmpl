@@ -1,12 +1,12 @@
 {{ $guideContents := . }}
-<aside>
-    <a class="skiplink" href="#guide-content">{{ localise "ContentsSkipLink" .Language 1 }}</a>
+<aside class="ons-toc-container">
+    <a class="ons-skip-link" href="#guide-content">{{ localise "ContentsSkipLink" .Language 1 }}</a>
     <nav class="ons-toc" aria-label="Pages in this guide">
-        <h2 class="ons-toc__title ons-u-fs-r--b ons-u-mb-s ons-u-pt-no ons-u-mt-no">{{ localise "Contents" .Language 1 }}</h2>
+        <h2 class="ons-toc__title ons-u-fs-r--b ons-u-mb-s">{{ localise "Contents" .Language 1 }}</h2>
         <ol id="guide-content" class="ons-list ons-list--dashed ons-u-mb-m">
             {{ range .GuideContent }}
-                <li class="ons-list__item ons-u-mb-xs ons-u-p-no ons-u-fs-r">
-                    <a href="#{{ .ID }}" class="ons-list__link underline-link">
+                <li class="ons-list__item">
+                    <a href="#{{ .ID }}" class="ons-list__link">
                         {{ if .LocaliseKey }}
                             {{ localise .LocaliseKey $guideContents.Language 1 }}
                         {{ else }}

@@ -1,15 +1,15 @@
 {{ $length := len .Version.Downloads }}
-<section id="get-data" class="ons-u-mt-l ons-u-mb-l" aria-label="{{ localise "GetData" .Language 1 }}">
-    <h2 class="ons-u-fw-b ons-u-mt-l ons-u-pb-no ons-u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
-    <p class="ons-u-fs-r ons-u-mt-s ons-u-mb-s ons-u-pt-no ons-u-pb-s">{{ localise "GetDataLeadText" .Language 1 }}</p>
+<section id="get-data" aria-label="{{ localise "GetData" .Language 1 }}">
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
+    <p class="ons-u-mt-s ons-u-mb-s ons-u-pb-s">{{ localise "GetDataLeadText" .Language 1 }}</p>
     <ul class="ons-list ons-list--bare ons-list--icons ons-u-fs-r ons-u-pb-s">
         {{ range $i, $el := .Version.Downloads }}
-            <li class="ons-list__item ons-u-mt-s ons-u-mb-no ons-u-pl-no ons-u-pb-s ons-u-pt-no ons-u-fs-r{{if notLastItem $length $i }} ons-u-bb{{end}}">
+            <li class="ons-list__item ons-u-mt-s ons-u-mb-no ons-u-pb-s{{if notLastItem $length $i }} ons-u-bb{{end}}">
                 <span class="ons-list__prefix ons-u-pt-xxs">
                     {{ template "icons/download" }}
                 </span>
-                <span class="ons-u-fs-r ons-u-m-no ons-u-p-no">
-                    <a href="{{ .URI }}" class="ons-list__link underline-link">{{ .Name }}
+                <span>
+                    <a href="{{ .URI }}" class="ons-list__link">{{ .Name }}
                         <span class="ons-u-vh">
                             {{ localise "Download" $.Language 1 }}
                             {{ if eq .Extension "XLS" }}
