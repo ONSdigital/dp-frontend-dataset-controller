@@ -338,6 +338,7 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("test census landing page", t, func() {
+		const numOptsSummary = 1000
 		mockClient := NewMockDatasetClient(mockCtrl)
 		mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 		mockRend := NewMockRenderClient(mockCtrl)
@@ -448,6 +449,7 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("filterable landing page returned if census config is false", func() {
+			const numOptsSummary = 50
 			mockConfig := config.Config{EnableCensusPages: false}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
 			versions := []dataset.Version{{ReleaseDate: "02-01-2005", Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}}}}
