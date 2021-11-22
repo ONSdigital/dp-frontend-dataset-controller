@@ -197,19 +197,27 @@ one = "Dataset ID and release date information"
 description = "Specific description for the Geography dimension on Census dataset landing pages"
 one = "All output areas (OA) in England and Wales"
 
+[PageProblem]
+description = "There is a problem with this page"
+one = "There is a problem with this page"
+
+[GetDataValidationError]
+description = "Select your download format"
+one = "Select your download format"
+
 [GetDataLeadText]
 description = "Get the data component lead text"
 one = "Download the data in the following formats"
 
 [IncludesSupportingInfo]
 description = "Includes supporting information" 
-one = "Includes supporting information,"
-other = "includes supporting information,"
+one = "Includes supporting information"
+other = "includes supporting information"
 
 [SupportingInfo]
 description = "Supporting information" 
-one = "Supporting information,"
-other = "supporting information,"
+one = "Supporting information"
+other = "supporting information"
 
 [Download]
 description = "Download"

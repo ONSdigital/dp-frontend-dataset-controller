@@ -158,6 +158,9 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
 	var err error
+	var form = req.URL.Query().Get("f")
+	var format = req.URL.Query().Get("format")
+	var isValidationError bool
 
 	if version.Version != 1 {
 		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
@@ -186,9 +189,24 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
+	if form == "get-data" && format == "" {
+		isValidationError = true
+	}
+	if form == "get-data" && format != "" {
+		getDownloadFile(version, format, w, req)
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, lang, numOptsSummary)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, lang, numOptsSummary, isValidationError)
 	rend.BuildPage(w, m, "census-landing")
+}
+
+func getDownloadFile(version dataset.Version, format string, w http.ResponseWriter, req *http.Request) {
+	for ext, download := range version.Downloads {
+		if strings.EqualFold(ext, format) {
+			http.Redirect(w, req, download.URL, http.StatusFound)
+		}
+	}
 }
 
 func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, collectionID, userAccessToken string) {

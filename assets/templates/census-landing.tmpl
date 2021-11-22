@@ -1,6 +1,9 @@
 <div class="ons-page__container ons-container">
     <div class="ons-grid ons-js-toc-container ons-u-ml-no">
         {{ template "partials/breadcrumb" . }}
+        {{ if .Error.Title }}
+            {{ template "partials/census/error-summary" . }}
+        {{ end }}
         <section class="ons-u-mb-xl">
             <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
             {{ template "partials/census/id-datestamp" . }}
