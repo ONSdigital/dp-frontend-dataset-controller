@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 
@@ -56,5 +57,29 @@ func TestGetAPIRouterVersion(t *testing.T) {
 			Err: url.EscapeError("%go"),
 		})
 		So(version, ShouldEqual, "")
+	})
+}
+
+func TestGetCurrentUrl(t *testing.T) {
+	Convey("The current URL is correctly constructed from the parameters", t, func() {
+		So(GetCurrentUrl("en", "mydomain.com", "/page1/page2"), ShouldResemble, "mydomain.com/page1/page2")
+		So(GetCurrentUrl("en", "mydomain.com", ""), ShouldResemble, "mydomain.com")
+		So(GetCurrentUrl("cy", "mydomain.com", ""), ShouldResemble, "cy.mydomain.com")
+		So(GetCurrentUrl("cy", "mydomain.com", "/page1"), ShouldResemble, "cy.mydomain.com/page1")
+		So(GetCurrentUrl("en", "localhost", "/page1"), ShouldResemble, "ons.gov.uk/page1")
+		So(GetCurrentUrl("cy", "localhost", "/page1"), ShouldResemble, "cy.ons.gov.uk/page1")
+		So(GetCurrentUrl("en", "", "/page1"), ShouldResemble, "ons.gov.uk/page1")
+	})
+}
+
+func TestGenerateSharingLink(t *testing.T) {
+	Convey("The sharing link is correctly constructed from the parameters", t, func() {
+		const title = "a title"
+		const url = "mydomain.com/page"
+		So(GenerateSharingLink("", url, title), ShouldBeBlank)
+		So(GenerateSharingLink("facebook", url, title), ShouldResemble, fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", url))
+		So(GenerateSharingLink("twitter", url, title), ShouldResemble, fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, url))
+		So(GenerateSharingLink("linkedin", url, title), ShouldResemble, fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", url))
+		So(GenerateSharingLink("email", url, title), ShouldResemble, fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, url))
 	})
 }
