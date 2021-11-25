@@ -339,7 +339,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, lang string, maxNumberOfOptions int) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -363,16 +363,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 
-	filename := strings.TrimSpace(d.Title)
-	filename = strings.ReplaceAll(filename, " ", "-")
-	filename = strings.ToLower(filename)
-
 	for ext, download := range version.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: ext,
 			Size:      download.Size,
 			URI:       download.URL,
-			Name:      fmt.Sprintf("%s.%s", filename, strings.ToLower(ext)),
 		})
 	}
 
@@ -500,6 +495,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	if len(opts) > 0 {
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
 	}
+
+	if isValidationError {
+		p.Error.Title = fmt.Sprintf("Error: %s", d.Title)
+	}
+
 	return p
 }
 

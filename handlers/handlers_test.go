@@ -448,6 +448,110 @@ func TestUnitHandlers(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusOK)
 		})
 
+		Convey("census dataset landing page returns 302 when valid download option chosen", func() {
+			mockConfig := config.Config{EnableCensusPages: true}
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+
+			versions := []dataset.Version{{
+				Downloads: map[string]dataset.Download{
+					"CSV": {
+						Size: "1234",
+						URL:  "https://a.domain.com/a-file.csv",
+					},
+				},
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/12345/editions/2021/versions/1",
+					},
+				},
+			}}
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
+			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1").Return(dims, nil)
+			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1", "city",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=csv", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusFound)
+		})
+
+		Convey("census dataset landing page returns 200 when invalid download option chosen", func() {
+			mockConfig := config.Config{EnableCensusPages: true}
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+
+			versions := []dataset.Version{{
+				Downloads:   nil,
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/12345/editions/2021/versions/1",
+					},
+				},
+			}}
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
+			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1").Return(dims, nil)
+			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1", "city",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=aFormat", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("census dataset landing page returns 200 when unknown get query request made", func() {
+			mockConfig := config.Config{EnableCensusPages: true}
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+
+			versions := []dataset.Version{{
+				Downloads:   nil,
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+				Links: dataset.Links{
+					Self: dataset.Link{
+						URL: "/datasets/12345/editions/2021/versions/1",
+					},
+				},
+			}}
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021").Return(versions, nil)
+			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions[0], nil)
+			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1").Return(dims, nil)
+			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2021", "1", "city",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345?f=blah-blah&format=bob", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+
 		Convey("filterable landing page returned if census config is false", func() {
 			const numOptsSummary = 50
 			mockConfig := config.Config{EnableCensusPages: false}
