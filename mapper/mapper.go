@@ -236,7 +236,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 
 	latestVersionNumber := 1
 	for _, ver := range versions {
-		var version datasetVersionsList.Version
+		var version sharedModel.Version
 		version.IsLatest = false
 		version.VersionNumber = ver.Version
 		version.Title = d.Title
@@ -256,24 +256,14 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 		}
 
 		for ext, download := range ver.Downloads {
-			version.Downloads = append(version.Downloads, datasetVersionsList.Download{
+			version.Downloads = append(version.Downloads, sharedModel.Download{
 				Extension: ext,
 				Size:      download.Size,
 				URI:       download.URL,
 			})
 		}
 
-		const correctionAlertType = "correction"
-		if ver.Alerts != nil {
-			for _, alert := range *ver.Alerts {
-				if alert.Type == correctionAlertType {
-					version.Corrections = append(version.Corrections, datasetVersionsList.Correction{
-						Reason: alert.Description,
-						Date:   alert.Date,
-					})
-				}
-			}
-		}
+		mapCorrectionAlert(&ver, &version)
 
 		p.Data.Versions = append(p.Data.Versions, version)
 	}
@@ -339,7 +329,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -466,6 +456,27 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		})
 	}
 
+	if hasOtherVersions {
+		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
+			LocaliseKey: "VersionHistory",
+			ID:          "version-history",
+		})
+
+		for _, ver := range allVersions {
+			var version sharedModel.Version
+			version.VersionNumber = ver.Version
+			version.ReleaseDate = ver.ReleaseDate
+			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
+			version.VersionURL = versionUrl
+			version.IsCurrentPage = versionUrl == req.URL.Path
+			mapCorrectionAlert(&ver, &version)
+
+			p.Versions = append(p.Versions, version)
+		}
+
+		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
+	}
+
 	p.DatasetLandingPage.ShareDetails.Language = lang
 	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
 
@@ -503,6 +514,20 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	return p
+}
+
+func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
+	const correctionAlertType = "correction"
+	if ver.Alerts != nil {
+		for _, alert := range *ver.Alerts {
+			if alert.Type == correctionAlertType {
+				version.Corrections = append(version.Corrections, sharedModel.Correction{
+					Reason: alert.Description,
+					Date:   alert.Date,
+				})
+			}
+		}
+	}
 }
 
 func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {

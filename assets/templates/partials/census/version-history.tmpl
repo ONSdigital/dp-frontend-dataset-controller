@@ -1,0 +1,41 @@
+<section id="version-history" aria-label="{{ localise "VersionHistory" .Language 1 }}">
+    <h2 class="ons-u-mt-xl ons-u-pt-no ons-u-mb-m">{{ localise "VersionHistory" .Language 1 }}</h2>
+    <table class="ons-table">
+        <thead class="ons-table__head">
+            <tr class="ons-table__row">
+                <th scope="col" class="ons-table__header ons-u-pb-s">
+                    <span>{{ localise "ReleaseDate" .Language 1 }}</span>
+                </th>
+                <th scope="col" class="ons-table__header ons-u-pb-s">
+                    <span>{{ localise "UpdateReasonHeading" .Language 1 }}</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="ons-table__body">
+            {{ range $i, $version := .Versions }}
+                <tr class="ons-table__row">
+                    <td class="ons-table__cell ons-u-pb-s ons-u-pt-s">
+                        {{ if .IsCurrentPage }}
+                            <time datetime="{{ $version.ReleaseDate }}">{{ dateFormat $version.ReleaseDate }}</time>
+                        {{ else }}
+                            <a href="{{ $version.VersionURL }}"><time datetime="{{ $version.ReleaseDate }}">{{ dateFormat $version.ReleaseDate }}</time></a>
+                        {{ end }}
+                    </td>
+                    <td class="ons-table__cell ons-u-pb-s ons-u-pt-s">
+                        {{ if .Corrections }}
+                            {{ range $i, $correction := .Corrections }}
+                                {{ .Reason }}
+                            {{ end }}
+                        {{ else }}
+                            {{ if ne $version.VersionNumber 1 }}
+                                {{ localise "VersionSuperseded" $.Language 1 }}
+                            {{ else }}
+                                {{ localise "OriginalRelease" $.Language 1 }}
+                            {{ end }}
+                        {{ end }}
+                    </td>
+                </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</section>

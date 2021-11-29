@@ -208,6 +208,22 @@ one = "Last updated"
 description = "See version history"
 one = "See version history"
 
+[VersionHistory]
+description = "Version history"
+one = "Version history"
+
+[UpdateReasonHeading]
+description = "Update reason"
+one = "Reason for update"
+
+[VersionSuperseded]
+description = "Version superseded"
+one = "Version superseded" 
+
+[OriginalRelease]
+description = "Original release"
+one = "Original release" 
+
 [CensusDatasetLandingPageMetadataLabel]
 description = "Census DLP metadata label - datestamp and dataset ID"
 one = "Dataset ID and release date information"
