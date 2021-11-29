@@ -467,25 +467,27 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	p.DatasetLandingPage.ShareDetails.Language = lang
+	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
+
 	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
 		{
 			Title: "Facebook",
-			Link:  "#",
+			Link:  helpers.GenerateSharingLink("facebook", currentUrl, d.Title),
 			Icon:  "facebook",
 		},
 		{
 			Title: "Twitter",
-			Link:  "#",
+			Link:  helpers.GenerateSharingLink("twitter", currentUrl, d.Title),
 			Icon:  "twitter",
 		},
 		{
 			Title: "LinkedIn",
-			Link:  "#",
+			Link:  helpers.GenerateSharingLink("linkedin", currentUrl, d.Title),
 			Icon:  "linkedin",
 		},
 		{
 			Title: "Email",
-			Link:  "mailto:#",
+			Link:  helpers.GenerateSharingLink("email", currentUrl, d.Title),
 			Icon:  "email",
 		},
 	}
