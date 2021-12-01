@@ -24,6 +24,9 @@
             {{ if .DatasetLandingPage.Methodologies }}
                 {{ template "partials/census/methodologies" . }}
             {{ end }}
+            {{ if .DatasetLandingPage.HasOtherVersions }}
+                {{ template "partials/census/version-history" . }}
+            {{ end }}
         </div>
     </div>
     <div class="ons-grid ons-u-ml-no ons-u-mb-xl">
