@@ -27,12 +27,13 @@ import (
 // TimeSlice allows sorting of a list of time.Time
 type TimeSlice []time.Time
 
-// Dimension names
+// Constants names
 const (
-	DimensionTime      = "time"
-	DimensionAge       = "age"
-	DimensionGeography = "geography"
-	SixteensVersion    = "67f6982"
+	DimensionTime       = "time"
+	DimensionAge        = "age"
+	DimensionGeography  = "geography"
+	SixteensVersion     = "67f6982"
+	CorrectionAlertType = "correction"
 )
 
 func (p TimeSlice) Len() int {
@@ -517,10 +518,9 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 }
 
 func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
-	const correctionAlertType = "correction"
 	if ver.Alerts != nil {
 		for _, alert := range *ver.Alerts {
-			if alert.Type == correctionAlertType {
+			if alert.Type == CorrectionAlertType {
 				version.Corrections = append(version.Corrections, sharedModel.Correction{
 					Reason: alert.Description,
 					Date:   alert.Date,

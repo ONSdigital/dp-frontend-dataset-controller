@@ -17,7 +17,7 @@
     {{ else }}
         <div class="ons-grid__col ons-col-12@m ons-u-mt-xs">
             <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
-            <dd class="ons-metadata__value ons-u-f-no"><time datetime="{{ .InitialReleaseDate }}">{{ dateFormat .InitialReleaseDate }}<time></dd>
+            <dd class="ons-metadata__value ons-u-f-no"><time datetime="{{ .InitialReleaseDate }}">{{ dateFormat .InitialReleaseDate }}</time></dd>
         </div>
     {{ end }}
 </dl>
