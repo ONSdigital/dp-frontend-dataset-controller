@@ -330,7 +330,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL string, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -476,6 +476,9 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		}
 
 		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
+
+		p.DatasetLandingPage.ShowOtherVersionsPanel = latestVersionNumber != version.Version && hasOtherVersions
+		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	}
 
 	p.DatasetLandingPage.ShareDetails.Language = lang

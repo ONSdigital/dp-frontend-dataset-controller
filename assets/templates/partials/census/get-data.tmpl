@@ -20,7 +20,7 @@
                     <span class="ons-radios__item ons-radios__item--no-border ons-u-mb-s">
                         <span class="ons-radio ons-radio--no-border">
                             <input type="radio" id="{{ .Extension }}" class="ons-radio__input ons-js-radio" value="{{ .Extension }}" name="format">
-                                <label class="ons-radio__label{{ if or (eq .Extension "TXT") (eq .Extension "CSVW") (eq .Extension "XLS") }} ons-label--with-description{{ end }}" for="{{ .Extension }}" id="{{ .Extension }}-label">{{ .Extension }} format ({{ humanSize .Size }})
+                                <label class="ons-radio__label{{ if or (eq .Extension "TXT") (eq .Extension "CSVW") (eq .Extension "XLS") }} ons-label--with-description{{ end }}" for="{{ .Extension }}" id="{{ .Extension }}-label"><span class="ons-u-tt-u">{{ .Extension }}</span> format ({{ humanSize .Size }})
                                     <span id="{{ .Extension }}-label-description-hint" class="ons-label__description ons-radio__label--with-description">
                                         {{ if eq .Extension "XLS" }}
                                             {{ localise "IncludesSupportingInfo" $.Language 1 }}

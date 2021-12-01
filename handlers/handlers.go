@@ -153,7 +153,7 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, collectionID, lang, userAccessToken string) {
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL string, collectionID, lang, userAccessToken string) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -197,7 +197,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, lang, numOptsSummary, isValidationError)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError)
 	rend.BuildPage(w, m, "census-landing")
 }
 
@@ -331,7 +331,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers, collectionID, lang, userAccessToken)
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers, latestVersionNumber, latestVersionOfEditionURL, collectionID, lang, userAccessToken)
 		return
 	}
 
