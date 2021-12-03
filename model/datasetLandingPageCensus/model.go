@@ -26,9 +26,10 @@ type DatasetLandingPage struct {
 	LatestVersionURL       string                  `json:"latest_version_url"`
 	Dimensions             []sharedModel.Dimension `json:"dimensions"`
 	GuideContents          GuideContents
-	Sections               map[string]Section
+	Collapsible            []Collapsible
 	ShareDetails           ShareDetails
 	Methodologies          []Methodology `json:"methodology"`
+	Description            []string      `json:"description"`
 }
 
 // GuideContents contains the contents of the page and the language attribute
@@ -54,14 +55,6 @@ type ShareDetails struct {
 	Language       string  `json:"language"`
 }
 
-// Section corresponds to a section of the landing page with title, description and collapsible section (optional)
-type Section struct {
-	Title       string      `json:"title"`
-	ID          string      `json:"id"`
-	Description []string    `json:"description"`
-	Collapsible Collapsible `json:"collapsible"`
-}
-
 /* Share includes details for a specific place the dataset can be shared
    Included icons: 'facebook', 'twitter', 'email', 'linkedin'
 */
@@ -73,9 +66,8 @@ type Share struct {
 
 // Collapsible is a representation of the data required in a collapsible UI component
 type Collapsible struct {
-	Language string   `json:"language"`
-	Title    string   `json:"title"`
-	Content  []string `json:"content"`
+	Subheading string   `json:"subheading"`
+	Content    []string `json:"content"`
 }
 
 // Methodology links

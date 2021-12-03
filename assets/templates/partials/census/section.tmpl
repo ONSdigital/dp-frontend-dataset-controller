@@ -1,7 +1,0 @@
-<h2>{{ .Title }}</h2>
-{{ range $i, $v := .Description }}
-<p>{{ $v }}</p>
-{{ end }}
-{{ if .Collapsible.Title }}
-    {{ template "partials/census/collapsible" .Collapsible }}
-{{ end }}
