@@ -21,12 +21,14 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	HasOtherVersions bool                    `json:"has_other_versions"`
-	Dimensions       []sharedModel.Dimension `json:"dimensions"`
-	GuideContents    GuideContents
-	Sections         map[string]Section
-	ShareDetails     ShareDetails
-	Methodologies    []Methodology `json:"methodology"`
+	HasOtherVersions       bool                    `json:"has_other_versions"`
+	ShowOtherVersionsPanel bool                    `json:"show_other_versions_panel"`
+	LatestVersionURL       string                  `json:"latest_version_url"`
+	Dimensions             []sharedModel.Dimension `json:"dimensions"`
+	GuideContents          GuideContents
+	Sections               map[string]Section
+	ShareDetails           ShareDetails
+	Methodologies          []Methodology `json:"methodology"`
 }
 
 // GuideContents contains the contents of the page and the language attribute
