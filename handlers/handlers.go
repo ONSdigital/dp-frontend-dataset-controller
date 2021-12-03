@@ -153,11 +153,14 @@ func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.H
 	})
 }
 
-func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, collectionID, lang, userAccessToken string) {
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, collectionID, lang, userAccessToken string) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
 	var err error
+	var form = req.URL.Query().Get("f")
+	var format = req.URL.Query().Get("format")
+	var isValidationError bool
 
 	if version.Version != 1 {
 		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
@@ -186,9 +189,24 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
+	if form == "get-data" && format == "" {
+		isValidationError = true
+	}
+	if form == "get-data" && format != "" {
+		getDownloadFile(version, format, w, req)
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, lang, numOptsSummary)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, lang, numOptsSummary, isValidationError)
 	rend.BuildPage(w, m, "census-landing")
+}
+
+func getDownloadFile(version dataset.Version, format string, w http.ResponseWriter, req *http.Request) {
+	for ext, download := range version.Downloads {
+		if strings.EqualFold(ext, format) {
+			http.Redirect(w, req, download.URL, http.StatusFound)
+		}
+	}
 }
 
 func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, collectionID, userAccessToken string) {
@@ -313,7 +331,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, collectionID, lang, userAccessToken)
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers, collectionID, lang, userAccessToken)
 		return
 	}
 
