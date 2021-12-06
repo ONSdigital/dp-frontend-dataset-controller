@@ -615,7 +615,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.InitialReleaseDate, ShouldEqual, page.Version.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldBeFalse)
 		So(page.Version.Downloads[0].Size, ShouldEqual, "438290")
-		So(page.Version.Downloads[0].Extension, ShouldEqual, "XLSX")
+		So(page.Version.Downloads[0].Extension, ShouldEqual, "xlsx")
 		So(page.Version.Downloads[0].URI, ShouldEqual, "https://mydomain.com/my-request")
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
