@@ -165,8 +165,8 @@ description = "Variables"
 one = "Variables"
 
 [VariablesExplanation]
-description = "What do the variables mean?"
-one = "What do the variables mean?"
+description = "What do the variables mean"
+one = "What does the variable mean"
 other = "What do the variables mean"
 
 [Category]
