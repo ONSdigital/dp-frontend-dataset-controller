@@ -356,7 +356,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	for ext, download := range version.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-			Extension: ext,
+			Extension: strings.ToLower(ext),
 			Size:      download.Size,
 			URI:       download.URL,
 		})
