@@ -15,9 +15,7 @@
             {{ template "partials/table-of-contents" .DatasetLandingPage.GuideContents }}
         </div>
         <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
-            <section id="{{ .DatasetLandingPage.Sections.summary.ID }}" aria-label="{{ localise "Summary" .Language 1 }}">
-                {{ template "partials/census/section" .DatasetLandingPage.Sections.summary }}
-            </section>
+            {{ template "partials/census/summary" . }}
             {{ template "partials/census/variables-table" . }}
             {{ template "partials/census/get-data" . }}
             {{ if .HasContactDetails }}

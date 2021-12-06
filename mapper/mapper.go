@@ -374,23 +374,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		}
 	}
 
-	sections := make(map[string]datasetLandingPageCensus.Section)
+	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 
-	sections["summary"] = datasetLandingPageCensus.Section{
-		Title:       "Summary",
-		ID:          "summary",
-		Description: []string{d.Description},
-		Collapsible: datasetLandingPageCensus.Collapsible{
-			Language: p.Language,
-			Title:    "Why is this useful",
-			Content: []string{
-				"Information about why this is useful goes here.",
-				"Second paragraph expanding on why this is useful goes here.",
-			},
-		},
+	for _, dims := range version.Dimensions {
+		if dims.Description != "" {
+			var collapsibleContent datasetLandingPageCensus.Collapsible
+			collapsibleContent.Subheading = dims.Name
+			collapsibleContent.Content = strings.Split(dims.Description, "\n")
+			p.DatasetLandingPage.Collapsible = append(p.DatasetLandingPage.Collapsible, collapsibleContent)
+		}
 	}
-
-	p.DatasetLandingPage.Sections = sections
 
 	hasMethodologies := false
 	if d.Methodologies != nil {
@@ -422,8 +415,8 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.DatasetLandingPage.GuideContents.Language = lang
 	p.DatasetLandingPage.GuideContents.GuideContent = []datasetLandingPageCensus.Content{
 		{
-			Title: sections["summary"].Title,
-			ID:    sections["summary"].ID,
+			LocaliseKey: "Summary",
+			ID:          "summary",
 		},
 		{
 			LocaliseKey: "Variables",

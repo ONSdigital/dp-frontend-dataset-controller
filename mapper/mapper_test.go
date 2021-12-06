@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/dataset"
@@ -517,7 +518,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			contact,
 		},
 		ID:          "12345",
-		Description: "An interesting test description",
+		Description: "An interesting test description \n with a line break",
 		Methodologies: &[]dataset.Methodology{
 			methodology,
 		},
@@ -539,6 +540,20 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			Dataset: dataset.Link{
 				URL: "http://localhost:22000/datasets/cantabular-1",
 				ID:  "cantabular-1",
+			},
+		},
+		Dimensions: []dataset.VersionDimension{
+			{
+				Description: "A description on one line",
+				Name:        "Dimension 1",
+			},
+			{
+				Description: "A description on one line \n Then a line break",
+				Name:        "Dimension 2",
+			},
+			{
+				Description: "",
+				Name:        "Only a name - I shouldn't map",
 			},
 		},
 	}
@@ -604,6 +619,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Version.Downloads[0].URI, ShouldEqual, "https://mydomain.com/my-request")
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
+		So(page.DatasetLandingPage.Description, ShouldResemble, strings.Split(datasetModel.Description, "\n"))
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
@@ -612,6 +628,11 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
 		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
+		So(page.DatasetLandingPage.Collapsible[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
+		So(page.DatasetLandingPage.Collapsible[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
+		So(page.DatasetLandingPage.Collapsible[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
+		So(page.DatasetLandingPage.Collapsible[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
+		So(page.DatasetLandingPage.Collapsible, ShouldHaveLength, 2)
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
