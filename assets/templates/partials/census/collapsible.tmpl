@@ -1,7 +1,7 @@
 <div id="collapsible" class="ons-collapsible ons-js-collapsible" data-btn-close="{{ localise "HideThis" .Language 1 }}">
     <div class="ons-collapsible__heading ons-js-collapsible-heading">
         <div class="ons-collapsible__controls">
-            <h2 class="ons-collapsible__title">{{ .Title }}</h2>
+            <h3 class="ons-collapsible__title">{{ localise "VariablesExplanation" .Language 4 }}&#63;</h3>
             <span class="ons-collapsible__icon">
                 <svg class="ons-svg-icon" viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" focusable="false">
                     <path
@@ -12,15 +12,21 @@
         </div>
     </div>
     <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
-        {{ range $i, $v := .Content }}
-            <p class="ons-u-fs-r ons-u-mb-s ons-u-p-no">{{ $v }}</p>
+        {{ range .DatasetLandingPage.Collapsible }}
+            {{ if .Subheading }}
+                <h4>{{ .Subheading }}</h4>
+            {{ end }}
+            {{ range .Content }}
+                <p class="ons-u-fs-r ons-u-mb-s ons-u-p-no">{{ . }}</p>
+            {{ end }}
+            <br>
         {{ end }}
-        <button
-            type="button"
-            class="ons-btn ons-js-collapsible-button ons-u-d-no ons-btn--secondary ons-btn--small"
-            aria-controls="collapsible">
-            <span class="ons-btn__inner ons-js-collapsible-button-inner">{{ localise "HideThis" .Language 1 }}</span>
-            <span class="ons-btn__context ons-u-vh">{{ .Title }} content</span>
-        </button>
+            <button
+                type="button"
+                class="ons-btn ons-js-collapsible-button ons-u-d-no ons-btn--secondary ons-btn--small"
+                aria-controls="collapsible">
+                <span class="ons-btn__inner ons-js-collapsible-button-inner">{{ localise "HideThis" .Language 1 }}</span>
+                <span class="ons-btn__context ons-u-vh">{{ localise "VariablesExplanation" .Language 4 }} content</span>
+            </button>
+        </div>
     </div>
-</div>

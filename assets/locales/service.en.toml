@@ -164,6 +164,11 @@ one = "Skip to page content"
 description = "Variables"
 one = "Variables"
 
+[VariablesExplanation]
+description = "What do the variables mean"
+one = "What does the variable mean"
+other = "What do the variables mean"
+
 [Category]
 description = "Category"
 one = "Category"
@@ -238,3 +243,11 @@ other = "supporting information"
 [Download]
 description = "Download"
 one = "download,"
+
+[ImportantInformation]
+description = "Important information"
+one = "Important information:"
+
+[NewVersionAvailable]
+description = "There is a new version of this dataset. View the <a href=\"{{ .DatasetLandingPage.LatestVersionURL }}\">latest version</a>."
+one = "There is a new version of this dataset. View the <a href=\"{{.arg0}}\">latest version</a>."
