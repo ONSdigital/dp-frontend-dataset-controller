@@ -35,7 +35,7 @@ const (
 	numOptsSummary       = 50
 	maxMetadataOptions   = 1000
 	maxAgeAndTimeOptions = 1000
-	HomepagePath         = "/"
+	homepagePath         = "/"
 )
 
 // To mock interfaces in this file
@@ -225,7 +225,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		return
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
@@ -294,7 +294,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
@@ -448,7 +448,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
@@ -503,7 +503,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		return
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
