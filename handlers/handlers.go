@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ONSdigital/dp-net/handlers"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/pkg/errors"
@@ -22,17 +22,21 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-const dataEndpoint = `\/data$`
-const numOptsSummary = 50
-const maxMetadataOptions = 1000
-const maxAgeAndTimeOptions = 1000
+// Constants...
+const (
+	dataEndpoint         = `\/data$`
+	numOptsSummary       = 50
+	maxMetadataOptions   = 1000
+	maxAgeAndTimeOptions = 1000
+	HomepagePath         = "/"
+)
 
 // To mock interfaces in this file
 //go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
@@ -48,7 +52,7 @@ type DatasetClient interface {
 	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
 	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
 	GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error)
-	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string) (m []dataset.Version, err error)
+	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (m dataset.VersionsList, err error)
 	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
 	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
@@ -147,9 +151,9 @@ func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg con
 }
 
 // VersionsList will load a list of versions for a filterable dataset
-func VersionsList(dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func VersionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		versionsList(w, req, dc, rend, collectionID, userAccessToken)
+		versionsList(w, req, dc, zc, rend, collectionID, userAccessToken, lang)
 	})
 }
 
@@ -209,7 +213,7 @@ func getDownloadFile(version dataset.Version, format string, w http.ResponseWrit
 	}
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, collectionID, userAccessToken string) {
+func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken string, lang string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
@@ -221,7 +225,13 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 		return
 	}
 
-	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition)
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
+	}
+
+	q := dataset.QueryParams{Offset: 0, Limit: 1000}
+	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
@@ -234,7 +244,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, re
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateVersionsList(basePage, req, d, e, versions)
+	m := mapper.CreateVersionsList(basePage, req, d, e, versions.Items, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "version-list")
 }
 
@@ -284,6 +294,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
+	}
+
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 		if err != nil {
@@ -298,19 +313,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition)
+	q := dataset.QueryParams{Offset: 0, Limit: 1000}
+	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
 	var displayOtherVersionsLink bool
-	if len(allVers) > 1 {
+	if len(allVers.Items) > 1 {
 		displayOtherVersionsLink = true
 	}
 
 	latestVersionNumber := 1
-	for _, singleVersion := range allVers {
+	for _, singleVersion := range allVers.Items {
 		if singleVersion.Version > latestVersionNumber {
 			latestVersionNumber = singleVersion.Version
 		}
@@ -331,7 +347,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken)
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken)
 		return
 	}
 
@@ -378,7 +394,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateFilterableLandingPage(basePage, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary)
+	m := mapper.CreateFilterableLandingPage(basePage, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
@@ -432,6 +448,11 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		}
 	}
 
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
+	}
+
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.URL)
 	if err != nil {
 		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
@@ -445,7 +466,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateEditionsList(basePage, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion)
+	m := mapper.CreateEditionsList(basePage, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "edition-list")
 }
 
@@ -480,6 +501,11 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
+	}
+
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, HomepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
 	var ds []zebedee.Dataset
@@ -519,7 +545,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang)
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "static")
 }
 

@@ -8,9 +8,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/filter"
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/v2/health"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
@@ -22,12 +23,10 @@ import (
 	"github.com/justinas/alice"
 	"github.com/pkg/errors"
 
-	dpnethandlers "github.com/ONSdigital/dp-net/handlers"
-	dpnethttp "github.com/ONSdigital/dp-net/http"
+	dpnethandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	dpnethttp "github.com/ONSdigital/dp-net/v2/http"
 
 	_ "net/http/pprof"
-
-	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/health"
 )
 
 type unencryptedAuth struct {
@@ -120,7 +119,7 @@ func run(ctx context.Context) error {
 	router.StrictSlash(true).Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc, *cfg, apiRouterVersion))
-	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, rend, *cfg))
+	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, zc, rend, *cfg))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, rend, zc, *cfg, apiRouterVersion))
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
 
