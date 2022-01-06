@@ -213,7 +213,7 @@ func getDownloadFile(version dataset.Version, format string, w http.ResponseWrit
 	}
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken string, lang string) {
+func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
