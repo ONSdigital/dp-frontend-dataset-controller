@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -100,6 +100,9 @@ func TestUnitMapper(t *testing.T) {
 
 	datasetID := "038847784-2874757-23784854905"
 
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
+
 	Convey("test CreateFilterableLandingPage for CMD pages", t, func() {
 		// breadcrumbItem returned by zebedee after being proxied through API router
 		breadcrumbItem0 := zebedee.Breadcrumb{
@@ -172,7 +175,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -189,6 +192,14 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Breadcrumb[1].URI, ShouldEqual, expectedBreadcrumbItem1.URI)
 		So(p.Breadcrumb[2].Title, ShouldEqual, expectedBreadcrumbItemWrongURI.Description.Title)
 		So(p.Breadcrumb[2].URI, ShouldEqual, expectedBreadcrumbItemWrongURI.URI)
+
+		So(p.ServiceMessage, ShouldEqual, serviceMessage)
+
+		So(p.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(p.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+		So(p.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+		So(p.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+		So(p.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 
 		So(p.DatasetLandingPage.Dimensions, ShouldHaveLength, 2)
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Age")
@@ -284,7 +295,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -299,6 +310,14 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)
 		So(p.Breadcrumb[1].Title, ShouldEqual, expectedBreadcrumbItem1.Description.Title)
 		So(p.Breadcrumb[1].URI, ShouldEqual, expectedBreadcrumbItem1.URI)
+
+		So(p.ServiceMessage, ShouldEqual, serviceMessage)
+
+		So(p.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(p.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+		So(p.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+		So(p.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+		So(p.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 
 		So(p.DatasetLandingPage.NomisReferenceURL, ShouldEqual, nomisRefURL)
 
@@ -333,7 +352,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
@@ -371,7 +390,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
@@ -437,11 +456,13 @@ func TestCreateVersionsList(t *testing.T) {
 			Type:        "correction",
 		},
 	}
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("test latest version page", t, func() {
 		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
-		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList)
+		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList, serviceMessage, emergencyBanner)
 		Convey("title", func() {
 			So(page.Metadata.Title, ShouldEqual, "All versions of Consumer Prices Index including owner occupiers? housing costs (CPIH) time-series dataset")
 		})
@@ -450,7 +471,7 @@ func TestCreateVersionsList(t *testing.T) {
 		})
 
 		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
-		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList)
+		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList, serviceMessage, emergencyBanner)
 
 		Convey("has correct number of versions when multiple should be present", func() {
 			So(page.Data.Versions, ShouldHaveLength, 3)
@@ -474,6 +495,16 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions[2].Corrections, ShouldBeEmpty)
 			So(page.Data.Versions[1].Corrections, ShouldBeEmpty)
 			So(page.Data.Versions[0].Corrections[0].Reason, ShouldEqual, "This is a correction")
+		})
+		Convey("service message maps correctly", func() {
+			So(page.ServiceMessage, ShouldEqual, serviceMessage)
+		})
+		Convey("emergency banner maps correctly", func() {
+			So(page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+			So(page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+			So(page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+			So(page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+			So(page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 		})
 	})
 }
@@ -752,4 +783,18 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
 	})
+}
+
+func getTestEmergencyBanner() zebedee.EmergencyBanner {
+	return zebedee.EmergencyBanner{
+		Type:        "notable_death",
+		Title:       "This is not not an emergency",
+		Description: "Something has go wrong",
+		URI:         "google.com",
+		LinkText:    "More info",
+	}
+}
+
+func getTestServiceMessage() string {
+	return "Test service message"
 }

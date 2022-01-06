@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
@@ -20,7 +20,7 @@ import (
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) StaticDatasetLandingPage {
 
 	sdlp := StaticDatasetLandingPage{
 		Page: basePage,
@@ -41,6 +41,9 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	sdlp.Language = localeCode
 	sdlp.HasJSONLD = true
 	sdlp.FeatureFlags.SixteensVersion = SixteensVersion
+
+	sdlp.ServiceMessage = serviceMessage
+	sdlp.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	for _, d := range dlp.RelatedDatasets {
 		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, related.Related(d))

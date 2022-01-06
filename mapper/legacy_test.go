@@ -3,9 +3,10 @@ package mapper
 import (
 	"context"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -19,8 +20,10 @@ func TestUnitMapperLegacy(t *testing.T) {
 		lang := "cy"
 		req := httptest.NewRequest("GET", "/", nil)
 		mdl := model.Page{}
+		serviceMessage := getTestServiceMessage()
+		emergencyBanner := getTestEmergencyBanner()
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang)
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, "legacy_dataset")
@@ -55,6 +58,14 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.Datasets[0].Downloads[0].URI, ShouldEqual, "helloworld.csv")
 		So(sdlp.DatasetLandingPage.Datasets[0].Downloads[0].Extension, ShouldEqual, "csv")
 		So(sdlp.DatasetLandingPage.Datasets[0].Downloads[0].Size, ShouldEqual, "452456")
+
+		So(sdlp.Page.ServiceMessage, ShouldEqual, serviceMessage)
+
+		So(sdlp.Page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(sdlp.Page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+		So(sdlp.Page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+		So(sdlp.Page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+		So(sdlp.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 	})
 }
 

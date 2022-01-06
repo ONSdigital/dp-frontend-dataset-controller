@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	zebedee "github.com/ONSdigital/dp-api-clients-go/zebedee"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -93,4 +93,19 @@ func (m *MockZebedeeClient) GetDatasetLandingPage(ctx context.Context, userAcces
 func (mr *MockZebedeeClientMockRecorder) GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetLandingPage", reflect.TypeOf((*MockZebedeeClient)(nil).GetDatasetLandingPage), ctx, userAccessToken, collectionID, lang, path)
+}
+
+// GetHomepageContent mocks base method.
+func (m *MockZebedeeClient) GetHomepageContent(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.HomepageContent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHomepageContent", ctx, userAccessToken, collectionID, lang, path)
+	ret0, _ := ret[0].(zebedee.HomepageContent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHomepageContent indicates an expected call of GetHomepageContent.
+func (mr *MockZebedeeClientMockRecorder) GetHomepageContent(ctx, userAccessToken, collectionID, lang, path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHomepageContent", reflect.TypeOf((*MockZebedeeClient)(nil).GetHomepageContent), ctx, userAccessToken, collectionID, lang, path)
 }
