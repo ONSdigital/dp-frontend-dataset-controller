@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-api-clients-go/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -32,7 +32,7 @@ const (
 	DimensionTime       = "time"
 	DimensionAge        = "age"
 	DimensionGeography  = "geography"
-	SixteensVersion     = "67f6982"
+	SixteensVersion     = "77f1d9b"
 	CorrectionAlertType = "correction"
 )
 
@@ -62,7 +62,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int) datasetLandingPageFilterable.Page {
+func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageFilterable.Page {
 	p := datasetLandingPageFilterable.Page{
 		Page: basePage,
 	}
@@ -77,6 +77,9 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
 	p.FeatureFlags.SixteensVersion = SixteensVersion
+
+	p.ServiceMessage = serviceMessage
+	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
@@ -217,7 +220,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version) datasetVersionsList.Page {
+func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, edition dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetVersionsList.Page {
 	p := datasetVersionsList.Page{
 		Page: basePage,
 	}
@@ -234,6 +237,9 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.DatasetId = d.ID
 	p.URI = req.URL.Path
 	p.FeatureFlags.SixteensVersion = SixteensVersion
+
+	p.ServiceMessage = serviceMessage
+	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	latestVersionNumber := 1
 	for _, ver := range versions {
@@ -281,7 +287,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string) datasetEditionsList.Page {
+func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetEditionsList.Page {
 	p := datasetEditionsList.Page{
 		Page: basePage,
 	}
@@ -294,6 +300,9 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 	p.DatasetId = datasetID
 	p.BetaBannerEnabled = true
 	p.FeatureFlags.SixteensVersion = SixteensVersion
+
+	p.ServiceMessage = serviceMessage
+	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
@@ -676,4 +685,17 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *cor
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}
+}
+
+func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) coreModel.EmergencyBanner {
+	var mappedEmergencyBanner coreModel.EmergencyBanner
+	emptyBannerObj := zebedee.EmergencyBanner{}
+	if bannerData != emptyBannerObj {
+		mappedEmergencyBanner.Title = bannerData.Title
+		mappedEmergencyBanner.Type = strings.Replace(bannerData.Type, "_", "-", -1)
+		mappedEmergencyBanner.Description = bannerData.Description
+		mappedEmergencyBanner.URI = bannerData.URI
+		mappedEmergencyBanner.LinkText = bannerData.LinkText
+	}
+	return mappedEmergencyBanner
 }
