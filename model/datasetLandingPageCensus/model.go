@@ -26,7 +26,6 @@ type DatasetLandingPage struct {
 	LatestVersionURL       string                  `json:"latest_version_url"`
 	Dimensions             []sharedModel.Dimension `json:"dimensions"`
 	GuideContents          GuideContents
-	Collapsible            []Collapsible
 	ShareDetails           ShareDetails
 	Methodologies          []Methodology `json:"methodology"`
 	Description            []string      `json:"description"`
@@ -62,12 +61,6 @@ type Share struct {
 	Title string `json:"title"`
 	Link  string `json:"link"`
 	Icon  string `json:"icon"`
-}
-
-// Collapsible is a representation of the data required in a collapsible UI component
-type Collapsible struct {
-	Subheading string   `json:"subheading"`
-	Content    []string `json:"content"`
 }
 
 // Methodology links

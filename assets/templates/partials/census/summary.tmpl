@@ -3,7 +3,7 @@
     {{ range .DatasetLandingPage.Description }}
         <p>{{ . }}</p>
     {{ end }}
-    {{ if .DatasetLandingPage.Collapsible }}
-        {{ template "partials/census/collapsible" . }}
+    {{ if .Collapsible.CollapsibleItems }}
+        {{ template "partials/collapsible" . }}
     {{ end }}
 </section>
