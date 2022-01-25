@@ -659,11 +659,11 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
 		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
-		So(page.DatasetLandingPage.Collapsible[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
-		So(page.DatasetLandingPage.Collapsible[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
-		So(page.DatasetLandingPage.Collapsible[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
-		So(page.DatasetLandingPage.Collapsible[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
-		So(page.DatasetLandingPage.Collapsible, ShouldHaveLength, 2)
+		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
+		So(page.Collapsible.CollapsibleItems[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
+		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
+		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
+		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {

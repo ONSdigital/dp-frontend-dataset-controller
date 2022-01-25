@@ -155,10 +155,6 @@ one = "In the main, the greatest effects will be at the lowest geographies, sinc
 description = "Summary"
 one = "Summary"
 
-[HideThis]
-description = "Hide this"
-one = "Hide this"
-
 [RelatedLinksForCensus]
 description = "Related links to help with the census"
 one = "Related links to help with the census"
