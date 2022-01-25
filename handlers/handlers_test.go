@@ -687,6 +687,32 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+	Convey("test CreateFilterFlexID", t, func() {
+		Convey("test CreateFilterFlexID handler, creates a filter id and redirects", func() {
+			mockClient := NewMockFilterClient(mockCtrl)
+			mockConfig := config.Config{EnableCensusPages: true}
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/flex", CreateFilterFlexID(mockClient, mockConfig))
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/datasets/12345/editions/2012/versions/1/flex", nil)
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusMovedPermanently)
+		})
+
+		Convey("test post route fails if config is false", func() {
+			mockClient := NewMockFilterClient(mockCtrl)
+			mockConfig := config.Config{EnableCensusPages: false}
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/flex", CreateFilterFlexID(mockClient, mockConfig))
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/datasets/12345/editions/2012/versions/1/flex", nil)
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
 }
 
 func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient) *httptest.ResponseRecorder {
