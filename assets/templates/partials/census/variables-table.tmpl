@@ -1,7 +1,11 @@
 {{$dims := .DatasetLandingPage.Dimensions}}
 {{$language := .Language }}
-<section id="variables" aria-label="{{ localise "Variables" .Language 1}}">
-    <h2 class="ons-u-mt-xl">{{ localise "Variables" .Language 1}}</h2>
+{{$flexible := .DatasetLandingPage.IsFlexible}}
+<section id="variables" aria-label="{{ localise "Variables" .Language 4}}">
+    <h2 class="ons-u-mt-xl">{{ localise "Variables" .Language 4}}</h2>
+    {{ if $flexible }}
+    <form action="{{.DatasetLandingPage.FormAction}}" method="post">
+    {{ end }}
     <table class="ons-table">
         <tbody class="ons-table__body">
             {{range $i, $dim := $dims}}
@@ -27,16 +31,27 @@
                             <div class="ons-u-mt-s">
                                 {{ range $j, $val := $dim.Values}}
                                     {{ if notLastItem $length $j }}
-                                        <small class="u-fs-s">{{ $val }},</small>
+                                        <small>{{ $val }},</small>
                                     {{ else }}
-                                        <small class="u-fs-s">{{ $val }}</small>
+                                        <small>{{ $val }}</small>
                                     {{ end }}
                                 {{ end }}
                             </div>
                         {{end}}
                     </td>
+                    {{ if $flexible }}
+                    <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right">
+                        <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Title }}" role="link">
+                            {{ localise "Change" $language 1 }} 
+                            <span class="ons-u-vh">{{ localise "Variables" $language 1 }} {{ $dim.Title }}</span>
+                        </button>
+                    </td>
+                    {{ end }}
                 </tr>
             {{ end }}
         </tbody>
     </table>
+    {{ if $flexible }}
+    </form>
+    {{ end }}
 </section>

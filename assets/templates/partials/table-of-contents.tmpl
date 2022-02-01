@@ -8,7 +8,7 @@
                 <li class="ons-list__item">
                     <a href="#{{ .ID }}" class="ons-list__link">
                         {{ if .LocaliseKey }}
-                            {{ localise .LocaliseKey $guideContents.Language 1 }}
+                            {{ localise .LocaliseKey $guideContents.Language .LocalisePluralInt }}
                         {{ else }}
                             {{ .Title }}
                         {{ end }}

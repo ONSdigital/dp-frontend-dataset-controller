@@ -434,28 +434,33 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.DatasetLandingPage.GuideContents.Language = lang
 	p.DatasetLandingPage.GuideContents.GuideContent = []datasetLandingPageCensus.Content{
 		{
-			LocaliseKey: "Summary",
-			ID:          "summary",
+			LocaliseKey:       "Summary",
+			LocalisePluralInt: 1,
+			ID:                "summary",
 		},
 		{
-			LocaliseKey: "Variables",
-			ID:          "variables",
+			LocaliseKey:       "Variables",
+			LocalisePluralInt: 4,
+			ID:                "variables",
 		},
 		{
-			LocaliseKey: "GetData",
-			ID:          "get-data",
+			LocaliseKey:       "GetData",
+			LocalisePluralInt: 1,
+			ID:                "get-data",
 		},
 		{
-			LocaliseKey: "StatisticalDisclosureControl",
-			ID:          "stats-disclosure",
+			LocaliseKey:       "StatisticalDisclosureControl",
+			LocalisePluralInt: 1,
+			ID:                "stats-disclosure",
 		},
 	}
 
 	if p.HasContactDetails {
 		contactsContents := []datasetLandingPageCensus.Content{
 			{
-				LocaliseKey: "ContactDetails",
-				ID:          "contact",
+				LocaliseKey:       "ContactDetails",
+				LocalisePluralInt: 1,
+				ID:                "contact",
 			},
 		}
 		temp := append(contactsContents, p.DatasetLandingPage.GuideContents.GuideContent[3:]...)
@@ -464,15 +469,17 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if hasMethodologies {
 		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
-			LocaliseKey: "Methodology",
-			ID:          "methodology",
+			LocaliseKey:       "Methodology",
+			LocalisePluralInt: 1,
+			ID:                "methodology",
 		})
 	}
 
 	if hasOtherVersions {
 		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
-			LocaliseKey: "VersionHistory",
-			ID:          "version-history",
+			LocaliseKey:       "VersionHistory",
+			LocalisePluralInt: 1,
+			ID:                "version-history",
 		})
 
 		for _, ver := range allVersions {
@@ -527,6 +534,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if isValidationError {
 		p.Error.Title = fmt.Sprintf("Error: %s", d.Title)
+	}
+
+	if strings.Contains(d.Type, "flex") {
+		p.DatasetLandingPage.IsFlexible = true
+		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
 	return p

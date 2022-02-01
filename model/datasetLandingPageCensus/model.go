@@ -29,6 +29,8 @@ type DatasetLandingPage struct {
 	ShareDetails           ShareDetails
 	Methodologies          []Methodology `json:"methodology"`
 	Description            []string      `json:"description"`
+	IsFlexible             bool          `json:"is_flexible"`
+	FormAction             string        `json:"form_action"`
 }
 
 // GuideContents contains the contents of the page and the language attribute
@@ -40,12 +42,14 @@ type GuideContents struct {
 /* Content maps the content details.
 The visible text can be either a 'Title' or a 'LocaliseKey'.
 The 'LocaliseKey' has to correspond to the localisation key found in the toml files within assets/locales, otherwise the page will error.
+LocalisePluralInt refers to the plural int used in the toml file.
 ID refers to the html element's ID that is needed to form the href.
 */
 type Content struct {
-	Title       string `json:"title"`
-	ID          string `json:"id"`
-	LocaliseKey string `json:"localise_key"`
+	Title             string `json:"title"`
+	ID                string `json:"id"`
+	LocaliseKey       string `json:"localise_key"`
+	LocalisePluralInt int    `json:"localise_plural_int"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
