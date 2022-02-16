@@ -124,9 +124,6 @@ func run(ctx context.Context) error {
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
 
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
-	if cfg.EnableCensusPages {
-		router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/flex").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, *cfg))
-	}
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
 

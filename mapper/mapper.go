@@ -538,7 +538,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if strings.Contains(d.Type, "flex") {
 		p.DatasetLandingPage.IsFlexible = true
-		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/flex", d.ID, version.Edition, strconv.Itoa(version.Version))
+		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
 	return p

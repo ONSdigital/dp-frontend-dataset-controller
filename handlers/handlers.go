@@ -129,31 +129,6 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 	})
 }
 
-// CreateFilterFlexID creates a new filter ID for filter flex journeys
-func CreateFilterFlexID(c FilterClient, cfg config.Config) http.HandlerFunc {
-	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		ctx := req.Context()
-
-		if !cfg.EnableCensusPages {
-			err := errors.New("not implemented")
-			log.Error(ctx, "route not implemented", err)
-			setStatusCode(req, w, err)
-			return
-		}
-
-		if err := req.ParseForm(); err != nil {
-			log.Error(ctx, "unable to parse request form", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		// TODO: get the real filter id from successful POST request
-		fid := "1234"
-		dimension := req.FormValue("dimension")
-		flexPath := fmt.Sprintf("/flex/%s/dimensions/%s", fid, strings.ToLower(dimension))
-		http.Redirect(w, req, flexPath, http.StatusMovedPermanently)
-	})
-}
-
 // LegacyLanding will load a zebedee landing page
 func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
