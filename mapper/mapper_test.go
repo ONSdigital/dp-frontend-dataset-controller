@@ -792,7 +792,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		}
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, flexDm, versionOneDetails, datasetOptions, dataset.VersionDimensions{}, "", false, []dataset.Version{}, 1, "", "", 50, false)
 		So(page.DatasetLandingPage.IsFlexible, ShouldBeTrue)
-		So(page.DatasetLandingPage.FormAction, ShouldEqual, fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter", flexDm.ID, versionOneDetails.Edition, strconv.Itoa(versionOneDetails.Version)))
+		So(page.DatasetLandingPage.FormAction, ShouldEqual, fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", flexDm.ID, versionOneDetails.Edition, strconv.Itoa(versionOneDetails.Version)))
 	})
 }
 

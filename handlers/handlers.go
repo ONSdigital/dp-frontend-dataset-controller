@@ -129,6 +129,67 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 	})
 }
 
+// CreateFilterFlexID creates a new filter ID for filter flex journeys
+func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) http.HandlerFunc {
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		vars := mux.Vars(req)
+		datasetID := vars["datasetID"]
+		edition := vars["editionID"]
+		version := vars["versionID"]
+		ctx := req.Context()
+
+		if !cfg.EnableCensusPages {
+			err := errors.New("not implemented")
+			log.Error(ctx, "route not implemented", err)
+			setStatusCode(req, w, err)
+			return
+		}
+
+		if err := req.ParseForm(); err != nil {
+			log.Error(ctx, "unable to parse request form", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
+
+		var names []string
+		for _, dim := range ver.Dimensions {
+			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
+			q := dataset.QueryParams{Offset: 0, Limit: 0}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			if err != nil {
+				setStatusCode(req, w, err)
+				return
+			}
+
+			if opts.TotalCount > 1 { // If there is only one option then it can't be filterable so don't add to filter api
+				names = append(names, dim.Name)
+			}
+		}
+
+		// TODO: This endpoint is likely to change; awaiting change to be implemented
+		fid, _, err := fc.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
+
+		filterPath := fmt.Sprintf("/filters/%s/dimensions", fid)
+		dimensionName := req.FormValue("dimension")
+		if dimensionName != "" {
+			filterPath += fmt.Sprintf("/%s", strings.ToLower(url.QueryEscape(dimensionName)))
+		}
+
+		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})
+		http.Redirect(w, req, filterPath, http.StatusMovedPermanently)
+	})
+}
+
 // LegacyLanding will load a zebedee landing page
 func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
