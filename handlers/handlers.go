@@ -44,6 +44,7 @@ const (
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
 	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
+	CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string, population_type string) (filterID, eTag string, err error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -172,8 +173,14 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 			}
 		}
 
-		// TODO: This endpoint is likely to change; awaiting change to be implemented
-		fid, _, err := fc.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
+		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return
+		}
+
+		popType := datasetModel.IsBasedOn.ID
+		fid, _, err := fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names, popType)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return

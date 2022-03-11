@@ -158,7 +158,7 @@ func TestUnitHandlers(t *testing.T) {
 
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", []string{"aggregate", "time"}, "Example").Return("12345", "testETag", nil)
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[1], nil)
@@ -166,6 +166,7 @@ func TestUnitHandlers(t *testing.T) {
 				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time",
 				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
 			body := strings.NewReader("dimension=aggregate")
 			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
@@ -188,8 +189,9 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test CreateFilterFlexID returns 500 if unable to create a blueprint on filter api", func() {
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[0], nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{}}, nil)
 			mockFilterClient := NewMockFilterClient(mockCtrl)
-			mockFilterClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", gomock.Any()).Return("", "", errors.New("unable to create filter blueprint"))
+			mockFilterClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", gomock.Any(), "").Return("", "", errors.New("unable to create filter blueprint"))
 			body := strings.NewReader("")
 
 			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
