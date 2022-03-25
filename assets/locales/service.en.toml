@@ -162,9 +162,9 @@ one = "Variable"
 other = "Variables"
 
 [VariablesExplanation]
-description = "What do the variables mean"
-one = "What does the variable mean"
-other = "What do the variables mean"
+description = "Variable and dataset information"
+one = "Variable and dataset information"
+other = "Variable and dataset information"
 
 [Category]
 description = "Category"
