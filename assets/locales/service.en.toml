@@ -157,13 +157,14 @@ description = "Contents skip link"
 one = "Skip to page content"
 
 [Variables]
-description = "Variables"
-one = "Variables"
+description = "Variable"
+one = "Variable"
+other = "Variables"
 
 [VariablesExplanation]
-description = "What do the variables mean"
-one = "What does the variable mean"
-other = "What do the variables mean"
+description = "Variable and dataset information"
+one = "Variable and dataset information"
+other = "Variable and dataset information"
 
 [Category]
 description = "Category"
@@ -247,3 +248,7 @@ one = "Important information:"
 [NewVersionAvailable]
 description = "There is a new version of this dataset. View the <a href=\"{{ .DatasetLandingPage.LatestVersionURL }}\">latest version</a>."
 one = "There is a new version of this dataset. View the <a href=\"{{.arg0}}\">latest version</a>."
+
+[Change]
+description = "Change"
+one = "Change"

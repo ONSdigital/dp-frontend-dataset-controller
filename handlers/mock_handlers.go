@@ -53,6 +53,22 @@ func (mr *MockFilterClientMockRecorder) CreateBlueprint(ctx, userAuthToken, serv
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
 }
 
+// CreateFlexibleBlueprint mocks base method.
+func (m *MockFilterClient) CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string, population_type string) (string, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFlexibleBlueprint", ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names, population_type)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// CreateFlexibleBlueprint indicates an expected call of CreateFlexibleBlueprint.
+func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names, population_type interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names, population_type)
+}
+
 // MockDatasetClient is a mock of DatasetClient interface.
 type MockDatasetClient struct {
 	ctrl     *gomock.Controller

@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -92,6 +93,8 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("test CreateFilterID", t, func() {
+		mockCfg := config.Config{}
+
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
@@ -113,7 +116,8 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017", "time",
 				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 
-			w := testResponse(301, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient)
+			body := strings.NewReader("")
+			w := testResponse(301, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, false, mockCfg)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -128,7 +132,69 @@ func TestUnitHandlers(t *testing.T) {
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.VersionDimensions{}, nil)
 
-			testResponse(500, "", "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient)
+			body := strings.NewReader("")
+
+			testResponse(500, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, false, mockCfg)
+		})
+	})
+
+	Convey("test CreateFilterFlexID", t, func() {
+		mockCfg := config.Config{EnableCensusPages: true}
+		mockVersions := dataset.VersionsList{
+			Items: []dataset.Version{
+				{}, // deliberately empty
+				{
+					Dimensions: []dataset.VersionDimension{
+						{
+							Name: "aggregate",
+						},
+						{
+							Name: "time",
+						},
+					},
+				},
+			},
+		}
+
+		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
+			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", []string{"aggregate", "time"}, "Example").Return("12345", "testETag", nil)
+
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[1], nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate",
+				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time",
+				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
+
+			body := strings.NewReader("dimension=aggregate")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/aggregate")
+		})
+
+		Convey("test post route fails if config is false", func() {
+			mockCfg := config.Config{EnableCensusPages: false}
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilterClient := NewMockFilterClient(mockCtrl)
+			body := strings.NewReader("")
+
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
+		})
+
+		Convey("test CreateFilterFlexID returns 500 if unable to create a blueprint on filter api", func() {
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[0], nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{}}, nil)
+			mockFilterClient := NewMockFilterClient(mockCtrl)
+			mockFilterClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", gomock.Any(), "").Return("", "", errors.New("unable to create filter blueprint"))
+			body := strings.NewReader("")
+
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
 		})
 	})
 
@@ -686,17 +752,20 @@ func TestUnitHandlers(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
-
 }
 
-func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetClient) *httptest.ResponseRecorder {
-	req, err := http.NewRequest("POST", url, nil)
-	So(err, ShouldBeNil)
+func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc DatasetClient, filterFlexRoute bool, cfg config.Config) *httptest.ResponseRecorder {
+	req := httptest.NewRequest("POST", url, body)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	w := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc))
+	if filterFlexRoute {
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex", CreateFilterFlexID(fc, dc, cfg))
+	} else {
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc))
+	}
 
 	router.ServeHTTP(w, req)
 
@@ -704,8 +773,8 @@ func testResponse(code int, respBody, url string, fc FilterClient, dc DatasetCli
 
 	b, err := ioutil.ReadAll(w.Body)
 	So(err, ShouldBeNil)
-
-	So(string(b), ShouldEqual, respBody)
+	// Writer body should be empty, we don't write a response
+	So(b, ShouldBeEmpty)
 
 	return w
 }
