@@ -20,29 +20,33 @@
                     <span class="ons-radios__item ons-radios__item--no-border ons-u-mb-s">
                         <span class="ons-radio ons-radio--no-border">
                             <input type="radio" id="{{ .Extension }}" class="ons-radio__input ons-js-radio" value="{{ .Extension }}" name="format">
-                                <label class="ons-radio__label{{ if or (eq .Extension "txt") (eq .Extension "csvw") (eq .Extension "xls") }} ons-label--with-description{{ end }}" for="{{ .Extension }}" id="{{ .Extension }}-label"><span class="ons-u-tt-u">{{ .Extension }}</span> format ({{ humanSize .Size }})
-                                    <span id="{{ .Extension }}-label-description-hint" class="ons-label__description ons-radio__label--with-description">
-                                        {{ if eq .Extension "xls" }}
-                                            {{ localise "IncludesSupportingInfo" $.Language 1 }}
-                                        {{ else if or (eq .Extension "txt") (eq .Extension "csvw") }}
-                                            {{ localise "SupportingInfo" $.Language 1 }}
-                                        {{ end }}
-                                    </span>
-                                </label>
-                            </span>
+                            <label class="ons-radio__label{{ if or (eq .Extension "txt") (eq .Extension "csvw") (eq .Extension "xls") }} ons-label--with-description{{ end }}" for="{{ .Extension }}" id="{{ .Extension }}-label"><span class="ons-u-tt-u">{{ .Extension }}</span> format ({{ humanSize .Size }})
+                                <span id="{{ .Extension }}-label-description-hint" class="ons-label__description ons-radio__label--with-description">
+                                    {{ if or (eq .Extension "xls") (eq .Extension "xlsx") }}
+                                        {{- localise "IncludesSupportingInfo" $.Language 1 -}}
+                                    {{ else if eq .Extension "csv" }}
+                                        {{- localise "MachineReadable" $.Language 1 -}}&nbsp;<span class="ons-u-tt-l">{{- localise "Dataset" $.Language 1 -}}</span>
+                                    {{ else if eq .Extension "csvw" }}
+                                        {{- localise "MachineReadable" $.Language 1 -}}&nbsp;<span class="ons-u-tt-l">{{- localise "SupportingInfo" $.Language 1 -}}</span>
+                                    {{ else if eq .Extension "txt" }}
+                                        {{- localise "SupportingInfo" $.Language 1 -}}
+                                    {{ end }}
+                                </span>
+                            </label>
                         </span>
-                        {{ if notLastItem $length $i }}
-                            <br>
-                            {{ end }}
-                        {{ end }}
-                    </div>
-                </fieldset>
-                <button type="submit" class="ons-btn ons-u-mt-s ons-u-mb-s">
-                    <span class="ons-btn__inner">
-                        {{ template "icons/download" }} Download
                     </span>
-                </button>
-            </form>
+                {{ if notLastItem $length $i }}
+                    <br>
+                    {{ end }}
+                {{ end }}
+            </div>
+        </fieldset>
+        <button type="submit" class="ons-btn ons-u-mt-s ons-u-mb-s">
+            <span class="ons-btn__inner">
+                {{ template "icons/download" }} Download
+            </span>
+        </button>
+    </form>
     {{ if .Error.Title }}
         </div>
     </div>
