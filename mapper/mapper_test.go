@@ -11,6 +11,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -85,6 +86,13 @@ func TestUnitMapper(t *testing.T) {
 			Links: dataset.Links{
 				Self: dataset.Link{
 					URL: "/datasets/83jd98fkflg/editions/124/versions/1",
+				},
+			},
+			Dimensions: []dataset.VersionDimension{
+				{
+					ID:    "city",
+					Name:  "geography",
+					Label: "City",
 				},
 			},
 			ReleaseDate: "11-11-2017",
@@ -327,6 +335,51 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Edition, ShouldEqual, v[0].Edition)
 		So(v0.Version, ShouldEqual, strconv.Itoa(v[0].Version))
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
+	})
+
+	Convey("test CreateFilterableLandingPage dimension options are mapped into landing page dimensions", t, func() {
+		const (
+			dimensionName        = "geography"
+			dimensionID          = "city"
+			dimensionLabel       = "City"
+			dimensionOptionLabel = "London"
+		)
+
+		dims := dataset.VersionDimensions{
+			Items: []dataset.VersionDimension{
+				{
+					ID:    dimensionID,
+					Name:  dimensionName,
+					Label: dimensionLabel,
+				},
+			},
+		}
+		opts := []dataset.Options{
+			{
+				Items: []dataset.Option{
+					{
+						DimensionID: dimensionName,
+						Label:       dimensionOptionLabel,
+						Option:      "0",
+					},
+				},
+				Count:      1,
+				TotalCount: 1,
+			},
+		}
+
+		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, opts, dims, false, []zebedee.Breadcrumb{},
+			1, "", "en", "/v1", 50, serviceMessage, emergencyBanner)
+
+		So(p.DatasetLandingPage.Dimensions, ShouldResemble, []sharedModel.Dimension{
+			{
+				Title:      dimensionLabel,
+				Name:       dimensionName,
+				Values:     []string{dimensionOptionLabel},
+				OptionsURL: "/dimensions/geography/options",
+				TotalItems: 1,
+			},
+		})
 	})
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {

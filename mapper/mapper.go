@@ -610,6 +610,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims datase
 			}
 			for _, dimension := range dims.Items {
 				if dimension.Name == opt.Items[0].DimensionID {
+					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
