@@ -25,9 +25,9 @@
                                     {{ if or (eq .Extension "xls") (eq .Extension "xlsx") }}
                                         {{- localise "IncludesSupportingInfo" $.Language 1 -}}
                                     {{ else if eq .Extension "csv" }}
-                                        {{- localise "MachineReadable" $.Language 1 -}}&nbsp;<span class="ons-u-tt-l">{{- localise "Dataset" $.Language 1 -}}</span>
+                                        {{- localise "MachineReadable" $.Language 1 }} <span class="ons-u-tt-l">{{ localise "Dataset" $.Language 1 -}}</span>
                                     {{ else if eq .Extension "csvw" }}
-                                        {{- localise "MachineReadable" $.Language 1 -}}&nbsp;<span class="ons-u-tt-l">{{- localise "SupportingInfo" $.Language 1 -}}</span>
+                                        {{- localise "MachineReadable" $.Language 1 }} <span class="ons-u-tt-l">{{ localise "SupportingInfo" $.Language 1 -}}</span>
                                     {{ else if eq .Extension "txt" }}
                                         {{- localise "SupportingInfo" $.Language 1 -}}
                                     {{ end }}
