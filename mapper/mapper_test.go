@@ -794,6 +794,22 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.IsFlexible, ShouldBeTrue)
 		So(page.DatasetLandingPage.FormAction, ShouldEqual, fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", flexDm.ID, versionOneDetails.Edition, strconv.Itoa(versionOneDetails.Version)))
 	})
+
+	Convey("Test HasDownloads", t, func() {
+		Convey("HasDownloads set to true when downloads are greater than zero", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
+				"XLSX": {
+					Size: "1234",
+					URL:  "https://mydomain.com/my-request.xlsx",
+				},
+			}}, datasetOptions, dataset.VersionDimensions{}, "", false, []dataset.Version{}, 1, "", "", 50, false)
+			So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
+		})
+		Convey("HasDownloads set to false when downloads are zero", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: nil}, datasetOptions, dataset.VersionDimensions{}, "", false, []dataset.Version{}, 1, "", "", 50, false)
+			So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
+		})
+	})
 }
 
 func getTestEmergencyBanner() zebedee.EmergencyBanner {

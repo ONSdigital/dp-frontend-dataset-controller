@@ -398,9 +398,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if len(collapsibleContentItems) > 0 {
 		p.Collapsible = coreModel.Collapsible{
-			LocaliseKey:       "VariablesExplanation",
-			LocalisePluralInt: 4,
-			CollapsibleItems:  collapsibleContentItems,
+			Title: coreModel.Localisation{
+				LocaleKey: "VariablesExplanation",
+				Plural:    4,
+			},
+			CollapsibleItems: collapsibleContentItems,
 		}
 	}
 
@@ -431,56 +433,85 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		},
 	}
 
-	p.DatasetLandingPage.GuideContents.Language = lang
-	p.DatasetLandingPage.GuideContents.GuideContent = []datasetLandingPageCensus.Content{
-		{
-			LocaliseKey:       "Summary",
-			LocalisePluralInt: 1,
-			ID:                "summary",
+	sections := make(map[string]coreModel.ContentSection)
+	displayOrder := make([]string, 0)
+
+	p.TableOfContents = coreModel.TableOfContents{
+		AriaLabel: coreModel.Localisation{
+			LocaleKey: "ContentsAria",
+			Plural:    1,
 		},
-		{
-			LocaliseKey:       "Variables",
-			LocalisePluralInt: 4,
-			ID:                "variables",
+		Title: coreModel.Localisation{
+			LocaleKey: "Contents",
+			Plural:    1,
 		},
-		{
-			LocaliseKey:       "GetData",
-			LocalisePluralInt: 1,
-			ID:                "get-data",
+	}
+
+	sections["summary"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "Summary",
+			Plural:    1,
 		},
-		{
-			LocaliseKey:       "StatisticalDisclosureControl",
-			LocalisePluralInt: 1,
-			ID:                "stats-disclosure",
-		},
+	}
+	displayOrder = append(displayOrder, "summary")
+
+	if len(opts) > 0 {
+		sections["variables"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "Variables",
+				Plural:    4,
+			},
+		}
+		displayOrder = append(displayOrder, "variables")
+	}
+
+	if len(version.Downloads) > 0 {
+		p.DatasetLandingPage.HasDownloads = true
+		sections["get-data"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "GetData",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "get-data")
 	}
 
 	if p.HasContactDetails {
-		contactsContents := []datasetLandingPageCensus.Content{
-			{
-				LocaliseKey:       "ContactDetails",
-				LocalisePluralInt: 1,
-				ID:                "contact",
+		sections["contact"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "ContactDetails",
+				Plural:    1,
 			},
 		}
-		temp := append(contactsContents, p.DatasetLandingPage.GuideContents.GuideContent[3:]...)
-		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent[:3], temp...)
+		displayOrder = append(displayOrder, "contact")
 	}
 
+	sections["stats-disclosure"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "StatisticalDisclosureControl",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "stats-disclosure")
+
 	if hasMethodologies {
-		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
-			LocaliseKey:       "Methodology",
-			LocalisePluralInt: 1,
-			ID:                "methodology",
-		})
+		sections["methodology"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "Methodology",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "methodology")
 	}
 
 	if hasOtherVersions {
-		p.DatasetLandingPage.GuideContents.GuideContent = append(p.DatasetLandingPage.GuideContents.GuideContent, datasetLandingPageCensus.Content{
-			LocaliseKey:       "VersionHistory",
-			LocalisePluralInt: 1,
-			ID:                "version-history",
-		})
+		sections["version-history"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "VersionHistory",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "version-history")
 
 		for _, ver := range allVersions {
 			var version sharedModel.Version
@@ -499,6 +530,9 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.ShowOtherVersionsPanel = latestVersionNumber != version.Version && hasOtherVersions
 		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	}
+
+	p.TableOfContents.Sections = sections
+	p.TableOfContents.DisplayOrder = displayOrder
 
 	p.DatasetLandingPage.ShareDetails.Language = lang
 	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)

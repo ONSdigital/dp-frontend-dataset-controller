@@ -171,9 +171,9 @@ one = "this link will open in a new tab"
 description = "Contents section heading"
 one = "Page contents"
 
-[ContentsSkipLink]
-description = "Contents skip link"
-one = "Skip to page content"
+[ContentsAria]
+description = "Pages in this guide"
+one = "Pages in this guide"
 
 [Variables]
 description = "Variable"
@@ -247,14 +247,16 @@ description = "Get the data component lead text"
 one = "Download the data in the following formats"
 
 [IncludesSupportingInfo]
-description = "Includes supporting information" 
-one = "Includes supporting information"
-other = "includes supporting information"
+description = "Dataset and supporting information" 
+one = "Dataset and supporting information"
 
 [SupportingInfo]
 description = "Supporting information" 
 one = "Supporting information"
-other = "supporting information"
+
+[MachineReadable]
+description = "Machine readable"
+one = "Machine readable"
 
 [Download]
 description = "Download"

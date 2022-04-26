@@ -258,6 +258,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	if version.Downloads == nil {
+		log.Warn(ctx, "version downloads are nil", log.Data{"version_id": version.ID})
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
