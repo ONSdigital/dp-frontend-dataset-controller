@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
@@ -157,16 +158,28 @@ func TestUnitHandlers(t *testing.T) {
 		}
 
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
+			q := dataset.QueryParams{Offset: 0, Limit: 1000}
+			mockDims := []filter.ModelDimension{
+				{
+					Name: "aggregate",
+				},
+				{
+					Name: "time",
+				},
+			}
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", []string{"aggregate", "time"}, "Example").Return("12345", "testETag", nil)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
+				Return("12345", "testETag", nil)
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[1], nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time",
-				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
-			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
+				Return(mockVersions.Items[1], nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate", &q).
+				Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time", &q).
+				Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
+				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
 			body := strings.NewReader("dimension=aggregate")
 			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
