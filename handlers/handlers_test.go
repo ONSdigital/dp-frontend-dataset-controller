@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -8,12 +10,10 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -251,7 +251,7 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("test legacylanding handler with non /data endpoint", t, func() {
-		Convey("test sucessful data retrieval and rendering", func() {
+		Convey("test successful data retrieval and rendering", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockConfig := config.Config{}

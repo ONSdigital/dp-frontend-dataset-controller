@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/ONSdigital/dp-net/v2/handlers"
 
 	"github.com/pkg/errors"
 
@@ -587,6 +586,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+
 	rend.BuildPage(w, m, "static")
 }
 
