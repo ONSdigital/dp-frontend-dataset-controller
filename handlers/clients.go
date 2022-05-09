@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	io "io"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -38,7 +39,12 @@ type RenderClient interface {
 	NewBasePageModel() coreModel.Page
 }
 
-// ClientError is an interface that can be used to retrieve the status code if a client has errorred
+// FilesAPIClient is an interface with methods required for getting metadata from Files API
+type FilesAPIClient interface {
+	GetFile(ctx context.Context, path string) (files.FileMetaData, error)
+}
+
+// ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
 	Error() string
 	Code() int
