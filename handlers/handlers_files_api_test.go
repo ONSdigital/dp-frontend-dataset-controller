@@ -96,7 +96,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, dataSetURI).Return(zebedeeDataset, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any()).Return(fmd, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), "auth-token").Return(fmd, nil)
 
 			var actualPageModel mapper.StaticDatasetLandingPage
 

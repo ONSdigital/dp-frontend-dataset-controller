@@ -302,18 +302,18 @@ func (m *MockFilesAPIClient) EXPECT() *MockFilesAPIClientMockRecorder {
 }
 
 // GetFile mocks base method.
-func (m *MockFilesAPIClient) GetFile(ctx context.Context, path string) (files.FileMetaData, error) {
+func (m *MockFilesAPIClient) GetFile(ctx context.Context, path, authToken string) (files.FileMetaData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFile", ctx, path)
+	ret := m.ctrl.Call(m, "GetFile", ctx, path, authToken)
 	ret0, _ := ret[0].(files.FileMetaData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFile indicates an expected call of GetFile.
-func (mr *MockFilesAPIClientMockRecorder) GetFile(ctx, path interface{}) *gomock.Call {
+func (mr *MockFilesAPIClientMockRecorder) GetFile(ctx, path, authToken interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*MockFilesAPIClient)(nil).GetFile), ctx, path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*MockFilesAPIClient)(nil).GetFile), ctx, path, authToken)
 }
 
 // MockClientError is a mock of ClientError interface.

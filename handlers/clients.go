@@ -41,7 +41,7 @@ type RenderClient interface {
 
 // FilesAPIClient is an interface with methods required for getting metadata from Files API
 type FilesAPIClient interface {
-	GetFile(ctx context.Context, path string) (files.FileMetaData, error)
+	GetFile(ctx context.Context, path string, authToken string) (files.FileMetaData, error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

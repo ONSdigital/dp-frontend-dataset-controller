@@ -510,10 +510,10 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	rend.BuildPage(w, m, "edition-list")
 }
 
-func addFileSizeToDownloads(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset) (zebedee.Dataset, error) {
+func addFileSizeToDownloads(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
 	for i, download := range d.Downloads {
 		if download.URI != "" {
-			md, err := fc.GetFile(ctx, download.URI)
+			md, err := fc.GetFile(ctx, download.URI, authToken)
 			if err != nil {
 				return d, err
 			}
@@ -572,7 +572,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			return
 		}
 
-		dataset, err = addFileSizeToDownloads(ctx, fac, dataset)
+		dataset, err = addFileSizeToDownloads(ctx, fac, dataset, userAccessToken)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
 			return
