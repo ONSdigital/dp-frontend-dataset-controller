@@ -99,7 +99,7 @@ func run(ctx context.Context) error {
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
-	fc := files.NewAPIClient(apiRouterCli.URL, "")
+	fc := files.NewWithHealthClient(apiRouterCli)
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 

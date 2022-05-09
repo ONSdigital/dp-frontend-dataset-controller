@@ -81,6 +81,8 @@ func TestHandlersFilesAPI(t *testing.T) {
 			actualVersion := "v2"
 			zebedeeDownloadFileSize := ""
 			downloadURI := "file_from_zebedee"
+			expectedAuthToken := "auth-token"
+			authHeaderKey := "X-Florence-Token"
 
 			dlp := zebedee.DatasetLandingPage{
 				URI:      landingPageURI,
@@ -91,12 +93,12 @@ func TestHandlersFilesAPI(t *testing.T) {
 
 			zebedeeDataset := zebedee.Dataset{Downloads: []zebedee.Download{{URI: downloadURI, Size: zebedeeDownloadFileSize, Version: actualVersion}}}
 
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, legacyURL).Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
-			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, dataSetURI).Return(zebedeeDataset, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, expectedAuthToken, collectionID, locale, legacyURL).Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, expectedAuthToken, collectionID, locale, dlp.URI)
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, expectedAuthToken, collectionID, locale, "/")
+			mockZebedeeClient.EXPECT().GetDataset(ctx, expectedAuthToken, collectionID, locale, dataSetURI).Return(zebedeeDataset, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), "auth-token").Return(fmd, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), expectedAuthToken).Return(fmd, nil)
 
 			var actualPageModel mapper.StaticDatasetLandingPage
 
@@ -106,6 +108,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", legacyURL, nil)
+			req.Header.Set(authHeaderKey, expectedAuthToken)
 
 			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
 			handler(w, req)
