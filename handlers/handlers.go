@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/ONSdigital/dp-net/v2/handlers"
 
 	"github.com/pkg/errors"
 
@@ -170,9 +169,9 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		legacyLanding(w, req, zc, dc, rend, collectionID, lang, userAccessToken)
+		legacyLanding(w, req, zc, dc, fc, rend, collectionID, lang, userAccessToken)
 	})
 }
 
@@ -511,7 +510,23 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	rend.BuildPage(w, m, "edition-list")
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, collectionID, lang, userAccessToken string) {
+func addFileSizeToDownloads(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
+	for i, download := range d.Downloads {
+		if download.URI != "" {
+			md, err := fc.GetFile(ctx, download.URI, authToken)
+			if err != nil {
+				return d, err
+			}
+
+			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			d.Downloads[i].Size = fileSize
+		}
+	}
+
+	return d, nil
+}
+
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fac FilesAPIClient, rend RenderClient, collectionID, lang, userAccessToken string) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -549,14 +564,21 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	var ds []zebedee.Dataset
+	var datasets []zebedee.Dataset
 	for _, v := range dlp.Datasets {
-		d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
+		dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
 			return
 		}
-		ds = append(ds, d)
+
+		dataset, err = addFileSizeToDownloads(ctx, fac, dataset, userAccessToken)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
+			return
+		}
+
+		datasets = append(datasets, dataset)
 	}
 
 	// Check for filterable datasets and fetch details
@@ -586,7 +608,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+
 	rend.BuildPage(w, m, "static")
 }
 

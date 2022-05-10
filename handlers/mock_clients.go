@@ -10,6 +10,7 @@ import (
 	reflect "reflect"
 
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
 	filter "github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	model "github.com/ONSdigital/dp-renderer/model"
 	gomock "github.com/golang/mock/gomock"
@@ -275,6 +276,44 @@ func (m *MockRenderClient) NewBasePageModel() model.Page {
 func (mr *MockRenderClientMockRecorder) NewBasePageModel() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewBasePageModel", reflect.TypeOf((*MockRenderClient)(nil).NewBasePageModel))
+}
+
+// MockFilesAPIClient is a mock of FilesAPIClient interface.
+type MockFilesAPIClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockFilesAPIClientMockRecorder
+}
+
+// MockFilesAPIClientMockRecorder is the mock recorder for MockFilesAPIClient.
+type MockFilesAPIClientMockRecorder struct {
+	mock *MockFilesAPIClient
+}
+
+// NewMockFilesAPIClient creates a new mock instance.
+func NewMockFilesAPIClient(ctrl *gomock.Controller) *MockFilesAPIClient {
+	mock := &MockFilesAPIClient{ctrl: ctrl}
+	mock.recorder = &MockFilesAPIClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockFilesAPIClient) EXPECT() *MockFilesAPIClientMockRecorder {
+	return m.recorder
+}
+
+// GetFile mocks base method.
+func (m *MockFilesAPIClient) GetFile(ctx context.Context, path, authToken string) (files.FileMetaData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFile", ctx, path, authToken)
+	ret0, _ := ret[0].(files.FileMetaData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFile indicates an expected call of GetFile.
+func (mr *MockFilesAPIClientMockRecorder) GetFile(ctx, path, authToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*MockFilesAPIClient)(nil).GetFile), ctx, path, authToken)
 }
 
 // MockClientError is a mock of ClientError interface.
