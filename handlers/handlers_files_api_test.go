@@ -33,15 +33,20 @@ func TestHandlersFilesAPI(t *testing.T) {
 			landingPageURI := "https://helloworld.com"
 			dataSetURI := "dataset.com"
 			legacyURL := "/some_legacy_page"
-			downloadFileSize := "100"
-			downloadURI := "file_from_zebedee"
+			expectedDownloadFileSize := "100"
+			expectedSupplementaryFileSize := "101"
+			downloadURI := "download_file_from_zebedee"
+			supplementaryURI := "supplementary_file_from_zebedee"
 
 			dlp := zebedee.DatasetLandingPage{
 				URI:      landingPageURI,
 				Datasets: []zebedee.Link{{Title: "Dataset", URI: dataSetURI}},
 			}
 
-			zebedeeDataset := zebedee.Dataset{Downloads: []zebedee.Download{{File: downloadURI, Size: downloadFileSize}}}
+			zebedeeDataset := zebedee.Dataset{
+				Downloads:          []zebedee.Download{{File: downloadURI, Size: expectedDownloadFileSize}},
+				SupplementaryFiles: []zebedee.SupplementaryFile{{File: supplementaryURI, Size: expectedSupplementaryFileSize}},
+			}
 
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, legacyURL).Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
@@ -61,11 +66,15 @@ func TestHandlersFilesAPI(t *testing.T) {
 			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
 			handler(w, req)
 
+			actualDownloadSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
+			actualSupplementaryFileSize := actualPageModel.DatasetLandingPage.Datasets[0].SupplementaryFiles[0].Size
+
 			So(w.Code, ShouldEqual, http.StatusOK)
-			So(actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size, ShouldEqual, downloadFileSize)
+			So(actualDownloadSize, ShouldEqual, expectedDownloadFileSize)
+			So(actualSupplementaryFileSize, ShouldEqual, expectedSupplementaryFileSize)
 		})
 
-		Convey("File stored in Files API", func() {
+		Convey("Files stored in Files API", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -76,11 +85,15 @@ func TestHandlersFilesAPI(t *testing.T) {
 			landingPageURI := "https://helloworld.com"
 			dataSetURI := "dataset.com"
 			legacyURL := "/some_legacy_page"
-			actualDownloadFileSize := "100"
-			actualDownloadFileSizeInt, _ := strconv.Atoi(actualDownloadFileSize)
+			expectedDownloadFileSize := "100"
+			expectedSupplementaryFileSize := "101"
+			downloadURI := "download_file_from_zebedee"
+			supplementaryURI := "supplementary_file_from_zebedee"
+			expectedDownloadFileSizeInt, _ := strconv.Atoi(expectedDownloadFileSize)
+			expectedSupplementaryFileSizeInt, _ := strconv.Atoi(expectedSupplementaryFileSize)
 			actualVersion := "v2"
 			zebedeeDownloadFileSize := ""
-			downloadURI := "file_from_zebedee"
+			zebedeeSupplementaryFileSize := ""
 			expectedAuthToken := "auth-token"
 			authHeaderKey := "X-Florence-Token"
 
@@ -89,16 +102,21 @@ func TestHandlersFilesAPI(t *testing.T) {
 				Datasets: []zebedee.Link{{Title: "Dataset", URI: dataSetURI}},
 			}
 
-			fmd := files.FileMetaData{SizeInBytes: uint64(actualDownloadFileSizeInt)}
+			fmdd := files.FileMetaData{SizeInBytes: uint64(expectedDownloadFileSizeInt)}
+			fmds := files.FileMetaData{SizeInBytes: uint64(expectedSupplementaryFileSizeInt)}
 
-			zebedeeDataset := zebedee.Dataset{Downloads: []zebedee.Download{{URI: downloadURI, Size: zebedeeDownloadFileSize, Version: actualVersion}}}
+			zebedeeDataset := zebedee.Dataset{
+				Downloads:          []zebedee.Download{{URI: downloadURI, Size: zebedeeDownloadFileSize, Version: actualVersion}},
+				SupplementaryFiles: []zebedee.SupplementaryFile{{URI: supplementaryURI, Size: zebedeeSupplementaryFileSize}},
+			}
 
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, expectedAuthToken, collectionID, locale, legacyURL).Return(dlp, nil)
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, expectedAuthToken, collectionID, locale, dlp.URI)
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, expectedAuthToken, collectionID, locale, "/")
 			mockZebedeeClient.EXPECT().GetDataset(ctx, expectedAuthToken, collectionID, locale, dataSetURI).Return(zebedeeDataset, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), expectedAuthToken).Return(fmd, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), expectedAuthToken).Return(fmdd, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, gomock.Any(), expectedAuthToken).Return(fmds, nil)
 
 			var actualPageModel mapper.StaticDatasetLandingPage
 
@@ -113,8 +131,12 @@ func TestHandlersFilesAPI(t *testing.T) {
 			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
 			handler(w, req)
 
+			actualDownloadFileSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
+			actualSupplementaryFileSize := actualPageModel.DatasetLandingPage.Datasets[0].SupplementaryFiles[0].Size
+
 			So(w.Code, ShouldEqual, http.StatusOK)
-			So(actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size, ShouldEqual, actualDownloadFileSize)
+			So(actualDownloadFileSize, ShouldEqual, expectedDownloadFileSize)
+			So(actualSupplementaryFileSize, ShouldEqual, expectedSupplementaryFileSize)
 		})
 	})
 }

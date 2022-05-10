@@ -510,7 +510,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	rend.BuildPage(w, m, "edition-list")
 }
 
-func addFileSizeToDownloads(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
+func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
 	for i, download := range d.Downloads {
 		if download.URI != "" {
 			md, err := fc.GetFile(ctx, download.URI, authToken)
@@ -520,6 +520,18 @@ func addFileSizeToDownloads(ctx context.Context, fc FilesAPIClient, d zebedee.Da
 
 			fileSize := strconv.Itoa(int(md.SizeInBytes))
 			d.Downloads[i].Size = fileSize
+		}
+	}
+
+	for i, supplementaryFile := range d.SupplementaryFiles {
+		if supplementaryFile.URI != "" {
+			md, err := fc.GetFile(ctx, supplementaryFile.URI, authToken)
+			if err != nil {
+				return d, err
+			}
+
+			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			d.SupplementaryFiles[i].Size = fileSize
 		}
 	}
 
@@ -572,7 +584,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			return
 		}
 
-		dataset, err = addFileSizeToDownloads(ctx, fac, dataset, userAccessToken)
+		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
 			return
