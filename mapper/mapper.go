@@ -575,6 +575,14 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
+	p.BackTo = coreModel.BackTo{
+		Text: coreModel.Localisation{
+			LocaleKey: "BackToContents",
+			Plural:    4,
+		},
+		AnchorFragment: "toc",
+	}
+
 	return p
 }
 
