@@ -1,5 +1,5 @@
 <section id="contact" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
-    <h2 class="ons-u-mt-l ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "ContactDetails" .Language 1 }}</h2>
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "ContactDetails" .Language 1 }}</h2>
     <nav class="ons-related-content__navigation" aria-labelledby="contact-details">
         <ul class="ons-list ons-list--bare ons-u-fs-r">
             {{ if .ContactDetails.Email }}
@@ -16,4 +16,5 @@
             {{ end }}
         </ul>
     </nav>
+    {{ template "partials/census/back-to-contents" . }}
 </section>
