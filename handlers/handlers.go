@@ -511,6 +511,10 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 }
 
 func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
+	//for i, download := range d.Downloads {
+	//	d.Downloads[i].URI = fmt.Sprintf("/dataset-test/%s", download.File)
+	//}
+
 	for i, download := range d.Downloads {
 		if download.URI != "" {
 			md, err := fc.GetFile(ctx, download.URI, authToken)
@@ -586,6 +590,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
 		if err != nil {
+			log.Info(ctx, "ERROR:", log.Data{"request": req})
 			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
 			return
 		}

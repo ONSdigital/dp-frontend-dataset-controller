@@ -183,7 +183,7 @@
                                     <div class="margin-bottom--2">
                                         {{ range .Downloads }}
                                             <div class="inline-block--md margin-bottom-sm--1">
-                                                <a href="/file?uri={{ $dataset.URI }}/{{ .URI }}" class="btn btn--primary btn--thick" aria-label="{{ localise "DownloadInFormatWithFullTitle" $Language 1  $.Metadata.Title $dataset.Title .Extension }}">
+                                                <a href="{{ .DownloadUrl }}" class="btn btn--primary btn--thick" aria-label="{{ localise "DownloadInFormatWithFullTitle" $Language 1  $.Metadata.Title $dataset.Title .Extension }}">
                                                     {{ if eq .Extension "csdb" }}
                                                         {{ localise "StructuredText" $Language 1 }} ({{ humanSize .Size }})
                                                     {{ else }}

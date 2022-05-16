@@ -100,6 +100,7 @@ func run(ctx context.Context) error {
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
+	fc.Version = "v1"
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 

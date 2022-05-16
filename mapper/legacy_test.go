@@ -67,6 +67,82 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.Page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
 		So(sdlp.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 	})
+
+	Convey("test legacy / zebedee URI rendering", t, func() {
+		ctx := context.Background()
+		dlp := getTestDatasetLandingPage()
+		bcs := getTestBreadcrumbs()
+		lang := "cy"
+		req := httptest.NewRequest("GET", "/", nil)
+		mdl := model.Page{}
+		serviceMessage := getTestServiceMessage()
+		emergencyBanner := getTestEmergencyBanner()
+
+		expectedDatasetURI := "dataset"
+		expectedFilename := "hello_world.csv"
+		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename)
+
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
+
+		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
+		expectedDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedFilename
+
+		So(sdlp, ShouldNotBeEmpty)
+		So(firstDownload.URI, ShouldEqual, expectedFilename)
+		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
+	})
+
+	Convey("test legacy / static file URI rendering", t, func() {
+		ctx := context.Background()
+		dlp := getTestDatasetLandingPage()
+		bcs := getTestBreadcrumbs()
+		lang := "cy"
+		req := httptest.NewRequest("GET", "/", nil)
+		mdl := model.Page{}
+		serviceMessage := getTestServiceMessage()
+		emergencyBanner := getTestEmergencyBanner()
+
+		expectedFilekey := "data/collection-id/new-file.xlsx"
+		ds := staticFilesOnlyTestDatasets(expectedFilekey)
+
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
+
+		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
+		expectedDownloadURL := "/downloads-new/" + expectedFilekey
+
+		So(sdlp, ShouldNotBeEmpty)
+		So(firstDownload.URI, ShouldEqual, expectedFilekey)
+		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
+	})
+}
+
+func zebedeeOnlyTestDatasets(datasetURI, downloadFilename string) []zebedee.Dataset {
+	return []zebedee.Dataset{
+		{
+			URI: datasetURI,
+			Downloads: []zebedee.Download{
+				{
+					File: downloadFilename,
+					Size: "452456",
+				},
+			},
+		},
+	}
+}
+
+func staticFilesOnlyTestDatasets(downloadFilename string) []zebedee.Dataset {
+	return []zebedee.Dataset{
+		{
+			URI: "This should not matter one whit",
+			Downloads: []zebedee.Download{
+				{
+					Size:    "123654",
+					Version: "v2",
+					URI:     downloadFilename,
+				},
+			},
+		},
+	}
 }
 
 func getTestDatsets() []zebedee.Dataset {

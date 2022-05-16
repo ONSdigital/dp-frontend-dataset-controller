@@ -3,6 +3,7 @@ package mapper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -104,11 +105,21 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 		for _, value := range d.Downloads {
 			dataset.URI = d.URI
 			dataset.VersionLabel = d.Description.VersionLabel
-			dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
-				URI:       value.File,
-				Extension: strings.TrimPrefix(filepath.Ext(value.File), "."),
-				Size:      value.Size,
-			})
+			if "" != value.URI { // i.e. new static files sourced files
+				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+					URI:         value.URI,
+					DownloadUrl: fmt.Sprintf("/downloads-new/%s", value.URI),
+					Extension:   strings.TrimPrefix(filepath.Ext(value.URI), "."),
+					Size:        value.Size,
+				})
+			} else { // old legacy Zebedee-source files
+				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+					URI:         value.File,
+					DownloadUrl: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, value.File),
+					Extension:   strings.TrimPrefix(filepath.Ext(value.File), "."),
+					Size:        value.Size,
+				})
+			}
 		}
 		for _, value := range d.SupplementaryFiles {
 			dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
