@@ -204,7 +204,7 @@
                                         <ul class="list--neutral margin-top--0">
                                             {{ range .SupplementaryFiles }}
                                                 <li class="margin-top--0 margin-bottom--0">
-                                                    <a href="/file?uri={{ $dataset.URI }}/{{ .URI }}">{{ .Title }}</a>
+                                                    <a href="{{ .DownloadUrl }}">{{ .Title }}</a>
                                                     <span class="uppercase">({{ .Extension }}, {{ humanSize .Size }})</span>
                                                 </li>
                                             {{ end }}
