@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"context"
+	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -80,16 +81,21 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		expectedDatasetURI := "dataset"
 		expectedFilename := "hello_world.csv"
+		expectedSupplementaryFilename := "supplementary_" + expectedFilename
+
 		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename)
 
 		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedFilename
+		firstSupplementaryDownload := sdlp.DatasetLandingPage.Datasets[0].SupplementaryFiles[0]
+		expectedSupplementaryDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedSupplementaryFilename
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedFilename)
 		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
 	})
 
 	Convey("test legacy / static file URI rendering", t, func() {
@@ -103,16 +109,20 @@ func TestUnitMapperLegacy(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		expectedFilekey := "data/collection-id/new-file.xlsx"
+		expectedSupplementaryFilename := "data/collection-id/supplementary_new-file.xlsx"
 		ds := staticFilesOnlyTestDatasets(expectedFilekey)
 
 		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/downloads-new/" + expectedFilekey
+		firstSupplementaryDownload := sdlp.DatasetLandingPage.Datasets[0].SupplementaryFiles[0]
+		expectedSupplementaryDownloadURL := "/downloads-new/" + expectedSupplementaryFilename
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedFilekey)
 		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
 	})
 }
 
@@ -124,6 +134,13 @@ func zebedeeOnlyTestDatasets(datasetURI, downloadFilename string) []zebedee.Data
 				{
 					File: downloadFilename,
 					Size: "452456",
+				},
+			},
+			SupplementaryFiles: []zebedee.SupplementaryFile{
+				{
+					File:  fmt.Sprintf("supplementary_%s", downloadFilename),
+					Size:  "452456",
+					Title: "Supplementary File",
 				},
 			},
 		},
@@ -139,6 +156,13 @@ func staticFilesOnlyTestDatasets(downloadFilename string) []zebedee.Dataset {
 					Size:    "123654",
 					Version: "v2",
 					URI:     downloadFilename,
+				},
+			},
+			SupplementaryFiles: []zebedee.SupplementaryFile{
+				{
+					File:  fmt.Sprintf("supplementary_%s", downloadFilename),
+					Size:  "452456",
+					Title: "Supplementary File",
 				},
 			},
 		},

@@ -61,10 +61,11 @@ type Download struct {
 
 // SupplementaryFile is a downloadable file that is associated to an individual dataset
 type SupplementaryFile struct {
-	Title     string `json:"title"`
-	Extension string `json:"extension"`
-	Size      string `json:"size"`
-	URI       string `json:"uri"`
+	Title       string `json:"title"`
+	Extension   string `json:"extension"`
+	Size        string `json:"size"`
+	URI         string `json:"uri"`
+	DownloadUrl string `json:"download_url"`
 }
 
 // Message has a date and time, used for either correction or notices
