@@ -586,7 +586,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
 		if err != nil {
-			log.Info(ctx, "ERROR:", log.Data{"request": req})
+			log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
 			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
 			return
 		}
