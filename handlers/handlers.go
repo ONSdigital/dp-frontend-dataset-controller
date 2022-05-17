@@ -512,7 +512,12 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
 	//for i, download := range d.Downloads {
-	//	d.Downloads[i].URI = fmt.Sprintf("/dataset-test/%s", download.File)
+	//	d.Downloads[i].URI = fmt.Sprintf("/test/%s", download.File)
+	//	d.Downloads[i].File = ""
+	//}
+	//for i, supplementaryFile := range d.SupplementaryFiles {
+	//	d.SupplementaryFiles[i].URI = fmt.Sprintf("/test/%s", supplementaryFile.File)
+	//	d.SupplementaryFiles[i].File = ""
 	//}
 
 	for i, download := range d.Downloads {

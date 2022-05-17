@@ -17,6 +17,8 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
+const staticFilesDownloadEndpoint = "downloads-new"
+
 // StaticDatasetLandingPage is a StaticDatasetLandingPage representation
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
@@ -105,10 +107,11 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 		for _, value := range d.Downloads {
 			dataset.URI = d.URI
 			dataset.VersionLabel = d.Description.VersionLabel
-			if "" != value.URI { // i.e. new static files sourced files
+			if value.URI != "" { // i.e. new static files sourced files
+				filePath := strings.TrimPrefix(value.URI, "/")
 				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
 					URI:         value.URI,
-					DownloadUrl: fmt.Sprintf("/downloads-new/%s", value.URI),
+					DownloadUrl: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
 					Extension:   strings.TrimPrefix(filepath.Ext(value.URI), "."),
 					Size:        value.Size,
 				})
