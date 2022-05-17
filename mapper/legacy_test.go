@@ -69,7 +69,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 	})
 
-	Convey("test legacy / zebedee URI rendering", t, func() {
+	Convey("test legacy / zebedee URI rendering - supplementary", t, func() {
 		ctx := context.Background()
 		dlp := getTestDatasetLandingPage()
 		bcs := getTestBreadcrumbs()
@@ -81,9 +81,10 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		expectedDatasetURI := "dataset"
 		expectedFilename := "hello_world.csv"
+		expectedSupplementaryTitle := "Supplementary file"
 		expectedSupplementaryFilename := "supplementary_" + expectedFilename
 
-		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename)
+		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename, expectedSupplementaryTitle)
 
 		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
 
@@ -96,6 +97,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(firstDownload.URI, ShouldEqual, expectedFilename)
 		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
 		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 
 	Convey("test legacy / static file URI rendering", t, func() {
@@ -108,25 +110,27 @@ func TestUnitMapperLegacy(t *testing.T) {
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
 
-		expectedFilekey := "data/collection-id/new-file.xlsx"
-		expectedSupplementaryFilename := "data/collection-id/supplementary_new-file.xlsx"
-		ds := staticFilesOnlyTestDatasets(expectedFilekey)
+		expectedDownloadFilepath := "data/collection-id/new-file.xlsx"
+		expectedSupplementaryTitle := "Supplementary File Title"
+		expectedSupplementaryFilepath := "data/collection-id/new-file.xlsx"
+		ds := staticFilesOnlyTestDatasets(expectedDownloadFilepath, expectedSupplementaryTitle, expectedSupplementaryFilepath)
 
 		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
-		expectedDownloadURL := "/downloads-new/" + expectedFilekey
+		expectedDownloadURL := "/downloads-new/" + expectedDownloadFilepath
 		firstSupplementaryDownload := sdlp.DatasetLandingPage.Datasets[0].SupplementaryFiles[0]
-		expectedSupplementaryDownloadURL := "/downloads-new/" + expectedSupplementaryFilename
+		expectedSupplementaryDownloadURL := "/downloads-new/" + expectedSupplementaryFilepath
 
 		So(sdlp, ShouldNotBeEmpty)
-		So(firstDownload.URI, ShouldEqual, expectedFilekey)
+		So(firstDownload.URI, ShouldEqual, expectedDownloadFilepath)
 		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
 		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 }
 
-func zebedeeOnlyTestDatasets(datasetURI, downloadFilename string) []zebedee.Dataset {
+func zebedeeOnlyTestDatasets(datasetURI, downloadFilename, supplementaryTitle string) []zebedee.Dataset {
 	return []zebedee.Dataset{
 		{
 			URI: datasetURI,
@@ -138,31 +142,31 @@ func zebedeeOnlyTestDatasets(datasetURI, downloadFilename string) []zebedee.Data
 			},
 			SupplementaryFiles: []zebedee.SupplementaryFile{
 				{
+					Title: supplementaryTitle,
 					File:  fmt.Sprintf("supplementary_%s", downloadFilename),
 					Size:  "452456",
-					Title: "Supplementary File",
 				},
 			},
 		},
 	}
 }
 
-func staticFilesOnlyTestDatasets(downloadFilename string) []zebedee.Dataset {
+func staticFilesOnlyTestDatasets(downloadFilename, supplementaryFileTitle, supplementaryFileName string) []zebedee.Dataset {
 	return []zebedee.Dataset{
 		{
-			URI: "This should not matter one whit",
 			Downloads: []zebedee.Download{
 				{
+					URI:     downloadFilename,
 					Size:    "123654",
 					Version: "v2",
-					URI:     downloadFilename,
 				},
 			},
 			SupplementaryFiles: []zebedee.SupplementaryFile{
 				{
-					File:  fmt.Sprintf("supplementary_%s", downloadFilename),
-					Size:  "452456",
-					Title: "Supplementary File",
+					Title:   supplementaryFileTitle,
+					URI:     supplementaryFileName,
+					Size:    "452456",
+					Version: "v2",
 				},
 			},
 		},
