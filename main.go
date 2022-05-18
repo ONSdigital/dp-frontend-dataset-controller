@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"net/http"
 	"net/smtp"
 	"os"
@@ -98,6 +99,7 @@ func run(ctx context.Context) error {
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
+	fc := files.NewWithHealthClient(apiRouterCli)
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
@@ -128,7 +130,7 @@ func run(ctx context.Context) error {
 		router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, dc, *cfg))
 	}
 
-	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, rend, *cfg))
+	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, *cfg))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})
 

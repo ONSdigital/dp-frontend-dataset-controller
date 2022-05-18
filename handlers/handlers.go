@@ -4,16 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/ONSdigital/dp-net/v2/handlers"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
 
 	"github.com/pkg/errors"
 
@@ -23,6 +20,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -37,40 +35,6 @@ const (
 	maxAgeAndTimeOptions = 1000
 	homepagePath         = "/"
 )
-
-// To mock interfaces in this file
-//go:generate mockgen -source=handlers.go -destination=mock_handlers.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
-
-// FilterClient is an interface with the methods required for a filter client
-type FilterClient interface {
-	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
-	CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string, population_type string) (filterID, eTag string, err error)
-}
-
-// DatasetClient is an interface with methods required for a dataset client
-type DatasetClient interface {
-	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.DatasetDetails, err error)
-	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
-	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
-	GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error)
-	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (m dataset.VersionsList, err error)
-	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
-	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
-	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
-}
-
-// RenderClient is an interface with methods for require for rendering a template
-type RenderClient interface {
-	BuildPage(w io.Writer, pageModel interface{}, templateName string)
-	NewBasePageModel() coreModel.Page
-}
-
-// ClientError is an interface that can be used to retrieve the status code if a client has errorred
-type ClientError interface {
-	Error() string
-	Code() int
-}
 
 // errTooManyOptions is an error returned when a request can't complete because the dimension has too many options
 var errTooManyOptions = errors.New("too many options in dimension")
@@ -158,19 +122,26 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 			return
 		}
 
-		var names []string
-		for _, dim := range ver.Dimensions {
-			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
-			q := dataset.QueryParams{Offset: 0, Limit: 0}
+		dims := []filter.ModelDimension{}
+		for _, verDim := range ver.Dimensions {
+			var dim = filter.ModelDimension{}
+			dim.Name = verDim.Name
+			dim.URI = verDim.URL
+			dim.IsAreaType = verDim.IsAreaType
+			q := dataset.QueryParams{Offset: 0, Limit: 1000}
 			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
 				setStatusCode(req, w, err)
 				return
 			}
-
-			if opts.TotalCount > 1 { // If there is only one option then it can't be filterable so don't add to filter api
-				names = append(names, dim.Name)
+			var labels, options []string
+			for _, opt := range opts.Items {
+				labels = append(labels, opt.Label)
+				options = append(options, opt.Option)
 			}
+			dim.Options = options
+			dim.Values = labels
+			dims = append(dims, dim)
 		}
 
 		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
@@ -180,7 +151,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 		}
 
 		popType := datasetModel.IsBasedOn.ID
-		fid, _, err := fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names, popType)
+		fid, _, err := fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, dims, popType)
 		if err != nil {
 			setStatusCode(req, w, err)
 			return
@@ -198,9 +169,9 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		legacyLanding(w, req, zc, dc, rend, collectionID, lang, userAccessToken)
+		legacyLanding(w, req, zc, dc, fc, rend, collectionID, lang, userAccessToken)
 	})
 }
 
@@ -258,6 +229,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	if version.Downloads == nil {
+		log.Warn(ctx, "version downloads are nil", log.Data{"version_id": version.ID})
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
@@ -538,7 +510,35 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	rend.BuildPage(w, m, "edition-list")
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, rend RenderClient, collectionID, lang, userAccessToken string) {
+func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
+	for i, download := range d.Downloads {
+		if download.URI != "" {
+			md, err := fc.GetFile(ctx, download.URI, authToken)
+			if err != nil {
+				return d, err
+			}
+
+			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			d.Downloads[i].Size = fileSize
+		}
+	}
+
+	for i, supplementaryFile := range d.SupplementaryFiles {
+		if supplementaryFile.URI != "" {
+			md, err := fc.GetFile(ctx, supplementaryFile.URI, authToken)
+			if err != nil {
+				return d, err
+			}
+
+			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			d.SupplementaryFiles[i].Size = fileSize
+		}
+	}
+
+	return d, nil
+}
+
+func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fac FilesAPIClient, rend RenderClient, collectionID, lang, userAccessToken string) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -576,14 +576,21 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	var ds []zebedee.Dataset
+	var datasets []zebedee.Dataset
 	for _, v := range dlp.Datasets {
-		d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
+		dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
 			return
 		}
-		ds = append(ds, d)
+
+		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
+			return
+		}
+
+		datasets = append(datasets, dataset)
 	}
 
 	// Check for filterable datasets and fetch details
@@ -613,7 +620,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, ds, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+
 	rend.BuildPage(w, m, "static")
 }
 

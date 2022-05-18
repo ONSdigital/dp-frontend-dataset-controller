@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,7 +14,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -157,16 +158,28 @@ func TestUnitHandlers(t *testing.T) {
 		}
 
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
+			q := dataset.QueryParams{Offset: 0, Limit: 1000}
+			mockDims := []filter.ModelDimension{
+				{
+					Name: "aggregate",
+				},
+				{
+					Name: "time",
+				},
+			}
 			mockClient := NewMockFilterClient(mockCtrl)
-			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", []string{"aggregate", "time"}, "Example").Return("12345", "testETag", nil)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
+				Return("12345", "testETag", nil)
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[1], nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time",
-				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
-			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
+				Return(mockVersions.Items[1], nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate", &q).
+				Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time", &q).
+				Return(datasetOptions(0, 0), nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
+				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
 			body := strings.NewReader("dimension=aggregate")
 			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
@@ -203,6 +216,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test successful json response", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 			mockZebedeeClient.EXPECT().Get(ctx, "12345", "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
 			mockConfig := config.Config{}
 
@@ -212,7 +226,7 @@ func TestUnitHandlers(t *testing.T) {
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil, mockConfig))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -222,6 +236,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test status 500 returned if zedbedee get returns error", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 			mockZebedeeClient.EXPECT().Get(ctx, userAuthToken, "/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
 			mockConfig := config.Config{}
 
@@ -229,7 +244,7 @@ func TestUnitHandlers(t *testing.T) {
 			req, err := http.NewRequest("GET", "/data", nil)
 			So(err, ShouldBeNil)
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil, mockConfig))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -238,9 +253,10 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("test legacylanding handler with non /data endpoint", t, func() {
-		Convey("test sucessful data retrieval and rendering", func() {
+		Convey("test successful data retrieval and rendering", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 			mockConfig := config.Config{}
 			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
 			dlp.Datasets = append(dlp.Datasets, zebedee.Related{Title: "A dataset!", URI: "dataset.com"})
@@ -259,7 +275,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockRend, mockConfig))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -269,6 +285,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test status 500 returned when zebedee client returns error retrieving landing page", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 			mockConfig := config.Config{}
 			dlp := zebedee.DatasetLandingPage{}
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
@@ -278,7 +295,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil, mockConfig))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -287,6 +304,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("test status 500 returned when zebedee client returns error retrieving breadcrumb", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 			mockConfig := config.Config{}
 			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
@@ -297,7 +315,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, nil, mockConfig))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)

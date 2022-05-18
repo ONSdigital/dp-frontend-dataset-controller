@@ -18,7 +18,9 @@
                         {{ if .IsCurrentPage }}
                             <time datetime="{{ $version.ReleaseDate }}">{{ dateFormat $version.ReleaseDate }}</time>
                         {{ else }}
-                            <a href="{{ $version.VersionURL }}"><time datetime="{{ $version.ReleaseDate }}">{{ dateFormat $version.ReleaseDate }}</time></a>
+                            <a href="{{ $version.VersionURL }}">
+                                <time datetime="{{ $version.ReleaseDate }}">{{ dateFormat $version.ReleaseDate }}</time>
+                            </a>
                         {{ end }}
                     </td>
                     <td class="ons-table__cell ons-u-pb-s ons-u-pt-s">
@@ -38,4 +40,5 @@
             {{ end }}
         </tbody>
     </table>
+    {{ template "partials/census/back-to-contents" . }}
 </section>
