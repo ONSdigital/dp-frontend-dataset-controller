@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/ONSdigital/dp-net/v2/handlers"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/ONSdigital/dp-net/v2/handlers"
 
 	"github.com/pkg/errors"
 
@@ -196,7 +197,7 @@ func VersionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg con
 	})
 }
 
-func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL string, collectionID, lang, userAccessToken string) {
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -237,16 +238,16 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		isValidationError = true
 	}
 	if form == "get-data" && format != "" {
-		getDownloadFile(version, format, w, req)
+		getDownloadFile(version.Downloads, format, w, req)
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, false, filter.Model{})
 	rend.BuildPage(w, m, "census-landing")
 }
 
-func getDownloadFile(version dataset.Version, format string, w http.ResponseWriter, req *http.Request) {
-	for ext, download := range version.Downloads {
+func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
+	for ext, download := range downloads {
 		if strings.EqualFold(ext, format) {
 			http.Redirect(w, req, download.URL, http.StatusFound)
 		}

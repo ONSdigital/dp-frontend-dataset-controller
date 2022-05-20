@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -339,7 +340,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL string, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -363,12 +364,22 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 
-	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-			Extension: strings.ToLower(ext),
-			Size:      download.Size,
-			URI:       download.URL,
-		})
+	if hasFilterOutput {
+		for ext, download := range filter.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+	} else {
+		for ext, download := range version.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
 	}
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
@@ -455,17 +466,26 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "summary")
 
-	if len(opts) > 0 {
-		sections["variables"] = coreModel.ContentSection{
+	sections["variables"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "Variables",
+			Plural:    4,
+		},
+	}
+	displayOrder = append(displayOrder, "variables")
+
+	if len(version.Downloads) > 0 && !hasFilterOutput {
+		p.DatasetLandingPage.HasDownloads = true
+		sections["get-data"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
-				LocaleKey: "Variables",
-				Plural:    4,
+				LocaleKey: "GetData",
+				Plural:    1,
 			},
 		}
-		displayOrder = append(displayOrder, "variables")
+		displayOrder = append(displayOrder, "get-data")
 	}
 
-	if len(version.Downloads) > 0 {
+	if hasFilterOutput && len(filter.Downloads) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
 		sections["get-data"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
@@ -562,8 +582,17 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.BetaBannerEnabled = true
 
-	if len(opts) > 0 {
+	if len(opts) > 0 && !hasFilterOutput {
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+	}
+
+	if hasFilterOutput {
+		for _, dim := range filter.Dimensions {
+			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, sharedModel.Dimension{
+				Title:  dim.Label,
+				Values: dim.Options,
+			})
+		}
 	}
 
 	if isValidationError {
