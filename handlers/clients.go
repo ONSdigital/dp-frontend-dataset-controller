@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	io "io"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -18,6 +20,8 @@ import (
 type FilterClient interface {
 	CreateBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, names []string) (filterID, eTag string, err error)
 	CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, dimensions []filter.ModelDimension, population_type string) (filterID, eTag string, err error)
+	GetOutput(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID string) (m filter.Model, err error)
+	GetDimension(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string) (dim filter.Dimension, eTag string, err error)
 }
 
 // DatasetClient is an interface with methods required for a dataset client
@@ -42,6 +46,11 @@ type RenderClient interface {
 // FilesAPIClient is an interface with methods required for getting metadata from Files API
 type FilesAPIClient interface {
 	GetFile(ctx context.Context, path string, authToken string) (files.FileMetaData, error)
+}
+
+// DimensionClient is an interface with methods required for a dimension client
+type DimensionClient interface {
+	GetAreas(ctx context.Context, input dimension.GetAreasInput) (dimension.GetAreasResponse, error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

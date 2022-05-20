@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"net/http"
 	"net/smtp"
 	"os"
 	"os/signal"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -96,10 +98,16 @@ func run(ctx context.Context) error {
 
 	apiRouterCli := apihealthcheck.NewClient("api-router", cfg.APIRouterURL)
 
+	dimensionClient, err := dimension.NewWithHealthClient(apiRouterCli)
+	if err != nil {
+		return fmt.Errorf("failed to create dimensions API client: %w", err)
+	}
+
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
+	dimC := dimensionClient
 	fc.Version = "v1"
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
@@ -129,6 +137,7 @@ func run(ctx context.Context) error {
 	router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 	if cfg.EnableCensusPages {
 		router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, dc, *cfg))
+		router.StrictSlash(true).Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(f, dimC, dc, rend, *cfg, apiRouterVersion))
 	}
 
 	router.StrictSlash(true).HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, *cfg))
