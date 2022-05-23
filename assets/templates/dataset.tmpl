@@ -1,0 +1,184 @@
+{{$Language := .Language}}
+<div class="page-intro background--gallery">
+    <div class="wrapper">
+        <div class="col-wrap">
+            <div class="col">
+                {{template "partials/breadcrumb" .}}
+                <h1 class="page-intro__title {{if not .Metadata.Description}}margin-bottom-sm--4 margin-bottom-md--4{{end}}">
+                    <span class="page-intro__type">{{localise "DatasetPageTitle" .Language 1 }}</span>
+                    {{.Metadata.Title}}
+                </h1>
+                {{if .Metadata.Description}}
+                    <p class="page-intro__content">{{.Metadata.Description}}</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="meta-wrap">
+    <div class="wrapper">
+        <div class="col-wrap">
+            <p class="col col--md-12 col--lg-15 meta__item">
+                {{if .DatasetPage.IsNationalStatistic}}
+                    <a href="https://www.statisticsauthority.gov.uk/national-statistician/types-of-official-statistics/">
+                        <img class="meta__image" 
+                            src="/img/national-statistics.png"
+                            alt="{{localise "IsAccreditedStatistic" .Language 1}}"/>
+                    </a>
+                {{end}}
+                <span>{{localise "Contact" .Language 1}}</span>
+                <br>
+                <a href="mailto:{{.ContactDetails.Email}}">
+                    {{if .ContactDetails.Name}}
+                        {{.ContactDetails.Name}}
+                    {{else}}
+                        {{.ContactDetails.Email}}
+                    {{end}}
+                </a>
+            </p>
+            <p class="col col--md-12 col--lg-15 meta__item">
+                <span>{{localise "ReleaseDate" .Language 1}}:</span>
+                <br>
+                <time datetime="{{.DatasetPage.ReleaseDate}}">{{dateFormat .DatasetPage.ReleaseDate}}</time><br>
+            </p>
+            <p class="col col--md-12 col--lg-15 meta__item">
+                <span>{{localise "NextRelease" .Language 1}}</span>
+                <br>
+                {{if .DatasetPage.NextRelease}}
+                    {{dateFormat .DatasetPage.NextRelease}}
+                {{else}}
+                    {{localise "TBA" .Language 1}}
+                {{end}}
+            </p>
+            {{if .DatasetPage.DatasetID}}
+                <p class="col col--md-12 col--lg-15 meta__item">
+                    <span>{{localise "DatasetID" .Language 1}}</span>
+                    <br>
+                    {{.DatasetPage.DatasetID}}
+                    &nbsp;
+                    <span>
+                        <a href="#" class="tooltip print--hide" title="{{localise "DatasetIDHelp" .Language 1}}">{{localise "WhatIsThis" .Language 1}}</a>
+                    </span>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="wrapper">
+            <div class="col-wrap">
+                <div class="col col--lg-one col--md-two-one">
+
+                    <div class="section__content--static-markdown">
+
+                        <p class="print--hide">
+                            <a class="underline-link" href="{{.DatasetPage.URI}}">
+                                <span class="icon icon-return--dark-small margin-right-sm--1 margin-right-md--1"></span>
+                                {{localise "ReturnTo" .Language 1}} '{{.Metadata.Title}}'
+                            </a>
+                        </p>
+                        <p>{{localise "FilesOverview" .Language 1}}</p>
+                        <p>{{localise "RevisionIntro" .Language 1}}</p>
+                        <ol>
+                            <li>{{localise "RevisionReasonOne" .Language 1}}</li>
+                            <li>{{localise "RevisionReasonTwo" .Language 1}}</li>
+                        </ol>
+                        <p>{{localise "PlannedRevisionOverview" .Language 1}}</p>
+                    </div>
+
+                    <div class="margin-top-md--4 margin-bottom-sm--4 margin-bottom-md--5">
+                        <h3>{{localise "LatestVersionHeading" .Language 1}}</h3>
+                        {{range .DatasetPage.Downloads}}
+                            {{$trimmedfFileExt := trimPrefixedPeriod .Extension}}
+                            <a href="{{print "/file?uri=" .URI}}"
+                                title="Download as {{$trimmedfFileExt}}"                            
+                                class="btn btn--primary btn--thin btn--narrow btn--small"
+                                data-gtm-type="download-version-{{if eq $trimmedfFileExt "csdb"}}structured-text{{else}}{{$trimmedfFileExt}}{{end}}"
+                                data-gtm-date="Latest"
+                                data-gtm-download-file="{{.File}}"
+                                data-gtm-download-type="{{$trimmedfFileExt}}" 
+                            >
+                                {{if eq .Extension "csdb"}}
+                                    {{localise "StructuredText" .Language 1}}
+                                {{else}}
+                                    {{$trimmedfFileExt}}
+                                {{end}}
+                                ({{humanSize .Size}})
+                            </a>
+                        {{end}}
+
+                    </div>
+
+                    {{if .DatasetPage.Versions}}
+
+                        <h3>{{localise "PreviousVersionsHeading" .Language 2}}</h3>
+
+                        <table class="table-advanced margin-bottom-sm--4 margin-bottom-md--4">
+                            <thead>
+                                <tr>
+                                    <th class="table-advanced__header" width="30%">{{localise "SuperseededTableHeading" .Language 2}}</th>
+                                    <th class="table-advanced__header" width="50%">{{localise "ReasonTableHeading" .Language 1}}</th>
+                                    <th class="table-advanced__header" width="20%">{{localise "DateTableHeading" .Language 1}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range .DatasetPage.Versions}}
+                                    <tr>
+                                        <td>
+                                            {{$updateDate := .UpdateDate}}
+                                            {{range .Downloads}}
+                                                {{$trimmedfFileExt := trimPrefixedPeriod .Extension}}
+                                                <a href="{{print "/file?uri=" .URI}}"
+                                                    title="Download as {{$trimmedfFileExt}}"                            
+                                                    class="btn btn--primary btn--thin btn--narrow btn--small clear-left"
+                                                    data-gtm-type="download-version-{{if eq $trimmedfFileExt "csdb"}}structured-text{{else}}{{$trimmedfFileExt}}{{end}}"
+                                                    data-gtm-date="{{dateFormat $updateDate}}"
+                                                    data-gtm-download-file="{{.URI}}"
+                                                    data-gtm-download-type="{{$trimmedfFileExt}}" 
+                                                    >
+                                                    {{if eq .Extension "csdb"}}
+                                                        {{localise "StructuredText" .Language 1}}
+                                                    {{else}}
+                                                        {{$trimmedfFileExt}}
+                                                    {{end}}
+                                                    ({{humanSize .Size}})
+                                                </a>
+                                            {{end}}
+                                        </td>
+                                        <td>
+                                            {{if .CorrectionNotice}}
+                                                <div class="show-hide show-hide--light js-show-hide">
+                                                    <div class="js-show-hide__title">
+                                                        <span class="no-js js--hide">{{localise "Correction" $.Language 1}}</span>
+                                                        <span>{{localise "SeeCorrection" $.Language 1}}</span>
+                                                    </div>
+                                                    <div class="js-show-hide__content">
+                                                        {{.CorrectionNotice}}
+                                                    </div>
+                                                </div>
+                                            {{else}}
+                                                {{localise "ScheduledUpdate" $.Language 1}}
+                                            {{end}}
+                                        </td>
+                                        <td>
+                                            <time datetime="{{$updateDate}}">{{dateTimeFormat $updateDate}}</time>
+                                        </td>
+                                    </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    {{end}}
+                    {{if .DatasetPage.Markdown}}
+                        <div class="section__content--static-markdown">
+                            <section>
+                                <h3>{{localise "NotesAndUsage" $.Language 1}}</h3>
+                                {{markdown .DatasetPage.Markdown}}
+                            </section>
+                        </div>
+                    {{end}}
+                </div>  
+            </div>
+        </div>
+    </div>
+    

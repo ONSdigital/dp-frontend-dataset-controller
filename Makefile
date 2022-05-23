@@ -38,9 +38,9 @@ convey:
 .PHONY: fetch-renderer-lib
 fetch-renderer-lib:
 ifeq ($(LOCAL_DP_RENDERER_IN_USE), 1)
- $(eval CORE_ASSETS_PATH = $(shell grep -w "github.com/ONSdigital/dp-renderer" go.mod | awk '{print $2}' | tr -d '"'))
+ $(eval CORE_ASSETS_PATH = $(shell cat go.mod | grep -v "replace" | grep -w "github.com/ONSdigital/dp-renderer" | awk '{print $2}' | tr -d '"'))
 else
- $(eval APP_RENDERER_VERSION=$(shell grep "github.com/ONSdigital/dp-renderer" go.mod | cut -d ' ' -f2 ))
+ $(eval APP_RENDERER_VERSION=$(shell cat go.mod | grep -v "replace" | grep "github.com/ONSdigital/dp-renderer"  | cut -d ' ' -f2 ))
  $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer))
 endif
 

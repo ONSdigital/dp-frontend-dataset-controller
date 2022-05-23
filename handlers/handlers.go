@@ -540,20 +540,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	path := req.URL.Path
 	ctx := req.Context()
 
-	// Since MatchString will only error if the regex is invalid, and the regex is
-	// constant, don't capture the error
-	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
-		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+path)
-		if err != nil {
-			setStatusCode(req, w, err)
-			return
-		}
-		_, err = w.Write(b)
-		if err != nil {
-			setStatusCode(req, w, errors.Wrap(err, "failed to write zebedee client get response"))
-
-		}
-
+	if isRequestForZebedeeJsonData(w, req, zc, path, ctx, userAccessToken) {
 		return
 	}
 
@@ -696,4 +683,22 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	}
 
 	return b.Bytes(), nil
+}
+
+func isRequestForZebedeeJsonData(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, path string, ctx context.Context, userAccessToken string) bool {
+	// Since MatchString will only error if the regex is invalid, and the regex is
+	// constant, don't capture the error
+	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
+		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+path)
+		if err != nil {
+			setStatusCode(req, w, err)
+			return true
+		}
+		_, err = w.Write(b)
+		if err != nil {
+			setStatusCode(req, w, errors.Wrap(err, "failed to write zebedee client get response"))
+		}
+		return true
+	}
+	return false
 }

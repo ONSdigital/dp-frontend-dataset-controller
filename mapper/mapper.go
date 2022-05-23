@@ -3,8 +3,10 @@ package mapper
 import (
 	"context"
 	"fmt"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -792,4 +794,24 @@ func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) coreModel.EmergencyB
 		mappedEmergencyBanner.LinkText = bannerData.LinkText
 	}
 	return mappedEmergencyBanner
+}
+
+func FindVersion(versionList []zebedee.Dataset, versionURI string) zebedee.Dataset {
+	for _, ver := range versionList {
+		if versionURI == ver.URI {
+			return ver
+		}
+	}
+	return zebedee.Dataset{}
+}
+
+func MapDownloads(downloadsList []zebedee.Download, versionURI string) []datasetPage.Download {
+	var dl []datasetPage.Download
+	for _, d := range downloadsList {
+		dl = append(dl, datasetPage.Download{
+			Extension: filepath.Ext(d.File),
+			Size:      d.Size,
+			URI:       versionURI + "/" + d.File})
+	}
+	return dl
 }
