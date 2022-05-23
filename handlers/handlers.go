@@ -587,7 +587,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		go func() {
 			defer wg1.Done()
 
-			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
+			dataset := zebedee.Dataset{}
+			dataset, err = zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
 			if err != nil {
 				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
 				return
@@ -603,9 +604,9 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			defer mutex1.Unlock()
 			datasets = append(datasets, dataset)
 		}()
-
-		wg1.Wait()
 	}
+
+	wg1.Wait()
 
 	if err != nil {
 		setStatusCode(req, w, errors.Wrap(err, "unable to retrieve file size"))
