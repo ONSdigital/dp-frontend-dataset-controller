@@ -577,33 +577,53 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
+	var wg1 sync.WaitGroup
+
 	var datasets []zebedee.Dataset
+	var mutex1 = &sync.Mutex{}
 	for _, v := range dlp.Datasets {
-		dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
-		if err != nil {
-			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
-			return
-		}
+		wg1.Add(1)
 
-		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
-		if err != nil {
-			log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
-			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
-			return
-		}
+		go func() {
+			defer wg1.Done()
 
-		datasets = append(datasets, dataset)
+			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
+			if err != nil {
+				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
+				return
+			}
+
+			dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
+			if err != nil {
+				log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
+				return
+			}
+
+			mutex1.Lock()
+			defer mutex1.Unlock()
+			datasets = append(datasets, dataset)
+
+			return
+		}()
+	}
+	wg1.Wait()
+
+	if err != nil {
+		setStatusCode(req, w, errors.Wrap(err, "unable to retrieve file size"))
 	}
 
 	// Check for filterable datasets and fetch details
 	if len(dlp.RelatedFilterableDatasets) > 0 {
 		var relatedFilterableDatasets []zebedee.Related
-		var wg sync.WaitGroup
-		var mutex = &sync.Mutex{}
+		var wg2 sync.WaitGroup
+		var mutex2 = &sync.Mutex{}
+
 		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
-			wg.Add(1)
+			wg2.Add(1)
+
 			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset zebedee.Related) {
-				defer wg.Done()
+				defer wg2.Done()
+
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
@@ -612,12 +632,15 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 					})
 					return
 				}
-				mutex.Lock()
-				defer mutex.Unlock()
+
+				mutex2.Lock()
+				defer mutex2.Unlock()
+
 				relatedFilterableDatasets = append(relatedFilterableDatasets, zebedee.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
 			}(req.Context(), dc, relatedFilterableDataset)
 		}
-		wg.Wait()
+
+		wg2.Wait()
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
