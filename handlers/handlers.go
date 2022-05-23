@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/pkg/errors"
 
@@ -577,52 +578,48 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	var wg1 sync.WaitGroup
-
 	var datasets []zebedee.Dataset
 	var mutex1 = &sync.Mutex{}
+
+	errs, ctx := errgroup.WithContext(ctx)
 	for _, v := range dlp.Datasets {
-		wg1.Add(1)
 
-		go func() {
-			defer wg1.Done()
-
+		errs.Go(func() error {
 			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
 			if err != nil {
 				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
-				return
+				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
 			}
 
 			dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
 			if err != nil {
 				log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
-				return
+				return errors.Wrap(err, "failed to get file size from files API")
 			}
 
 			mutex1.Lock()
 			defer mutex1.Unlock()
 			datasets = append(datasets, dataset)
 
-			return
-		}()
+			return nil
+		})
 	}
-	wg1.Wait()
 
-	if err != nil {
-		setStatusCode(req, w, errors.Wrap(err, "unable to retrieve file size"))
+	if errs.Wait() != nil {
+		setStatusCode(req, w, err)
 	}
 
 	// Check for filterable datasets and fetch details
 	if len(dlp.RelatedFilterableDatasets) > 0 {
 		var relatedFilterableDatasets []zebedee.Related
-		var wg2 sync.WaitGroup
+		var wg sync.WaitGroup
 		var mutex2 = &sync.Mutex{}
 
 		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
-			wg2.Add(1)
+			wg.Add(1)
 
 			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset zebedee.Related) {
-				defer wg2.Done()
+				defer wg.Done()
 
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
@@ -640,7 +637,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 			}(req.Context(), dc, relatedFilterableDataset)
 		}
 
-		wg2.Wait()
+		wg.Wait()
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
 
