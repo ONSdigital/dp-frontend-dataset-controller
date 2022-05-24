@@ -474,26 +474,20 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "variables")
 
+	sections["get-data"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "GetData",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "get-data")
+
 	if len(version.Downloads) > 0 && !hasFilterOutput {
 		p.DatasetLandingPage.HasDownloads = true
-		sections["get-data"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "GetData",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "get-data")
 	}
 
 	if hasFilterOutput && len(filter.Downloads) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
-		sections["get-data"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "GetData",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "get-data")
 	}
 
 	if p.HasContactDetails {

@@ -243,6 +243,11 @@ one = "Machine readable"
 description = "Download"
 one = "download,"
 
+[DownloadsReady]
+description = "Your files are being created. Please <a href=\"{{.URI}}\">refresh</a> the page."
+one = "Your file is being created. Please <a href=\"{{.arg0}}\">refresh</a> the page."
+other = "Your files are being created. Please <a href=\"{{.arg0}}\">refresh</a> the page."
+
 [ImportantInformation]
 description = "Important information"
 one = "Important information:"
