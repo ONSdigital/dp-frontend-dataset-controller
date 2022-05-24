@@ -11,21 +11,18 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ONSdigital/dp-net/v2/handlers"
-
-	"github.com/pkg/errors"
-
-	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
-
-	"github.com/gorilla/mux"
-
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 // Constants...
@@ -577,33 +574,44 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	var datasets []zebedee.Dataset
-	for _, v := range dlp.Datasets {
-		dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
-		if err != nil {
-			setStatusCode(req, w, errors.Wrap(err, "zebedee client legacy dataset returned an error"))
-			return
-		}
+	datasets := make([]zebedee.Dataset, len(dlp.Datasets))
+	errs, ctx := errgroup.WithContext(ctx)
+	for i := range dlp.Datasets {
+		i := i // https://golang.org/doc/faq#closures_and_goroutines
+		errs.Go(func() error {
+			d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
+			if err != nil {
+				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
+				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
+			}
 
-		dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
-		if err != nil {
-			log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
-			setStatusCode(req, w, errors.Wrap(err, "files API client returned an error"))
-			return
-		}
+			d, err = addFileSizesToDataset(ctx, fac, d, userAccessToken)
+			if err != nil {
+				log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
+				return errors.Wrap(err, "failed to get file size from files API")
+			}
 
-		datasets = append(datasets, dataset)
+			datasets[i] = d
+			return nil
+		})
+	}
+
+	if err := errs.Wait(); err != nil {
+		setStatusCode(req, w, err)
+		return
 	}
 
 	// Check for filterable datasets and fetch details
 	if len(dlp.RelatedFilterableDatasets) > 0 {
-		var relatedFilterableDatasets []zebedee.Related
+		relatedFilterableDatasets := make([]zebedee.Link, len(dlp.RelatedFilterableDatasets))
 		var wg sync.WaitGroup
-		var mutex = &sync.Mutex{}
-		for _, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
+
+		for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 			wg.Add(1)
-			go func(ctx context.Context, dc DatasetClient, relatedFilterableDataset zebedee.Related) {
+
+			go func(ctx context.Context, i int, dc DatasetClient, relatedFilterableDataset zebedee.Link) {
 				defer wg.Done()
+
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
 				if err != nil {
 					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
@@ -612,11 +620,11 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 					})
 					return
 				}
-				mutex.Lock()
-				defer mutex.Unlock()
-				relatedFilterableDatasets = append(relatedFilterableDatasets, zebedee.Related{Title: d.Title, URI: relatedFilterableDataset.URI})
-			}(req.Context(), dc, relatedFilterableDataset)
+
+				relatedFilterableDatasets[i] = zebedee.Link{Title: d.Title, URI: relatedFilterableDataset.URI}
+			}(req.Context(), i, dc, relatedFilterableDataset)
 		}
+
 		wg.Wait()
 		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 	}
