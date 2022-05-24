@@ -46,6 +46,10 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 		Title: dp.DatasetPage.Edition,
 	})
 
+	if len(dp.Page.Breadcrumb) > 0 {
+		dp.DatasetPage.ParentPath = dp.Page.Breadcrumb[len(dp.Page.Breadcrumb)-1].Title
+	}
+
 	dp.DatasetPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	dp.DatasetPage.NextRelease = dlp.Description.NextRelease
 	dp.DatasetPage.DatasetID = dlp.Description.DatasetID

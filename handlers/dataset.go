@@ -4,18 +4,10 @@ import (
 	"fmt"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 	"net/http"
 )
-
-// DatasetPage will load a zebedee dataset page
-func DatasetPage(zc ZebedeeClient, rend RenderClient, apiRouterVersion string) http.HandlerFunc {
-	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		datasetPage(w, req, zc, rend, collectionID, lang, userAccessToken, apiRouterVersion)
-	})
-}
 
 func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, collectionID, lang, userAccessToken string, apiRouterVersion string) {
 	path := req.URL.Path

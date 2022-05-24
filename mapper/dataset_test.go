@@ -210,7 +210,7 @@ func TestCreateDatasetPage(t *testing.T) {
 
 	// breadcrumbItem returned by zebedee after being proxied through API router
 	breadcrumbItem0 := zebedee.Breadcrumb{
-		URI:         "http://myHost:1234/v1/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		URI:         "http://myHost:1234/economy/grossdomesticproduct/datasets/gdpjanuary2018",
 		Description: zebedee.NodeDescription{Title: "GDP: January 2018"},
 	}
 
@@ -229,7 +229,7 @@ func TestCreateDatasetPage(t *testing.T) {
 
 	// breadcrumbItemWrongURI with wrong URI value
 	breadcrumbItemWrongURI := zebedee.Breadcrumb{
-		URI:         "/v1/%&*$^@$(@!@±£8",
+		URI:         "/%&*$^@$(@!@±£8",
 		Description: zebedee.NodeDescription{Title: "Something wrong"},
 	}
 	expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
@@ -238,9 +238,12 @@ func TestCreateDatasetPage(t *testing.T) {
 	mdl := model.Page{}
 
 	Convey("test dataset page correctly returns", t, func() {
+		serviceMessage := getTestServiceMessage()
+		emergencyBanner := getTestEmergencyBanner()
+
 		dp := CreateDatasetPage(mdl, ctx, req, dummyModelData, dummyLandingPage,
 			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			dummyVersions, "en", "/v1")
+			dummyVersions, "en", serviceMessage, emergencyBanner)
 
 		So(dp.Breadcrumb[0].Title, ShouldEqual, expectedBreadcrumbItem0.Description.Title)
 		So(dp.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)

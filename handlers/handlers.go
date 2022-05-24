@@ -173,6 +173,13 @@ func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend R
 	})
 }
 
+// DataSet will load a legacy dataset page
+func DatasetPage(zc ZebedeeClient, rend RenderClient, apiRouterVersion string) http.HandlerFunc {
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		datasetPage(w, req, zc, rend, collectionID, lang, userAccessToken, apiRouterVersion)
+	})
+}
+
 // FilterableLanding will load a filterable landing page
 func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {

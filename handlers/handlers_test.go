@@ -226,7 +226,7 @@ func TestUnitHandlers(t *testing.T) {
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig, "v1"))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -244,7 +244,7 @@ func TestUnitHandlers(t *testing.T) {
 			req, err := http.NewRequest("GET", "/data", nil)
 			So(err, ShouldBeNil)
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig, "v1"))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -275,7 +275,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig, "v1"))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig))
 
 			router.ServeHTTP(w, req)
 
@@ -295,7 +295,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig, "v1"))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -315,7 +315,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			router := mux.NewRouter()
-			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig, "v1"))
+			router.Path("/{uri:.*}").HandlerFunc(LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockConfig))
 
 			router.ServeHTTP(w, req)
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)

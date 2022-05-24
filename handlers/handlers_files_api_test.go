@@ -74,7 +74,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig, "v1")
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
 			handler(w, req)
 
 			actualDownloadSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
@@ -120,7 +120,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig, "v1")
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
 			handler(w, req)
 
 			actualDownloadFileSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
