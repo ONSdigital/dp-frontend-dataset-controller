@@ -576,10 +576,10 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	datasets := make([]zebedee.Dataset, len(dlp.Datasets))
 	errs, ctx := errgroup.WithContext(ctx)
-	for i, v := range dlp.Datasets {
-		i, v := i, v // https://golang.org/doc/faq#closures_and_goroutines
+	for i := range dlp.Datasets {
+		i := i // https://golang.org/doc/faq#closures_and_goroutines
 		errs.Go(func() error {
-			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, v.URI)
+			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
 			if err != nil {
 				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
 				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
