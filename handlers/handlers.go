@@ -579,19 +579,19 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	for i := range dlp.Datasets {
 		i := i // https://golang.org/doc/faq#closures_and_goroutines
 		errs.Go(func() error {
-			dataset, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
+			d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
 			if err != nil {
 				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
 				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
 			}
 
-			dataset, err = addFileSizesToDataset(ctx, fac, dataset, userAccessToken)
+			d, err = addFileSizesToDataset(ctx, fac, d, userAccessToken)
 			if err != nil {
 				log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
 				return errors.Wrap(err, "failed to get file size from files API")
 			}
 
-			datasets[i] = dataset
+			datasets[i] = d
 			return nil
 		})
 	}
@@ -603,13 +603,13 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 
 	// Check for filterable datasets and fetch details
 	if len(dlp.RelatedFilterableDatasets) > 0 {
-		relatedFilterableDatasets := make([]zebedee.Related, len(dlp.RelatedFilterableDatasets))
+		relatedFilterableDatasets := make([]zebedee.Link, len(dlp.RelatedFilterableDatasets))
 		var wg sync.WaitGroup
 
 		for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 			wg.Add(1)
 
-			go func(ctx context.Context, i int, dc DatasetClient, relatedFilterableDataset zebedee.Related) {
+			go func(ctx context.Context, i int, dc DatasetClient, relatedFilterableDataset zebedee.Link) {
 				defer wg.Done()
 
 				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
@@ -621,7 +621,7 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 					return
 				}
 
-				relatedFilterableDatasets[i] = zebedee.Related{Title: d.Title, URI: relatedFilterableDataset.URI}
+				relatedFilterableDatasets[i] = zebedee.Link{Title: d.Title, URI: relatedFilterableDataset.URI}
 			}(req.Context(), i, dc, relatedFilterableDataset)
 		}
 
