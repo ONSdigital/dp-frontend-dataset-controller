@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -14,91 +13,84 @@ import (
 	"sync"
 )
 
+type legacyLandingPage struct {
+	ZebedeeClient   ZebedeeClient
+	DatasetClient   DatasetClient
+	FilesAPIClient  FilesAPIClient
+	RenderClient    RenderClient
+	Language        string
+	CollectionID    string
+	UserAccessToken string
+}
+
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		legacyLanding(w, req, zc, dc, fc, rend, collectionID, lang, userAccessToken)
+		lp := legacyLandingPage{
+			ZebedeeClient:   zc,
+			DatasetClient:   dc,
+			FilesAPIClient:  fc,
+			RenderClient:    rend,
+			Language:        lang,
+			CollectionID:    collectionID,
+			UserAccessToken: userAccessToken,
+		}
+		lp.Build(w, req)
 	})
 }
 
-func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fac FilesAPIClient, rend RenderClient, collectionID, lang, userAccessToken string) {
+func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if isRequestForZebedeeJsonData(w, req, zc, path, ctx, userAccessToken) {
+	if isRequestForZebedeeJsonData(w, req, lp.ZebedeeClient, path, ctx, lp.UserAccessToken) {
 		return
 	}
 
-	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, path)
+	dlp, err := lp.getDatasetLandingPage(ctx, path)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, dlp.URI)
+	bc, err := lp.getBreadcrumb(ctx, dlp.URI)
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
+	homepageContent, err := lp.getHomepageContent(ctx)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	datasets, err := getDatasets(ctx, dlp, zc, fac, userAccessToken, collectionID, lang, log.Data{"request": req})
+	datasets, err := lp.getDatasets(ctx, dlp, log.Data{"request": req})
 	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
 
-	// Check for filterable datasets and fetch details
-	if len(dlp.RelatedFilterableDatasets) > 0 {
-		relatedFilterableDatasets := make([]zebedee.Link, len(dlp.RelatedFilterableDatasets))
-		var wg sync.WaitGroup
+	lp.getRelatedDatasetLinks(req.Context(), &dlp)
 
-		for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
-			wg.Add(1)
+	basePage := lp.RenderClient.NewBasePageModel()
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
-			go func(ctx context.Context, i int, dc DatasetClient, relatedFilterableDataset zebedee.Link) {
-				defer wg.Done()
-
-				d, err := dc.GetByPath(ctx, userAccessToken, "", collectionID, relatedFilterableDataset.URI)
-				if err != nil {
-					// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
-					log.Error(req.Context(), "error fetching dataset details", err, log.Data{
-						"dataset": relatedFilterableDataset.URI,
-					})
-					return
-				}
-
-				relatedFilterableDatasets[i] = zebedee.Link{Title: d.Title, URI: relatedFilterableDataset.URI}
-			}(req.Context(), i, dc, relatedFilterableDataset)
-		}
-
-		wg.Wait()
-		dlp.RelatedFilterableDatasets = relatedFilterableDatasets
-	}
-
-	basePage := rend.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
-
-	rend.BuildPage(w, m, "static")
+	lp.RenderClient.BuildPage(w, m, "static")
 }
 
-func getDatasets(ctx context.Context, dlp zebedee.DatasetLandingPage, zc ZebedeeClient, fac FilesAPIClient, userAccessToken, collectionID, lang string, logData log.Data) ([]zebedee.Dataset, error) {
+func (lp legacyLandingPage) getDatasets(ctx context.Context, dlp zebedee.DatasetLandingPage, logData log.Data) ([]zebedee.Dataset, error) {
 	datasets := make([]zebedee.Dataset, len(dlp.Datasets))
 	errs, ctx := errgroup.WithContext(ctx)
 	for i := range dlp.Datasets {
 		i := i // https://golang.org/doc/faq#closures_and_goroutines
 		errs.Go(func() error {
-			d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
+			d, err := lp.ZebedeeClient.GetDataset(ctx, lp.UserAccessToken, lp.CollectionID, lp.Language, dlp.Datasets[i].URI)
 			if err != nil {
 				log.Error(ctx, "zebedee client legacy dataset returned an error", err, logData)
 				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
 			}
 
-			d, err = addFileSizesToDataset(ctx, fac, d, userAccessToken)
+			d, err = addFileSizesToDataset(ctx, lp.FilesAPIClient, d, lp.UserAccessToken)
 			if err != nil {
 				log.Error(ctx, "failed to get file size from files API", err, logData)
 				return errors.Wrap(err, "failed to get file size from files API")
@@ -138,4 +130,42 @@ func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dat
 	}
 
 	return d, nil
+}
+
+func (lp legacyLandingPage) getDatasetLandingPage(ctx context.Context, path string) (zebedee.DatasetLandingPage, error) {
+	return lp.ZebedeeClient.GetDatasetLandingPage(ctx, lp.UserAccessToken, lp.CollectionID, lp.Language, path)
+}
+
+func (lp legacyLandingPage) getBreadcrumb(ctx context.Context, uri string) ([]zebedee.Breadcrumb, error) {
+	return lp.ZebedeeClient.GetBreadcrumb(ctx, lp.UserAccessToken, lp.CollectionID, lp.Language, uri)
+}
+
+func (lp legacyLandingPage) getHomepageContent(ctx context.Context) (zebedee.HomepageContent, error) {
+	return lp.ZebedeeClient.GetHomepageContent(ctx, lp.UserAccessToken, lp.CollectionID, lp.Language, homepagePath)
+}
+
+func (lp legacyLandingPage) getRelatedDatasetLinks(ctx context.Context, dlp *zebedee.DatasetLandingPage) {
+	relatedFilterableDatasets := make([]zebedee.Link, len(dlp.RelatedFilterableDatasets))
+	var wg sync.WaitGroup
+
+	for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
+		wg.Add(1)
+
+		go func(ctx context.Context, i int, dc DatasetClient, relatedFilterableDataset zebedee.Link) {
+			defer wg.Done()
+
+			d, err := dc.GetByPath(ctx, lp.UserAccessToken, "", lp.CollectionID, relatedFilterableDataset.URI)
+			if err != nil {
+				// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
+				log.Error(ctx, "error fetching dataset details", err, log.Data{"dataset": relatedFilterableDataset.URI})
+				return
+			}
+
+			relatedFilterableDatasets[i] = zebedee.Link{Title: d.Title, URI: relatedFilterableDataset.URI}
+		}(ctx, i, lp.DatasetClient, relatedFilterableDataset)
+	}
+
+	wg.Wait()
+
+	dlp.RelatedFilterableDatasets = relatedFilterableDatasets
 }
