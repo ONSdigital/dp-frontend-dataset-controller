@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
@@ -15,13 +16,97 @@ import (
 	"testing"
 )
 
+func TestLegacyLanding(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	ctx := gomock.Any()
+	cfg := initialiseMockConfig()
+
+	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+	mockDatasetClient := NewMockDatasetClient(mockCtrl)
+	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
+
+	Convey("test /data endpoint", t, func() {
+		Convey("test successful json response", func() {
+			mockZebedeeClient.EXPECT().Get(ctx, "12345", "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/data", nil)
+			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil)(w, req)
+
+			So(w.Body.String(), ShouldEqual, `{"some_json":true}`)
+		})
+
+		Convey("test status 500 returned if zebedee get returns error", func() {
+			mockZebedeeClient.EXPECT().Get(ctx, userAuthToken, "/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/data", nil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil)(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
+	Convey("test legacy landing handler with non /data endpoint", t, func() {
+		Convey("test successful data retrieval and rendering", func() {
+			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
+			dlp.Datasets = append(dlp.Datasets, zebedee.Link{Title: "A dataset!", URI: "dataset.com"})
+
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
+
+			mockRend := NewMockRenderClient(mockCtrl)
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static")
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend).ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("test status 500 returned when zebedee client returns error retrieving landing page", func() {
+			dlp := zebedee.DatasetLandingPage{}
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil).ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+
+		Convey("test status 500 returned when zebedee client returns error retrieving breadcrumb", func() {
+			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI).Return(nil, errors.New("something went wrong"))
+
+			w := httptest.NewRecorder()
+			req, err := http.NewRequest("GET", "/somelegacypage", nil)
+			So(err, ShouldBeNil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil).ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+}
+
 func setupMockClients(ctx gomock.Matcher, mockZebedeeClient *MockZebedeeClient, mockRend *MockRenderClient, legacyURL string, dlp zebedee.DatasetLandingPage, authToken string, cfg config.Config) {
 	mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, authToken, collectionID, locale, legacyURL).Return(dlp, nil)
 	mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, authToken, collectionID, locale, dlp.URI)
 	mockZebedeeClient.EXPECT().GetHomepageContent(ctx, authToken, collectionID, locale, "/")
 
 	mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-
 }
 
 func TestHandlersFilesAPI(t *testing.T) {
@@ -29,8 +114,6 @@ func TestHandlersFilesAPI(t *testing.T) {
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
-
-	mockConfig := config.Config{}
 
 	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 	mockDatasetClient := NewMockDatasetClient(mockCtrl)
@@ -74,7 +157,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend)
 			handler(w, req)
 
 			actualDownloadSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
@@ -120,7 +203,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockConfig)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend)
 			handler(w, req)
 
 			actualDownloadFileSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
