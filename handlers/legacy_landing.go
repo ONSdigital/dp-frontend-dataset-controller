@@ -46,29 +46,8 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	datasets := make([]zebedee.Dataset, len(dlp.Datasets))
-	errs, ctx := errgroup.WithContext(ctx)
-	for i := range dlp.Datasets {
-		i := i // https://golang.org/doc/faq#closures_and_goroutines
-		errs.Go(func() error {
-			d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
-			if err != nil {
-				log.Error(ctx, "zebedee client legacy dataset returned an error", err, log.Data{"request": req})
-				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
-			}
-
-			d, err = addFileSizesToDataset(ctx, fac, d, userAccessToken)
-			if err != nil {
-				log.Error(ctx, "failed to get file size from files API", err, log.Data{"request": req})
-				return errors.Wrap(err, "failed to get file size from files API")
-			}
-
-			datasets[i] = d
-			return nil
-		})
-	}
-
-	if err := errs.Wait(); err != nil {
+	datasets, err := getDatasets(ctx, dlp, zc, fac, userAccessToken, collectionID, lang, log.Data{"request": req})
+	if err != nil {
 		setStatusCode(req, w, err)
 		return
 	}
@@ -105,6 +84,32 @@ func legacyLanding(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, d
 	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
 	rend.BuildPage(w, m, "static")
+}
+
+func getDatasets(ctx context.Context, dlp zebedee.DatasetLandingPage, zc ZebedeeClient, fac FilesAPIClient, userAccessToken, collectionID, lang string, logData log.Data) ([]zebedee.Dataset, error) {
+	datasets := make([]zebedee.Dataset, len(dlp.Datasets))
+	errs, ctx := errgroup.WithContext(ctx)
+	for i := range dlp.Datasets {
+		i := i // https://golang.org/doc/faq#closures_and_goroutines
+		errs.Go(func() error {
+			d, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, dlp.Datasets[i].URI)
+			if err != nil {
+				log.Error(ctx, "zebedee client legacy dataset returned an error", err, logData)
+				return errors.Wrap(err, "zebedee client legacy dataset returned an error")
+			}
+
+			d, err = addFileSizesToDataset(ctx, fac, d, userAccessToken)
+			if err != nil {
+				log.Error(ctx, "failed to get file size from files API", err, logData)
+				return errors.Wrap(err, "failed to get file size from files API")
+			}
+
+			datasets[i] = d
+			return nil
+		})
+	}
+
+	return datasets, errs.Wait()
 }
 
 func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
