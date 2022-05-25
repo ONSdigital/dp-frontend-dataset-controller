@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 	"net/http"
@@ -61,4 +62,11 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	m := mapper.CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
 	rend.BuildPage(w, m, "dataset")
+}
+
+// DataSet will load a legacy dataset page
+func DatasetPage(zc ZebedeeClient, rend RenderClient, apiRouterVersion string) http.HandlerFunc {
+	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
+		datasetPage(w, req, zc, rend, collectionID, lang, userAccessToken, apiRouterVersion)
+	})
 }
