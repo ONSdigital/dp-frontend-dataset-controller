@@ -230,9 +230,9 @@ one = "Original release"
 description = "Census DLP metadata label - datestamp and dataset ID"
 one = "Dataset ID and release date information"
 
-[GeographyDimensionDescription]
-description = "Specific description for the Geography dimension on Census dataset landing pages"
-one = "All output areas (OA) in England and Wales"
+[AreaTypeDescription]
+description = "Area type"
+one = "Area type"
 
 [PageProblem]
 description = "There is a problem with this page"

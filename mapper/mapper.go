@@ -3,7 +3,6 @@ package mapper
 import (
 	"context"
 	"fmt"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -216,7 +217,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumOpts)
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims.Items, opts, d.Links.LatestVersion.URL, maxNumOpts)
 	}
 
 	return p
@@ -342,7 +343,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -579,14 +580,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.BetaBannerEnabled = true
 
 	if len(opts) > 0 && !hasFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, version.Dimensions, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
 	}
 
 	if hasFilterOutput {
 		for _, dim := range filter.Dimensions {
 			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, sharedModel.Dimension{
-				Title:  dim.Label,
-				Values: dim.Options,
+				Title:      dim.Label,
+				Values:     dim.Options,
+				IsAreaType: helpers.IsBoolPtr(dim.IsAreaType),
+				TotalItems: len(dim.Options),
 			})
 		}
 	}
@@ -624,7 +627,7 @@ func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
 	}
 }
 
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dataset.VersionDimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 
@@ -641,10 +644,11 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims datase
 			if err != nil {
 				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 			}
-			for _, dimension := range dims.Items {
+			for _, dimension := range dims {
 				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
+					pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
 					}

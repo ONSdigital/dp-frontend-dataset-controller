@@ -3,6 +3,11 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -13,10 +18,6 @@ import (
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-	"net/http"
-	"net/url"
-	"strconv"
-	"strings"
 )
 
 // FilterableLanding will load a filterable landing page
@@ -191,12 +192,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	dims := dataset.VersionDimensions{Items: nil}
-	dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version))
-	if err != nil {
-		setStatusCode(req, w, err)
-		return
-	}
+	dims := dataset.VersionDimensions{Items: version.Dimensions}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
 	if err != nil {
@@ -217,7 +213,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, dims, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, false, filter.Model{})
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, false, filter.Model{})
 	rend.BuildPage(w, m, "census-landing")
 }
 

@@ -60,3 +60,12 @@ func GenerateSharingLink(socialType string, currentUrl string, title string) str
 		return ""
 	}
 }
+
+// IsBoolPtr determines if the given value is a pointer
+func IsBoolPtr(val *bool) bool {
+	if val == nil {
+		return false
+	}
+
+	return *val
+}

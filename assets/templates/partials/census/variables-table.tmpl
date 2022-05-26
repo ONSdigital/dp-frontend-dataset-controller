@@ -11,12 +11,19 @@
             {{range $i, $dim := $dims}}
                 <tr class="ons-table__row ons-u-bb ons-grid--flex@xxs@s ons-grid--between@xxs@s{{ if eq $i 0 }} ons-u-bt{{ end }}">
                     <th scope="col" class="ons-table__header ons-table__cell ons-col-4@s ons-u-pb-s ons-u-pt-s ons-u-pl-no ons-u-order--1 ons-u-bb-no@xxs@s {{if $flexible}}ons-u-flex--2@xxs@s{{end}}">
-                        <span>{{ $dim.Title }}</span>
+                        <span>
+                        {{ if $dim.IsAreaType }}
+                            {{ localise "AreaTypeDescription" $language 1 }}
+                        {{ else }}
+                            {{ $dim.Title }}
+                        {{ end }}
+                        </span>
                     </th>
                     <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pl-no@xxs@s ons-u-order--3 ons-u-fw@xxs@s ons-u-pt-no@xxs@s ons-u-bb-no@xxs@s">
-                        {{ if eq $dim.Title "Geography" }}
+                        {{ if $dim.IsAreaType }}
                             <div>
-                                <div class="ons-u-pb-s">{{ localise "GeographyDimensionDescription" $language 1 }}</div>
+                                {{- $dim.Title }} 
+                                ({{ $dim.TotalItems -}})
                             </div>
                         {{else}}
                             <div>
@@ -37,7 +44,7 @@
                             </div>
                         {{end}}
                     </td>
-                    {{ if $flexible }}
+                    {{ if and $flexible $dim.IsAreaType }}
                     <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right ons-u-pl-no@xxs@s ons-u-ml-xs@xxs@s ons-u-order--2 ons-u-bb-no@xxs@s">
                         <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
                             {{ localise "Change" $language 1 }} 
