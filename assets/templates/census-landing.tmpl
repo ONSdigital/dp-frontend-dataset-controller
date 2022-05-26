@@ -17,9 +17,7 @@
         <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
             {{ template "partials/census/summary" . }}
             {{ template "partials/census/variables-table" . }}
-            {{ if .DatasetLandingPage.HasDownloads }}
-                {{ template "partials/census/get-data" . }}
-            {{ end }}
+            {{ template "partials/census/get-data" . }}
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}
             {{ end }}
