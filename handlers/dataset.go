@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, collectionID, lang, userAccessToken string, apiRouterVersion string) {
+func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -55,6 +55,13 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 			setStatusCode(req, w, errors.Wrap(err, "zebedee client get previous dataset versions returned an error"))
 			return
 		}
+
+		version, err = addFileSizesToDataset(ctx, fac, version, userAccessToken)
+		if err != nil {
+			log.Error(ctx, "failed to get file size from files API", err)
+			return
+		}
+
 		versions = append(versions, version)
 	}
 
@@ -65,8 +72,8 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 }
 
 // DataSet will load a legacy dataset page
-func DatasetPage(zc ZebedeeClient, rend RenderClient, apiRouterVersion string) http.HandlerFunc {
+func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		datasetPage(w, req, zc, rend, collectionID, lang, userAccessToken, apiRouterVersion)
+		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken)
 	})
 }

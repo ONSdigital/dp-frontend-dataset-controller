@@ -140,7 +140,7 @@ func run(ctx context.Context) error {
 		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(f, dimC, dc, rend, *cfg, apiRouterVersion))
 	}
 
-	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, apiRouterVersion)))
+	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc)))
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})
