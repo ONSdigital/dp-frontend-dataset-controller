@@ -143,6 +143,15 @@ func TestDatasetHandlers(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
+		Convey("test status 500 returned when breadcrumb too short", func() {
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.Dataset{}, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return([]zebedee.Breadcrumb{{URI: "TOO/SHORT"}}, nil)
+
+			w, req := generateRecorderAndRequest()
+			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+
 		Convey("test status 500 returned when zebedee client returns error retrieving parent dataset landing page", func() {
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(hp, nil)
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.DatasetLandingPage{}, errors.New("something went wrong :("))
