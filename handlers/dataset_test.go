@@ -3,17 +3,16 @@ package handlers
 import (
 	"errors"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/golang/mock/gomock"
+	. "github.com/smartystreets/goconvey/convey"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
-
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/golang/mock/gomock"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -21,7 +20,14 @@ var (
 	editionPageURI        = datasetLandingPageURI + "/2022"
 )
 
+const (
+	userAuthTokenDatasets = "123456789"
+	collectionIDDatasets  = "testing-collection-123456789"
+	localeDatasets        = "cy"
+)
+
 func TestDatasetHandlers(t *testing.T) {
+
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
@@ -56,11 +62,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Downloads: []zebedee.Download{{File: expectedDownloadFilename, Size: expectedDownloadFileSize}},
 			}
 
-			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, homepagePath).Return(hp, nil)
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, datasetLandingPageURI).Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, editionDataSet.URI).Return(bc, nil)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, editionPageURI).Return(editionDataSet, nil)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, expectedVersionURI).Return(versionDataSet, nil)
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionDataSet.URI).Return(bc, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionPageURI).Return(editionDataSet, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, expectedVersionURI).Return(versionDataSet, nil)
 
 			var actualPageModel mapper.DatasetPage
 
@@ -98,12 +104,12 @@ func TestDatasetHandlers(t *testing.T) {
 
 			fmd := files.FileMetaData{SizeInBytes: uint64(expectedDownloadFileSizeInt)}
 
-			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, homepagePath).Return(hp, nil)
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, datasetLandingPageURI).Return(dlp, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, editionDataSet.URI).Return(bc, nil)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, editionPageURI).Return(editionDataSet, nil)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, expectedVersionURI).Return(versionDataSet, nil)
-			mockFilesAPIClient.EXPECT().GetFile(ctx, expectedDownloadFilename, userAuthToken).Return(fmd, nil)
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionDataSet.URI).Return(bc, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionPageURI).Return(editionDataSet, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, expectedVersionURI).Return(versionDataSet, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, expectedDownloadFilename, userAuthTokenDatasets).Return(fmd, nil)
 
 			var actualPageModel mapper.DatasetPage
 
@@ -121,7 +127,7 @@ func TestDatasetHandlers(t *testing.T) {
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving dataset page", func() {
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(zebedee.Dataset{}, errors.New("something went wrong :("))
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.Dataset{}, errors.New("something went wrong :("))
 
 			w, req := generateRecorderAndRequest()
 			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
@@ -129,8 +135,8 @@ func TestDatasetHandlers(t *testing.T) {
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving breadcrumb", func() {
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(zebedee.Dataset{}, nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(nil, errors.New("something went wrong"))
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.Dataset{}, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(nil, errors.New("something went wrong"))
 
 			w, req := generateRecorderAndRequest()
 			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
@@ -138,10 +144,10 @@ func TestDatasetHandlers(t *testing.T) {
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving parent dataset landing page", func() {
-			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(hp, nil)
-			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(zebedee.DatasetLandingPage{}, errors.New("something went wrong :("))
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(bc, nil)
-			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, gomock.Any()).Return(zebedee.Dataset{}, nil)
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(hp, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.DatasetLandingPage{}, errors.New("something went wrong :("))
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(bc, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, gomock.Any()).Return(zebedee.Dataset{}, nil)
 
 			w, req := generateRecorderAndRequest()
 			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
@@ -152,5 +158,12 @@ func TestDatasetHandlers(t *testing.T) {
 
 func generateRecorderAndRequest() (*httptest.ResponseRecorder, *http.Request) {
 	req, _ := http.NewRequest(http.MethodGet, editionPageURI, nil)
+	req.Header.Add("X-Florence-Token", userAuthTokenDatasets)
+	req.Header.Add("Collection-Id", collectionIDDatasets)
+	localeCookie := &http.Cookie{
+		Name:  "lang",
+		Value: localeDatasets,
+	}
+	req.AddCookie(localeCookie)
 	return httptest.NewRecorder(), req
 }
