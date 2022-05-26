@@ -93,8 +93,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		initialVersionReleaseDate = initialVersion.ReleaseDate
 	}
 
-	dims := dataset.VersionDimensions{Items: nil}
-
 	filterOutput := filter.Model{}
 
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, error) {
@@ -176,6 +174,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, dims, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, true, filterOutput)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, true, filterOutput)
 	rend.BuildPage(w, m, "census-landing")
 }

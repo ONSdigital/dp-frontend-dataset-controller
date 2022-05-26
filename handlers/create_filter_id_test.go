@@ -2,13 +2,17 @@ package handlers
 
 import (
 	"errors"
+	"io/ioutil"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
-	"strings"
-	"testing"
 )
 
 func TestCreateFilterID(t *testing.T) {
@@ -134,4 +138,29 @@ func TestCreateFilterID(t *testing.T) {
 			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
 		})
 	})
+}
+
+func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc DatasetClient, filterFlexRoute bool, cfg config.Config) *httptest.ResponseRecorder {
+	req := httptest.NewRequest("POST", url, body)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	w := httptest.NewRecorder()
+
+	router := mux.NewRouter()
+	if filterFlexRoute {
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex", CreateFilterFlexID(fc, dc, cfg))
+	} else {
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc))
+	}
+
+	router.ServeHTTP(w, req)
+
+	So(w.Code, ShouldEqual, code)
+
+	b, err := ioutil.ReadAll(w.Body)
+	So(err, ShouldBeNil)
+	// Writer body should be empty, we don't write a response
+	So(b, ShouldBeEmpty)
+
+	return w
 }

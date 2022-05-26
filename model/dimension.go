@@ -8,4 +8,5 @@ type Dimension struct {
 	OptionsURL  string   `json:"options_url"`
 	TotalItems  int      `json:"total_items"`
 	Description string   `json:"description"`
+	IsAreaType  bool     `json:"is_area_type"`
 }
