@@ -22,7 +22,8 @@
                     <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pl-no@xxs@s ons-u-order--3 ons-u-fw@xxs@s ons-u-pt-no@xxs@s ons-u-bb-no@xxs@s">
                         {{ if $dim.IsAreaType }}
                             <div>
-                                {{ $dim.Title }} ({{ $dim.TotalItems }})
+                                {{- $dim.Title }} 
+                                ({{ $dim.TotalItems -}})
                             </div>
                         {{else}}
                             <div>
