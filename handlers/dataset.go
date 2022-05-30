@@ -14,7 +14,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if isRequestForZebedeeJsonData(w, req, zc, path, ctx, userAccessToken) {
+	if handleRequestForZebedeeJsonData(w, req, zc, path, ctx, userAccessToken) {
 		return
 	}
 
@@ -58,8 +58,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 
 		version, err = addFileSizesToDataset(ctx, fac, version, userAccessToken)
 		if err != nil {
-			log.Error(ctx, "failed to get file size from files API", err)
-			return
+			log.Error(ctx, "failed to get file size from files API", err, log.Data{"version": version})
 		}
 
 		versions = append(versions, version)

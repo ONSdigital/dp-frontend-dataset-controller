@@ -26,28 +26,20 @@ func TestLegacyLanding(t *testing.T) {
 	mockDatasetClient := NewMockDatasetClient(mockCtrl)
 	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 
-	Convey("test /data endpoint", t, func() {
+	Convey("test /path/to/something/data endpoint", t, func() {
+		path := "/path/to/something"
+		zebedeePath := "/data?uri=" + path
+
 		Convey("test successful json response", func() {
-			mockZebedeeClient.EXPECT().Get(ctx, "12345", "/data?uri=/data").Return([]byte(`{"some_json":true}`), nil)
+			mockZebedeeClient.EXPECT().Get(ctx, "12345", zebedeePath).Return([]byte(`{"some_json":true}`), nil)
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, "/data", nil)
+			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil)(w, req)
 
 			So(w.Body.String(), ShouldEqual, `{"some_json":true}`)
-		})
-
-		Convey("test status 500 returned if zebedee get returns error", func() {
-			mockZebedeeClient.EXPECT().Get(ctx, userAuthToken, "/data?uri=/data").Return(nil, errors.New("something went wrong with zebedee"))
-
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, "/data", nil)
-
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil)(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 

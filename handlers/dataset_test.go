@@ -9,6 +9,7 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -27,7 +28,6 @@ const (
 )
 
 func TestDatasetHandlers(t *testing.T) {
-
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
@@ -124,6 +124,83 @@ func TestDatasetHandlers(t *testing.T) {
 
 			So(w.Code, ShouldEqual, http.StatusOK)
 			So(actualDownloadSize, ShouldEqual, expectedDownloadFileSize)
+		})
+
+		Convey("test failure to get the file size from files API", func() {
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+
+			dlp := zebedee.DatasetLandingPage{
+				URI:      datasetLandingPageURI,
+				Datasets: []zebedee.Link{{URI: editionPageURI}},
+			}
+			editionDataSet := zebedee.Dataset{
+				URI:      editionPageURI,
+				Versions: []zebedee.Version{{URI: expectedVersionURI}},
+			}
+			versionDataSet := zebedee.Dataset{
+				URI:       expectedVersionURI,
+				Downloads: []zebedee.Download{{URI: expectedDownloadFilename}},
+			}
+
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionDataSet.URI).Return(bc, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionPageURI).Return(editionDataSet, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, expectedVersionURI).Return(versionDataSet, nil)
+			mockFilesAPIClient.EXPECT().GetFile(ctx, expectedDownloadFilename, userAuthTokenDatasets).Return(files.FileMetaData{}, errors.New("files api broken"))
+
+			var actualPageModel mapper.DatasetPage
+
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "dataset").Do(func(w io.Writer, pageModel interface{}, templateName string) {
+				actualPageModel = pageModel.(mapper.DatasetPage)
+			})
+
+			w, req := generateRecorderAndRequest()
+			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+			actualDownloadSize := actualPageModel.DatasetPage.Versions[0].Downloads[0].Size
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+			So(actualDownloadSize, ShouldEqual, "0")
+		})
+
+		Convey("path contains /data", func() {
+			path := "/path/to/some"
+			zebedeePath := "/data?uri=" + path
+			w, req := generateRecorderAndRequest()
+			req.URL.Path = path + "/data"
+
+			expectedBody := []byte("some content")
+
+			mockZebedeeClient.EXPECT().Get(ctx, userAuthTokenDatasets, zebedeePath).Return(expectedBody, nil)
+			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+			actualBody, _ := ioutil.ReadAll(w.Body)
+
+			So(w.Code, ShouldEqual, http.StatusOK)
+			So(actualBody, ShouldResemble, expectedBody)
+		})
+
+		Convey("test failure of version metadata retrieval", func() {
+			dlp := zebedee.DatasetLandingPage{
+				URI:      datasetLandingPageURI,
+				Datasets: []zebedee.Link{{URI: editionPageURI}},
+			}
+			editionDataSet := zebedee.Dataset{
+				URI:      editionPageURI,
+				Versions: []zebedee.Version{{URI: expectedVersionURI}},
+			}
+
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionDataSet.URI).Return(bc, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, editionPageURI).Return(editionDataSet, nil)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, expectedVersionURI).Return(zebedee.Dataset{}, errors.New("Error retrieving version metadata"))
+
+			w, req := generateRecorderAndRequest()
+			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving dataset page", func() {

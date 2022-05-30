@@ -93,20 +93,24 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	return b.Bytes(), nil
 }
 
-func isRequestForZebedeeJsonData(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, path string, ctx context.Context, userAccessToken string) bool {
+func handleRequestForZebedeeJsonData(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, path string, ctx context.Context, userAccessToken string) (wasZebedeeRequest bool) {
+	wasZebedeeRequest = false
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
 	if ok, _ := regexp.MatchString(dataEndpoint, path); ok {
-		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+path)
+		wasZebedeeRequest = true
+		strippedPath := path[0:(len(path) - 5)] // i.e. remove the "/data" at the end of the path
+
+		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+strippedPath)
 		if err != nil {
 			setStatusCode(req, w, err)
-			return true
+			return
 		}
 		_, err = w.Write(b)
 		if err != nil {
 			setStatusCode(req, w, errors.Wrap(err, "failed to write zebedee client get response"))
 		}
-		return true
 	}
-	return false
+
+	return
 }
