@@ -49,13 +49,13 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 
 	dlp, err := lp.getDatasetLandingPage(ctx, path)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	bc, err := lp.getBreadcrumb(ctx, dlp.URI)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 
 	datasets, err := lp.getDatasets(ctx, dlp, log.Data{"request": req})
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 

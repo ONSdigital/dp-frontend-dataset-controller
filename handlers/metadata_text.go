@@ -24,25 +24,25 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	b, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dimensions, req)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "plain/text")
 	_, err = w.Write(b)
 	if err != nil {
-		setStatusCode(req, w, errors.Wrap(err, "failed to write metadata text response"))
+		setStatusCode(ctx, w, errors.Wrap(err, "failed to write metadata text response"))
 	}
 }

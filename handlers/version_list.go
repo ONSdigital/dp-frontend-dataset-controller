@@ -25,7 +25,7 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	d, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -37,13 +37,13 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	e, err := dc.GetEdition(ctx, userAccessToken, "", collectionID, datasetID, edition)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 

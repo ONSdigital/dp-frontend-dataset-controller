@@ -24,7 +24,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -32,7 +32,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
-				setStatusCode(req, w, err)
+				setStatusCode(ctx, w, err)
 				return
 			}
 		}

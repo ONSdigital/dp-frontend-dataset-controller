@@ -25,7 +25,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 
 		dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
@@ -35,7 +35,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 			q := dataset.QueryParams{Offset: 0, Limit: 0}
 			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
-				setStatusCode(req, w, err)
+				setStatusCode(ctx, w, err)
 				return
 			}
 
@@ -45,7 +45,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		}
 		fid, _, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
@@ -66,7 +66,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 		if !cfg.EnableCensusPages {
 			err := errors.New("not implemented")
 			log.Error(ctx, "route not implemented", err)
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
@@ -78,7 +78,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 
 		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
@@ -91,7 +91,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 			q := dataset.QueryParams{Offset: 0, Limit: 1000}
 			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
-				setStatusCode(req, w, err)
+				setStatusCode(ctx, w, err)
 				return
 			}
 			var labels, options []string
@@ -106,14 +106,14 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 
 		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
 		popType := datasetModel.IsBasedOn.ID
 		fid, _, err := fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, dims, popType)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 

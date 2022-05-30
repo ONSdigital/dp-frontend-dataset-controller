@@ -22,7 +22,7 @@ const (
 
 var errTooManyOptions = errors.New("too many options in dimension")
 
-func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
+func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	if err == errTooManyOptions {
 		status = http.StatusRequestEntityTooLarge
@@ -32,7 +32,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	log.Error(req.Context(), "client error", err, log.Data{"setting-response-status": status})
+	log.Error(ctx, "client error", err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
 
@@ -103,12 +103,12 @@ func handleRequestForZebedeeJsonData(w http.ResponseWriter, req *http.Request, z
 
 		b, err := zc.Get(ctx, userAccessToken, "/data?uri="+strippedPath)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 		_, err = w.Write(b)
 		if err != nil {
-			setStatusCode(req, w, errors.Wrap(err, "failed to write zebedee client get response"))
+			setStatusCode(ctx, w, errors.Wrap(err, "failed to write zebedee client get response"))
 		}
 	}
 

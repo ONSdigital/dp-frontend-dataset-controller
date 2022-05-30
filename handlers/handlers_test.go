@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	coreContext "context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -60,25 +61,25 @@ func slice(full []dataset.Option, offset, limit int) (sliced []dataset.Option) {
 func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
+	ctx := coreContext.Background()
+	cfg := initialiseMockConfig()
 
 	Convey("test setStatusCode", t, func() {
 
 		Convey("test status code handles 404 response from client", func() {
-			req := httptest.NewRequest("GET", "http://localhost:20000", nil)
 			w := httptest.NewRecorder()
 			err := &testCliError{}
 
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 
 			So(w.Code, ShouldEqual, http.StatusNotFound)
 		})
 
 		Convey("test status code handles internal server error", func() {
-			req := httptest.NewRequest("GET", "http://localhost:20000", nil)
 			w := httptest.NewRecorder()
 			err := errors.New("internal server error")
 
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})

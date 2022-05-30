@@ -42,7 +42,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		log.Error(ctx, "failed to get dataset", err, log.Data{"dataset": datasetID})
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 			"dataset": datasetID,
 			"edition": edition,
 		})
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 			"edition": edition,
 			"version": version,
 		})
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -87,7 +87,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	if ver.Version != 1 {
 		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, "1")
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 		initialVersionReleaseDate = initialVersion.ReleaseDate
@@ -139,7 +139,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	filterOutput, err = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
 	if err != nil {
 		log.Error(ctx, "failed to get filter output", err, log.Data{"filter_output_id": filterOutputID})
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -147,7 +147,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		options, err := getOptions(dim)
 		if err != nil {
 			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 

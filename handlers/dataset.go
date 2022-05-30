@@ -20,18 +20,18 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 
 	ds, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, path)
 	if err != nil {
-		setStatusCode(req, w, errors.Wrap(err, "zebedee client get dataset returned an error"))
+		setStatusCode(ctx, w, errors.Wrap(err, "zebedee client get dataset returned an error"))
 		return
 	}
 
 	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, ds.URI)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	if len(bc) < 2 {
-		setStatusCode(req, w, fmt.Errorf("invalid breadcrumb length"))
+		setStatusCode(ctx, w, fmt.Errorf("invalid breadcrumb length"))
 		return
 	}
 
@@ -44,7 +44,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 
 	dlp, err := zc.GetDatasetLandingPage(ctx, userAccessToken, collectionID, lang, parentPath)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	for _, ver := range ds.Versions {
 		version, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, ver.URI)
 		if err != nil {
-			setStatusCode(req, w, errors.Wrap(err, "zebedee client get previous dataset versions returned an error"))
+			setStatusCode(ctx, w, errors.Wrap(err, "zebedee client get previous dataset versions returned an error"))
 			return
 		}
 

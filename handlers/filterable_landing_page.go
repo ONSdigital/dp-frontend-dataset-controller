@@ -36,7 +36,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -48,13 +48,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 
 		_, edition, version, err = helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 	}
@@ -62,7 +62,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -88,7 +88,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -101,20 +101,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if datasetModel.Type != "nomis" {
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 	}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
@@ -122,7 +122,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req)
 	if err != nil {
 		if err != errTooManyOptions {
-			setStatusCode(req, w, err)
+			setStatusCode(ctx, w, err)
 			return
 		}
 	}
@@ -146,7 +146,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		if len(cfg.DownloadServiceURL) > 0 {
 			downloadURL, err := url.Parse(d.URI)
 			if err != nil {
-				setStatusCode(req, w, err)
+				setStatusCode(ctx, w, err)
 				return
 			}
 
@@ -188,15 +188,20 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
 	dims := dataset.VersionDimensions{Items: version.Dimensions}
+	dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version))
+	if err != nil {
+		setStatusCode(ctx, w, err)
+		return
+	}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
 	if err != nil {
-		setStatusCode(req, w, err)
+		setStatusCode(ctx, w, err)
 		return
 	}
 
