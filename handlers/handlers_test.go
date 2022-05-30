@@ -62,7 +62,6 @@ func TestUnitHandlers(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := coreContext.Background()
-	cfg := initialiseMockConfig()
 
 	Convey("test setStatusCode", t, func() {
 

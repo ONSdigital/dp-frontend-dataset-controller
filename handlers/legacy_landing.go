@@ -43,7 +43,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if handleRequestForZebedeeJsonData(w, req, lp.ZebedeeClient, path, ctx, lp.UserAccessToken) {
+	if handleRequestForZebedeeJsonData(ctx, w, lp.ZebedeeClient, path, lp.UserAccessToken) {
 		return
 	}
 

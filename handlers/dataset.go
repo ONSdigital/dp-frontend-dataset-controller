@@ -14,7 +14,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if handleRequestForZebedeeJsonData(w, req, zc, path, ctx, userAccessToken) {
+	if handleRequestForZebedeeJsonData(ctx, w, zc, path, userAccessToken) {
 		return
 	}
 

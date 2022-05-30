@@ -193,11 +193,6 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 	}
 
 	dims := dataset.VersionDimensions{Items: version.Dimensions}
-	dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version))
-	if err != nil {
-		setStatusCode(ctx, w, err)
-		return
-	}
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
 	if err != nil {

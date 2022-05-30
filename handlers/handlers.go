@@ -93,7 +93,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	return b.Bytes(), nil
 }
 
-func handleRequestForZebedeeJsonData(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, path string, ctx context.Context, userAccessToken string) (wasZebedeeRequest bool) {
+func handleRequestForZebedeeJsonData(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, path string, userAccessToken string) (wasZebedeeRequest bool) {
 	wasZebedeeRequest = false
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
