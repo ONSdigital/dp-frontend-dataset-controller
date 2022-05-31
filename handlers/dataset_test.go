@@ -4,8 +4,13 @@ import (
 	"errors"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	render "github.com/ONSdigital/dp-renderer"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
 	"io"
@@ -73,7 +78,6 @@ func TestDatasetHandlers(t *testing.T) {
 			})
 
 			Convey("And that retrieving file data from files api is successful", func() {
-
 				expectedDownloadFileSize := "100"
 				expectedDownloadFileSizeInt, _ := strconv.Atoi(expectedDownloadFileSize)
 
@@ -259,6 +263,47 @@ func TestDatasetHandlers(t *testing.T) {
 				actualBody, _ := ioutil.ReadAll(w.Body)
 				So(actualBody, ShouldResemble, expectedBody)
 			})
+		})
+	})
+}
+
+func TestDatasetTemplateRendering(t *testing.T) {
+	Convey("Given a file stored in Zebedee", t, func() {
+		expectedDownload := dsp.Download{
+			Extension: "foo",
+			Size:      "100",
+			URI:       "/foobar",
+			File:      "blah",
+		}
+
+		actualPageModel := mapper.DatasetPage{
+			Page: coreModel.Page{
+				URI:        "/foo/bar/baz",
+				SiteDomain: "https://foo.bar.com",
+				Language:   "en",
+			},
+			DatasetPage: dsp.DatasetPage{
+				Versions:           nil,
+				SupplementaryFiles: nil,
+				Downloads:          []dsp.Download{expectedDownload},
+			},
+		}
+
+		Convey("When render client page is built", func() {
+			cfg, _ := config.Get()
+			renderClient := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, "https://ons.gov.uk")
+			w, _ := generateRecorderAndRequest()
+
+			renderClient.BuildPage(w, actualPageModel, "dataset")
+
+			Convey("Then the download href should contain a /file path", func() {
+				doc, _ := goquery.NewDocumentFromReader(w.Body)
+				doc.Find(`a[title="Download as foo"]`).Each(func(i int, s *goquery.Selection) {
+					href, _ := s.Attr("href")
+					So(href, ShouldEqual, "/file?uri=/foobar")
+				})
+			})
+
 		})
 	})
 }
