@@ -28,9 +28,10 @@ var (
 )
 
 const (
-	userAuthTokenDatasets = "123456789"
-	collectionIDDatasets  = "testing-collection-123456789"
-	localeDatasets        = "cy"
+	userAuthTokenDatasets       = "123456789"
+	collectionIDDatasets        = "testing-collection-123456789"
+	localeDatasets              = "cy"
+	staticFilesDownloadEndpoint = "downloads-new"
 )
 
 func TestDatasetHandlers(t *testing.T) {
@@ -268,35 +269,14 @@ func TestDatasetHandlers(t *testing.T) {
 	})
 }
 
-func mockZebedeePageModel(extension, uri, filename string) mapper.DatasetPage {
-	size := "100"
-	expectedDownload := dsp.Download{
-		Extension: extension,
-		Size:      size,
-		URI:       uri,
-		File:      filename,
-	}
-
-	return mapper.DatasetPage{
-		Page: coreModel.Page{
-			SiteDomain: "https://foo.bar.com",
-			Language:   "en",
-		},
-		DatasetPage: dsp.DatasetPage{
-			Versions:           nil,
-			SupplementaryFiles: nil,
-			Downloads:          []dsp.Download{expectedDownload},
-		},
-	}
-}
-
 func TestDatasetTemplateRendering(t *testing.T) {
 	Convey("Given a file stored in Zebedee", t, func() {
 		extension := "csv"
 		filename := "test" + "." + extension
 		uri := "/path/to/" + filename
 
-		actualPageModel := mockZebedeePageModel(extension, uri, filename)
+		expectedDownloadUrl := fmt.Sprintf("/file?uri=%s", uri)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, expectedDownloadUrl)
 
 		Convey("When render client page is built", func() {
 			cfg, _ := config.Get()
@@ -313,12 +293,61 @@ func TestDatasetTemplateRendering(t *testing.T) {
 					actualHref, _ = s.Attr("href")
 				})
 
-				expectedHref := fmt.Sprintf("/file?uri=%s", uri)
-
-				So(actualHref, ShouldEqual, expectedHref)
+				So(actualHref, ShouldEqual, expectedDownloadUrl)
 			})
 		})
 	})
+
+	Convey("Given a file stored in Files API", t, func() {
+		extension := "csv"
+		filename := "test" + "." + extension
+		uri := "/path/to/" + filename
+
+		expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, uri)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, expectedDownloadUrl)
+
+		Convey("When render client page is built", func() {
+			cfg, _ := config.Get()
+			renderClient := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, "https://ons.gov.uk")
+			w, _ := generateRecorderAndRequest()
+
+			renderClient.BuildPage(w, actualPageModel, "dataset")
+
+			Convey("Then the download href should contain a /file path", func() {
+				doc, _ := goquery.NewDocumentFromReader(w.Body)
+				var actualHref string
+				selector := fmt.Sprintf(`a[title="Download as %s"]`, extension)
+				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+					actualHref, _ = s.Attr("href")
+				})
+
+				So(actualHref, ShouldEqual, expectedDownloadUrl)
+			})
+		})
+	})
+}
+
+func mockZebedeePageModel(extension, uri, filename, downloadUrl string) mapper.DatasetPage {
+	size := "100"
+	expectedDownload := dsp.Download{
+		Extension:   extension,
+		Size:        size,
+		URI:         uri,
+		File:        filename,
+		DownloadUrl: downloadUrl,
+	}
+
+	return mapper.DatasetPage{
+		Page: coreModel.Page{
+			SiteDomain: "https://foo.bar.com",
+			Language:   "en",
+		},
+		DatasetPage: dsp.DatasetPage{
+			Versions:           nil,
+			SupplementaryFiles: nil,
+			Downloads:          []dsp.Download{expectedDownload},
+		},
+	}
 }
 
 func generateRecorderAndRequest() (*httptest.ResponseRecorder, *http.Request) {
