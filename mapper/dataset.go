@@ -59,23 +59,28 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
 
 	for _, download := range d.Downloads {
+
 		dp.DatasetPage.Downloads = append(
 			dp.DatasetPage.Downloads,
 			datasetPage.Download{
-				Extension: filepath.Ext(download.File),
-				Size:      download.Size,
-				URI:       dp.URI + "/" + download.File,
-				File:      download.File})
+				Extension:   filepath.Ext(download.File),
+				Size:        download.Size,
+				URI:         dp.URI + "/" + download.File,
+				File:        download.File,
+				DownloadUrl: determineDownloadUrl(download, dp.URI),
+			})
 	}
 
 	for _, supplementaryFile := range d.SupplementaryFiles {
 		dp.DatasetPage.SupplementaryFiles = append(
 			dp.DatasetPage.SupplementaryFiles,
 			datasetPage.SupplementaryFile{
-				Title:     supplementaryFile.Title,
-				Extension: filepath.Ext(supplementaryFile.File),
-				Size:      supplementaryFile.Size,
-				URI:       dp.URI + "/" + supplementaryFile.File})
+				Title:       supplementaryFile.Title,
+				Extension:   filepath.Ext(supplementaryFile.File),
+				Size:        supplementaryFile.Size,
+				URI:         dp.URI + "/" + supplementaryFile.File,
+				DownloadUrl: determineSupplementaryFileUrl(supplementaryFile, dp.URI),
+			})
 	}
 
 	var reversed = dp.DatasetPage.Versions
@@ -98,4 +103,24 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	dp.DatasetPage.Versions = reversed
 
 	return dp
+}
+
+func determineDownloadUrl(download zebedee.Download, datasetPageUri string) string {
+	var downloadUrl string
+	if download.URI != "" {
+		downloadUrl = "/" + staticFilesDownloadEndpoint + download.URI
+	} else {
+		downloadUrl = "/file?uri=" + datasetPageUri + "/" + download.File
+	}
+	return downloadUrl
+}
+
+func determineSupplementaryFileUrl(supplementaryFile zebedee.SupplementaryFile, datasetPageUri string) string {
+	var downloadUrl string
+	if supplementaryFile.URI != "" {
+		downloadUrl = "/" + staticFilesDownloadEndpoint + supplementaryFile.URI
+	} else {
+		downloadUrl = "/file?uri=" + datasetPageUri + "/" + supplementaryFile.File
+	}
+	return downloadUrl
 }

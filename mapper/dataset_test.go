@@ -2,9 +2,12 @@ package mapper
 
 import (
 	"context"
+	"fmt"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 )
@@ -295,4 +298,145 @@ func TestCreateDatasetPage(t *testing.T) {
 		So(v1.Downloads[0].Extension, ShouldEqual, ".xls")
 		So(v1.Downloads[0].URI, ShouldEqual, "/economy/inflationandpriceindices/datasets/consumerpriceinflation/current/previous/v1/consumerpriceinflationdetailedreferencetables_tcm77-419243.xls")
 	})
+}
+
+func TestCreateDatasetPageFileLinks(t *testing.T) {
+	basePage := model.Page{}
+	req := &http.Request{}
+	ctx := context.Background()
+	dlp := zebedee.DatasetLandingPage{}
+	bc := []zebedee.Breadcrumb{}
+	versions := []zebedee.Dataset{}
+	lang := "en"
+	serviceMessage := ""
+	emergencyBanner := zebedee.EmergencyBanner{}
+	filename := "filename.csv"
+	basePath := "/some/path/2022"
+
+	Convey("Given a file stored in Zebedee", t, func() {
+		ds := zebedee.Dataset{
+			URI:                basePath,
+			Downloads:          []zebedee.Download{{File: filename}},
+			SupplementaryFiles: []zebedee.SupplementaryFile{{File: filename}},
+		}
+
+		Convey("When CreateDatasetPage is called", func() {
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner)
+
+			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /file?uri=", func() {
+				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
+				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
+				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+			})
+
+			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
+				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadUrl
+				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
+				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+			})
+		})
+	})
+
+	Convey("Given a file stored in Files API", t, func() {
+		filepath := basePath + "/" + filename
+		latestVersionUri := basePath + "/previous/v3"
+
+		versionedDatasets := []zebedee.Dataset{
+			{
+				URI:       latestVersionUri,
+				Downloads: []zebedee.Download{{URI: filepath}},
+			},
+		}
+
+		ds := zebedee.Dataset{
+			URI:                basePath,
+			Downloads:          []zebedee.Download{{URI: filepath}},
+			SupplementaryFiles: []zebedee.SupplementaryFile{{URI: filepath}},
+			Versions:           []zebedee.Version{{URI: latestVersionUri}},
+		}
+
+		Convey("When CreateDatasetPage is called", func() {
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner)
+
+			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /downloads-new", func() {
+				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
+				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+			})
+
+			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
+				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadUrl
+				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+			})
+
+			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
+				downloadUrl := result.DatasetPage.Versions[0].Downloads[0].DownloadUrl
+				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+			})
+		})
+	})
+
+	Convey("Given multiple versions with downloads stored in Files API and Zebedee", t, func() {
+		latestVersionUri := basePath + "/previous/v3"
+		previousVersionUri := basePath + "/previous/v2"
+		oldVersionUri := basePath + "/previous/v1"
+
+		previousFilepath := basePath + "/previous/" + filename
+		currentFilepath := basePath + "/" + filename
+
+		versionedDatasets := []zebedee.Dataset{
+			{
+				URI:       latestVersionUri,
+				Downloads: []zebedee.Download{{URI: currentFilepath}},
+			},
+			{
+				URI:       previousVersionUri,
+				Downloads: []zebedee.Download{{URI: previousFilepath}},
+			},
+			{
+				URI:       oldVersionUri,
+				Downloads: []zebedee.Download{{File: filename}},
+			},
+		}
+
+		ds := zebedee.Dataset{
+			URI:       basePath,
+			Downloads: []zebedee.Download{{URI: currentFilepath}},
+			Versions: []zebedee.Version{
+				{URI: latestVersionUri},
+				{URI: previousVersionUri},
+				{URI: oldVersionUri},
+			},
+		}
+
+		Convey("When CreateDatasetPage is called", func() {
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner)
+
+			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
+				latestDownloads := findVersionedDownload(result.DatasetPage.Versions, latestVersionUri)
+				previousDownloads := findVersionedDownload(result.DatasetPage.Versions, previousVersionUri)
+				oldDownloads := findVersionedDownload(result.DatasetPage.Versions, oldVersionUri)
+
+				expectedFilesAPIDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, currentFilepath)
+				expectedFilesAPIDownloadUrlPreviousVersion := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, previousFilepath)
+				expectedZebedeeDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", oldVersionUri, filename)
+
+				So(latestDownloads[0].DownloadUrl, ShouldEqual, expectedFilesAPIDownloadUrl)
+				So(previousDownloads[0].DownloadUrl, ShouldEqual, expectedFilesAPIDownloadUrlPreviousVersion)
+				So(oldDownloads[0].DownloadUrl, ShouldEqual, expectedZebedeeDownloadUrl)
+			})
+		})
+	})
+}
+
+func findVersionedDownload(versions []datasetPage.Version, uri string) []datasetPage.Download {
+	for _, version := range versions {
+		if version.URI == uri {
+			return version.Downloads
+		}
+	}
+
+	return []datasetPage.Download{}
 }

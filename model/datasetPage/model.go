@@ -27,20 +27,22 @@ type DatasetPage struct {
 	ParentPath          string              `json:"parent_path"`
 }
 
-// Download has the details for the an individual dataset's downloadable files
+// Download has the details for an individual dataset's downloadable files
 type Download struct {
-	Extension string `json:"extension"`
-	Size      string `json:"size"`
-	URI       string `json:"uri"`
-	File      string `json:"file"`
+	Extension   string `json:"extension"`
+	Size        string `json:"size"`
+	URI         string `json:"uri"`
+	File        string `json:"file"`
+	DownloadUrl string `json:"download_url,omitempty"`
 }
 
 // SupplementaryFile is a downloadable file that is associated to an individual dataset
 type SupplementaryFile struct {
-	Title     string `json:"title"`
-	Extension string `json:"extension"`
-	Size      string `json:"size"`
-	URI       string `json:"uri"`
+	Title       string `json:"title"`
+	Extension   string `json:"extension"`
+	Size        string `json:"size"`
+	URI         string `json:"uri"`
+	DownloadUrl string `json:"download_url,omitempty"`
 }
 
 // Version has the details for a previous version of the dataset

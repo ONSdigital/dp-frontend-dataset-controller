@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
@@ -267,27 +268,35 @@ func TestDatasetHandlers(t *testing.T) {
 	})
 }
 
+func mockZebedeePageModel(extension, uri, filename string) mapper.DatasetPage {
+	size := "100"
+	expectedDownload := dsp.Download{
+		Extension: extension,
+		Size:      size,
+		URI:       uri,
+		File:      filename,
+	}
+
+	return mapper.DatasetPage{
+		Page: coreModel.Page{
+			SiteDomain: "https://foo.bar.com",
+			Language:   "en",
+		},
+		DatasetPage: dsp.DatasetPage{
+			Versions:           nil,
+			SupplementaryFiles: nil,
+			Downloads:          []dsp.Download{expectedDownload},
+		},
+	}
+}
+
 func TestDatasetTemplateRendering(t *testing.T) {
 	Convey("Given a file stored in Zebedee", t, func() {
-		expectedDownload := dsp.Download{
-			Extension: "foo",
-			Size:      "100",
-			URI:       "/foobar",
-			File:      "blah",
-		}
+		extension := "csv"
+		filename := "test" + "." + extension
+		uri := "/path/to/" + filename
 
-		actualPageModel := mapper.DatasetPage{
-			Page: coreModel.Page{
-				URI:        "/foo/bar/baz",
-				SiteDomain: "https://foo.bar.com",
-				Language:   "en",
-			},
-			DatasetPage: dsp.DatasetPage{
-				Versions:           nil,
-				SupplementaryFiles: nil,
-				Downloads:          []dsp.Download{expectedDownload},
-			},
-		}
+		actualPageModel := mockZebedeePageModel(extension, uri, filename)
 
 		Convey("When render client page is built", func() {
 			cfg, _ := config.Get()
@@ -298,12 +307,16 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the download href should contain a /file path", func() {
 				doc, _ := goquery.NewDocumentFromReader(w.Body)
-				doc.Find(`a[title="Download as foo"]`).Each(func(i int, s *goquery.Selection) {
-					href, _ := s.Attr("href")
-					So(href, ShouldEqual, "/file?uri=/foobar")
+				var actualHref string
+				selector := fmt.Sprintf(`a[title="Download as %s"]`, extension)
+				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+					actualHref, _ = s.Attr("href")
 				})
-			})
 
+				expectedHref := fmt.Sprintf("/file?uri=%s", uri)
+
+				So(actualHref, ShouldEqual, expectedHref)
+			})
 		})
 	})
 }

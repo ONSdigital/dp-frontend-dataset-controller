@@ -807,9 +807,11 @@ func MapDownloads(downloadsList []zebedee.Download, versionURI string) []dataset
 	var dl []datasetPage.Download
 	for _, d := range downloadsList {
 		dl = append(dl, datasetPage.Download{
-			Extension: filepath.Ext(d.File),
-			Size:      d.Size,
-			URI:       versionURI + "/" + d.File})
+			Extension:   filepath.Ext(d.File),
+			Size:        d.Size,
+			URI:         versionURI + "/" + d.File,
+			DownloadUrl: determineDownloadUrl(d, versionURI),
+		})
 	}
 	return dl
 }
