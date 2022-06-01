@@ -270,70 +270,90 @@ func TestDatasetHandlers(t *testing.T) {
 }
 
 func TestDatasetTemplateRendering(t *testing.T) {
-	Convey("Given a file stored in Zebedee", t, func() {
-		extension := "csv"
-		filename := "test" + "." + extension
-		uri := "/path/to/" + filename
+	cfg, _ := config.Get()
+	renderClient := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, "https://ons.gov.uk")
 
-		expectedDownloadUrl := fmt.Sprintf("/file?uri=%s", uri)
-		actualPageModel := mockZebedeePageModel(extension, uri, filename, expectedDownloadUrl)
+	extension := "csv"
+	filename := "test" + "." + extension
+	uri := "/path/to/" + filename
+	versionFilename := "version_test.csv"
+
+	Convey("Given a file stored in Zebedee", t, func() {
+		expectedFormat := "/file?uri=%s"
+
+		expectedDownloadUrl := fmt.Sprintf(expectedFormat, uri)
+		expectedVersionDownloadUrl := fmt.Sprintf(expectedFormat, versionFilename)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadUrl, expectedVersionDownloadUrl)
 
 		Convey("When render client page is built", func() {
-			cfg, _ := config.Get()
-			renderClient := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, "https://ons.gov.uk")
 			w, _ := generateRecorderAndRequest()
-
 			renderClient.BuildPage(w, actualPageModel, "dataset")
+			doc, _ := goquery.NewDocumentFromReader(w.Body)
 
 			Convey("Then the download href should contain a /file path", func() {
-				doc, _ := goquery.NewDocumentFromReader(w.Body)
 				var actualHref string
-				selector := fmt.Sprintf(`a[title="Download as %s"]`, extension)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
 				So(actualHref, ShouldEqual, expectedDownloadUrl)
+			})
+
+			Convey("Then the version download href should contain a /file path", func() {
+				var actualHref string
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+					actualHref, _ = s.Attr("href")
+				})
+
+				So(actualHref, ShouldEqual, expectedVersionDownloadUrl)
 			})
 		})
 	})
 
 	Convey("Given a file stored in Files API", t, func() {
-		extension := "csv"
-		filename := "test" + "." + extension
-		uri := "/path/to/" + filename
-
 		expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, uri)
-		actualPageModel := mockZebedeePageModel(extension, uri, filename, expectedDownloadUrl)
+		expectedVersionDownloadUrl := fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, versionFilename)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadUrl, expectedVersionDownloadUrl)
 
 		Convey("When render client page is built", func() {
-			cfg, _ := config.Get()
-			renderClient := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, "https://ons.gov.uk")
 			w, _ := generateRecorderAndRequest()
-
 			renderClient.BuildPage(w, actualPageModel, "dataset")
+			doc, _ := goquery.NewDocumentFromReader(w.Body)
 
-			Convey("Then the download href should contain a /file path", func() {
-				doc, _ := goquery.NewDocumentFromReader(w.Body)
+			Convey("Then the download href should contain a /downloads-new path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[title="Download as %s"]`, extension)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
 				So(actualHref, ShouldEqual, expectedDownloadUrl)
 			})
+
+			Convey("Then the version download href should contain a /downloads-new path", func() {
+				var actualHref string
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+					actualHref, _ = s.Attr("href")
+				})
+
+				So(actualHref, ShouldEqual, expectedVersionDownloadUrl)
+			})
 		})
 	})
 }
 
-func mockZebedeePageModel(extension, uri, filename, downloadUrl string) mapper.DatasetPage {
+func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, downloadUrl, versionUrl string) mapper.DatasetPage {
 	size := "100"
+	basePath := "/some/path/2022"
+	latestVersionUri := basePath + "/previous/v3"
 	expectedDownload := dsp.Download{
 		Extension:   extension,
 		Size:        size,
 		URI:         uri,
-		File:        filename,
+		File:        downloadFilename,
 		DownloadUrl: downloadUrl,
 	}
 
@@ -343,9 +363,13 @@ func mockZebedeePageModel(extension, uri, filename, downloadUrl string) mapper.D
 			Language:   "en",
 		},
 		DatasetPage: dsp.DatasetPage{
-			Versions:           nil,
-			SupplementaryFiles: nil,
-			Downloads:          []dsp.Download{expectedDownload},
+			Downloads: []dsp.Download{expectedDownload},
+			Versions: []dsp.Version{
+				{
+					URI:       latestVersionUri,
+					Downloads: []dsp.Download{{URI: versionFilename, DownloadUrl: versionUrl, Extension: extension}},
+				},
+			},
 		},
 	}
 }
