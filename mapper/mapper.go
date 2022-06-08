@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -213,7 +217,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumOpts)
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims.Items, opts, d.Links.LatestVersion.URL, maxNumOpts)
 	}
 
 	return p
@@ -339,7 +343,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, dims dataset.VersionDimensions, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL string, lang string, maxNumberOfOptions int, isValidationError bool) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -363,12 +367,22 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 
-	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-			Extension: strings.ToLower(ext),
-			Size:      download.Size,
-			URI:       download.URL,
-		})
+	if hasFilterOutput {
+		for ext, download := range filter.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+	} else {
+		for ext, download := range version.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
 	}
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
@@ -455,25 +469,28 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "summary")
 
-	if len(opts) > 0 {
-		sections["variables"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "Variables",
-				Plural:    4,
-			},
-		}
-		displayOrder = append(displayOrder, "variables")
+	sections["variables"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "Variables",
+			Plural:    4,
+		},
+	}
+	displayOrder = append(displayOrder, "variables")
+
+	sections["get-data"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "GetData",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "get-data")
+
+	if len(version.Downloads) > 0 && !hasFilterOutput {
+		p.DatasetLandingPage.HasDownloads = true
 	}
 
-	if len(version.Downloads) > 0 {
+	if hasFilterOutput && len(filter.Downloads) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
-		sections["get-data"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "GetData",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "get-data")
 	}
 
 	if p.HasContactDetails {
@@ -562,8 +579,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.BetaBannerEnabled = true
 
-	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+	if len(opts) > 0 && !hasFilterOutput {
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, version.Dimensions, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+	}
+
+	if hasFilterOutput {
+		for _, dim := range filter.Dimensions {
+			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, sharedModel.Dimension{
+				Title:      dim.Label,
+				Values:     dim.Options,
+				IsAreaType: helpers.IsBoolPtr(dim.IsAreaType),
+				TotalItems: len(dim.Options),
+			})
+		}
 	}
 
 	if isValidationError {
@@ -599,7 +627,7 @@ func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
 	}
 }
 
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensions, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dataset.VersionDimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 
@@ -616,10 +644,11 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims datase
 			if err != nil {
 				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 			}
-			for _, dimension := range dims.Items {
+			for _, dimension := range dims {
 				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
+					pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
 					}
@@ -763,4 +792,26 @@ func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) coreModel.EmergencyB
 		mappedEmergencyBanner.LinkText = bannerData.LinkText
 	}
 	return mappedEmergencyBanner
+}
+
+func FindVersion(versionList []zebedee.Dataset, versionURI string) zebedee.Dataset {
+	for _, ver := range versionList {
+		if versionURI == ver.URI {
+			return ver
+		}
+	}
+	return zebedee.Dataset{}
+}
+
+func MapDownloads(downloadsList []zebedee.Download, versionURI string) []datasetPage.Download {
+	var dl []datasetPage.Download
+	for _, d := range downloadsList {
+		dl = append(dl, datasetPage.Download{
+			Extension:   filepath.Ext(d.File),
+			Size:        d.Size,
+			URI:         versionURI + "/" + d.File,
+			DownloadUrl: determineDownloadUrl(d, versionURI),
+		})
+	}
+	return dl
 }

@@ -38,6 +38,7 @@ func Get() (*Config, error) {
 	} else {
 		cfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/778ac19"
 	}
+
 	return cfg, nil
 }
 

@@ -3,6 +3,7 @@ package mapper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -15,6 +16,8 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/ONSdigital/log.go/v2/log"
 )
+
+const staticFilesDownloadEndpoint = "downloads-new"
 
 // StaticDatasetLandingPage is a StaticDatasetLandingPage representation
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
@@ -101,24 +104,50 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 
 	for i, d := range ds {
 		var dataset datasetLandingPageStatic.Dataset
-		for _, value := range d.Downloads {
-			dataset.URI = d.URI
-			dataset.VersionLabel = d.Description.VersionLabel
-			dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
-				URI:       value.File,
-				Extension: strings.TrimPrefix(filepath.Ext(value.File), "."),
-				Size:      value.Size,
-			})
+		dataset.URI = d.URI
+		dataset.VersionLabel = d.Description.VersionLabel
+
+		for _, download := range d.Downloads {
+			if download.URI != "" { // i.e. new static files sourced files
+				filePath := strings.TrimPrefix(download.URI, "/")
+				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+					URI:         download.URI,
+					DownloadUrl: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
+					Extension:   strings.TrimPrefix(filepath.Ext(download.URI), "."),
+					Size:        download.Size,
+				})
+			} else { // old legacy Zebedee-source files
+				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+					URI:         download.File,
+					DownloadUrl: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, download.File),
+					Extension:   strings.TrimPrefix(filepath.Ext(download.File), "."),
+					Size:        download.Size,
+				})
+			}
 		}
-		for _, value := range d.SupplementaryFiles {
-			dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
-				Title:     value.Title,
-				URI:       value.File,
-				Extension: strings.TrimPrefix(filepath.Ext(value.File), "."),
-				Size:      value.Size,
-			})
+		for _, supplementaryFile := range d.SupplementaryFiles {
+			if supplementaryFile.URI != "" { // i.e. new static files sourced files
+				filePath := strings.TrimPrefix(supplementaryFile.URI, "/")
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
+					Title:       supplementaryFile.Title,
+					URI:         supplementaryFile.URI,
+					DownloadUrl: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
+					Extension:   strings.TrimPrefix(filepath.Ext(supplementaryFile.URI), "."),
+					Size:        supplementaryFile.Size,
+				})
+			} else { // old legacy Zebedee-source files
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
+					Title:       supplementaryFile.Title,
+					URI:         supplementaryFile.File,
+					DownloadUrl: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, supplementaryFile.File),
+					Extension:   strings.TrimPrefix(filepath.Ext(supplementaryFile.File), "."),
+					Size:        supplementaryFile.Size,
+				})
+			}
 		}
+
 		dataset.Title = d.Description.Edition
+
 		if len(d.Versions) > 0 {
 			dataset.HasVersions = true
 		}

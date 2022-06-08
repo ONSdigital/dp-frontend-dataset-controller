@@ -3,3 +3,5 @@ build/*
 assets/data.go
 .vscode
 .go/
+
+vendor
