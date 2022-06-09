@@ -1,0 +1,6 @@
+<section class="ons-grid ons-u-ml-no ons-u-mb-xl" aria-label="{{- localise "ShareDataset" .Language 1 -}}">
+   {{ template "partials/share-dataset/copy-link" . }}
+    {{ if .DatasetLandingPage.ShareDetails }}
+        {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
+    {{ end }}
+</section>

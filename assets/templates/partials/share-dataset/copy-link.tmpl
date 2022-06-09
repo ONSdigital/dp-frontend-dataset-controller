@@ -1,0 +1,13 @@
+<h2 class="ons-u-fw-b ons-u-mb-xs ons-u-mt-s">{{- localise "CopyLinkTitle" .Language 1 -}}</h2>
+<p class="ons-u-fs-r ons-u-mb-xs">{{- localise "CopyLinkLeadText" .Language 1 -}}</p>
+<div class="ons-copy-link">
+    <a href="{{- .URI -}}" class="ons-copy-link__link ons-u-fs-r">{{- .DatasetLandingPage.DatasetURL -}}</a>
+    <button type="button" class="ons-btn ons-btn--secondary ons-btn--small ons-copy-link__btn ons-u-d-no">
+        <span class="ons-btn__inner" data-copy-link-success="{{- localise "CopyLinkSuccessMessage" .Language 1 -}}" data-copy-link-failure="{{- localise "CopyLinkFailureMessage" .Language 1 -}}">
+            {{- localise "CopyLinkButtonText" .Language 1 }}
+        </span>
+        <span class="ons-u-vh">
+            {{- localise "CopyLinkButtonAssistiveText" .Language 1 }}
+        </span>
+    </button>
+</div>

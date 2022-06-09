@@ -30,9 +30,5 @@
             {{ end }}
         </div>
     </div>
-    <div class="ons-grid ons-u-ml-no ons-u-mb-xl">
-        {{ if .DatasetLandingPage.ShareDetails }}
-            {{ template "partials/share-dataset/share-this-dataset" .DatasetLandingPage.ShareDetails }}
-        {{ end }}
-    </div>
+   {{ template "partials/share-dataset/share-section" . }}
 </div>

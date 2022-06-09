@@ -38,20 +38,20 @@
                             <div class="ons-u-mt-s ons-u-fs-s ons-list--container">
                                 <ul class="ons-list--truncated ons-u-m-no">
                                     {{ range $j, $val := $dim.Values}}
-                                        <li class="ons-list__item">{{ $val }}</li>
+                                        <li class="ons-list__item ons-u-mb-no">{{ $val }}</li>
                                     {{ end }}
                                 </ul>
                             </div>
                         {{end}}
                     </td>
-                    {{ if and $flexible $dim.IsAreaType }}
                     <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right ons-u-pl-no@xxs@s ons-u-ml-xs@xxs@s ons-u-order--2 ons-u-bb-no@xxs@s">
+                        {{ if and $flexible $dim.IsAreaType }}
                         <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
                             {{ localise "Change" $language 1 }} 
                             <span class="ons-u-vh">{{ localise "Variables" $language 1 }} {{ $dim.Title }}</span>
                         </button>
+                        {{ end }}
                     </td>
-                    {{ end }}
                 </tr>
             {{ end }}
         </tbody>
