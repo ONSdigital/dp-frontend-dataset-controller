@@ -2,12 +2,13 @@ package mapper
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 // DatasetPage is a DatasetPage representation
@@ -27,6 +28,7 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	dp.URI = d.URI
 	dp.DatasetPage.URI = dlp.URI
 	dp.Metadata.Description = dlp.Description.Summary
+	dp.Metadata.Survey = dlp.Description.Survey
 	dp.DatasetPage.ReleaseDate = dlp.Description.ReleaseDate
 	dp.DatasetPage.Edition = d.Description.Edition
 	dp.DatasetPage.Markdown = dlp.Section.Markdown

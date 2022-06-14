@@ -76,6 +76,9 @@
 
 <div class="meta-wrap">
     <div class="wrapper">
+        {{ if eq .Metadata.Survey "census" }}
+            <img class="margin-bottom--2" src="/img/logo-census-2021-purple-landscape.png" alt="Census"/> 
+        {{ end }}
         <ul class="col-wrap meta__list">
             <li class="col col--md-12 col--lg-15 meta__item">
                 {{ if .DatasetLandingPage.IsNationalStatistic}}
