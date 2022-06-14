@@ -1,12 +1,13 @@
 {{ $shareDetails := . }}
-<hr />
-<h2 class="ons-u-fw-b ons-u-mb-xxs ons-u-mt-s">{{ localise "ShareDataset" .Language 1 }}</h2>
+<h2 class="ons-u-fw-b ons-u-mt-l">{{ localise "ShareDataset" .Language 1 }}</h2>
 <ul class="ons-list ons-list--inline ons-list--bare ons-list--icons">
   {{ range .ShareLocations }}
-  <li class="ons-list__item ons-u-pl-no ons-u-pr-xs">
-    <span class="ons-list__prefix">
-    {{ template "partials/share-dataset/icon-handler" .Icon }}
-    </span><a href="{{.Link}}" class="ons-list__link ons-u-fs-r ons-u-pt-xxs" target="_blank" rel="noreferrer external">{{ .Title }}<span class="ons-u-vh">{{ localise "ShareLinkA11yText" $shareDetails.Language 1 }}</span></a>
-  </li>
+    <li class="ons-list__item ons-u-pl-no ons-u-pr-xs">
+      <span class="ons-list__prefix">
+        {{ template "partials/share-dataset/icon-handler" .Icon }}
+      </span>
+      <a href="{{.Link}}" class="ons-list__link ons-u-fs-r ons-u-pt-xxs" target="_blank" rel="noreferrer external">{{ .Title }}<span class="ons-u-vh">{{ localise "ShareLinkA11yText" $shareDetails.Language 1 }}</span>
+      </a>
+    </li>
   {{ end }}
 </ul>

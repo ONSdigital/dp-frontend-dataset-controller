@@ -31,6 +31,7 @@ type DatasetLandingPage struct {
 	Description            []string      `json:"description"`
 	IsFlexible             bool          `json:"is_flexible"`
 	FormAction             string        `json:"form_action"`
+	DatasetURL             string        `json:"dataset_url"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation

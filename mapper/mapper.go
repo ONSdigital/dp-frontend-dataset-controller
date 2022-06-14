@@ -553,6 +553,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.DatasetLandingPage.ShareDetails.Language = lang
 	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
+	p.DatasetLandingPage.DatasetURL = currentUrl
 
 	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
 		{

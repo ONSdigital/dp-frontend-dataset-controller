@@ -278,3 +278,27 @@ one = "There is a new version of this dataset. View the <a href=\"{{.arg0}}\">la
 [Change]
 description = "Change"
 one = "Change"
+
+[CopyLinkTitle]
+description = "Dataset link"
+one = "Dataset link"
+
+[CopyLinkLeadText]
+description = "Bookmark or copy the link to return to this dataset"
+one = "Bookmark or copy the link to return to this dataset"
+
+[CopyLinkButtonText]
+description = "Copy link"
+one = "Copy link"
+
+[CopyLinkButtonAssistiveText]
+description = "to clipboard"
+one = "to clipboard"
+
+[CopyLinkSuccessMessage]
+description = "Copied"
+one = "Copied"
+
+[CopyLinkFailureMessage]
+description = "Copying failed"
+one = "Copying failed"
