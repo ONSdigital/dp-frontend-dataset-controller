@@ -77,7 +77,6 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.URI = req.URL.Path
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
 	p.Metadata.Description = d.Description
-	p.Metadata.Survey = d.Description.Survey
 	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
 	p.BetaBannerEnabled = true
