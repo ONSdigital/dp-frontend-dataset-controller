@@ -41,7 +41,6 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	sdlp.URI = dlp.URI
 	sdlp.Metadata.Title = dlp.Description.Title
 	sdlp.Metadata.Description = dlp.Description.Summary
-	sdlp.Metadata.Survey = dlp.Description.Survey
 	sdlp.Language = localeCode
 	sdlp.HasJSONLD = true
 	sdlp.FeatureFlags.SixteensVersion = SixteensVersion

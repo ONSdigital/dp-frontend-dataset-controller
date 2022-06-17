@@ -28,7 +28,6 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	dp.URI = d.URI
 	dp.DatasetPage.URI = dlp.URI
 	dp.Metadata.Description = dlp.Description.Summary
-	dp.Metadata.Survey = dlp.Description.Survey
 	dp.DatasetPage.ReleaseDate = dlp.Description.ReleaseDate
 	dp.DatasetPage.Edition = d.Description.Edition
 	dp.DatasetPage.Markdown = dlp.Section.Markdown
