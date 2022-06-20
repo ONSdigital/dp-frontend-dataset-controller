@@ -72,6 +72,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	}
 
 	sdlp.DatasetLandingPage.IsNationalStatistic = dlp.Description.NationalStatistic
+	sdlp.DatasetLandingPage.Survey = dlp.Description.Survey
 	sdlp.DatasetLandingPage.IsTimeseries = dlp.Timeseries
 	sdlp.ContactDetails = contactDetails.ContactDetails(dlp.Description.Contact)
 
