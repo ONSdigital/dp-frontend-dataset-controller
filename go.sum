@@ -48,6 +48,8 @@ github.com/ONSdigital/dp-api-clients-go v1.43.0/go.mod h1:V5MfINik+o3OAF985UXUoM
 github.com/ONSdigital/dp-api-clients-go/v2 v2.92.2/go.mod h1:P3GYyqqXnbp4RjWhz0oYpUFjHPT6Ca4fEoh4huNkxHU=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.137.0 h1:lFeUQf/Kiq2wUNyx3Ln9aEmKboyiDB9yyQ0Vrbr9k50=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.137.0/go.mod h1:tHRq65gA340CYpkHIRMrrxiLS8IlAl7nTeFr07ukJgo=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.142.0 h1:9Ql1Pan8ft7EUjDSwSoQLriuLbaqoSotEVES6VCDdrg=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.142.0/go.mod h1:G5FKuWcW/bOvKS7auRZLJ79kXIRFKlIxyr8+uFjzBtU=
 github.com/ONSdigital/dp-cookies v0.2.0 h1:x+B7ka1VCS8lS5A8cA0hKVZCvf5ZYYXIMk8HAk1qUDo=
 github.com/ONSdigital/dp-cookies v0.2.0/go.mod h1:DG82eMupUGBO+/y514swhhYva1YnzxhWqfG6RnRQXIA=
 github.com/ONSdigital/dp-healthcheck v1.0.5/go.mod h1:2wbVAUHMl9+4tWhUlxYUuA1dnf2+NrwzC+So5f5BMLk=
