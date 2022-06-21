@@ -73,6 +73,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 
 	sdlp.DatasetLandingPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	sdlp.DatasetLandingPage.IsTimeseries = dlp.Timeseries
+	sdlp.DatasetLandingPage.Survey = dlp.Description.Survey
 	sdlp.ContactDetails = contactDetails.ContactDetails(dlp.Description.Contact)
 
 	// HACK FIX TODO REMOVE WHEN TIME IS SAVED CORRECTLY (GMT/UTC Issue)

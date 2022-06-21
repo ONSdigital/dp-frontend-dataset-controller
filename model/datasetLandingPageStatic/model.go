@@ -23,6 +23,7 @@ type DatasetLandingPage struct {
 	Notes               string    `json:"markdown"`
 	MetaDescription     string    `json:"meta_description"`
 	IsNationalStatistic bool      `json:"national_statistic"`
+	Survey              string    `json:"survey"`
 	ReleaseDate         string    `json:"release_date"`
 	NextRelease         string    `json:"next_release"`
 	IsTimeseries        bool      `json:"is_timeseries"`

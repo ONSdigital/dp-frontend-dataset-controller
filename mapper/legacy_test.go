@@ -46,6 +46,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.ContactDetails.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
 
 		So(sdlp.DatasetLandingPage.IsNationalStatistic, ShouldEqual, dlp.Description.NationalStatistic)
+		So(sdlp.DatasetLandingPage.Survey, ShouldEqual, dlp.Description.Survey)
 		So(sdlp.DatasetLandingPage.IsTimeseries, ShouldEqual, dlp.Timeseries)
 
 		So(sdlp.DatasetLandingPage.ReleaseDate, ShouldNotBeEmpty)
@@ -245,6 +246,7 @@ func getTestDatasetLandingPage() zebedee.DatasetLandingPage {
 			Keywords:          []string{"hello"},
 			MetaDescription:   "this is so meta",
 			NationalStatistic: false,
+			Survey:            "census",
 			Contact: zebedee.Contact{
 				Email:     "testemail@123.com",
 				Name:      "matt",
