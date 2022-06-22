@@ -74,10 +74,10 @@ func TestCreateFilterID(t *testing.T) {
 				{
 					Dimensions: []dataset.VersionDimension{
 						{
-							Name: "aggregate",
+							Name: "geography",
 						},
 						{
-							Name: "time",
+							Name: "age",
 						},
 					},
 				},
@@ -87,10 +87,10 @@ func TestCreateFilterID(t *testing.T) {
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
 			mockDims := []filter.ModelDimension{
 				{
-					Name: "aggregate",
+					Name: "geography",
 				},
 				{
-					Name: "time",
+					Name: "age",
 				},
 			}
 			mockClient := NewMockFilterClient(mockCtrl)
@@ -103,13 +103,41 @@ func TestCreateFilterID(t *testing.T) {
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
 				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
-			body := strings.NewReader("dimension=aggregate")
+			body := strings.NewReader("dimension=geography")
 			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
 
-			So(location, ShouldEqual, "/filters/12345/dimensions/aggregate")
+			So(location, ShouldEqual, "/filters/12345/dimensions/geography")
+		})
+
+		Convey("test CreateFilterFlexID handler, creates a filter id and redirect for coverage appends to geography", func() {
+			mockDims := []filter.ModelDimension{
+				{
+					Name: "geography",
+				},
+				{
+					Name: "age",
+				},
+			}
+			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
+				Return("12345", "testETag", nil)
+
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
+				Return(mockVersions.Items[1], nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
+				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
+
+			body := strings.NewReader("dimension=coverage")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/geography/coverage")
 		})
 
 		Convey("test post route fails if config is false", func() {

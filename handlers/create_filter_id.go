@@ -106,9 +106,13 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 		}
 
 		filterPath := fmt.Sprintf("/filters/%s/dimensions", fid)
-		dimensionName := req.FormValue("dimension")
+		dimensionName := url.QueryEscape(strings.ToLower(req.FormValue("dimension")))
 		if dimensionName != "" {
-			filterPath += fmt.Sprintf("/%s", strings.ToLower(url.QueryEscape(dimensionName)))
+			if dimensionName == "coverage" {
+				filterPath += fmt.Sprintf("/geography/%s", dimensionName)
+			} else {
+				filterPath += fmt.Sprintf("/%s", dimensionName)
+			}
 		}
 
 		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})

@@ -735,6 +735,12 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
 		So(page.DatasetLandingPage.IsFlexible, ShouldBeFalse)
+		So(page.DatasetLandingPage.Dimensions, ShouldHaveLength, 2) // coverage is inserted
+		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Coverage")
+		So(page.DatasetLandingPage.Dimensions[1].Name, ShouldEqual, "coverage")
+		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 	})
 
 	Convey("Census dataset landing page maps correctly with filter output", t, func() {

@@ -582,6 +582,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if len(opts) > 0 && !hasFilterOutput {
 		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, version.Dimensions, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+		coverage := []sharedModel.Dimension{
+			{
+				IsCoverage: true,
+				Title:      "Coverage",
+				Name:       "coverage",
+				ShowChange: true,
+			},
+		}
+		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
 	}
 
 	if hasFilterOutput {
@@ -650,6 +660,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []data
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
 					pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+					pDim.ShowChange = pDim.IsAreaType
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
 					}
