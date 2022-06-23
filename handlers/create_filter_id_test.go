@@ -19,7 +19,6 @@ func TestCreateFilterID(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
-	//cfg := initialiseMockConfig()
 
 	Convey("test CreateFilterID", t, func() {
 		mockCfg := config.Config{}
@@ -86,7 +85,6 @@ func TestCreateFilterID(t *testing.T) {
 		}
 
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect includes dimension name", func() {
-			q := dataset.QueryParams{Offset: 0, Limit: 1000}
 			mockDims := []filter.ModelDimension{
 				{
 					Name: "aggregate",
@@ -102,10 +100,6 @@ func TestCreateFilterID(t *testing.T) {
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "aggregate", &q).
-				Return(datasetOptions(0, 0), nil)
-			mockDatasetClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "2021", "1", "time", &q).
-				Return(datasetOptions(0, 0), nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
 				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 

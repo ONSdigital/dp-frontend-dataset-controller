@@ -3,15 +3,16 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
@@ -88,19 +89,6 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient, cfg config.Config) ht
 			dim.Name = verDim.Name
 			dim.URI = verDim.URL
 			dim.IsAreaType = verDim.IsAreaType
-			q := dataset.QueryParams{Offset: 0, Limit: 1000}
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
-			if err != nil {
-				setStatusCode(ctx, w, err)
-				return
-			}
-			var labels, options []string
-			for _, opt := range opts.Items {
-				labels = append(labels, opt.Label)
-				options = append(options, opt.Option)
-			}
-			dim.Options = options
-			dim.Values = labels
 			dims = append(dims, dim)
 		}
 
