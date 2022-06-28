@@ -9,4 +9,6 @@ type Dimension struct {
 	TotalItems  int      `json:"total_items"`
 	Description string   `json:"description"`
 	IsAreaType  bool     `json:"is_area_type"`
+	IsCoverage  bool     `json:"is_coverage"`
+	ShowChange  bool     `json:"show_change"`
 }

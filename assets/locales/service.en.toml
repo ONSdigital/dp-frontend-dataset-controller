@@ -215,6 +215,14 @@ one = "Dataset ID and release date information"
 description = "Area type"
 one = "Area type"
 
+[AreaTypeCoverageTitle]
+description = "Coverage"
+one = "Coverage"
+
+[AreaTypeDefaultCoverage]
+description = "England and Wales"
+one = "England and Wales"
+
 [PageProblem]
 description = "There is a problem with this page"
 one = "There is a problem with this page"
