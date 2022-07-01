@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -98,16 +98,16 @@ func run(ctx context.Context) error {
 
 	apiRouterCli := apihealthcheck.NewClient("api-router", cfg.APIRouterURL)
 
-	dimensionClient, err := dimension.NewWithHealthClient(apiRouterCli)
+	populationClient, err := population.NewWithHealthClient(apiRouterCli)
 	if err != nil {
-		return fmt.Errorf("failed to create dimensions API client: %w", err)
+		return fmt.Errorf("failed to create population API client: %w", err)
 	}
 
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
-	dimC := dimensionClient
+	pc := populationClient
 	fc.Version = "v1"
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
@@ -137,7 +137,7 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 	if cfg.EnableCensusPages {
 		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, dc, *cfg))
-		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(f, dimC, dc, rend, *cfg, apiRouterVersion))
+		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(f, pc, dc, rend, *cfg, apiRouterVersion))
 	}
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc)))

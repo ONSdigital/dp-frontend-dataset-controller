@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/golang/mock/gomock"
@@ -99,7 +99,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -140,7 +140,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -186,7 +186,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=csv", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -232,7 +232,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=doc", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -278,7 +278,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=bob", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -318,7 +318,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockDimensionClient(mockCtrl), mockDc, mockRend, cfg, ""))
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
 
 				router.ServeHTTP(w, req)
 				Convey("Then the status code is 200", func() {
@@ -348,8 +348,8 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockFc := NewMockFilterClient(mockCtrl)
 				mockFc.EXPECT().GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(filterModels[1], nil)
 
-				mockDimsc := NewMockDimensionClient(mockCtrl)
-				mockDimsc.EXPECT().GetAreas(gomock.Any(), gomock.Any()).Return(dimension.GetAreasResponse{}, nil)
+				mockPc := NewMockPopulationClient(mockCtrl)
+				mockPc.EXPECT().GetAreas(gomock.Any(), gomock.Any()).Return(population.GetAreasResponse{}, nil)
 
 				mockRend := NewMockRenderClient(mockCtrl)
 				mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
@@ -359,7 +359,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockDimsc, mockDc, mockRend, cfg, ""))
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
 
 				router.ServeHTTP(w, req)
 				Convey("Then the status code is 200", func() {
@@ -371,7 +371,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		Convey("When the dc.Get fails", func() {
 			mockDc := NewMockDatasetClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
-			mockDimsc := NewMockDimensionClient(mockCtrl)
+			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 
@@ -379,7 +379,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockDimsc, mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 			Convey("Then the status code is 500", func() {
@@ -390,7 +390,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		Convey("When the dc.GetVersions fails", func() {
 			mockDc := NewMockDatasetClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
-			mockDimsc := NewMockDimensionClient(mockCtrl)
+			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			mockDc.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(dataset.VersionsList{}, errors.New("dataset client error"))
@@ -399,7 +399,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockDimsc, mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 			Convey("Then the status code is 500", func() {
@@ -410,7 +410,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		Convey("When the dc.GetVersion fails", func() {
 			mockDc := NewMockDatasetClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
-			mockDimsc := NewMockDimensionClient(mockCtrl)
+			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
 			mockDc.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
@@ -420,7 +420,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockDimsc, mockDc, mockRend, cfg, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
 
 			router.ServeHTTP(w, req)
 			Convey("Then the status code is 500", func() {

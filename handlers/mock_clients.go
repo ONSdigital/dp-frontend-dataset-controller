@@ -10,9 +10,9 @@ import (
 	reflect "reflect"
 
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	dimension "github.com/ONSdigital/dp-api-clients-go/v2/dimension"
 	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
 	filter "github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
 	model "github.com/ONSdigital/dp-renderer/model"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -332,42 +332,42 @@ func (mr *MockFilesAPIClientMockRecorder) GetFile(ctx, path, authToken interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*MockFilesAPIClient)(nil).GetFile), ctx, path, authToken)
 }
 
-// MockDimensionClient is a mock of DimensionClient interface.
-type MockDimensionClient struct {
+// MockPopulationClient is a mock of PopulationClient interface.
+type MockPopulationClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockDimensionClientMockRecorder
+	recorder *MockPopulationClientMockRecorder
 }
 
-// MockDimensionClientMockRecorder is the mock recorder for MockDimensionClient.
-type MockDimensionClientMockRecorder struct {
-	mock *MockDimensionClient
+// MockPopulationClientMockRecorder is the mock recorder for MockPopulationClient.
+type MockPopulationClientMockRecorder struct {
+	mock *MockPopulationClient
 }
 
-// NewMockDimensionClient creates a new mock instance.
-func NewMockDimensionClient(ctrl *gomock.Controller) *MockDimensionClient {
-	mock := &MockDimensionClient{ctrl: ctrl}
-	mock.recorder = &MockDimensionClientMockRecorder{mock}
+// NewMockPopulationClient creates a new mock instance.
+func NewMockPopulationClient(ctrl *gomock.Controller) *MockPopulationClient {
+	mock := &MockPopulationClient{ctrl: ctrl}
+	mock.recorder = &MockPopulationClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDimensionClient) EXPECT() *MockDimensionClientMockRecorder {
+func (m *MockPopulationClient) EXPECT() *MockPopulationClientMockRecorder {
 	return m.recorder
 }
 
 // GetAreas mocks base method.
-func (m *MockDimensionClient) GetAreas(ctx context.Context, input dimension.GetAreasInput) (dimension.GetAreasResponse, error) {
+func (m *MockPopulationClient) GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAreas", ctx, input)
-	ret0, _ := ret[0].(dimension.GetAreasResponse)
+	ret0, _ := ret[0].(population.GetAreasResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAreas indicates an expected call of GetAreas.
-func (mr *MockDimensionClientMockRecorder) GetAreas(ctx, input interface{}) *gomock.Call {
+func (mr *MockPopulationClientMockRecorder) GetAreas(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAreas", reflect.TypeOf((*MockDimensionClient)(nil).GetAreas), ctx, input)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAreas", reflect.TypeOf((*MockPopulationClient)(nil).GetAreas), ctx, input)
 }
 
 // MockClientError is a mock of ClientError interface.
