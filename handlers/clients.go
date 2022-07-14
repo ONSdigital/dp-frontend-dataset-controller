@@ -4,8 +4,8 @@ import (
 	"context"
 	io "io"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -47,9 +47,9 @@ type FilesAPIClient interface {
 	GetFile(ctx context.Context, path string, authToken string) (files.FileMetaData, error)
 }
 
-// DimensionClient is an interface with methods required for a dimension client
-type DimensionClient interface {
-	GetAreas(ctx context.Context, input dimension.GetAreasInput) (dimension.GetAreasResponse, error)
+// PopulationClient is an interface with methods required for a population client
+type PopulationClient interface {
+	GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dimension"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -18,13 +18,13 @@ import (
 )
 
 // FilterOutput will load a filtered landing page
-func FilterOutput(fc FilterClient, dimsc DimensionClient, dc DatasetClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterOutput(fc FilterClient, pc PopulationClient, dc DatasetClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterOutput(w, req, dc, fc, dimsc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterOutput(w, req, dc, fc, pc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc FilterClient, dimsc DimensionClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -111,7 +111,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	}
 
 	getAreaOptions := func(dim filter.ModelDimension) ([]string, error) {
-		areas, err := dimsc.GetAreas(ctx, dimension.GetAreasInput{
+		areas, err := pc.GetAreas(ctx, population.GetAreasInput{
 			UserAuthToken: userAccessToken,
 			DatasetID:     filterOutput.PopulationType,
 			AreaTypeID:    dim.ID,
