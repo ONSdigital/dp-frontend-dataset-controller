@@ -77,7 +77,11 @@
 <div class="meta-wrap">
     <div class="wrapper">
         {{ if eq .DatasetLandingPage.Survey "census" }}
-            <img class="margin-bottom--2" src="/img/logo-census-2021-purple-landscape.png" alt="Census"/> 
+            {{ if eq .Language "cy" }}
+                <img class="margin-bottom--2" src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-cyfrifiad-2021-purple-landscape.svg" alt="Census" width="171"/> 
+            {{ else }}
+                <img class="margin-bottom--2" src="/img/logo-census-2021-purple-landscape.png" alt="Census"/> 
+            {{ end }}
         {{ end }}
         <ul class="col-wrap meta__list">
             <li class="col col--md-12 col--lg-15 meta__item">
