@@ -38,6 +38,7 @@ const (
 	DimensionGeography  = "geography"
 	SixteensVersion     = "77f1d9b"
 	CorrectionAlertType = "correction"
+	queryStrKey         = "showAll"
 )
 
 func (p TimeSlice) Len() int {
@@ -343,7 +344,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -581,13 +582,14 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.BetaBannerEnabled = true
 
 	if len(opts) > 0 && !hasFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, version.Dimensions, opts, d.Links.LatestVersion.URL, maxNumberOfOptions)
+		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage: true,
 				Title:      "Coverage",
 				Name:       "coverage",
 				ShowChange: true,
+				ID:         "coverage",
 			},
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
@@ -595,14 +597,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	if hasFilterOutput {
-		for _, dim := range filter.Dimensions {
-			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions, sharedModel.Dimension{
-				Title:      dim.Label,
-				Values:     dim.Options,
-				IsAreaType: helpers.IsBoolPtr(dim.IsAreaType),
-				TotalItems: len(dim.Options),
-			})
-		}
+		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(filter, queryStrValues, req.URL.Path)
 	}
 
 	if isValidationError {
@@ -625,6 +620,38 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	return p
 }
 
+func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path string) []sharedModel.Dimension {
+	dimensions := []sharedModel.Dimension{}
+	for _, dim := range filter.Dimensions {
+		pDim := sharedModel.Dimension{}
+		pDim.Title = dim.Label
+		pDim.ID = dim.ID
+		pDim.IsAreaType = helpers.IsBoolPtr(dim.IsAreaType)
+		pDim.TotalItems = len(dim.Options)
+		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
+
+		for i, opt := range dim.Options {
+			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+				if isTruncationIndex(i, midFloor, midCeiling, len(dim.Options)) {
+					pDim.Values = append(pDim.Values, opt)
+					pDim.IsTruncated = true
+				}
+			} else {
+				pDim.Values = append(pDim.Values, opt)
+				pDim.IsTruncated = false
+			}
+		}
+
+		q := url.Values{}
+		if pDim.IsTruncated {
+			q.Add(queryStrKey, pDim.ID)
+		}
+		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
+		dimensions = append(dimensions, pDim)
+	}
+	return dimensions
+}
+
 func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
 	if ver.Alerts != nil {
 		for _, alert := range *ver.Alerts {
@@ -636,6 +663,72 @@ func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
 			}
 		}
 	}
+}
+
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string) []sharedModel.Dimension {
+	dimensions := []sharedModel.Dimension{}
+	for _, opt := range opts {
+		var pDim sharedModel.Dimension
+
+		for _, dimension := range dims {
+			if dimension.Name == opt.Items[0].DimensionID {
+				pDim.Name = dimension.Name
+				pDim.Description = dimension.Description
+				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+				pDim.ShowChange = pDim.IsAreaType
+				pDim.Title = dimension.Label
+				pDim.ID = dimension.ID
+			}
+		}
+
+		pDim.TotalItems = opt.TotalCount
+		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
+
+		for i, val := range opt.Items {
+			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+				if isTruncationIndex(i, midFloor, midCeiling, len(opt.Items)) {
+					pDim.Values = append(pDim.Values, val.Label)
+				}
+				pDim.IsTruncated = true
+			} else {
+				pDim.Values = append(pDim.Values, val.Label)
+				pDim.IsTruncated = false
+			}
+		}
+
+		q := url.Values{}
+		if pDim.IsTruncated {
+			q.Add(queryStrKey, pDim.ID)
+		}
+		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
+		dimensions = append(dimensions, pDim)
+	}
+	return dimensions
+}
+
+// getTruncationMidRange returns ints that can be used as the truncation mid range
+func getTruncationMidRange(total int) (int, int) {
+	mid := total / 2
+	midFloor := mid - 2
+	midCeiling := midFloor + 3
+	return midFloor, midCeiling
+}
+
+// isTruncationIndex determines whether the index parameter meets the tr
+func isTruncationIndex(i, midFloor, midCeiling, ceiling int) bool {
+	return i < 3 || i >= midFloor && i < midCeiling || i >= (ceiling-3)
+}
+
+// generateTruncatePath returns the path to truncate or show all
+func generateTruncatePath(path, dimID string, q url.Values) string {
+	truncatePath := path
+	if q.Encode() != "" {
+		truncatePath += fmt.Sprintf("?%s", q.Encode())
+	}
+	if dimID != "" {
+		truncatePath += fmt.Sprintf("#%s", dimID)
+	}
+	return truncatePath
 }
 
 func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dataset.VersionDimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
@@ -659,8 +752,6 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []data
 				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
-					pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
-					pDim.ShowChange = pDim.IsAreaType
 					if len(dimension.Label) > 0 {
 						pDim.Title = dimension.Label
 					}
