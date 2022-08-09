@@ -1138,7 +1138,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				false,
 				false,
 				filter.Model{Downloads: nil})
-			Convey("then truncation works as expected", func() {
+			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(p.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
 				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 9)
 				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{
@@ -1253,7 +1253,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				false,
 				true,
 				filterDims)
-			Convey("then truncation works as expected", func() {
+			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(p.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, 21)
 				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 9)
 				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{

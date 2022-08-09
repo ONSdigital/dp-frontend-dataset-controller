@@ -105,16 +105,16 @@ func TestIsBoolPtr(t *testing.T) {
 }
 
 func TestHasStringInSlice(t *testing.T) {
-	Convey("no string given and empty array returns false", t, func() {
+	Convey("Should return false when searching an empty array for the empty string", t, func() {
 		So(HasStringInSlice("", []string{}), ShouldBeFalse)
 	})
-	Convey("no string given valid string array returns false", t, func() {
+	Convey("Should return false when searching a populated array for the empty string", t, func() {
 		So(HasStringInSlice("", []string{"hello", "world"}), ShouldBeFalse)
 	})
-	Convey("valid string given empty array returns false", t, func() {
+	Convey("Should return false when searching an empty array for a given string", t, func() {
 		So(HasStringInSlice("hello", []string{}), ShouldBeFalse)
 	})
-	Convey("valid string given with valid string array returns true", t, func() {
+	Convey("Should return true when searching a populated array known to contain the given string", t, func() {
 		So(HasStringInSlice("hello", []string{"hello", "world"}), ShouldBeTrue)
 	})
 }

@@ -634,8 +634,10 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
 				if isTruncationIndex(i, midFloor, midCeiling, len(dim.Options)) {
 					pDim.Values = append(pDim.Values, opt)
-					pDim.IsTruncated = true
+				} else {
+					continue
 				}
+				pDim.IsTruncated = true
 			} else {
 				pDim.Values = append(pDim.Values, opt)
 				pDim.IsTruncated = false
@@ -688,6 +690,8 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
 				if isTruncationIndex(i, midFloor, midCeiling, len(opt.Items)) {
 					pDim.Values = append(pDim.Values, val.Label)
+				} else {
+					continue
 				}
 				pDim.IsTruncated = true
 			} else {
@@ -711,10 +715,13 @@ func getTruncationMidRange(total int) (int, int) {
 	mid := total / 2
 	midFloor := mid - 2
 	midCeiling := midFloor + 3
-	return midFloor, midCeiling
+	if midFloor > 0 && midCeiling > 0 {
+		return midFloor, midCeiling
+	}
+	return 0, 0
 }
 
-// isTruncationIndex determines whether the index parameter meets the tr
+// isTruncationIndex determines whether the index parameter is a truncation index
 func isTruncationIndex(i, midFloor, midCeiling, ceiling int) bool {
 	return i < 3 || i >= midFloor && i < midCeiling || i >= (ceiling-3)
 }

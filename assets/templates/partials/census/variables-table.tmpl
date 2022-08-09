@@ -35,8 +35,8 @@
                                     {{ end }}
                                 </div>
                             {{else}}
+                                {{ $strOptCount := intToString $dim.TotalItems }}
                                 <div>
-                                    {{ $strOptCount := intToString $dim.TotalItems }}
                                     {{ $dim.TotalItems }}
                                     {{ if gt $dim.TotalItems 1 }}
                                         {{ localise "Category" $language 4 }}

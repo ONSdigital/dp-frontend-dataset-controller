@@ -82,11 +82,9 @@ func HasStringInSlice(a string, list []string) bool {
 
 // PersistExistingParams persists existing query string values and ignores a given value
 func PersistExistingParams(values []string, key, ignoreValue string, q url.Values) {
-	if len(values) > 0 {
-		for _, value := range values {
-			if value != ignoreValue {
-				q.Add(key, value)
-			}
+	for _, value := range values {
+		if value != ignoreValue {
+			q.Add(key, value)
 		}
 	}
 }
