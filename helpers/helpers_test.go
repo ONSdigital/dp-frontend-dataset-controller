@@ -151,3 +151,12 @@ func TestCheckForExistingParams(t *testing.T) {
 		So(q[key], ShouldResemble, queryStrValues)
 	})
 }
+
+func TestToBoolPtr(t *testing.T) {
+	Convey("Given a bool, a pointer is returned", t, func() {
+		So(ToBoolPtr(false), ShouldResemble, new(bool))
+		So(ToBoolPtr(false), ShouldNotBeNil)
+		truePtr := func(b bool) *bool { return &b }(true)
+		So(ToBoolPtr(true), ShouldResemble, truePtr)
+	})
+}

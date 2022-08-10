@@ -368,6 +368,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 
+	var isFlex bool
+	if strings.Contains(d.Type, "flex") {
+		isFlex = true
+		p.DatasetLandingPage.IsFlexible = true
+		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
+	}
+
 	if hasFilterOutput {
 		for ext, download := range filter.Downloads {
 			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
@@ -582,13 +589,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.BetaBannerEnabled = true
 
 	if len(opts) > 0 && !hasFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path)
+		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, isFlex)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage: true,
 				Title:      "Coverage",
 				Name:       "coverage",
-				ShowChange: true,
+				ShowChange: true && isFlex,
 				ID:         "coverage",
 			},
 		}
@@ -602,11 +609,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if isValidationError {
 		p.Error.Title = fmt.Sprintf("Error: %s", d.Title)
-	}
-
-	if strings.Contains(d.Type, "flex") {
-		p.DatasetLandingPage.IsFlexible = true
-		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
 	p.BackTo = coreModel.BackTo{
@@ -667,7 +669,7 @@ func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
 	}
 }
 
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string) []sharedModel.Dimension {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string, isFlex bool) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
@@ -677,7 +679,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.Name = dimension.Name
 				pDim.Description = dimension.Description
 				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
-				pDim.ShowChange = pDim.IsAreaType
+				pDim.ShowChange = pDim.IsAreaType && isFlex
 				pDim.Title = dimension.Label
 				pDim.ID = dimension.ID
 			}

@@ -88,3 +88,8 @@ func PersistExistingParams(values []string, key, ignoreValue string, q url.Value
 		}
 	}
 }
+
+// ToBoolPtr converts a boolean to a pointer
+func ToBoolPtr(val bool) *bool {
+	return &val
+}
