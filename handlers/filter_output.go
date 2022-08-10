@@ -173,7 +173,8 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		}
 	}
 
+	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, numOptsSummary, isValidationError, true, filterOutput)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, filterOutput)
 	rend.BuildPage(w, m, "census-landing")
 }

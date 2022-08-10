@@ -103,3 +103,51 @@ func TestIsBoolPtr(t *testing.T) {
 		})
 	})
 }
+
+func TestHasStringInSlice(t *testing.T) {
+	Convey("Should return false when searching an empty array for the empty string", t, func() {
+		So(HasStringInSlice("", []string{}), ShouldBeFalse)
+	})
+	Convey("Should return false when searching a populated array for the empty string", t, func() {
+		So(HasStringInSlice("", []string{"hello", "world"}), ShouldBeFalse)
+	})
+	Convey("Should return false when searching an empty array for a given string", t, func() {
+		So(HasStringInSlice("hello", []string{}), ShouldBeFalse)
+	})
+	Convey("Should return true when searching a populated array known to contain the given string", t, func() {
+		So(HasStringInSlice("hello", []string{"hello", "world"}), ShouldBeTrue)
+	})
+}
+
+func TestCheckForExistingParams(t *testing.T) {
+	Convey("persist existing query string values and ignore given value", t, func() {
+		queryStrValues := []string{"Value 1", "Value 2"}
+		ignoreValue := "Value 1"
+		key := "testKey"
+		q := url.Values{}
+
+		PersistExistingParams(queryStrValues, key, ignoreValue, q)
+		So(q[key], ShouldResemble, []string{"Value 2"})
+	})
+
+	Convey("persist existing query string values no value to ignore", t, func() {
+		queryStrValues := []string{"Value 1", "Value 2"}
+		existingValue := ""
+		key := "testKey"
+		q := url.Values{}
+
+		PersistExistingParams(queryStrValues, key, existingValue, q)
+		So(q[key], ShouldResemble, queryStrValues)
+	})
+
+	Convey("invalid key given no values persisted", t, func() {
+		queryStrValues := []string{"Value 1", "Value 2"}
+		existingValue := ""
+		key := "testKey"
+		q := url.Values{}
+
+		PersistExistingParams(queryStrValues, key, existingValue, q)
+		So(q["another key"], ShouldBeNil)
+		So(q[key], ShouldResemble, queryStrValues)
+	})
+}
