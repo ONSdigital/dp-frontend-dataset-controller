@@ -630,18 +630,18 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 		pDim.TotalItems = len(dim.Options)
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
-		for i, opt := range dim.Options {
-			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
-				if isTruncationIndex(i, midFloor, midCeiling, len(dim.Options)) {
-					pDim.Values = append(pDim.Values, opt)
-				} else {
-					continue
-				}
-				pDim.IsTruncated = true
-			} else {
-				pDim.Values = append(pDim.Values, opt)
-				pDim.IsTruncated = false
-			}
+		var displayedOptions []string
+		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+			displayedOptions = dim.Options[:3]
+			displayedOptions = append(displayedOptions, dim.Options[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, dim.Options[len(dim.Options)-3:]...)
+			pDim.IsTruncated = true
+		} else {
+			displayedOptions = dim.Options
+		}
+
+		for _, opt := range displayedOptions {
+			pDim.Values = append(pDim.Values, opt)
 		}
 
 		q := url.Values{}
@@ -686,18 +686,18 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TotalItems = opt.TotalCount
 		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
 
-		for i, val := range opt.Items {
-			if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
-				if isTruncationIndex(i, midFloor, midCeiling, len(opt.Items)) {
-					pDim.Values = append(pDim.Values, val.Label)
-				} else {
-					continue
-				}
-				pDim.IsTruncated = true
-			} else {
-				pDim.Values = append(pDim.Values, val.Label)
-				pDim.IsTruncated = false
-			}
+		var displayedOptions []dataset.Option
+		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+			displayedOptions = opt.Items[:3]
+			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, opt.Items[len(opt.Items)-3:]...)
+			pDim.IsTruncated = true
+		} else {
+			displayedOptions = opt.Items
+		}
+
+		for _, opt := range displayedOptions {
+			pDim.Values = append(pDim.Values, opt.Label)
 		}
 
 		q := url.Values{}
@@ -715,15 +715,10 @@ func getTruncationMidRange(total int) (int, int) {
 	mid := total / 2
 	midFloor := mid - 2
 	midCeiling := midFloor + 3
-	if midFloor > 0 && midCeiling > 0 {
-		return midFloor, midCeiling
+	if midFloor < 0 {
+		midFloor = 0
 	}
-	return 0, 0
-}
-
-// isTruncationIndex determines whether the index parameter is a truncation index
-func isTruncationIndex(i, midFloor, midCeiling, ceiling int) bool {
-	return i < 3 || i >= midFloor && i < midCeiling || i >= (ceiling-3)
+	return midFloor, midCeiling
 }
 
 // generateTruncatePath returns the path to truncate or show all
