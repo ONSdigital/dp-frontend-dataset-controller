@@ -595,7 +595,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 				IsCoverage: true,
 				Title:      "Coverage",
 				Name:       "coverage",
-				ShowChange: true && isFlex,
+				ShowChange: isFlex,
 				ID:         "coverage",
 			},
 		}
