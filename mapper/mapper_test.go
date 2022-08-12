@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
@@ -632,6 +633,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				Description: "A description on one line",
 				Name:        "Dimension 1",
 				ID:          "dim_1",
+				IsAreaType:  helpers.ToBoolPtr(true),
 			},
 			{
 				Description: "A description on one line \n Then a line break",
@@ -672,24 +674,12 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		{
 			Items: []dataset.Option{
 				{
-					DimensionID: "time",
-					Label:       "2016",
-					Option:      "2016",
+					DimensionID: "dim_1",
+					Option:      "option 1",
 				},
 				{
-					DimensionID: "time",
-					Label:       "2018",
-					Option:      "2018",
-				},
-				{
-					DimensionID: "time",
-					Label:       "2019",
-					Option:      "2019",
-				},
-				{
-					DimensionID: "time",
-					Label:       "2020",
-					Option:      "2020",
+					DimensionID: "dim_1",
+					Option:      "option 2",
 				},
 			},
 		},
@@ -742,7 +732,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Coverage")
 		So(page.DatasetLandingPage.Dimensions[1].Name, ShouldEqual, "coverage")
-		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeFalse)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 	})
 
