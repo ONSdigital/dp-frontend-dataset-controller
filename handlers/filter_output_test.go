@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +13,6 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -373,7 +373,24 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
+
+			mockDc.
+				EXPECT().
+				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
+			mockDc.
+				EXPECT().
+				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				Return(versions, nil)
+			mockDc.
+				EXPECT().
+				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				Return(versions.Items[0], nil)
+
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -392,8 +409,24 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockDc.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(dataset.VersionsList{}, errors.New("dataset client error"))
+
+			mockDc.
+				EXPECT().
+				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				Return(dataset.DatasetDetails{}, nil)
+			mockDc.
+				EXPECT().
+				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				Return(versions, errors.New("dataset client error"))
+			mockDc.
+				EXPECT().
+				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				Return(versions.Items[0], nil)
+
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -412,9 +445,60 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockDc.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockDc.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], errors.New("dataset client error"))
+
+			mockDc.
+				EXPECT().
+				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				Return(dataset.DatasetDetails{}, nil)
+			mockDc.
+				EXPECT().
+				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				Return(versions, nil)
+			mockDc.
+				EXPECT().
+				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				Return(versions.Items[0], errors.New("dataset client error"))
+
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, nil)
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
+
+			router.ServeHTTP(w, req)
+			Convey("Then the status code is 500", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
+		Convey("When the fc.GetOutput fails", func() {
+			mockDc := NewMockDatasetClient(mockCtrl)
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockPc := NewMockPopulationClient(mockCtrl)
+			mockRend := NewMockRenderClient(mockCtrl)
+
+			mockDc.
+				EXPECT().
+				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				Return(dataset.DatasetDetails{}, nil)
+			mockDc.
+				EXPECT().
+				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				Return(versions, nil)
+			mockDc.
+				EXPECT().
+				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				Return(versions.Items[0], nil)
+
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, errors.New("filter client error"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
