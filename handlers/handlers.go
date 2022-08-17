@@ -3,12 +3,13 @@ package handlers
 import (
 	"bytes"
 	"context"
+	"net/http"
+	"regexp"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
-	"net/http"
-	"regexp"
 )
 
 // Constants...
@@ -18,6 +19,7 @@ const (
 	maxMetadataOptions   = 1000
 	maxAgeAndTimeOptions = 1000
 	homepagePath         = "/"
+	queryStrKey          = "showAll"
 )
 
 var errTooManyOptions = errors.New("too many options in dimension")

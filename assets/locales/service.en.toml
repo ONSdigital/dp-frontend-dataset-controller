@@ -291,3 +291,11 @@ one = "Copied"
 [CopyLinkFailureMessage]
 description = "Copying failed"
 one = "Copying failed"
+
+[TruncateShowAll]
+description = "Show all {{$strOptCount}} categories"
+one = "Show all {{.arg0}} categories"
+
+[TruncateShowFewer]
+description = "Show less categories"
+one = "Show less categories"
