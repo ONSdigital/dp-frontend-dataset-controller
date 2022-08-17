@@ -133,19 +133,62 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		return options, nil
 	}
 
+	var hasNoAreaOptions bool
 	getAreaOptions := func(dim filter.ModelDimension) ([]string, error) {
-		areas, err := pc.GetAreas(ctx, population.GetAreasInput{
-			UserAuthToken: userAccessToken,
-			DatasetID:     filterOutput.PopulationType,
-			AreaTypeID:    dim.ID,
-		})
+		q := filter.QueryParams{
+			Limit: 500,
+		}
+		opts, _, err := fc.GetDimensionOptions(ctx, userAccessToken, "", collectionID, filterOutput.FilterID, dim.Name, &q)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get dimension areas: %w", err)
+			return nil, fmt.Errorf("failed to get options for dimension: %w", err)
 		}
 
 		var options []string
-		for _, area := range areas.Areas {
-			options = append(options, area.Label)
+		if opts.TotalCount == 0 {
+			areas, err := pc.GetAreas(ctx, population.GetAreasInput{
+				UserAuthToken: userAccessToken,
+				DatasetID:     filterOutput.PopulationType,
+				AreaTypeID:    dim.ID,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get dimension areas: %w", err)
+			}
+
+			for _, area := range areas.Areas {
+				options = append(options, area.Label)
+			}
+
+			hasNoAreaOptions = true
+			return options, nil
+		}
+
+		var wg sync.WaitGroup
+		var areaErr error
+		var areas population.GetAreasResponse
+		for _, opt := range opts.Items {
+			wg.Add(1)
+			go func(opt filter.DimensionOption) {
+				defer wg.Done()
+				// TODO: Temporary fix until GetArea endpoint is created
+				areas, areaErr = pc.GetAreas(ctx, population.GetAreasInput{
+					UserAuthToken: userAccessToken,
+					DatasetID:     filterOutput.PopulationType,
+					AreaTypeID:    dim.ID,
+					Text:          opt.Option,
+				})
+
+				for _, area := range areas.Areas {
+					if area.ID == opt.Option {
+						options = append(options, area.Label)
+						break
+					}
+				}
+			}(opt)
+		}
+		wg.Wait()
+
+		if areaErr != nil {
+			return nil, fmt.Errorf("failed to get dimension areas: %w", areaErr)
 		}
 
 		return options, nil
@@ -195,6 +238,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, filterOutput)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput)
 	rend.BuildPage(w, m, "census-landing")
 }
