@@ -26,39 +26,51 @@
                         </th>
                         <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pl-no@xxs@s ons-u-order--3 ons-u-fw@xxs@s ons-u-pt-no@xxs@s
                                 ons-u-bb-no@xxs@s">
-                            {{ if or ($dim.IsAreaType) ($dim.IsCoverage) }}
+                            {{ if or ($dim.IsAreaType) ($dim.IsDefaultCoverage) }}
                                 <div>
-                                    {{ if $dim.IsCoverage }}
+                                    {{ if $dim.IsDefaultCoverage }}
                                         {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
                                     {{ else }}
                                         {{- $dim.Title }} ({{ $dim.TotalItems -}})
                                     {{ end }}
                                 </div>
                             {{else}}
-                                {{ $strOptCount := intToString $dim.TotalItems }}
-                                <div>
-                                    {{ $dim.TotalItems }}
-                                    {{ if gt $dim.TotalItems 1 }}
-                                        {{ localise "Category" $language 4 }}
-                                    {{else}}
-                                        {{ localise "Category" $language 1 }}
-                                    {{end}}
-                                </div>
-                                <div class="ons-u-mt-s ons-u-fs-s ons-list--container">
-                                    <ul class="ons-list{{ if $dim.IsTruncated }}--truncated{{end}}{{ if or (gt $dim.TotalItems 9) ($dim.IsTruncated) }}
-                                            ons-u-mb-xs{{else}} ons-u-m-no{{end}}">
-                                        {{ range $j, $val := $dim.Values}}
-                                            <li class="ons-list__item{{ if $dim.IsTruncated }}--truncated{{end}} ons-u-mb-no">
-                                                {{- $val -}}
-                                            </li>
-                                        {{ end }}
-                                    </ul>
-                                    {{ if $dim.IsTruncated }}
-                                        <a href="{{$dim.TruncateLink}}">{{- localise "TruncateShowAll" $language 1 $strOptCount -}}</a>
-                                    {{ else if gt $dim.TotalItems 9 }}
-                                        <a href="{{.TruncateLink}}">{{- localise "TruncateShowFewer" $language 1 -}}</a>
+                                {{ if and (.IsCoverage) ($dim.Values) }}
+                                    {{ if gt (len $dim.Values) 1 }}
+                                        <ul class="ons-list ons-u-mb-no">
+                                            {{ range $dim.Values }}
+                                                <li class="ons-list__item">{{- . -}}</li>
+                                            {{ end }}
+                                        </ul>
+                                    {{ else }}
+                                        {{- index $dim.Values 0 -}}
                                     {{ end }}
-                                </div>
+                                {{ else }}
+                                    {{ $strOptCount := intToString $dim.TotalItems }}
+                                    <div>
+                                        {{ $dim.TotalItems }}
+                                        {{ if gt $dim.TotalItems 1 }}
+                                            {{ localise "Category" $language 4 }}
+                                        {{else}}
+                                            {{ localise "Category" $language 1 }}
+                                        {{end}}
+                                    </div>
+                                    <div class="ons-u-mt-s ons-u-fs-s ons-list--container">
+                                        <ul class="ons-list{{ if $dim.IsTruncated }}--truncated{{end}}{{ if or (gt $dim.TotalItems 9) ($dim.IsTruncated) }}
+                                                ons-u-mb-xs{{else}} ons-u-m-no{{end}}">
+                                            {{ range $j, $val := $dim.Values}}
+                                                <li class="ons-list__item{{ if $dim.IsTruncated }}--truncated{{end}} ons-u-mb-no">
+                                                    {{- $val -}}
+                                                </li>
+                                            {{ end }}
+                                        </ul>
+                                        {{ if $dim.IsTruncated }}
+                                            <a href="{{$dim.TruncateLink}}">{{- localise "TruncateShowAll" $language 1 $strOptCount -}}</a>
+                                        {{ else if gt $dim.TotalItems 9 }}
+                                            <a href="{{.TruncateLink}}">{{- localise "TruncateShowFewer" $language 1 -}}</a>
+                                        {{ end }}
+                                    </div>
+                                {{ end }}
                             {{end}}
                         </td>
                         <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right ons-u-pl-no@xxs@s ons-u-ml-xs@xxs@s ons-u-order--2

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -31,6 +32,11 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
+	var datasetModel dataset.DatasetDetails
+	var allVers dataset.VersionsList
+	var ver dataset.Version
+	var filterOutput filter.Model
+	var dmErr, versErr, verErr, fErr error
 
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
@@ -39,21 +45,61 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 	filterOutputID := vars["filterOutputID"]
 	ctx := req.Context()
 
-	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
-	if err != nil {
-		log.Error(ctx, "failed to get dataset", err, log.Data{"dataset": datasetID})
-		setStatusCode(ctx, w, err)
+	var wg sync.WaitGroup
+	wg.Add(4)
+
+	go func() {
+		defer wg.Done()
+		datasetModel, dmErr = dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+	}()
+
+	go func() {
+		defer wg.Done()
+		q := dataset.QueryParams{Offset: 0, Limit: 1000}
+		allVers, versErr = dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+	}()
+
+	go func() {
+		defer wg.Done()
+		ver, verErr = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
+		if ver.Version != 1 {
+			initialVersion, verErr = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, "1")
+			initialVersionReleaseDate = initialVersion.ReleaseDate
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
+	}()
+
+	wg.Wait()
+
+	if dmErr != nil {
+		log.Error(ctx, "failed to get dataset", dmErr, log.Data{"dataset": datasetID})
+		setStatusCode(ctx, w, dmErr)
 		return
 	}
-
-	q := dataset.QueryParams{Offset: 0, Limit: 1000}
-	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
-	if err != nil {
-		log.Error(ctx, "failed to get dataset versions", err, log.Data{
+	if versErr != nil {
+		log.Error(ctx, "failed to get dataset versions", versErr, log.Data{
 			"dataset": datasetID,
 			"edition": edition,
 		})
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, w, versErr)
+		return
+	}
+	if verErr != nil {
+		log.Error(ctx, "failed to get dataset version", verErr, log.Data{
+			"dataset": datasetID,
+			"edition": edition,
+			"version": version,
+		})
+		setStatusCode(ctx, w, verErr)
+		return
+	}
+	if fErr != nil {
+		log.Error(ctx, "failed to get filter output", fErr, log.Data{"filter_output_id": filterOutputID})
+		setStatusCode(ctx, w, fErr)
 		return
 	}
 
@@ -72,29 +118,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 
 	latestVersionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
-	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
-	if err != nil {
-		log.Error(ctx, "failed to get dataset version", err, log.Data{
-			"dataset": datasetID,
-			"edition": edition,
-			"version": version,
-		})
-		setStatusCode(ctx, w, err)
-		return
-	}
-
-	// TODO: inherited from censusLanding handler refactor to get initial release date in the mapper
-	if ver.Version != 1 {
-		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, "1")
-		if err != nil {
-			setStatusCode(ctx, w, err)
-			return
-		}
-		initialVersionReleaseDate = initialVersion.ReleaseDate
-	}
-
-	filterOutput := filter.Model{}
-
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, error) {
 		q := dataset.QueryParams{Offset: 0, Limit: 1000}
 		opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, strconv.Itoa(ver.Version), dim.Name, &q)
@@ -110,19 +133,77 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		return options, nil
 	}
 
+	var hasNoAreaOptions bool
 	getAreaOptions := func(dim filter.ModelDimension) ([]string, error) {
-		areas, err := pc.GetAreas(ctx, population.GetAreasInput{
-			UserAuthToken: userAccessToken,
-			DatasetID:     filterOutput.PopulationType,
-			AreaTypeID:    dim.ID,
-		})
+		q := filter.QueryParams{
+			Limit: 500,
+		}
+		opts, _, err := fc.GetDimensionOptions(ctx, userAccessToken, "", collectionID, filterOutput.FilterID, dim.Name, &q)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get dimension areas: %w", err)
+			return nil, fmt.Errorf("failed to get options for dimension: %w", err)
 		}
 
 		var options []string
-		for _, area := range areas.Areas {
-			options = append(options, area.Label)
+		if opts.TotalCount == 0 {
+			areas, err := pc.GetAreas(ctx, population.GetAreasInput{
+				UserAuthToken: userAccessToken,
+				DatasetID:     filterOutput.PopulationType,
+				AreaTypeID:    dim.ID,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get dimension areas: %w", err)
+			}
+
+			for _, area := range areas.Areas {
+				options = append(options, area.Label)
+			}
+
+			hasNoAreaOptions = true
+			return options, nil
+		}
+
+		var wg sync.WaitGroup
+		areaErrs := make([]error, len(opts.Items))
+
+		for i, opt := range opts.Items {
+			wg.Add(1)
+			go func(opt filter.DimensionOption, i int) {
+				defer wg.Done()
+				// TODO: Temporary fix until GetArea endpoint is created
+				areas, err := pc.GetAreas(ctx, population.GetAreasInput{
+					UserAuthToken: userAccessToken,
+					DatasetID:     filterOutput.PopulationType,
+					AreaTypeID:    dim.ID,
+					Text:          opt.Option,
+				})
+				if err != nil {
+					areaErrs[i] = err
+				}
+
+				for _, area := range areas.Areas {
+					if area.ID == opt.Option {
+						options = append(options, area.Label)
+						break
+					}
+				}
+
+			}(opt, i)
+		}
+		wg.Wait()
+
+		var hasErrs bool
+		for _, err := range areaErrs {
+			if err != nil {
+				log.Error(ctx, "failed to get areas for options", err, log.Data{
+					"dimension_name": dim.Name,
+					"options":        opts.Items,
+				})
+				hasErrs = true
+			}
+		}
+
+		if hasErrs {
+			return nil, fmt.Errorf("failed to get dimension areas")
 		}
 
 		return options, nil
@@ -136,25 +217,22 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		return getDimensionOptions(dim)
 	}
 
-	filterOutput, err = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
-	if err != nil {
-		log.Error(ctx, "failed to get filter output", err, log.Data{"filter_output_id": filterOutputID})
-		setStatusCode(ctx, w, err)
-		return
-	}
-
 	for i, dim := range filterOutput.Dimensions {
-		options, err := getOptions(dim)
-		if err != nil {
-			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
-			setStatusCode(ctx, w, err)
-			return
-		}
+		wg.Add(1)
+		go func(i int, dim filter.ModelDimension) {
+			defer wg.Done()
+			options, err := getOptions(dim)
+			if err != nil {
+				log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
+				setStatusCode(ctx, w, err)
+				return
+			}
 
-		dim.Options = options
-		filterOutput.Dimensions[i] = dim
-
+			dim.Options = options
+			filterOutput.Dimensions[i] = dim
+		}(i, dim)
 	}
+	wg.Wait()
 
 	if filterOutput.Downloads == nil {
 		log.Warn(ctx, "filter output downloads are nil", log.Data{"filter_output_id": filterOutputID})
@@ -175,6 +253,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, filterOutput)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput)
 	rend.BuildPage(w, m, "census-landing")
 }

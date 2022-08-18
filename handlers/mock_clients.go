@@ -72,6 +72,22 @@ func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprint(ctx, userAuthTok
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, dimensions, population_type)
 }
 
+// GetDimensionOptions mocks base method.
+func (m *MockFilterClient) GetDimensionOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string, q *filter.QueryParams) (filter.DimensionOptions, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDimensionOptions", ctx, userAuthToken, serviceAuthToken, collectionID, filterID, name, q)
+	ret0, _ := ret[0].(filter.DimensionOptions)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetDimensionOptions indicates an expected call of GetDimensionOptions.
+func (mr *MockFilterClientMockRecorder) GetDimensionOptions(ctx, userAuthToken, serviceAuthToken, collectionID, filterID, name, q interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionOptions", reflect.TypeOf((*MockFilterClient)(nil).GetDimensionOptions), ctx, userAuthToken, serviceAuthToken, collectionID, filterID, name, q)
+}
+
 // GetOutput mocks base method.
 func (m *MockFilterClient) GetOutput(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID string) (filter.Model, error) {
 	m.ctrl.T.Helper()
