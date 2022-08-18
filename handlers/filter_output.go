@@ -163,19 +163,22 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		}
 
 		var wg sync.WaitGroup
-		var areaErr error
-		var areas population.GetAreasResponse
-		for _, opt := range opts.Items {
+		areaErrs := make([]error, len(opts.Items))
+
+		for i, opt := range opts.Items {
 			wg.Add(1)
-			go func(opt filter.DimensionOption) {
+			go func(opt filter.DimensionOption, i int) {
 				defer wg.Done()
 				// TODO: Temporary fix until GetArea endpoint is created
-				areas, areaErr = pc.GetAreas(ctx, population.GetAreasInput{
+				areas, err := pc.GetAreas(ctx, population.GetAreasInput{
 					UserAuthToken: userAccessToken,
 					DatasetID:     filterOutput.PopulationType,
 					AreaTypeID:    dim.ID,
 					Text:          opt.Option,
 				})
+				if err != nil {
+					areaErrs[i] = err
+				}
 
 				for _, area := range areas.Areas {
 					if area.ID == opt.Option {
@@ -183,12 +186,24 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 						break
 					}
 				}
-			}(opt)
+
+			}(opt, i)
 		}
 		wg.Wait()
 
-		if areaErr != nil {
-			return nil, fmt.Errorf("failed to get dimension areas: %w", areaErr)
+		var hasErrs bool
+		for _, err := range areaErrs {
+			if err != nil {
+				log.Error(ctx, "failed to get areas for options", err, log.Data{
+					"dimension_name": dim.Name,
+					"options":        opts.Items,
+				})
+				hasErrs = true
+			}
+		}
+
+		if hasErrs {
+			return nil, fmt.Errorf("failed to get dimension areas")
 		}
 
 		return options, nil

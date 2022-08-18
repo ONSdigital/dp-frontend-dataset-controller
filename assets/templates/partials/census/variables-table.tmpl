@@ -35,17 +35,15 @@
                                     {{ end }}
                                 </div>
                             {{else}}
-                                {{ if .IsCoverage }}
-                                    {{ if $dim.Values }}
-                                        {{ if gt (len $dim.Values) 1 }}
-                                            <ul class="ons-list ons-u-mb-no">
-                                                {{ range $dim.Values }}
-                                                    <li class="ons-list__item">{{- . -}}</li>
-                                                {{ end }}
-                                            </ul>
-                                        {{ else }}
-                                            {{- index $dim.Values 0 -}}
-                                        {{ end }}
+                                {{ if and (.IsCoverage) ($dim.Values) }}
+                                    {{ if gt (len $dim.Values) 1 }}
+                                        <ul class="ons-list ons-u-mb-no">
+                                            {{ range $dim.Values }}
+                                                <li class="ons-list__item">{{- . -}}</li>
+                                            {{ end }}
+                                        </ul>
+                                    {{ else }}
+                                        {{- index $dim.Values 0 -}}
                                     {{ end }}
                                 {{ else }}
                                     {{ $strOptCount := intToString $dim.TotalItems }}
