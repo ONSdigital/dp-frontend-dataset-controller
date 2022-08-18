@@ -36,7 +36,7 @@ const (
 	DimensionTime       = "time"
 	DimensionAge        = "age"
 	DimensionGeography  = "geography"
-	SixteensVersion     = "77f1d9b"
+	SixteensVersion     = "30948d6"
 	CorrectionAlertType = "correction"
 	queryStrKey         = "showAll"
 	Coverage            = "Coverage"
