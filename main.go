@@ -10,6 +10,9 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	cachePublic "github.com/ONSdigital/dp-frontend-dataset-controller/cache/public"
+	topic "github.com/ONSdigital/dp-topic-api/sdk"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -107,6 +110,7 @@ func run(ctx context.Context) error {
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	dc := dataset.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
+	tc := topic.NewWithHealthClient(apiRouterCli)
 	pc := populationClient
 	fc.Version = "v1"
 
@@ -125,6 +129,18 @@ func run(ctx context.Context) error {
 		router.PathPrefix("/debug").Handler(middlewareChain)
 	}
 
+	// Initialise caching
+	cacheList := &cache.CacheList{}
+	cacheList.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
+	if err != nil {
+		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": cfg.CacheNavigationUpdateInterval})
+		return err
+	}
+	for _, lang := range cfg.SupportedLanguages {
+		navigationlangKey := cacheList.Navigation.GetCachingKeyForNavigationLanguage(lang)
+		cacheList.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, cfg, lang, tc))
+	}
+
 	router.Path("/health").HandlerFunc(healthcheck.Handler)
 
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
@@ -140,13 +156,16 @@ func run(ctx context.Context) error {
 		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(f, pc, dc, rend, *cfg, apiRouterVersion))
 	}
 
-	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc)))
-	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend))
+	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
+	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, cacheList))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})
 
 	// Start healthcheck tickers
 	healthcheck.Start(ctx)
+
+	// Start caching
+	go cacheList.Navigation.StartUpdates(ctx, make(chan error))
 
 	collectionIDMiddleware := dpnethandlers.CheckCookie(dpnethandlers.CollectionID)
 	accessTokenMiddleware := dpnethandlers.CheckCookie(dpnethandlers.UserAccess)
@@ -183,6 +202,9 @@ func run(ctx context.Context) error {
 
 		log.Info(ctx, "stop health checkers")
 		healthcheck.Stop()
+
+		// Stop caching
+		cacheList.Navigation.Close()
 
 		if err := s.Shutdown(ctx); err != nil {
 			log.Error(ctx, "failed to gracefully shutdown http server", err)

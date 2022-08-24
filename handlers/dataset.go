@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	"github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
-	"net/http"
 )
 
-func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string) {
+func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string, cacheList *cache.CacheList) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -64,15 +67,24 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 		versions = append(versions, version)
 	}
 
+	// get cached navigation data
+	locale := request.GetLocaleCode(req)
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, locale)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(ctx, w, err)
+		return
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	rend.BuildPage(w, m, "dataset")
 }
 
 // DataSet will load a legacy dataset page
-func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient) http.HandlerFunc {
+func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, cacheList *cache.CacheList) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken)
+		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken, cacheList)
 	})
 }
