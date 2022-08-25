@@ -1,11 +1,20 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"testing"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
@@ -14,12 +23,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"testing"
 )
 
 var (
@@ -89,7 +92,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then the request to generate is OK", func() {
 						So(w.Code, ShouldEqual, http.StatusOK)
@@ -106,7 +115,13 @@ func TestDatasetHandlers(t *testing.T) {
 				mockFilesAPIClient.EXPECT().GetFile(ctx, expectedDownloadFilename, userAuthTokenDatasets).Return(files.FileMetaData{}, errors.New("files api broken"))
 
 				w, req := generateRecorderAndRequest()
-				DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+				lang := "en"
+				ctxOther := context.Background()
+				mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+				So(err, ShouldBeNil)
+
+				DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 				Convey("When the dataset page is rendered", func() {
 					actualDownloadSize := actualPageModel.DatasetPage.Versions[0].Downloads[0].Size
@@ -155,7 +170,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then the request to generate is OK", func() {
 						So(w.Code, ShouldEqual, http.StatusOK)
@@ -177,7 +198,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then an internal server error is the response code", func() {
 						So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -191,7 +218,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then an internal server error is the response code", func() {
 						So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -205,7 +238,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then an internal server error is the response code", func() {
 						So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -219,7 +258,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then an internal server error is the response code", func() {
 						So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -235,7 +280,13 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+					lang := "en"
+					ctxOther := context.Background()
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+					So(err, ShouldBeNil)
+
+					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 					Convey("Then an internal server error is the response code", func() {
 						So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -255,7 +306,13 @@ func TestDatasetHandlers(t *testing.T) {
 			req.URL.Path = path + "/data"
 
 			mockZebedeeClient.EXPECT().Get(ctx, userAuthTokenDatasets, zebedeePath).Return(expectedBody, nil)
-			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient)(w, req)
+
+			lang := "en"
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			So(err, ShouldBeNil)
+
+			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
 			Convey("Then the status should be OK", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
