@@ -36,9 +36,10 @@ const (
 	DimensionTime       = "time"
 	DimensionAge        = "age"
 	DimensionGeography  = "geography"
-	SixteensVersion     = "77f1d9b"
+	SixteensVersion     = "30948d6"
 	CorrectionAlertType = "correction"
 	queryStrKey         = "showAll"
+	Coverage            = "Coverage"
 )
 
 func (p TimeSlice) Len() int {
@@ -344,7 +345,7 @@ func CreateEditionsList(basePage coreModel.Page, ctx context.Context, req *http.
 }
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasFilterOutput bool, filter filter.Model) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasFilterOutput, hasNoAreaOptions bool, filter filter.Model) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -592,11 +593,12 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, isFlex)
 		coverage := []sharedModel.Dimension{
 			{
-				IsCoverage: true,
-				Title:      "Coverage",
-				Name:       "coverage",
-				ShowChange: isFlex,
-				ID:         "coverage",
+				IsCoverage:        true,
+				IsDefaultCoverage: true,
+				Title:             Coverage,
+				Name:              strings.ToLower(Coverage),
+				ShowChange:        isFlex,
+				ID:                strings.ToLower(Coverage),
 			},
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
@@ -605,6 +607,18 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if hasFilterOutput {
 		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(filter, queryStrValues, req.URL.Path)
+		coverage := []sharedModel.Dimension{
+			{
+				IsCoverage:        true,
+				IsDefaultCoverage: hasNoAreaOptions,
+				Title:             Coverage,
+				Name:              strings.ToLower(Coverage),
+				ID:                strings.ToLower(Coverage),
+				Values:            filter.Dimensions[0].Options,
+			},
+		}
+		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
 	}
 
 	if isValidationError {
@@ -633,7 +647,7 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
 		var displayedOptions []string
-		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) && !pDim.IsAreaType {
 			displayedOptions = dim.Options[:3]
 			displayedOptions = append(displayedOptions, dim.Options[midFloor:midCeiling]...)
 			displayedOptions = append(displayedOptions, dim.Options[len(dim.Options)-3:]...)
