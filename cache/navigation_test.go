@@ -48,9 +48,7 @@ func TestGetNavigationData(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
-	langs := []string{}
-	langs = append(langs, "en")
-	langs = append(langs, "cy")
+	langs := []string{"en", "cy"}
 	mockCacheList, err := GetMockCacheList(ctx, langs)
 	if err != nil {
 		t.Error("failed to get mock navigation cache list")

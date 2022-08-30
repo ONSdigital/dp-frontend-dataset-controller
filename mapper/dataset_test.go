@@ -248,9 +248,7 @@ func TestCreateDatasetPage(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		// get cached navigation data
-		langs := []string{}
-		langs = append(langs, "en")
-		langs = append(langs, "cy")
+		langs := []string{"en", "cy"}
 		ctxOther := context.Background()
 		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 		So(err, ShouldBeNil)
@@ -338,9 +336,7 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		Convey("When CreateDatasetPage is called", func() {
 
 			// get cached navigation data
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -385,9 +381,7 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -453,9 +447,7 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)

@@ -40,9 +40,7 @@ func TestLegacyLanding(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -70,9 +68,7 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -89,9 +85,7 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -110,9 +104,7 @@ func TestLegacyLanding(t *testing.T) {
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
 			So(err, ShouldBeNil)
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -180,9 +172,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
@@ -232,9 +222,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			langs := []string{}
-			langs = append(langs, "en")
-			langs = append(langs, "cy")
+			langs := []string{"en", "cy"}
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)

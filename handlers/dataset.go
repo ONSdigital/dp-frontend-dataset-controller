@@ -82,7 +82,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	rend.BuildPage(w, m, "dataset")
 }
 
-// DataSet will load a legacy dataset page
+// DatasetPage will load a legacy dataset page
 func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, cacheList *cache.CacheList) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken, cacheList)

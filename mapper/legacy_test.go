@@ -27,9 +27,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		// get cached navigation data
-		langs := []string{}
-		langs = append(langs, "en")
-		langs = append(langs, "cy")
+		langs := []string{"en", "cy"}
 		ctxOther := context.Background()
 		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 		So(err, ShouldBeNil)
@@ -102,9 +100,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename, expectedSupplementaryTitle)
 
 		// get cached navigation data
-		langs := []string{}
-		langs = append(langs, "en")
-		langs = append(langs, "cy")
+		langs := []string{"en", "cy"}
 		ctxOther := context.Background()
 		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 		So(err, ShouldBeNil)
@@ -143,9 +139,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		ds := staticFilesOnlyTestDatasets(expectedDownloadFilepath, expectedSupplementaryTitle, expectedSupplementaryFilepath)
 
 		// get cached navigation data
-		langs := []string{}
-		langs = append(langs, "en")
-		langs = append(langs, "cy")
+		langs := []string{"en", "cy"}
 		ctxOther := context.Background()
 		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 		So(err, ShouldBeNil)

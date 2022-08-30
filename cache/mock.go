@@ -34,7 +34,6 @@ func getMockNavigationCache(ctx context.Context, langs []string) (*NavigationCac
 
 	for _, v := range langs {
 		navigationlangKey := testNavigationCache.GetCachingKeyForNavigationLanguage(v)
-
 		testNavigationCache.Set(navigationlangKey, mockNavigationData)
 	}
 

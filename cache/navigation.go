@@ -58,6 +58,5 @@ func (nc *NavigationCache) GetNavigationData(ctx context.Context, lang string) (
 	}
 
 	navigationCache, ok := navigationCacheInterface.(*models.Navigation)
-
 	return navigationCache, nil
 }
