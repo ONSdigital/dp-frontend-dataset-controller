@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -48,8 +49,13 @@ func TestGetNavigationData(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
-	langs := []string{"en", "cy"}
-	mockCacheList, err := GetMockCacheList(ctx, langs)
+	// Get config
+	cfg, err := config.Get()
+	if err != nil {
+		t.Error("failed to get mock navigation cache list")
+	}
+
+	mockCacheList, err := GetMockCacheList(ctx, cfg.SupportedLanguages)
 	if err != nil {
 		t.Error("failed to get mock navigation cache list")
 	}

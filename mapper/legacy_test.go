@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-net/request"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
@@ -27,9 +28,10 @@ func TestUnitMapperLegacy(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		// get cached navigation data
-		langs := []string{"en", "cy"}
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		ctxOther := context.Background()
-		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 		So(err, ShouldBeNil)
 
 		locale := request.GetLocaleCode(req)
@@ -100,9 +102,10 @@ func TestUnitMapperLegacy(t *testing.T) {
 		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename, expectedSupplementaryTitle)
 
 		// get cached navigation data
-		langs := []string{"en", "cy"}
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		ctxOther := context.Background()
-		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 		So(err, ShouldBeNil)
 
 		locale := request.GetLocaleCode(req)
@@ -139,9 +142,10 @@ func TestUnitMapperLegacy(t *testing.T) {
 		ds := staticFilesOnlyTestDatasets(expectedDownloadFilepath, expectedSupplementaryTitle, expectedSupplementaryFilepath)
 
 		// get cached navigation data
-		langs := []string{"en", "cy"}
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		ctxOther := context.Background()
-		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 		So(err, ShouldBeNil)
 
 		locale := request.GetLocaleCode(req)

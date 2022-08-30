@@ -93,9 +93,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -116,9 +118,11 @@ func TestDatasetHandlers(t *testing.T) {
 
 				w, req := generateRecorderAndRequest()
 
-				langs := []string{"en", "cy"}
+				cfg, err := config.Get()
+				So(err, ShouldBeNil)
+
 				ctxOther := context.Background()
-				mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+				mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 				So(err, ShouldBeNil)
 
 				DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -171,9 +175,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
 
@@ -198,9 +204,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -218,9 +226,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -238,9 +248,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -258,9 +270,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -280,9 +294,11 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					langs := []string{"en", "cy"}
+					cfg, err := config.Get()
+					So(err, ShouldBeNil)
+
 					ctxOther := context.Background()
-					mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
 
 					DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)
@@ -306,9 +322,11 @@ func TestDatasetHandlers(t *testing.T) {
 
 			mockZebedeeClient.EXPECT().Get(ctx, userAuthTokenDatasets, zebedeePath).Return(expectedBody, nil)
 
-			langs := []string{"en", "cy"}
+			cfg, err := config.Get()
+			So(err, ShouldBeNil)
+
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
 			DatasetPage(mockZebedeeClient, mockRend, mockFilesAPIClient, mockCacheList)(w, req)

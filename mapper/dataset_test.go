@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
 	"github.com/ONSdigital/dp-net/request"
 	"github.com/ONSdigital/dp-renderer/model"
@@ -248,9 +249,10 @@ func TestCreateDatasetPage(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		// get cached navigation data
-		langs := []string{"en", "cy"}
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		ctxOther := context.Background()
-		mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 		So(err, ShouldBeNil)
 
 		locale := request.GetLocaleCode(req)
@@ -336,9 +338,10 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		Convey("When CreateDatasetPage is called", func() {
 
 			// get cached navigation data
-			langs := []string{"en", "cy"}
+			cfg, err := config.Get()
+			So(err, ShouldBeNil)
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
 			locale := request.GetLocaleCode(req)
@@ -381,9 +384,10 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			langs := []string{"en", "cy"}
+			cfg, err := config.Get()
+			So(err, ShouldBeNil)
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
 			locale := request.GetLocaleCode(req)
@@ -447,9 +451,10 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			langs := []string{"en", "cy"}
+			cfg, err := config.Get()
+			So(err, ShouldBeNil)
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
 			locale := request.GetLocaleCode(req)
