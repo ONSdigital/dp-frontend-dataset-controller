@@ -7,9 +7,9 @@ import (
 )
 
 // GetMockCacheList returns a mocked list of cache which contains the census topic cache and navigation cache
-func GetMockCacheList(ctx context.Context, lang string) (*CacheList, error) {
+func GetMockCacheList(ctx context.Context, langs []string) (*CacheList, error) {
 
-	testNavigationCache, err := getMockNavigationCache(ctx, lang)
+	testNavigationCache, err := getMockNavigationCache(ctx, langs)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func GetMockCacheList(ctx context.Context, lang string) (*CacheList, error) {
 }
 
 // getMockNavigationCache returns a mocked navigation cache which should have navigation data
-func getMockNavigationCache(ctx context.Context, lang string) (*NavigationCache, error) {
+func getMockNavigationCache(ctx context.Context, langs []string) (*NavigationCache, error) {
 	testNavigationCache, err := NewNavigationCache(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -32,9 +32,11 @@ func getMockNavigationCache(ctx context.Context, lang string) (*NavigationCache,
 		Description: "this is a test description",
 	}
 
-	navigationlangKey := testNavigationCache.GetCachingKeyForNavigationLanguage(lang)
+	for _, v := range langs {
+		navigationlangKey := testNavigationCache.GetCachingKeyForNavigationLanguage(v)
 
-	testNavigationCache.Set(navigationlangKey, mockNavigationData)
+		testNavigationCache.Set(navigationlangKey, mockNavigationData)
+	}
 
 	return testNavigationCache, nil
 }

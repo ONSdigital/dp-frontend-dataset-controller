@@ -40,9 +40,11 @@ func TestLegacyLanding(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList)(w, req)
@@ -68,9 +70,11 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList).ServeHTTP(w, req)
@@ -85,9 +89,11 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
@@ -104,9 +110,11 @@ func TestLegacyLanding(t *testing.T) {
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
 			So(err, ShouldBeNil)
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
@@ -172,9 +180,11 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
 			handler(w, req)
@@ -222,9 +232,11 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			lang := "en"
+			langs := []string{}
+			langs = append(langs, "en")
+			langs = append(langs, "cy")
 			ctxOther := context.Background()
-			mockCacheList, err := cache.GetMockCacheList(ctxOther, lang)
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, langs)
 			So(err, ShouldBeNil)
 			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
 			handler(w, req)
