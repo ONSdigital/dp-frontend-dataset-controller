@@ -62,7 +62,7 @@ func get() (*Config, error) {
 		HealthCheckCriticalTimeout:    90 * time.Second,
 		EnableProfiler:                false,
 		CacheNavigationUpdateInterval: 10 * time.Second,
-		EnableNewNavBar:               true,
+		EnableNewNavBar:               false,
 	}
 
 	return cfg, envconfig.Process("", cfg)
