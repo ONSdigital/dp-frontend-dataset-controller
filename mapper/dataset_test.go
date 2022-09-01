@@ -3,13 +3,17 @@ package mapper
 import (
 	"context"
 	"fmt"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	"github.com/ONSdigital/dp-renderer/model"
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	"github.com/ONSdigital/dp-net/request"
+	"github.com/ONSdigital/dp-renderer/model"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 // TestCreateDatasetPage tests the CreateDatasetPage method in the mapper
@@ -244,9 +248,20 @@ func TestCreateDatasetPage(t *testing.T) {
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
 
+		// get cached navigation data
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+		ctxOther := context.Background()
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+		So(err, ShouldBeNil)
+
+		locale := request.GetLocaleCode(req)
+		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+		So(err, ShouldBeNil)
+
 		dp := CreateDatasetPage(mdl, ctx, req, dummyModelData, dummyLandingPage,
 			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			dummyVersions, "en", serviceMessage, emergencyBanner)
+			dummyVersions, "en", serviceMessage, emergencyBanner, navigationCache)
 
 		So(dp.Breadcrumb[0].Title, ShouldEqual, expectedBreadcrumbItem0.Description.Title)
 		So(dp.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)
@@ -312,6 +327,10 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 	emergencyBanner := zebedee.EmergencyBanner{}
 	filename := "filename.csv"
 	basePath := "/some/path/2022"
+	cfg, err := config.Get()
+	if err != nil {
+		t.Error("failed to get config")
+	}
 
 	Convey("Given a file stored in Zebedee", t, func() {
 		ds := zebedee.Dataset{
@@ -321,7 +340,17 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner)
+
+			// get cached navigation data
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			locale := request.GetLocaleCode(req)
+			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+			So(err, ShouldBeNil)
+
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /file?uri=", func() {
 				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
@@ -356,7 +385,16 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner)
+			// get cached navigation data
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			locale := request.GetLocaleCode(req)
+			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+			So(err, ShouldBeNil)
+
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /downloads-new", func() {
 				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
@@ -412,7 +450,16 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner)
+			// get cached navigation data
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			locale := request.GetLocaleCode(req)
+			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+			So(err, ShouldBeNil)
+
+			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
 				latestDownloads := findVersionedDownload(result.DatasetPage.Versions, latestVersionUri)

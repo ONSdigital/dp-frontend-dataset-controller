@@ -1,19 +1,22 @@
 package handlers
 
 import (
+	"context"
 	"errors"
-	"github.com/ONSdigital/dp-api-clients-go/v2/files"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
-	"github.com/golang/mock/gomock"
-	. "github.com/smartystreets/goconvey/convey"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/golang/mock/gomock"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLegacyLanding(t *testing.T) {
@@ -37,7 +40,11 @@ func TestLegacyLanding(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil)(w, req)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList)(w, req)
 
 			So(w.Body.String(), ShouldEqual, `{"some_json":true}`)
 		})
@@ -60,7 +67,11 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend).ServeHTTP(w, req)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
 		})
@@ -72,7 +83,11 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil).ServeHTTP(w, req)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
@@ -86,7 +101,11 @@ func TestLegacyLanding(t *testing.T) {
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
 			So(err, ShouldBeNil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil).ServeHTTP(w, req)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
@@ -149,7 +168,10 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
 			handler(w, req)
 
 			actualDownloadSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
@@ -195,7 +217,10 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend)
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
 			handler(w, req)
 
 			actualDownloadFileSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size

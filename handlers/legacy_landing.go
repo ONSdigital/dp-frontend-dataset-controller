@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	"github.com/ONSdigital/dp-net/v2/handlers"
-	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"strconv"
 	"sync"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/dp-net/v2/handlers"
+	"github.com/ONSdigital/dp-net/v2/request"
+	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 type legacyLandingPage struct {
@@ -21,10 +24,11 @@ type legacyLandingPage struct {
 	Language        string
 	CollectionID    string
 	UserAccessToken string
+	CacheList       *cache.CacheList
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.CacheList) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		lp := legacyLandingPage{
 			ZebedeeClient:   zc,
@@ -34,6 +38,7 @@ func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend R
 			Language:        lang,
 			CollectionID:    collectionID,
 			UserAccessToken: userAccessToken,
+			CacheList:       cacheList,
 		}
 		lp.Build(w, req)
 	})
@@ -72,8 +77,17 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 
 	lp.getRelatedDatasetLinks(req.Context(), &dlp)
 
+	// get cached navigation data
+	locale := request.GetLocaleCode(req)
+	navigationCache, err := lp.CacheList.Navigation.GetNavigationData(ctx, locale)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(ctx, w, err)
+		return
+	}
+
 	basePage := lp.RenderClient.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	lp.RenderClient.BuildPage(w, m, "static")
 }
