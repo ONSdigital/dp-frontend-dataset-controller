@@ -83,6 +83,16 @@ func TestFilterOutputHandler(t *testing.T) {
 				},
 			},
 		},
+		{
+			Dimensions: []filter.ModelDimension{
+				{
+					Name:           "Dim 4",
+					IsAreaType:     toBoolPtr(true),
+					FilterByParent: "country",
+				},
+			},
+			Downloads: nil,
+		},
 	}
 
 	Convey("Given the FilterOutput handler", t, func() {
@@ -529,6 +539,77 @@ func TestFilterOutputHandler(t *testing.T) {
 						EXPECT().
 						GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 						Return(filterModels[1], nil)
+					mockFc.
+						EXPECT().
+						GetDimensionOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+						Return(filter.DimensionOptions{
+							Items: []filter.DimensionOption{
+								{
+									Option: "area 1",
+								},
+							},
+							TotalCount: 1,
+						}, "", nil)
+
+					mockPc := NewMockPopulationClient(mockCtrl)
+					mockPc.
+						EXPECT().
+						GetAreas(gomock.Any(), gomock.Any()).
+						Return(population.GetAreasResponse{}, nil)
+
+					mockRend := NewMockRenderClient(mockCtrl)
+					mockRend.
+						EXPECT().
+						NewBasePageModel().
+						Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+					mockRend.
+						EXPECT().
+						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+
+					w := httptest.NewRecorder()
+					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+
+					router := mux.NewRouter()
+					router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockFc, mockPc, mockDc, mockRend, cfg, ""))
+
+					router.ServeHTTP(w, req)
+					Convey("Then the status code is 200", func() {
+						So(w.Code, ShouldEqual, http.StatusOK)
+					})
+				})
+			})
+
+			Convey("When the fc.GetDimensionOptions is called with parent options", func() {
+				Convey("and an additional call to pc.GetAreas is made", func() {
+					mockDc := NewMockDatasetClient(mockCtrl)
+					mockDc.
+						EXPECT().
+						Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+						Return(dataset.DatasetDetails{
+							Contacts: &[]dataset.Contact{{Name: "Nick"}},
+							Type:     "flexible",
+							URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+							Links: dataset.Links{
+								LatestVersion: dataset.Link{
+									URL: "/datasets/12345/editions/2021/versions/1",
+								},
+							},
+							ID: "12345",
+						}, nil)
+					mockDc.
+						EXPECT().
+						GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+						Return(versions, nil)
+					mockDc.
+						EXPECT().
+						GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+						Return(versions.Items[0], nil)
+
+					mockFc := NewMockFilterClient(mockCtrl)
+					mockFc.
+						EXPECT().
+						GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+						Return(filterModels[3], nil)
 					mockFc.
 						EXPECT().
 						GetDimensionOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
