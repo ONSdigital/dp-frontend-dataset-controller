@@ -93,9 +93,6 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
-
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
@@ -117,9 +114,6 @@ func TestDatasetHandlers(t *testing.T) {
 				mockFilesAPIClient.EXPECT().GetFile(ctx, expectedDownloadFilename, userAuthTokenDatasets).Return(files.FileMetaData{}, errors.New("files api broken"))
 
 				w, req := generateRecorderAndRequest()
-
-				cfg, err := config.Get()
-				So(err, ShouldBeNil)
 
 				ctxOther := context.Background()
 				mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -175,9 +169,6 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
-
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
@@ -204,9 +195,6 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
-
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
@@ -225,9 +213,6 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
 
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -248,9 +233,6 @@ func TestDatasetHandlers(t *testing.T) {
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
 
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
-
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 					So(err, ShouldBeNil)
@@ -269,9 +251,6 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
 
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -293,9 +272,6 @@ func TestDatasetHandlers(t *testing.T) {
 
 				Convey("When the dataset page is rendered", func() {
 					w, req := generateRecorderAndRequest()
-
-					cfg, err := config.Get()
-					So(err, ShouldBeNil)
 
 					ctxOther := context.Background()
 					mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)

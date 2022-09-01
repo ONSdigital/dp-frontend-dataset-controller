@@ -327,6 +327,10 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 	emergencyBanner := zebedee.EmergencyBanner{}
 	filename := "filename.csv"
 	basePath := "/some/path/2022"
+	cfg, err := config.Get()
+	if err != nil {
+		t.Error("failed to get config")
+	}
 
 	Convey("Given a file stored in Zebedee", t, func() {
 		ds := zebedee.Dataset{
@@ -338,8 +342,6 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		Convey("When CreateDatasetPage is called", func() {
 
 			// get cached navigation data
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
@@ -384,8 +386,6 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
@@ -451,8 +451,6 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 
 		Convey("When CreateDatasetPage is called", func() {
 			// get cached navigation data
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)

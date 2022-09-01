@@ -40,9 +40,6 @@ func TestLegacyLanding(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
-
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
@@ -70,9 +67,6 @@ func TestLegacyLanding(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
 
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
-
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
@@ -88,9 +82,6 @@ func TestLegacyLanding(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
-
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
 
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -108,9 +99,6 @@ func TestLegacyLanding(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			req, err := http.NewRequest("GET", "/somelegacypage", nil)
-			So(err, ShouldBeNil)
-
-			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
 			ctxOther := context.Background()
@@ -180,9 +168,6 @@ func TestHandlersFilesAPI(t *testing.T) {
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
-
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
@@ -231,9 +216,6 @@ func TestHandlersFilesAPI(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", legacyURL, nil)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
-
-			cfg, err := config.Get()
-			So(err, ShouldBeNil)
 
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
