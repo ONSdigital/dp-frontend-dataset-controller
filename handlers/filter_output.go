@@ -169,11 +169,17 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 			wg.Add(1)
 			go func(opt filter.DimensionOption, i int) {
 				defer wg.Done()
+				var areaTypeID string
+				if dim.FilterByParent != "" {
+					areaTypeID = dim.FilterByParent
+				} else {
+					areaTypeID = dim.ID
+				}
 				// TODO: Temporary fix until GetArea endpoint is created
 				areas, err := pc.GetAreas(ctx, population.GetAreasInput{
 					UserAuthToken: userAccessToken,
 					DatasetID:     filterOutput.PopulationType,
-					AreaTypeID:    dim.ID,
+					AreaTypeID:    areaTypeID,
 					Text:          opt.Option,
 				})
 				if err != nil {
