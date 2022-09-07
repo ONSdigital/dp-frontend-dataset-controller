@@ -372,7 +372,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	var isFlex bool
 	if strings.Contains(d.Type, "flex") {
 		isFlex = true
-		p.DatasetLandingPage.IsFlexible = true
+		p.DatasetLandingPage.IsFlexibleForm = true
 		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
@@ -615,10 +615,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 				Name:              strings.ToLower(Coverage),
 				ID:                strings.ToLower(Coverage),
 				Values:            filter.Dimensions[0].Options,
+				ShowChange:        true,
+				ChangeURL:         fmt.Sprintf("/filters/%s/dimensions/geography/coverage", filter.FilterID),
 			},
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+		p.DatasetLandingPage.IsFlexibleForm = false
 	}
 
 	if isValidationError {
@@ -639,10 +642,18 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path string) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, dim := range filter.Dimensions {
+		var isAreaType bool
+		if helpers.IsBoolPtr(dim.IsAreaType) {
+			isAreaType = true
+		}
 		pDim := sharedModel.Dimension{}
 		pDim.Title = dim.Label
 		pDim.ID = dim.ID
-		pDim.IsAreaType = helpers.IsBoolPtr(dim.IsAreaType)
+		pDim.IsAreaType = isAreaType
+		pDim.ShowChange = isAreaType
+		if isAreaType {
+			pDim.ChangeURL = strings.ToLower(fmt.Sprintf("/filters/%s/dimensions/%s", filter.FilterID, dim.Name))
+		}
 		pDim.TotalItems = len(dim.Options)
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
@@ -656,9 +667,7 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 			displayedOptions = dim.Options
 		}
 
-		for _, opt := range displayedOptions {
-			pDim.Values = append(pDim.Values, opt)
-		}
+		pDim.Values = append(pDim.Values, displayedOptions...)
 
 		q := url.Values{}
 		if pDim.IsTruncated {
