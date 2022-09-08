@@ -688,8 +688,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	filterOutput := filter.Model{
 		Dimensions: []filter.ModelDimension{
 			{
-				Label:   "A label",
-				Options: []string{"An option", "and another"},
+				Label:      "A label",
+				Options:    []string{"An option", "and another"},
+				IsAreaType: helpers.ToBoolPtr(true),
+				Name:       "Geography",
 			},
 		},
 		Downloads: map[string]filter.Download{
@@ -698,6 +700,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				URL:  "https://mydomain.com/my-request",
 			},
 		},
+		FilterID: "1234-5678",
 	}
 
 	Convey("Census dataset landing page maps correctly as version 1", t, func() {
@@ -727,7 +730,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
-		So(page.DatasetLandingPage.IsFlexible, ShouldBeFalse)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
 		So(page.DatasetLandingPage.Dimensions, ShouldHaveLength, 2) // coverage is inserted
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Coverage")
@@ -765,11 +768,15 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
-		So(page.DatasetLandingPage.IsFlexible, ShouldBeTrue)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, filterOutput.Dimensions[0].Label)
 		So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, filterOutput.Dimensions[0].Options)
+		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[0].ChangeURL, ShouldEqual, "/filters/1234-5678/dimensions/geography")
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, filterOutput.Dimensions[0].Options)
+		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[1].ChangeURL, ShouldEqual, "/filters/1234-5678/dimensions/geography/coverage")
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
@@ -896,7 +903,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			ID:   "test-flex",
 		}
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, flexDm, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, filter.Model{})
-		So(page.DatasetLandingPage.IsFlexible, ShouldBeTrue)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 		So(page.DatasetLandingPage.FormAction, ShouldEqual, fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", flexDm.ID, versionOneDetails.Edition, strconv.Itoa(versionOneDetails.Version)))
 	})
 

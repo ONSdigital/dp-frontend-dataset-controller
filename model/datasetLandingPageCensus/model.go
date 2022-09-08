@@ -29,7 +29,7 @@ type DatasetLandingPage struct {
 	ShareDetails           ShareDetails
 	Methodologies          []Methodology `json:"methodology"`
 	Description            []string      `json:"description"`
-	IsFlexible             bool          `json:"is_flexible"`
+	IsFlexibleForm         bool          `json:"is_flexible_form"`
 	FormAction             string        `json:"form_action"`
 	DatasetURL             string        `json:"dataset_url"`
 }
