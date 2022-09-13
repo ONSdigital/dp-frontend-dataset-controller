@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -669,6 +670,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	versionThreeDetails := versionTwoDetails
 	versionThreeDetails.Version = 3
+	versionThreeDetails.Alerts = &[]dataset.Alert{}
 
 	datasetOptions := []dataset.Options{
 		{
@@ -807,18 +809,62 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Versions[2].VersionNumber, ShouldEqual, 1)
 	})
 
-	Convey("ShowOtherVersionsPanel is set correctly", t, func() {
-		// Landed on version 1, more than one version available = panel displays
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, filter.Model{})
-		So(page.DatasetLandingPage.ShowOtherVersionsPanel, ShouldBeTrue)
+	Convey("Given a census dataset landing page testing panels", t, func() {
+		Convey("When there is more than one version", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, filter.Model{})
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					IsCorrection: false,
+				},
+			}
+			Convey("Then the 'other versions' panel is displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 1)
+				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
 
-		// Only one version = panel hidden
-		page = CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{versionOneDetails}, 1, "", "", []string{}, 50, false, false, false, filter.Model{})
-		So(page.DatasetLandingPage.ShowOtherVersionsPanel, ShouldBeFalse)
+		Convey("When there is one version", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{versionOneDetails}, 1, "", "", []string{}, 50, false, false, false, filter.Model{})
+			Convey("Then the 'other versions' panel is not displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldBeEmpty)
+			})
+		})
 
-		// More than one version, landed on latest version (3) = panel hidden
-		page = CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionThreeDetails, datasetOptions, versionThreeDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, filter.Model{})
-		So(page.DatasetLandingPage.ShowOtherVersionsPanel, ShouldBeFalse)
+		Convey("When you are on the latest version", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionThreeDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, filter.Model{})
+			Convey("Then the 'other versions' panel is not displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldBeEmpty)
+			})
+		})
+
+		Convey("When there a correction notice on the current version", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, filter.Model{})
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					IsCorrection: true,
+				},
+			}
+			Convey("Then the 'correction notice' panel is displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 1)
+				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
+
+		Convey("When you are not on the latest version and a correction notice is on the current version", func() {
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, filter.Model{})
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					IsCorrection: true,
+				},
+				{
+					IsCorrection: false,
+				},
+			}
+			Convey("Then the 'correction notice' and 'other versions' panels are displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 2)
+				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
 	})
 
 	Convey("Validation error passed as true, error title should be populated", t, func() {
