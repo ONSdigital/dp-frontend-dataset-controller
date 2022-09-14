@@ -356,7 +356,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Language = lang
 	p.URI = req.URL.Path
 	p.ID = d.ID
-
 	p.Version.ReleaseDate = version.ReleaseDate
 	if initialVersionReleaseDate == "" {
 		p.InitialReleaseDate = p.Version.ReleaseDate
@@ -364,11 +363,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.InitialReleaseDate = initialVersionReleaseDate
 	}
 
+	if version.Alerts != nil {
+		for _, alert := range *version.Alerts {
+			if alert.Type == CorrectionAlertType {
+				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+					IsCorrection: true,
+				})
+				break
+			}
+		}
+	}
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
-
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
-
 	var isFlex bool
 	if strings.Contains(d.Type, "flex") {
 		isFlex = true
@@ -553,7 +560,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
 
-		p.DatasetLandingPage.ShowOtherVersionsPanel = latestVersionNumber != version.Version && hasOtherVersions
+		if latestVersionNumber != version.Version && hasOtherVersions {
+			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+				IsCorrection: false,
+			})
+		}
 		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	}
 

@@ -1,0 +1,19 @@
+{{ range .DatasetLandingPage.Panels }}
+    <div class="ons-panel ons-panel--info ons-panel--no-title ons-u-mt-m ons-u-mb-l">
+        <div class="ons-panel--warn ons-u-bg--tr">
+            <div class="ons-panel__icon" aria-hidden="true">!</div>
+            <div class="ons-panel__assistive-text ons-u-vh">
+                {{- localise "ImportantInformation" $.Language 1 -}}
+            </div>
+            <div class="ons-panel__body">
+                <p class="ons-u-fs-r">
+                    {{ if .IsCorrection }}
+                        {{- localise "HasCorrectionNotice" $.Language 1 | safeHTML -}}
+                    {{ else }}
+                        {{- localise "HasNewVersion" $.Language 1 $.DatasetLandingPage.LatestVersionURL | safeHTML -}}
+                    {{ end }}
+                </p>
+            </div>
+        </div>
+    </div>
+{{ end }}
