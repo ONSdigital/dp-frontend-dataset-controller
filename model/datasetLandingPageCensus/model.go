@@ -13,7 +13,6 @@ type Page struct {
 	DatasetLandingPage DatasetLandingPage            `json:"data"`
 	Version            sharedModel.Version           `json:"version"`
 	Versions           []sharedModel.Version         `json:"versions"`
-	InitialReleaseDate string                        `json:"initial_release_date"`
 	ID                 string                        `json:"id"`
 	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
 	HasContactDetails  bool                          `json:"has_contact_details"`
