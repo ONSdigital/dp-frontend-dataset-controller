@@ -1,8 +1,8 @@
 <div class="ons-page__container ons-container">
     <div class="ons-grid ons-js-toc-container ons-u-ml-no">
         {{ template "partials/breadcrumb" . }}
-        {{ if .Error.Title }}
-            {{ template "partials/census/error-summary" . }}
+         {{ if .Page.Error.Title }}
+            {{ template "partials/error-summary" .Page.Error }}
         {{ end }}
         <section class="ons-u-mb-xl">
             {{ if .DatasetLandingPage.Panels }}

@@ -295,7 +295,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 	})
 
-	Convey("Validation error passed as true, error title should be populated", t, func() {
+	Convey("Validation error passed as true, error model should be populated", t, func() {
 		req := httptest.NewRequest("", "/?f=get-data", nil)
 		versionDetails := dataset.Version{
 			Downloads: map[string]dataset.Download{
@@ -305,8 +305,20 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			},
 		}
+		mockErr := model.Error{
+			Title: datasetModel.Title,
+			ErrorItems: []model.ErrorItem{
+				{
+					Description: model.Localisation{
+						LocaleKey: "GetDataValidationError",
+						Plural:    1,
+					},
+					URL: "#select-format-error",
+				},
+			},
+		}
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, true, false, false, filter.Model{})
-		So(page.Error.Title, ShouldEqual, fmt.Sprintf("Error: %s", datasetModel.Title))
+		So(page.Error, ShouldResemble, mockErr)
 	})
 
 	Convey("Validation error passed as false, error title should be empty", t, func() {

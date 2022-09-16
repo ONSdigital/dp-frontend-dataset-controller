@@ -223,10 +223,6 @@ one = "Coverage"
 description = "England and Wales"
 one = "England and Wales"
 
-[PageProblem]
-description = "There is a problem with this page"
-one = "There is a problem with this page"
-
 [GetDataValidationError]
 description = "Select your download format"
 one = "Select your download format"
