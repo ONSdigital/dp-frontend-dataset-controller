@@ -320,7 +320,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	if isValidationError {
-		p.Error.Title = fmt.Sprintf("Error: %s", d.Title)
+		p.Error = coreModel.Error{
+			Title: p.Metadata.Title,
+			ErrorItems: []coreModel.ErrorItem{
+				{
+					Description: coreModel.Localisation{
+						LocaleKey: "GetDataValidationError",
+						Plural:    1,
+					},
+					URL: "#select-format-error",
+				},
+			},
+			Language: lang,
+		}
 	}
 
 	p.BackTo = coreModel.BackTo{
