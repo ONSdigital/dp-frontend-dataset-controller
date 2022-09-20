@@ -120,18 +120,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		}
 	}
 
-	hasMethodologies := false
-	if d.Methodologies != nil {
-		for _, meth := range *d.Methodologies {
-			p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, datasetLandingPageCensus.Methodology{
-				Title:       meth.Title,
-				URL:         meth.URL,
-				Description: meth.Description,
-			})
-		}
-		hasMethodologies = true
-	}
-
 	p.Breadcrumb = []coreModel.TaxonomyNode{
 		{
 			Title: "Home",
@@ -210,16 +198,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		},
 	}
 	displayOrder = append(displayOrder, "stats-disclosure")
-
-	if hasMethodologies {
-		sections["methodology"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "Methodology",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "methodology")
-	}
 
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{

@@ -22,9 +22,6 @@
                 {{ template "partials/census/contact-details" . }}
             {{ end }}
             {{ template "partials/census/stats-disclosure" . }}
-            {{ if .DatasetLandingPage.Methodologies }}
-                {{ template "partials/census/methodologies" . }}
-            {{ end }}
             {{ if .DatasetLandingPage.HasOtherVersions }}
                 {{ template "partials/census/version-history" . }}
             {{ end }}

@@ -23,22 +23,14 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
 	}
-	methodology := dataset.Methodology{
-		Description: "An interesting methodology description",
-		URL:         "http://www.google.com",
-		Title:       "The methodology title",
-	}
 	datasetModel := dataset.DatasetDetails{
 		Contacts: &[]dataset.Contact{
 			contact,
 		},
 		ID:          "12345",
 		Description: "An interesting test description \n with a line break",
-		Methodologies: &[]dataset.Methodology{
-			methodology,
-		},
-		Title: "Test title",
-		Type:  "cantabular",
+		Title:       "Test title",
+		Type:        "cantabular",
 	}
 
 	versionOneDetails := dataset.Version{
@@ -151,9 +143,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
-		So(page.DatasetLandingPage.Methodologies[0].Description, ShouldEqual, methodology.Description)
-		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
-		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
 		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
 		So(page.Collapsible.CollapsibleItems[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
@@ -189,9 +178,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
-		So(page.DatasetLandingPage.Methodologies[0].Description, ShouldEqual, methodology.Description)
-		So(page.DatasetLandingPage.Methodologies[0].Title, ShouldEqual, methodology.Title)
-		So(page.DatasetLandingPage.Methodologies[0].URL, ShouldEqual, methodology.URL)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
 		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
 		So(page.Collapsible.CollapsibleItems[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)

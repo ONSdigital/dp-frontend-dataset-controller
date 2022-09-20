@@ -25,12 +25,11 @@ type DatasetLandingPage struct {
 	LatestVersionURL string                  `json:"latest_version_url"`
 	Dimensions       []sharedModel.Dimension `json:"dimensions"`
 	ShareDetails     ShareDetails
-	Methodologies    []Methodology `json:"methodology"`
-	Description      []string      `json:"description"`
-	IsFlexibleForm   bool          `json:"is_flexible_form"`
-	FormAction       string        `json:"form_action"`
-	DatasetURL       string        `json:"dataset_url"`
-	Panels           []Panel       `json:"panels"`
+	Description      []string `json:"description"`
+	IsFlexibleForm   bool     `json:"is_flexible_form"`
+	FormAction       string   `json:"form_action"`
+	DatasetURL       string   `json:"dataset_url"`
+	Panels           []Panel  `json:"panels"`
 }
 
 // Panel contains the data required to populate a panel UI component
@@ -51,11 +50,4 @@ type Share struct {
 	Title string `json:"title"`
 	Link  string `json:"link"`
 	Icon  string `json:"icon"`
-}
-
-// Methodology links
-type Methodology struct {
-	Description string `json:"description"`
-	URL         string `json:"href"`
-	Title       string `json:"title"`
 }
