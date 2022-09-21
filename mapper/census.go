@@ -64,7 +64,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	if strings.Contains(d.Type, "flex") {
 		isFlex = true
 		p.DatasetLandingPage.IsFlexibleForm = true
-		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
 	if isFilterOutput {
@@ -294,7 +293,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-		p.DatasetLandingPage.IsFlexibleForm = false
+		p.DatasetLandingPage.IsFlexibleForm = true
 	}
 
 	if isValidationError {

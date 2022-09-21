@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -184,7 +183,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
-		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, filterOutput.Dimensions[0].Label)
 		So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, filterOutput.Dimensions[0].Options)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
@@ -376,7 +375,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		}
 		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, flexDm, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, filter.Model{})
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
-		So(page.DatasetLandingPage.FormAction, ShouldEqual, fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", flexDm.ID, versionOneDetails.Edition, strconv.Itoa(versionOneDetails.Version)))
 	})
 
 	Convey("Test HasDownloads", t, func() {

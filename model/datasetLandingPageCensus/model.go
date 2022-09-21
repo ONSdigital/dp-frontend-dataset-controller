@@ -27,7 +27,6 @@ type DatasetLandingPage struct {
 	ShareDetails     ShareDetails
 	Description      []string `json:"description"`
 	IsFlexibleForm   bool     `json:"is_flexible_form"`
-	FormAction       string   `json:"form_action"`
 	DatasetURL       string   `json:"dataset_url"`
 	Panels           []Panel  `json:"panels"`
 }
