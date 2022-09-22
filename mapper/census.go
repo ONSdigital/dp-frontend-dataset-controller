@@ -190,13 +190,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		displayOrder = append(displayOrder, "contact")
 	}
 
-	sections["stats-disclosure"] = coreModel.ContentSection{
+	sections["protecting-personal-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
-			LocaleKey: "StatisticalDisclosureControl",
+			LocaleKey: "ProtectingPersonalDataTitle",
 			Plural:    1,
 		},
 	}
-	displayOrder = append(displayOrder, "stats-disclosure")
+	displayOrder = append(displayOrder, "protecting-personal-data")
 
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{

@@ -54,6 +54,10 @@ one = "Cyhoeddiad nesaf:"
 description = "To be announced"
 one = "To be announced"
 
+[FlexibleDataset]
+description = "Flexible dataset"
+one = "Flexible dataset"
+
 [DatasetID]
 description = "Dataset ID:"
 one = "ID y set ddata:"
@@ -138,6 +142,34 @@ two = "Related links"
 few = "Related links"
 many = "Related links"
 other = "Related links"
+
+[ProtectingPersonalDataTitle]
+description="Protecting personal data"
+one="Protecting personal data"
+
+[ProtectingPersonalDataBlurb]
+description = "Blurb for protecting personal data"
+one = "Sometimes we need to make changes to data if it is possible to identify individuals. This is known as statistical disclosure control."
+
+[ProtectingPersonalInCensus]
+description = "In Census 2021, we:"
+one = "In Census 2021, we:"
+
+[ProtectingPersonalDataSwappedRecords]
+description = "swapped records (targeted record swapping), for example, if a household was likely to be identified in datasets because it has unusual characteristics, we swapped the record with a similar one from a nearby small area (very unusual households could be swapped with one in a nearby local authority)"
+one = "swapped records (targeted record swapping), for example, if a household was likely to be identified in datasets because it has unusual characteristics, we swapped the record with a similar one from a nearby small area (very unusual households could be swapped with one in a nearby local authority)"
+
+[ProtectingPersonalDataAddedSmallChanges]
+description = "added small changes to some counts (cell key perturbation), for example, we might change a count of four to a three or a five – this might make small differences between tables depending on how the data are broken down when we applied perturbation"
+one = "added small changes to some counts (cell key perturbation), for example, we might change a count of four to a three or a five – this might make small differences between tables depending on how the data are broken down when we applied perturbation"
+
+[ProtectingPersonalDataReadMore]
+description = "Read more in "
+one = "Read more in "
+
+[ProtectingPersonalDataSection5]
+description = "Section 5 of our article Design for Census 2021."
+one = "Section 5 of our article Design for Census 2021."
 
 [StatsDisclosureTitle]
 description = "Statistical disclosure control"

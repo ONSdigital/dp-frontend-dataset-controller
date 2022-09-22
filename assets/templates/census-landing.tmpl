@@ -21,7 +21,7 @@
             {{ if .HasContactDetails }}
                 {{ template "partials/census/contact-details" . }}
             {{ end }}
-            {{ template "partials/census/stats-disclosure" . }}
+            {{ template "partials/census/protecting-personal-data" . }}
             {{ if .DatasetLandingPage.HasOtherVersions }}
                 {{ template "partials/census/version-history" . }}
             {{ end }}
