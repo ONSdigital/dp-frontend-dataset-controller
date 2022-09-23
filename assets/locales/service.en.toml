@@ -223,10 +223,6 @@ one = "Coverage"
 description = "England and Wales"
 one = "England and Wales"
 
-[PageProblem]
-description = "There is a problem with this page"
-one = "There is a problem with this page"
-
 [GetDataValidationError]
 description = "Select your download format"
 one = "Select your download format"
@@ -260,9 +256,13 @@ other = "Your files are being created. Please <a href=\"{{.arg0}}\">refresh</a> 
 description = "Important information"
 one = "Important information:"
 
-[NewVersionAvailable]
-description = "There is a new version of this dataset. View the <a href=\"{{ .DatasetLandingPage.LatestVersionURL }}\">latest version</a>."
-one = "There is a new version of this dataset. View the <a href=\"{{.arg0}}\">latest version</a>."
+[HasNewVersion]
+description = "<strong>There is a new version of this dataset.</strong> View the <a href=\"{{ .DatasetLandingPage.LatestVersionURL }}\">latest version</a>."
+one = "<strong>There is a new version of this dataset.</strong> View the <a href=\"{{.arg0}}\">latest version</a>."
+
+[HasCorrectionNotice]
+description = "<strong>Correction to this dataset.</strong> View the <a href=\"#update-reason\">reason for update</a>."
+one = "<strong>Correction to this dataset.</strong> View the <a href=\"#update-reason\">reason for update</a>."
 
 [Change]
 description = "Change"

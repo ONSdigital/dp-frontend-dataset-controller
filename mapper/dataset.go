@@ -2,18 +2,20 @@ package mapper
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
+	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // DatasetPage is a DatasetPage representation
 type DatasetPage datasetPage.Page
 
-func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) DatasetPage {
+func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) DatasetPage {
 
 	dp := DatasetPage{
 		Page: basePage,
@@ -57,6 +59,10 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	dp.ContactDetails.Email = strings.TrimSpace(dlp.Description.Contact.Email)
 	dp.ContactDetails.Name = dlp.Description.Contact.Name
 	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
+
+	if navigationContent != nil {
+		dp.NavigationContent = MapNavigationContent(*navigationContent)
+	}
 
 	for _, download := range d.Downloads {
 
@@ -123,4 +129,28 @@ func determineSupplementaryFileUrl(supplementaryFile zebedee.SupplementaryFile, 
 		downloadUrl = "/file?uri=" + datasetPageUri + "/" + supplementaryFile.File
 	}
 	return downloadUrl
+}
+
+// mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
+func MapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
+	var mappedNavigationContent []coreModel.NavigationItem
+	if navigationContent.Items != nil {
+		for _, rootContent := range *navigationContent.Items {
+			var subItems []coreModel.NavigationItem
+			if rootContent.SubtopicItems != nil {
+				for _, subtopicContent := range *rootContent.SubtopicItems {
+					subItems = append(subItems, coreModel.NavigationItem{
+						Uri:   subtopicContent.Uri,
+						Label: subtopicContent.Label,
+					})
+				}
+			}
+			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
+				Uri:      rootContent.Uri,
+				Label:    rootContent.Label,
+				SubItems: subItems,
+			})
+		}
+	}
+	return mappedNavigationContent
 }

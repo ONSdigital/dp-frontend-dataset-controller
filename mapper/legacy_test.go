@@ -8,6 +8,9 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-net/request"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -24,7 +27,18 @@ func TestUnitMapperLegacy(t *testing.T) {
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
+		// get cached navigation data
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+		ctxOther := context.Background()
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+		So(err, ShouldBeNil)
+
+		locale := request.GetLocaleCode(req)
+		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+		So(err, ShouldBeNil)
+
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, "legacy_dataset")
@@ -87,7 +101,18 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		ds := zebedeeOnlyTestDatasets(expectedDatasetURI, expectedFilename, expectedSupplementaryTitle)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
+		// get cached navigation data
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+		ctxOther := context.Background()
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+		So(err, ShouldBeNil)
+
+		locale := request.GetLocaleCode(req)
+		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+		So(err, ShouldBeNil)
+
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedFilename
@@ -116,7 +141,18 @@ func TestUnitMapperLegacy(t *testing.T) {
 		expectedSupplementaryFilepath := "data/collection-id/new-file.xlsx"
 		ds := staticFilesOnlyTestDatasets(expectedDownloadFilepath, expectedSupplementaryTitle, expectedSupplementaryFilepath)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner)
+		// get cached navigation data
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+		ctxOther := context.Background()
+		mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+		So(err, ShouldBeNil)
+
+		locale := request.GetLocaleCode(req)
+		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
+		So(err, ShouldBeNil)
+
+		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/downloads-new/" + expectedDownloadFilepath

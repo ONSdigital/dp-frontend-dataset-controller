@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	topicModel "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -23,7 +24,7 @@ const staticFilesDownloadEndpoint = "downloads-new"
 type StaticDatasetLandingPage datasetLandingPageStatic.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
 
 	sdlp := StaticDatasetLandingPage{
 		Page: basePage,
@@ -47,6 +48,10 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 
 	sdlp.ServiceMessage = serviceMessage
 	sdlp.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+
+	if navigationContent != nil {
+		sdlp.NavigationContent = MapNavigationContent(*navigationContent)
+	}
 
 	for _, d := range dlp.RelatedDatasets {
 		sdlp.DatasetLandingPage.Related.Datasets = append(sdlp.DatasetLandingPage.Related.Datasets, related.Related(d))

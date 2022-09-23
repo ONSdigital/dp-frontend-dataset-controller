@@ -1,15 +1,15 @@
 <div class="ons-page__container ons-container">
     <div class="ons-grid ons-js-toc-container ons-u-ml-no">
         {{ template "partials/breadcrumb" . }}
-        {{ if .Error.Title }}
-            {{ template "partials/census/error-summary" . }}
+         {{ if .Page.Error.Title }}
+            {{ template "partials/error-summary" .Page.Error }}
         {{ end }}
         <section class="ons-u-mb-xl">
+            {{ if .DatasetLandingPage.Panels }}
+                {{ template "partials/census/panel" . }}
+            {{ end }}
             <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">{{ .Metadata.Title }}</h1>
             {{ template "partials/census/id-datestamp" . }}
-            {{ if .DatasetLandingPage.ShowOtherVersionsPanel }}
-                {{ template "partials/census/other-versions-panel" . }}
-            {{ end }}
         </section>
         <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
             {{ template "partials/table-of-contents" . }}
@@ -22,9 +22,6 @@
                 {{ template "partials/census/contact-details" . }}
             {{ end }}
             {{ template "partials/census/stats-disclosure" . }}
-            {{ if .DatasetLandingPage.Methodologies }}
-                {{ template "partials/census/methodologies" . }}
-            {{ end }}
             {{ if .DatasetLandingPage.HasOtherVersions }}
                 {{ template "partials/census/version-history" . }}
             {{ end }}
