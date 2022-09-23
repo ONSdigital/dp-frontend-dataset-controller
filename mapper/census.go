@@ -26,7 +26,7 @@ const (
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filter filter.Model) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -67,7 +67,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	if isFilterOutput {
-		for ext, download := range filter.Downloads {
+		for ext, download := range filterOutput {
 			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 				Extension: strings.ToLower(ext),
 				Size:      download.Size,
@@ -176,7 +176,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
-	if isFilterOutput && len(filter.Downloads) > 0 {
+	if isFilterOutput && len(filterOutput) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
@@ -278,7 +278,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	if isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(filter, queryStrValues, req.URL.Path)
+		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -286,9 +286,8 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 				Title:             Coverage,
 				Name:              strings.ToLower(Coverage),
 				ID:                strings.ToLower(Coverage),
-				Values:            filter.Dimensions[0].Options,
+				Values:            fDims[0].Options,
 				ShowChange:        true,
-				ChangeURL:         fmt.Sprintf("/filters/%s/dimensions/geography/coverage", filter.FilterID),
 			},
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
@@ -366,9 +365,9 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions
 }
 
-func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path string) []sharedModel.Dimension {
+func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
-	for _, dim := range filter.Dimensions {
+	for _, dim := range dims {
 		var isAreaType bool
 		if helpers.IsBoolPtr(dim.IsAreaType) {
 			isAreaType = true
@@ -378,10 +377,7 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 		pDim.ID = dim.ID
 		pDim.IsAreaType = isAreaType
 		pDim.ShowChange = isAreaType
-		if isAreaType {
-			pDim.ChangeURL = strings.ToLower(fmt.Sprintf("/filters/%s/dimensions/%s", filter.FilterID, dim.Name))
-		}
-		pDim.TotalItems = len(dim.Options)
+		pDim.TotalItems = dim.OptionsCount
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
 		var displayedOptions []string
