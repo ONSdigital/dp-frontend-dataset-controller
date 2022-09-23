@@ -6,11 +6,6 @@
         <li>{{ localise "ProtectingPersonalDataSwappedRecords" .Language 1 }}</li>
         <li>{{ localise "ProtectingPersonalDataAddedSmallChanges" .Language 1 }}</li>
     </ul>
-    <p>
-        {{ localise "ProtectingPersonalDataReadMore" .Language 1 }}
-        <a href="/census/planningforcensus2021/censusdesign/designforcensus2021#outputs-and-disclosure-control">
-            {{ localise "ProtectingPersonalDataSection5" .Language 1 }}
-        </a>
-    </p>
+    <p>{{ localise "ProtectingPersonalDataReadMore" .Language 1 | safeHTML }}</p>
     {{ template "partials/census/back-to-contents" . }}
 </section>
