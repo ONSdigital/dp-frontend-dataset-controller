@@ -98,6 +98,8 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 
+	p.IsNationalStatistic = d.NationalStatistic
+
 	var collapsibleContentItems []coreModel.CollapsibleItem
 
 	for _, dims := range version.Dimensions {

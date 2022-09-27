@@ -27,10 +27,11 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Contacts: &[]dataset.Contact{
 			contact,
 		},
-		ID:          "12345",
-		Description: "An interesting test description \n with a line break",
-		Title:       "Test title",
-		Type:        "cantabular",
+		ID:                "12345",
+		Description:       "An interesting test description \n with a line break",
+		Title:             "Test title",
+		Type:              "cantabular",
+		NationalStatistic: true,
 	}
 
 	versionOneDetails := dataset.Version{
@@ -140,6 +141,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
 		So(page.DatasetLandingPage.Description, ShouldResemble, strings.Split(datasetModel.Description, "\n"))
+		So(page.IsNationalStatistic, ShouldResemble, datasetModel.NationalStatistic)
+		fmt.Println("• • • • • • • • • • • • page.IsNationalStatistic ", page.IsNationalStatistic)
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
