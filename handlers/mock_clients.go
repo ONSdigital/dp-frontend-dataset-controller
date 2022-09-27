@@ -371,6 +371,21 @@ func (m *MockPopulationClient) EXPECT() *MockPopulationClientMockRecorder {
 	return m.recorder
 }
 
+// GetArea mocks base method.
+func (m *MockPopulationClient) GetArea(ctx context.Context, input population.GetAreaInput) (population.GetAreaResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetArea", ctx, input)
+	ret0, _ := ret[0].(population.GetAreaResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetArea indicates an expected call of GetArea.
+func (mr *MockPopulationClientMockRecorder) GetArea(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockPopulationClient)(nil).GetArea), ctx, input)
+}
+
 // GetAreas mocks base method.
 func (m *MockPopulationClient) GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error) {
 	m.ctrl.T.Helper()
@@ -384,6 +399,21 @@ func (m *MockPopulationClient) GetAreas(ctx context.Context, input population.Ge
 func (mr *MockPopulationClientMockRecorder) GetAreas(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAreas", reflect.TypeOf((*MockPopulationClient)(nil).GetAreas), ctx, input)
+}
+
+// GetParentAreaCount mocks base method.
+func (m *MockPopulationClient) GetParentAreaCount(ctx context.Context, input population.GetParentAreaCountInput) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetParentAreaCount", ctx, input)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetParentAreaCount indicates an expected call of GetParentAreaCount.
+func (mr *MockPopulationClientMockRecorder) GetParentAreaCount(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParentAreaCount", reflect.TypeOf((*MockPopulationClient)(nil).GetParentAreaCount), ctx, input)
 }
 
 // MockClientError is a mock of ClientError interface.

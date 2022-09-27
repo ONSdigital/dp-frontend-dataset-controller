@@ -214,7 +214,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, false, false, filter.Model{})
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, false, false, map[string]filter.Download{}, []model.FilterDimension{})
 	rend.BuildPage(w, m, "census-landing")
 }
 

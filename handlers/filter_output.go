@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
@@ -118,11 +119,11 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 
 	latestVersionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
-	getDimensionOptions := func(dim filter.ModelDimension) ([]string, error) {
+	getDimensionOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		q := dataset.QueryParams{Offset: 0, Limit: 1000}
 		opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, strconv.Itoa(ver.Version), dim.Name, &q)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get options for dimension: %w", err)
+			return nil, 0, fmt.Errorf("failed to get options for dimension: %w", err)
 		}
 
 		var options []string
@@ -130,17 +131,17 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 			options = append(options, opt.Label)
 		}
 
-		return options, nil
+		return options, opts.TotalCount, nil
 	}
 
 	var hasNoAreaOptions bool
-	getAreaOptions := func(dim filter.ModelDimension) ([]string, error) {
+	getAreaOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		q := filter.QueryParams{
 			Limit: 500,
 		}
 		opts, _, err := fc.GetDimensionOptions(ctx, userAccessToken, "", collectionID, filterOutput.FilterID, dim.Name, &q)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get options for dimension: %w", err)
+			return nil, 0, fmt.Errorf("failed to get options for dimension: %w", err)
 		}
 
 		var options []string
@@ -151,7 +152,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 				AreaTypeID:    dim.ID,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("failed to get dimension areas: %w", err)
+				return nil, 0, fmt.Errorf("failed to get dimension areas: %w", err)
 			}
 
 			for _, area := range areas.Areas {
@@ -159,39 +160,36 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 			}
 
 			hasNoAreaOptions = true
-			return options, nil
+			return options, areas.TotalCount, nil
 		}
 
 		var wg sync.WaitGroup
 		areaErrs := make([]error, len(opts.Items))
-
+		optsIDs := []string{}
+		totalCount := opts.TotalCount
 		for i, opt := range opts.Items {
 			wg.Add(1)
 			go func(opt filter.DimensionOption, i int) {
 				defer wg.Done()
+				optsIDs = append(optsIDs, opt.Option)
 				var areaTypeID string
 				if dim.FilterByParent != "" {
 					areaTypeID = dim.FilterByParent
 				} else {
 					areaTypeID = dim.ID
 				}
-				// TODO: Temporary fix until GetArea endpoint is created
-				areas, err := pc.GetAreas(ctx, population.GetAreasInput{
-					UserAuthToken: userAccessToken,
-					DatasetID:     filterOutput.PopulationType,
-					AreaTypeID:    areaTypeID,
-					Text:          opt.Option,
+
+				area, err := pc.GetArea(ctx, population.GetAreaInput{
+					UserAuthToken:  userAccessToken,
+					PopulationType: filterOutput.PopulationType,
+					AreaType:       areaTypeID,
+					Area:           opt.Option,
 				})
 				if err != nil {
 					areaErrs[i] = err
 				}
 
-				for _, area := range areas.Areas {
-					if area.ID == opt.Option {
-						options = append(options, area.Label)
-						break
-					}
-				}
+				options = append(options, area.Area.Label)
 
 			}(opt, i)
 		}
@@ -209,13 +207,34 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		}
 
 		if hasErrs {
-			return nil, fmt.Errorf("failed to get dimension areas")
+			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
 
-		return options, nil
+		if dim.FilterByParent != "" {
+			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
+				UserAuthToken:    userAccessToken,
+				DatasetID:        filterOutput.PopulationType,
+				AreaTypeID:       dim.ID,
+				ParentAreaTypeID: dim.FilterByParent,
+				Areas:            optsIDs,
+			})
+			if err != nil {
+				log.Error(ctx, "failed to get parent area count", err, log.Data{
+					"dataset_id":          filterOutput.PopulationType,
+					"area_type_id":        dim.ID,
+					"parent_area_type_id": dim.FilterByParent,
+					"areas":               optsIDs,
+				})
+				return nil, 0, err
+			}
+
+			totalCount = count
+		}
+
+		return options, totalCount, nil
 	}
 
-	getOptions := func(dim filter.ModelDimension) ([]string, error) {
+	getOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		if dim.IsAreaType != nil && *dim.IsAreaType {
 			return getAreaOptions(dim)
 		}
@@ -223,22 +242,21 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 		return getDimensionOptions(dim)
 	}
 
-	for i, dim := range filterOutput.Dimensions {
-		wg.Add(1)
-		go func(i int, dim filter.ModelDimension) {
-			defer wg.Done()
-			options, err := getOptions(dim)
-			if err != nil {
-				log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
-				setStatusCode(ctx, w, err)
-				return
-			}
+	var fDims []model.FilterDimension
+	for _, dim := range filterOutput.Dimensions {
+		options, count, err := getOptions(dim)
+		if err != nil {
+			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
+			setStatusCode(ctx, w, err)
+			return
+		}
 
-			dim.Options = options
-			filterOutput.Dimensions[i] = dim
-		}(i, dim)
+		dim.Options = options
+		fDims = append(fDims, model.FilterDimension{
+			ModelDimension: dim,
+			OptionsCount:   count,
+		})
 	}
-	wg.Wait()
 
 	if filterOutput.Downloads == nil {
 		log.Warn(ctx, "filter output downloads are nil", log.Data{"filter_output_id": filterOutputID})
@@ -259,6 +277,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, dc DatasetClient, fc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput)
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput.Downloads, fDims)
 	rend.BuildPage(w, m, "census-landing")
 }
