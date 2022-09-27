@@ -110,9 +110,9 @@ one = "Nodiadau pwysig a gwybodaeth ynghylch defnyddio"
 description = "View all data related to"
 one = "View all data related to"
 
-[ContactDetails]
-description = "Contact details"
-one = "Contact details"
+[ContactUs]
+description = "Contact us"
+one = "Contact us"
 
 [DatasetContactDetails]
 description = "Contact details for this dataset"
