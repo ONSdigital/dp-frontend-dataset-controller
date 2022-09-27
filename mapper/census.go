@@ -183,7 +183,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	if p.HasContactDetails {
 		sections["contact"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
-				LocaleKey: "ContactDetails",
+				LocaleKey: "ContactUs",
 				Plural:    1,
 			},
 		}
