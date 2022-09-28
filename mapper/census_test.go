@@ -54,16 +54,19 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				Description: "A description on one line",
 				Name:        "Dimension 1",
 				ID:          "dim_1",
+				Label:       "Label 1",
 				IsAreaType:  helpers.ToBoolPtr(true),
 			},
 			{
 				Description: "A description on one line \n Then a line break",
 				Name:        "Dimension 2",
+				Label:       "Label 2",
 				ID:          "dim_2",
 			},
 			{
 				Description: "",
 				Name:        "Only a name - I shouldn't map",
+				Label:       "Label 3",
 				ID:          "dim_3",
 			},
 		},
@@ -145,9 +148,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
-		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
+		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
 		So(page.Collapsible.CollapsibleItems[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
-		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
+		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
@@ -180,9 +183,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
-		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Name)
+		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
 		So(page.Collapsible.CollapsibleItems[0].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
-		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Name)
+		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
 		So(page.Collapsible.CollapsibleItems[1].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
