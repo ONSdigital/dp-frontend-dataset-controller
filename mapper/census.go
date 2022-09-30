@@ -105,7 +105,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	for _, dims := range version.Dimensions {
 		if dims.Description != "" {
 			var collapsibleContent coreModel.CollapsibleItem
-			collapsibleContent.Subheading = dims.Name
+			collapsibleContent.Subheading = dims.Label
 			collapsibleContent.Content = strings.Split(dims.Description, "\n")
 			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
 		}
