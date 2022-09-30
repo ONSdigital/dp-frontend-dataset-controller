@@ -141,7 +141,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
 		So(page.DatasetLandingPage.Description, ShouldResemble, strings.Split(datasetModel.Description, "\n"))
-		So(page.IsNationalStatistic, ShouldResemble, datasetModel.NationalStatistic)
+		So(page.IsNationalStatistic, ShouldBeTrue)
 		So(page.ContactDetails.Name, ShouldEqual, contact.Name)
 		So(page.ContactDetails.Email, ShouldEqual, contact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)

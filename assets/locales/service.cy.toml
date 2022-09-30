@@ -334,3 +334,7 @@ one = "Show all {{.arg0}} categories"
 [TruncateShowFewer]
 description = "Show less categories"
 one = "Show less categories"
+
+[UKStatisticsAuthorityKitemark]
+description = "UK Statistics Authority Kitemark"
+one = "UK Statistics Authority Kitemark"

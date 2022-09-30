@@ -8,12 +8,18 @@
             {{ if .DatasetLandingPage.Panels }}
                 {{ template "partials/census/panel" . }}
             {{ end }}
-            <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no ons-grid--flex ons-grid--between">
-                {{ .Metadata.Title }}
-                {{ if .IsNationalStatistic }}
-                    {{ template "partials/roundel-ns" }}
-                {{ end }}
-            </h1>
+            <div class="ons-grid">
+                <div class="ons-grid__col ons-col-10@m ">
+                    <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">
+                        {{ .Metadata.Title }}
+                    </h1>
+                </div>
+                <div class="ons-grid__col ons-col-2@m ">
+                    <div class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m">
+                        {{ template "partials/roundel-ns" }}
+                    </div>
+                </div>
+            </div>
             {{ template "partials/census/id-datestamp" . }}
         </section>
         <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
