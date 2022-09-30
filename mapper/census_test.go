@@ -196,6 +196,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, fDims[0].Label)
 		So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, fDims[0].Options)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.Dimensions[0].Name, ShouldEqual, fDims[0].Name)
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, fDims[0].Options)
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
