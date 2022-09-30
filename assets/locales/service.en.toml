@@ -315,3 +315,11 @@ one = "Show all {{.arg0}} categories"
 [TruncateShowFewer]
 description = "Show less categories"
 one = "Show less categories"
+
+[VariableInfoAreaType]
+description = "Area type variable information"
+one = "<p>Census 2021 statistics are published for a number of different geographies. These can be large, for example the whole of England, or small, for example an output area (OA), the lowest level of geography for which statistics are produced.</p><p>For higher levels of geography, more detailed statistics can be produced. When a lower level of geography is used, such as output areas (which have a minimum of 100 persons), the statistics produced have less detail. This is to protect the confidentiality of people and ensure that individuals or their characteristics cannot be identified.</p>"
+
+[VariableInfoCoverage]
+description = "Coverage variable information"
+one = "<p>Census 2021 statistics are published for the whole of England and Wales. However, you can choose to filter areas by:</p><ul class=\"ons-list\"><li class=\"ons-list__item\">country - for example, Wales</li><li class=\"ons-list__item\">region - for example, London</li><li class=\"ons-list__item\">local authority - for example, Cornwall</li><li class=\"ons-list__item\">health area – for example, Clinical Commissioning Group</li><li class=\"ons-list__item\">statistical area - for example, MSOA or LSOA</li></ul>"
