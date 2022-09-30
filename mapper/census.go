@@ -377,6 +377,7 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 		pDim := sharedModel.Dimension{}
 		pDim.Title = dim.Label
 		pDim.ID = dim.ID
+		pDim.Name = dim.Name
 		pDim.IsAreaType = isAreaType
 		pDim.ShowChange = isAreaType
 		pDim.TotalItems = dim.OptionsCount
