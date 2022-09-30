@@ -10,12 +10,13 @@ import (
 // Page contains data for the census landing page
 type Page struct {
 	model.Page
-	DatasetLandingPage DatasetLandingPage            `json:"data"`
-	Version            sharedModel.Version           `json:"version"`
-	Versions           []sharedModel.Version         `json:"versions"`
-	ID                 string                        `json:"id"`
-	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
-	HasContactDetails  bool                          `json:"has_contact_details"`
+	DatasetLandingPage  DatasetLandingPage            `json:"data"`
+	Version             sharedModel.Version           `json:"version"`
+	Versions            []sharedModel.Version         `json:"versions"`
+	ID                  string                        `json:"id"`
+	ContactDetails      contactDetails.ContactDetails `json:"contact_details"`
+	HasContactDetails   bool                          `json:"has_contact_details"`
+	IsNationalStatistic bool                          `json:"is_national_statistic"`
 }
 
 // DatasetLandingPage contains properties related to the census dataset landing page
