@@ -23,6 +23,7 @@ const (
 	queryStrKey         = "showAll"
 	Coverage            = "Coverage"
 	FilterOutput        = "_filter_output"
+	AreaType            = "Area type"
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
@@ -100,25 +101,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.IsNationalStatistic = d.NationalStatistic
 
-	var collapsibleContentItems []coreModel.CollapsibleItem
-
-	for _, dims := range version.Dimensions {
-		if dims.Description != "" {
-			var collapsibleContent coreModel.CollapsibleItem
-			collapsibleContent.Subheading = dims.Label
-			collapsibleContent.Content = strings.Split(dims.Description, "\n")
-			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
-		}
-	}
-
-	if len(collapsibleContentItems) > 0 {
-		p.Collapsible = coreModel.Collapsible{
-			Title: coreModel.Localisation{
-				LocaleKey: "VariablesExplanation",
-				Plural:    4,
-			},
-			CollapsibleItems: collapsibleContentItems,
-		}
+	collapsibleContentItems := populateCollapsible(version.Dimensions)
+	p.Collapsible = coreModel.Collapsible{
+		Title: coreModel.Localisation{
+			LocaleKey: "VariablesExplanation",
+			Plural:    4,
+		},
+		CollapsibleItems: collapsibleContentItems,
 	}
 
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -322,6 +311,34 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	return p
+}
+
+func populateCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+		Subheading: AreaType,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoAreaType",
+			Plural:    1,
+		},
+	})
+	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+		Subheading: Coverage,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoCoverage",
+			Plural:    1,
+		},
+	})
+
+	for _, dims := range Dimensions {
+		if dims.Description != "" {
+			var collapsibleContent coreModel.CollapsibleItem
+			collapsibleContent.Subheading = dims.Label
+			collapsibleContent.Content = strings.Split(dims.Description, "\n")
+			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+		}
+	}
+	return collapsibleContentItems
 }
 
 func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string, isFlex bool) []sharedModel.Dimension {
