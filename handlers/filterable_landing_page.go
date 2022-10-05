@@ -93,7 +93,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken)
+		censusLanding(ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 		return
 	}
 
@@ -173,7 +173,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	rend.BuildPage(w, m, templateName)
 }
 
-func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string) {
+func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -214,7 +214,7 @@ func censusLanding(ctx context.Context, w http.ResponseWriter, req *http.Request
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, false, false, map[string]filter.Download{}, []model.FilterDimension{})
+	m := mapper.CreateCensusDatasetLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, false, false, map[string]filter.Download{}, []model.FilterDimension{}, serviceMessage, emergencyBannerContent)
 	rend.BuildPage(w, m, "census-landing")
 }
 
