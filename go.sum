@@ -7,8 +7,8 @@ github.com/ONSdigital/dp-api-clients-go v1.34.3/go.mod h1:kX+YKuoLYLfkeLHMvQKRRy
 github.com/ONSdigital/dp-api-clients-go v1.41.1/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
 github.com/ONSdigital/dp-api-clients-go v1.43.0 h1:0982P/YxnYXvba1RhEcFmwF3xywC4eXokWQ8YH3Mm24=
 github.com/ONSdigital/dp-api-clients-go v1.43.0/go.mod h1:V5MfINik+o3OAF985UXUoMjXIfrZe3JKYa5AhZn5jts=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.170.0 h1:xHj6HSzPTpjxSsS0SNMI7XX/+1vqaThdFQBsOADFpJI=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.170.0/go.mod h1:2IF90BHkQjNBzs3El66r0qOPFQ0kJq+zPfHUwCk5rgo=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.181.1 h1:793aKAnL2KnddDeIs3KHkxdsESi9WWD6mJSgPtn85nM=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.181.1/go.mod h1:2IF90BHkQjNBzs3El66r0qOPFQ0kJq+zPfHUwCk5rgo=
 github.com/ONSdigital/dp-cache v0.1.0 h1:qA/iqVe+vBpQPbvkwW/OU3bdJUjcerSjU29fix53JcM=
 github.com/ONSdigital/dp-cache v0.1.0/go.mod h1:Vz9L0Dj7arGo8cYOOs/xHqT0rxOmVLZtfBZfZT87E14=
 github.com/ONSdigital/dp-cookies v0.3.3 h1:KXX4swf+OnljIYbsTYICIBjuRJoxQukGWKBTvBaISlA=
@@ -30,8 +30,8 @@ github.com/ONSdigital/dp-net v1.5.0 h1:H47O5N+eXyXCYqPoQGWwuK12uLds3pCgzxpYwepg+
 github.com/ONSdigital/dp-net v1.5.0/go.mod h1:d/S4n6FJlQwmVIa2rnVt1HnAUgM8XsG0QEJBQp48uGg=
 github.com/ONSdigital/dp-net/v2 v2.5.0-beta h1:be/sM3nEXy5ejU/bvpO/KigUXcfED9o6c+zAh/V2K74=
 github.com/ONSdigital/dp-net/v2 v2.5.0-beta/go.mod h1:QJK9K2N8qwjMS5nZEzxSVALxJ/72KHAFDyFLj/mdLtw=
-github.com/ONSdigital/dp-renderer v1.48.0 h1:bdlCYYY/cSOFLUbyHyr0XA9L0EsKIk9KTeQmKvq7K3I=
-github.com/ONSdigital/dp-renderer v1.48.0/go.mod h1:q/zlK9Qc7b95w7XPfgS7RPLID++CZgaAn0q51QCqZew=
+github.com/ONSdigital/dp-renderer v1.52.0 h1:GBVDookTbmpF3V78Z7l9+kFDHBV2dVimkzETN5RARVA=
+github.com/ONSdigital/dp-renderer v1.52.0/go.mod h1:q/zlK9Qc7b95w7XPfgS7RPLID++CZgaAn0q51QCqZew=
 github.com/ONSdigital/dp-topic-api v0.13.1 h1:3D+COy0REDTIBx76bfOoJi7M6pBmZNeXwiqx4wOoL3k=
 github.com/ONSdigital/dp-topic-api v0.13.1/go.mod h1:MipguYB6NVmJtzcdvmQ2DDpVY31PPPOiSFiWDzV5bWw=
 github.com/ONSdigital/go-ns v0.0.0-20191104121206-f144c4ec2e58/go.mod h1:iWos35il+NjbvDEqwtB736pyHru0MPFE/LqcwkV1wDc=

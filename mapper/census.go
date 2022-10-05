@@ -23,10 +23,11 @@ const (
 	queryStrKey         = "showAll"
 	Coverage            = "Coverage"
 	FilterOutput        = "_filter_output"
+	AreaType            = "Area type"
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filter filter.Model) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -64,11 +65,10 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	if strings.Contains(d.Type, "flex") {
 		isFlex = true
 		p.DatasetLandingPage.IsFlexibleForm = true
-		p.DatasetLandingPage.FormAction = fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter-flex", d.ID, version.Edition, strconv.Itoa(version.Version))
 	}
 
 	if isFilterOutput {
-		for ext, download := range filter.Downloads {
+		for ext, download := range filterOutput {
 			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 				Extension: strings.ToLower(ext),
 				Size:      download.Size,
@@ -99,25 +99,15 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 
-	var collapsibleContentItems []coreModel.CollapsibleItem
+	p.IsNationalStatistic = d.NationalStatistic
 
-	for _, dims := range version.Dimensions {
-		if dims.Description != "" {
-			var collapsibleContent coreModel.CollapsibleItem
-			collapsibleContent.Subheading = dims.Name
-			collapsibleContent.Content = strings.Split(dims.Description, "\n")
-			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
-		}
-	}
-
-	if len(collapsibleContentItems) > 0 {
-		p.Collapsible = coreModel.Collapsible{
-			Title: coreModel.Localisation{
-				LocaleKey: "VariablesExplanation",
-				Plural:    4,
-			},
-			CollapsibleItems: collapsibleContentItems,
-		}
+	collapsibleContentItems := populateCollapsible(version.Dimensions)
+	p.Collapsible = coreModel.Collapsible{
+		Title: coreModel.Localisation{
+			LocaleKey: "VariablesExplanation",
+			Plural:    4,
+		},
+		CollapsibleItems: collapsibleContentItems,
 	}
 
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -177,27 +167,27 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
-	if isFilterOutput && len(filter.Downloads) > 0 {
+	if isFilterOutput && len(filterOutput) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
 	if p.HasContactDetails {
 		sections["contact"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
-				LocaleKey: "ContactDetails",
+				LocaleKey: "ContactUs",
 				Plural:    1,
 			},
 		}
 		displayOrder = append(displayOrder, "contact")
 	}
 
-	sections["stats-disclosure"] = coreModel.ContentSection{
+	sections["protecting-personal-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
-			LocaleKey: "StatisticalDisclosureControl",
+			LocaleKey: "ProtectingPersonalDataTitle",
 			Plural:    1,
 		},
 	}
-	displayOrder = append(displayOrder, "stats-disclosure")
+	displayOrder = append(displayOrder, "protecting-personal-data")
 
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
@@ -279,7 +269,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	if isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(filter, queryStrValues, req.URL.Path)
+		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -287,14 +277,13 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 				Title:             Coverage,
 				Name:              strings.ToLower(Coverage),
 				ID:                strings.ToLower(Coverage),
-				Values:            filter.Dimensions[0].Options,
+				Values:            fDims[0].Options,
 				ShowChange:        true,
-				ChangeURL:         fmt.Sprintf("/filters/%s/dimensions/geography/coverage", filter.FilterID),
 			},
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-		p.DatasetLandingPage.IsFlexibleForm = false
+		p.DatasetLandingPage.IsFlexibleForm = true
 	}
 
 	if isValidationError {
@@ -322,6 +311,34 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 
 	return p
+}
+
+func populateCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+		Subheading: AreaType,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoAreaType",
+			Plural:    1,
+		},
+	})
+	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+		Subheading: Coverage,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoCoverage",
+			Plural:    1,
+		},
+	})
+
+	for _, dims := range Dimensions {
+		if dims.Description != "" {
+			var collapsibleContent coreModel.CollapsibleItem
+			collapsibleContent.Subheading = dims.Label
+			collapsibleContent.Content = strings.Split(dims.Description, "\n")
+			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+		}
+	}
+	return collapsibleContentItems
 }
 
 func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string, isFlex bool) []sharedModel.Dimension {
@@ -367,9 +384,9 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions
 }
 
-func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path string) []sharedModel.Dimension {
+func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
-	for _, dim := range filter.Dimensions {
+	for _, dim := range dims {
 		var isAreaType bool
 		if helpers.IsBoolPtr(dim.IsAreaType) {
 			isAreaType = true
@@ -377,12 +394,10 @@ func mapFilterOutputDims(filter filter.Model, queryStrValues []string, path stri
 		pDim := sharedModel.Dimension{}
 		pDim.Title = dim.Label
 		pDim.ID = dim.ID
+		pDim.Name = dim.Name
 		pDim.IsAreaType = isAreaType
 		pDim.ShowChange = isAreaType
-		if isAreaType {
-			pDim.ChangeURL = strings.ToLower(fmt.Sprintf("/filters/%s/dimensions/%s", filter.FilterID, dim.Name))
-		}
-		pDim.TotalItems = len(dim.Options)
+		pDim.TotalItems = dim.OptionsCount
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
 		var displayedOptions []string

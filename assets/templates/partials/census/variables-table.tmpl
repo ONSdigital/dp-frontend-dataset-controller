@@ -4,7 +4,7 @@
 <section id="variables" aria-label="{{ localise "Variables" .Language 4}}">
     <h2 class="ons-u-mt-xl">{{ localise "Variables" .Language 4}}</h2>
     {{ if $isFlexibleForm }}
-        <form action="{{.DatasetLandingPage.FormAction}}" method="post">
+        <form method="post">
         {{ end }}
         <table class="ons-table">
             <tbody class="ons-table__body">
@@ -31,7 +31,7 @@
                                     {{ if $dim.IsDefaultCoverage }}
                                         {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
                                     {{ else }}
-                                        {{- $dim.Title }} ({{ $dim.TotalItems -}})
+                                        {{- $dim.Title }} ({{ thousandsSeparator $dim.TotalItems -}})
                                     {{ end }}
                                 </div>
                             {{else}}
@@ -75,21 +75,13 @@
                         </td>
                         <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right ons-u-pl-no@xxs@s ons-u-ml-xs@xxs@s ons-u-order--2
                                 ons-u-bb-no@xxs@s">
-                            {{ if $dim.ShowChange }}
-                                {{ if $isFlexibleForm }}
-                                    <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
-                                        {{ localise "Change" $language 1 }}
-                                        <span class="ons-u-vh">{{ localise "Variables" $language 1 }}
-                                            {{ $dim.Title }}
-                                        </span>
-                                    </button>
-                                {{ else }}
-                                    <a href="{{$dim.ChangeURL}}">{{ localise "Change" $language 1 }}
-                                        <span class="ons-u-vh">{{ localise "Variables" $language 1 }}
-                                            {{ $dim.Title }}
-                                        </span>
-                                    </a>
-                                {{ end }}
+                            {{ if and $dim.ShowChange $isFlexibleForm}}
+                                <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
+                                    {{ localise "Change" $language 1 }}
+                                    <span class="ons-u-vh">{{ localise "Variables" $language 1 }}
+                                        {{ $dim.Title }}
+                                    </span>
+                                </button>
                             {{ end }}
                         </td>
                     </tr>

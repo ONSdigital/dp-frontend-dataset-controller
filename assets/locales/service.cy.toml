@@ -54,6 +54,10 @@ one = "Cyhoeddiad nesaf:"
 description = "To be announced"
 one = "To be announced"
 
+[FlexibleDataset]
+description = "Flexible dataset"
+one = "Flexible dataset"
+
 [DatasetID]
 description = "Dataset ID:"
 one = "ID y set ddata:"
@@ -106,9 +110,9 @@ one = "Nodiadau pwysig a gwybodaeth ynghylch defnyddio"
 description = "View all data related to"
 one = "View all data related to"
 
-[ContactDetails]
-description = "Contact details"
-one = "Contact details"
+[ContactUs]
+description = "Contact us"
+one = "Contact us"
 
 [DatasetContactDetails]
 description = "Contact details for this dataset"
@@ -139,17 +143,29 @@ few = "Related links"
 many = "Related links"
 other = "Related links"
 
-[StatsDisclosureTitle]
-description = "Statistical disclosure control"
-one = "Statistical disclosure control"
+[ProtectingPersonalDataTitle]
+description = "Protecting personal data"
+one = "Protecting personal data"
 
-[StatsDisclosureReasoning]
-description = "Reasoning for why we have statistical disclosure controls in place"
-one = "In order to protect against disclosure of personal information from the 2021 Census, there has been swapping of records in the Census database between different geographic areas, and so some counts will be affected."
+[ProtectingPersonalDataBlurb]
+description = "Blurb for protecting personal data"
+one = "Sometimes we need to make changes to data if it is possible to identify individuals. This is known as statistical disclosure control."
 
-[StatsDisclosureEffect]
-description = "The primary effect of statistical disclosure controls on the dataset"
-one = "In the main, the greatest effects will be at the lowest geographies, since the record swapping is targeted towards those households with unusual characteristics in small areas."
+[ProtectingPersonalInCensus]
+description = "In Census 2021, we:"
+one = "In Census 2021, we:"
+
+[ProtectingPersonalDataSwappedRecords]
+description = "swapped records (targeted record swapping), for example, if a household was likely to be identified in datasets because it has unusual characteristics, we swapped the record with a similar one from a nearby small area (very unusual households could be swapped with one in a nearby local authority)"
+one = "swapped records (targeted record swapping), for example, if a household was likely to be identified in datasets because it has unusual characteristics, we swapped the record with a similar one from a nearby small area (very unusual households could be swapped with one in a nearby local authority)"
+
+[ProtectingPersonalDataAddedSmallChanges]
+description = "added small changes to some counts (cell key perturbation), for example, we might change a count of four to a three or a five – this might make small differences between tables depending on how the data are broken down when we applied perturbation"
+one = "added small changes to some counts (cell key perturbation), for example, we might change a count of four to a three or a five – this might make small differences between tables depending on how the data are broken down when we applied perturbation"
+
+[ProtectingPersonalDataReadMore]
+description = "Read more in section 5"
+one = "Read more in <a href=\"/census/planningforcensus2021/censusdesign/designforcensus2021#outputs-and-disclosure-control\">Section 5 of our article Design for Census 2021</a>."
 
 [Summary]
 description = "Summary"
@@ -318,3 +334,15 @@ one = "Show all {{.arg0}} categories"
 [TruncateShowFewer]
 description = "Show less categories"
 one = "Show less categories"
+
+[VariableInfoAreaType]
+description = "Area type variable information"
+one = "<p>Census 2021 statistics are published for a number of different geographies. These can be large, for example the whole of England, or small, for example an output area (OA), the lowest level of geography for which statistics are produced.</p><p>For higher levels of geography, more detailed statistics can be produced. When a lower level of geography is used, such as output areas (which have a minimum of 100 persons), the statistics produced have less detail. This is to protect the confidentiality of people and ensure that individuals or their characteristics cannot be identified.</p>"
+
+[VariableInfoCoverage]
+description = "Coverage variable information"
+one = "<p>Census 2021 statistics are published for the whole of England and Wales. However, you can choose to filter areas by:</p><ul class=\"ons-list\"><li class=\"ons-list__item\">country - for example, Wales</li><li class=\"ons-list__item\">region - for example, London</li><li class=\"ons-list__item\">local authority - for example, Cornwall</li><li class=\"ons-list__item\">health area – for example, Clinical Commissioning Group</li><li class=\"ons-list__item\">statistical area - for example, MSOA or LSOA</li></ul>"
+
+[UKStatisticsAuthorityKitemark]
+description = "UK Statistics Authority Kitemark"
+one = "UK Statistics Authority Kitemark"

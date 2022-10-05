@@ -9,10 +9,15 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
+)
+
+const (
+	Filter           string = "filter"
+	FilterFlex       string = "filter-flex"
+	FilterFlexOutput string = "filter-flex-output"
 )
 
 func TestCreateFilterID(t *testing.T) {
@@ -21,8 +26,6 @@ func TestCreateFilterID(t *testing.T) {
 	ctx := gomock.Any()
 
 	Convey("test CreateFilterID", t, func() {
-		mockCfg := config.Config{}
-
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
@@ -45,7 +48,7 @@ func TestCreateFilterID(t *testing.T) {
 				&dataset.QueryParams{Offset: 0, Limit: 0}).Return(datasetOptions(0, 0), nil)
 
 			body := strings.NewReader("")
-			w := testResponse(301, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, false, mockCfg)
+			w := testResponse(301, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, Filter)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -62,12 +65,11 @@ func TestCreateFilterID(t *testing.T) {
 
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, false, mockCfg)
+			testResponse(500, body, "/datasets/1234/editions/5678/versions/2017/filter", mockClient, mockDatasetClient, Filter)
 		})
 	})
 
 	Convey("test CreateFilterFlexID", t, func() {
-		mockCfg := config.Config{EnableCensusPages: true}
 		mockVersions := dataset.VersionsList{
 			Items: []dataset.Version{
 				{}, // deliberately empty
@@ -104,7 +106,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
 			body := strings.NewReader("dimension=geography")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1", mockClient, mockDatasetClient, FilterFlex)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -132,21 +134,12 @@ func TestCreateFilterID(t *testing.T) {
 				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
 
 			body := strings.NewReader("dimension=coverage")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockClient, mockDatasetClient, true, mockCfg)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1", mockClient, mockDatasetClient, FilterFlex)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
 
 			So(location, ShouldEqual, "/filters/12345/dimensions/geography/coverage")
-		})
-
-		Convey("test post route fails if config is false", func() {
-			mockCfg := config.Config{EnableCensusPages: false}
-			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			mockFilterClient := NewMockFilterClient(mockCtrl)
-			body := strings.NewReader("")
-
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
 		})
 
 		Convey("test CreateFilterFlexID returns 500 if unable to create a blueprint on filter api", func() {
@@ -157,21 +150,117 @@ func TestCreateFilterID(t *testing.T) {
 			mockFilterClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", gomock.Any(), "").Return("", "", errors.New("unable to create filter blueprint"))
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-flex", mockFilterClient, mockDatasetClient, true, mockCfg)
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1", mockFilterClient, mockDatasetClient, FilterFlex)
+		})
+	})
+
+	Convey("test CreateFilterFlexIDFromOutput", t, func() {
+		mockFo := filter.Model{
+			Dataset: filter.Dataset{
+				DatasetID: "1234",
+				Edition:   "2021",
+				Version:   1,
+			},
+			PopulationType: "Example",
+			Dimensions: []filter.ModelDimension{
+				{
+					Name:       "geography",
+					IsAreaType: toBoolPtr(true),
+					Options: []string{
+						"option 1", "option 2",
+					},
+					FilterByParent: "country",
+				},
+				{
+					Name:           "another dim",
+					IsAreaType:     new(bool),
+					Options:        []string{},
+					FilterByParent: "",
+				},
+			},
+		}
+
+		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect includes dimension name", func() {
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(mockFo, nil)
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprint(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), mockFo.Dataset.DatasetID, mockFo.Dataset.Edition, "1", mockFo.Dimensions, mockFo.PopulationType).
+				Return("12345", "testETag", nil)
+
+			body := strings.NewReader("dimension=geography")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/geography")
+		})
+
+		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect for coverage appends to geography", func() {
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(mockFo, nil)
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprint(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), mockFo.Dataset.DatasetID, mockFo.Dataset.Edition, "1", mockFo.Dimensions, mockFo.PopulationType).
+				Return("12345", "testETag", nil)
+
+			body := strings.NewReader("dimension=coverage")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/geography/coverage")
+		})
+
+		Convey("test CreateFilterFlexIDFromOutput returns 500 if unable to get filter record on filter api", func() {
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, errors.New("unable to get filter job"))
+			body := strings.NewReader("")
+
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
+		})
+
+		Convey("test CreateFilterFlexIDFromOutput returns 500 if unable to create a blueprint on filter api", func() {
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(mockFo, nil)
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprint(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), mockFo.Dataset.DatasetID, mockFo.Dataset.Edition, "1", mockFo.Dimensions, mockFo.PopulationType).
+				Return("", "", errors.New("unable to create filter blueprint"))
+			body := strings.NewReader("")
+
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
 		})
 	})
 }
 
-func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc DatasetClient, filterFlexRoute bool, cfg config.Config) *httptest.ResponseRecorder {
+func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc DatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", url, body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	w := httptest.NewRecorder()
 
 	router := mux.NewRouter()
-	if filterFlexRoute {
-		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-flex", CreateFilterFlexID(fc, dc, cfg))
-	} else {
+	switch filterFlexRoute {
+	case FilterFlex:
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", CreateFilterFlexID(fc, dc))
+	case FilterFlexOutput:
+		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", CreateFilterFlexIDFromOutput(fc))
+	case Filter:
 		router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter", CreateFilterID(fc, dc))
 	}
 
