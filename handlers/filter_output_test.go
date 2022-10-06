@@ -9,6 +9,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/golang/mock/gomock"
@@ -98,6 +99,12 @@ func TestFilterOutputHandler(t *testing.T) {
 
 	Convey("Given the FilterOutput handler", t, func() {
 		Convey("When it receives good dataset api responses", func() {
+			hp := zebedee.HomepageContent{}
+			mockZebedeeClient.
+				EXPECT().
+				GetHomepageContent(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(hp, nil).AnyTimes()
+
 			mockDc := NewMockDatasetClient(mockCtrl)
 			mockDc.
 				EXPECT().
