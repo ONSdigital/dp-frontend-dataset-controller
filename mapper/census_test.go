@@ -173,6 +173,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
 		So(page.Page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
 		So(page.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
+		So(page.SearchNoIndexEnabled, ShouldBeFalse)
 	})
 
 	Convey("Census dataset landing page maps correctly with filter output", t, func() {
@@ -211,6 +212,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, fDims[0].Options)
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.SearchNoIndexEnabled, ShouldBeTrue)
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {

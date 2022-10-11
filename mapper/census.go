@@ -38,6 +38,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Type = d.Type
 	if isFilterOutput {
 		p.Type += FilterOutput
+		p.SearchNoIndexEnabled = true
 	}
 	p.Language = lang
 	p.URI = req.URL.Path
