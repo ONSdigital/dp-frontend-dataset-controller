@@ -9,7 +9,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.5.0-beta
-	github.com/ONSdigital/dp-renderer v1.52.0
+	github.com/ONSdigital/dp-renderer v1.53.0
 	github.com/ONSdigital/log.go/v2 v2.3.0-beta
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/golang/mock v1.6.0
