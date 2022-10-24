@@ -53,7 +53,9 @@
         </div>
         {{ end }}
     {{ else }}
-        <p>{{- localise "DownloadsReady" .Language 4 .URI | safeHTML -}}</p>
+        <div class="ons-loading-spinner--after" role="alert" aria-live="assertive">
+            <p>{{- localise "DownloadsReady" .Language 4 .URI | safeHTML -}}</p>
+        </div>
     {{ end }}
     {{ template "partials/census/back-to-contents" . }}
 </section>
