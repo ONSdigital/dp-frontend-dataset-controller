@@ -146,11 +146,21 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 		var options []string
 		if opts.TotalCount == 0 {
+			// TODO: GetAreas has been updated with a Text parameter - this needs identifying and updating
 			areas, err := pc.GetAreas(ctx, population.GetAreasInput{
-				UserAuthToken: userAccessToken,
-				DatasetID:     filterOutput.PopulationType,
-				AreaTypeID:    dim.ID,
+				AuthTokens: population.AuthTokens{
+					UserAuthToken:    userAccessToken,
+					ServiceAuthToken: "",
+				},
+				PaginationParams: population.PaginationParams{
+					Limit:  opts.Limit,
+					Offset: opts.Offset,
+				},
+				PopulationType: filterOutput.PopulationType,
+				AreaTypeID:     dim.ID,
+				Text:           "",
 			})
+
 			if err != nil {
 				return nil, 0, fmt.Errorf("failed to get dimension areas: %w", err)
 			}
@@ -180,11 +190,15 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 				}
 
 				area, err := pc.GetArea(ctx, population.GetAreaInput{
-					UserAuthToken:  userAccessToken,
+					AuthTokens: population.AuthTokens{
+						UserAuthToken:    userAccessToken,
+						ServiceAuthToken: "",
+					},
 					PopulationType: filterOutput.PopulationType,
 					AreaType:       areaTypeID,
 					Area:           opt.Option,
 				})
+
 				if err != nil {
 					areaErrs[i] = err
 				}
@@ -211,13 +225,18 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 
 		if dim.FilterByParent != "" {
+
 			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
-				UserAuthToken:    userAccessToken,
-				DatasetID:        filterOutput.PopulationType,
+				AuthTokens: population.AuthTokens{
+					UserAuthToken:    userAccessToken,
+					ServiceAuthToken: "",
+				},
+				PopulationType:   filterOutput.PopulationType,
 				AreaTypeID:       dim.ID,
 				ParentAreaTypeID: dim.FilterByParent,
 				Areas:            optsIDs,
 			})
+
 			if err != nil {
 				log.Error(ctx, "failed to get parent area count", err, log.Data{
 					"dataset_id":          filterOutput.PopulationType,
