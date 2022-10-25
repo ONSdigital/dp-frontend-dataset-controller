@@ -1,0 +1,12 @@
+<section id="related-content" aria-label="{{ localise "RelatedContentTitle" .Language 1 }}">
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no">{{ localise "RelatedContentTitle" .Language 1 }}</h2>
+    {{ range $i, $item := .DatasetLandingPage.RelatedContentItems }}
+        <p>
+            <a href="{{ $item.Link }}">{{ $item.Title }}</a>    
+            <br/>
+            {{ $item.Text }}
+        </p>
+        {{ end }}
+
+    {{ template "partials/census/back-to-contents" . }}
+</section>
