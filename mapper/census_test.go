@@ -183,7 +183,6 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
 		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
-		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 		So(page.Page.ServiceMessage, ShouldEqual, serviceMessage)
 		So(page.Page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
 		So(page.Page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
