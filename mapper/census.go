@@ -291,20 +291,15 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.IsFlexibleForm = true
 	}
 
-	/*
-		Populate related content items here
-	*/
-	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{
-		{
-			Title: "Related link 1",
-			Link:  "https://related1.example.com",
-			Text:  "Description for Related Content 1",
-		},
-		{
-			Title: "Related link 2",
-			Link:  "https://related2.example.com",
-			Text:  "Description for Related Content 2",
-		},
+	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
+	if d.RelatedContent != nil {
+		for _, content := range *d.RelatedContent {
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
+				Title: content.Title,
+				Link:  content.HRef,
+				Text:  content.Description,
+			})
+		}
 	}
 
 	if isValidationError {
