@@ -8,7 +8,7 @@ require (
 	github.com/ONSdigital/dp-cookies v0.3.3
 	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
 	github.com/ONSdigital/dp-net v1.5.0
-	github.com/ONSdigital/dp-net/v2 v2.5.0-beta
+	github.com/ONSdigital/dp-net/v2 v2.6.0
 	github.com/ONSdigital/dp-renderer v1.53.0
 	github.com/ONSdigital/log.go/v2 v2.3.0-beta
 	github.com/PuerkitoBio/goquery v1.8.0
@@ -21,10 +21,7 @@ require (
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 )
 
-require (
-	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
-	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
-)
+require github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
