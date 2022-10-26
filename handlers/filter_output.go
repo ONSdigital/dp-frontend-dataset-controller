@@ -149,8 +149,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			// TODO: GetAreas has been updated with a Text parameter - this needs identifying and updating
 			areas, err := pc.GetAreas(ctx, population.GetAreasInput{
 				AuthTokens: population.AuthTokens{
-					UserAuthToken:    userAccessToken,
-					ServiceAuthToken: "",
+					UserAuthToken: userAccessToken,
 				},
 				PaginationParams: population.PaginationParams{
 					Limit:  opts.Limit,
@@ -158,7 +157,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 				},
 				PopulationType: filterOutput.PopulationType,
 				AreaTypeID:     dim.ID,
-				Text:           "",
 			})
 
 			if err != nil {
@@ -191,8 +189,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 				area, err := pc.GetArea(ctx, population.GetAreaInput{
 					AuthTokens: population.AuthTokens{
-						UserAuthToken:    userAccessToken,
-						ServiceAuthToken: "",
+						UserAuthToken: userAccessToken,
 					},
 					PopulationType: filterOutput.PopulationType,
 					AreaType:       areaTypeID,
@@ -228,8 +225,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
 				AuthTokens: population.AuthTokens{
-					UserAuthToken:    userAccessToken,
-					ServiceAuthToken: "",
+					UserAuthToken: userAccessToken,
 				},
 				PopulationType:   filterOutput.PopulationType,
 				AreaTypeID:       dim.ID,
