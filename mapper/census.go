@@ -257,10 +257,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.BetaBannerEnabled = true
 
-	p.ShowCensusBranding = false
-	if d.Survey == "census" {
-		p.ShowCensusBranding = true
-	}
+	p.ShowCensusBranding = d.Survey == "census"
 
 	if len(opts) > 0 && !isFilterOutput {
 		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, isFlex)
