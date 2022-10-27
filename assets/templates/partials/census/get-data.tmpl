@@ -56,9 +56,8 @@
         </div>
     {{ else }}
         <div data-get-data-form-downloads="loading">
-            <div class="ons-loading-spinner--after" role="alert" aria-live="assertive">
-                <p>{{- localise "DownloadsReady" .Language 4 .URI | safeHTML -}}</p>
-            </div>
+            <p>{{- localise "DownloadsReady" .Language 4 .URI | safeHTML -}}</p>
+            <div class="ons-loading-spinner--after js--show" role="alert" aria-live="assertive"></div>
         </div>
     {{ end }}
     {{ template "partials/census/back-to-contents" . }}
