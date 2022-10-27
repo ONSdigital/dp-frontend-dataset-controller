@@ -10,19 +10,35 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-renderer/helper"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateCensusDatasetLandingPage(t *testing.T) {
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
 	pageModel := model.Page{}
 	contact := dataset.Contact{
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
 	}
+	relatedContent := []dataset.GeneralDetails{
+		{
+			Title:       "Test related content 1",
+			HRef:        "testrc1.example.com",
+			Description: "Description of test related content 1",
+		},
+		{
+			Title:       "Test related content 2",
+			HRef:        "testrc2.example.com",
+			Description: "Description of test related content 2",
+		},
+	}
+
 	datasetModel := dataset.DatasetDetails{
 		Contacts: &[]dataset.Contact{
 			contact,
@@ -33,6 +49,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Type:              "cantabular",
 		NationalStatistic: true,
 		Survey:            "census",
+		RelatedContent:    &relatedContent,
 	}
 
 	versionOneDetails := dataset.Version{
@@ -53,17 +70,21 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		},
 		Dimensions: []dataset.VersionDimension{
 			{
-				Description: "A description on one line",
-				Name:        "Dimension 1",
-				ID:          "dim_1",
-				Label:       "Label 1",
-				IsAreaType:  helpers.ToBoolPtr(true),
+				Description:          "A description on one line",
+				Name:                 "Dimension 1",
+				ID:                   "dim_1",
+				Label:                "Label 1",
+				IsAreaType:           helpers.ToBoolPtr(true),
+				QualityStatementText: "This is a quality notice statement",
+				QualityStatementURL:  "#",
 			},
 			{
-				Description: "A description on one line \n Then a line break",
-				Name:        "Dimension 2",
-				Label:       "Label 2",
-				ID:          "dim_2",
+				Description:          "A description on one line \n Then a line break",
+				Name:                 "Dimension 2",
+				Label:                "Label 2",
+				ID:                   "dim_2",
+				QualityStatementText: "This is another quality notice statement",
+				QualityStatementURL:  "#",
 			},
 			{
 				Description: "",
@@ -168,6 +189,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].Name, ShouldEqual, "coverage")
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeFalse)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
+		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
+		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
 		So(page.Page.ServiceMessage, ShouldEqual, serviceMessage)
 		So(page.Page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
 		So(page.Page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
@@ -214,6 +237,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, fDims[0].Options)
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
+		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
 		So(page.SearchNoIndexEnabled, ShouldBeTrue)
 	})
 
@@ -250,7 +275,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
-					IsCorrection: false,
+					DisplayIcon: true,
+					Body:        "New version",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
 			Convey("Then the 'other versions' panel is displayed", func() {
@@ -277,7 +304,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
-					IsCorrection: true,
+					DisplayIcon: true,
+					Body:        "Correction notice",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
 			Convey("Then the 'correction notice' panel is displayed", func() {
@@ -290,15 +319,77 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
-					IsCorrection: true,
+					DisplayIcon: true,
+					Body:        "Correction notice",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 				{
-					IsCorrection: false,
+					DisplayIcon: true,
+					Body:        "New version",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
 			Convey("Then the 'correction notice' and 'other versions' panels are displayed", func() {
 				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 2)
 				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
+
+		Convey("When there is a quality notice on a dimension", func() {
+			datasetOptions := []dataset.Options{
+				{
+					Items: []dataset.Option{
+						{
+							DimensionID: "Dimension 1",
+							Label:       "Label 1",
+						},
+					},
+				},
+				{
+					Items: []dataset.Option{
+						{
+							DimensionID: "Dimension 2",
+							Label:       "Label 1",
+						},
+					},
+				},
+			}
+			page := CreateCensusDatasetLandingPage(
+				context.Background(),
+				req,
+				pageModel,
+				datasetModel,
+				versionOneDetails,
+				datasetOptions,
+				"",
+				false,
+				[]dataset.Version{},
+				1,
+				"",
+				"",
+				[]string{},
+				50,
+				false,
+				false,
+				false,
+				map[string]filter.Download{},
+				[]sharedModel.FilterDimension{},
+				serviceMessage,
+				emergencyBanner)
+
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					Body:       "<p>This is a quality notice statement</p>Read more about this",
+					CssClasses: []string{"ons-u-mt-no"},
+				},
+				{
+					Body:       "<p>This is another quality notice statement</p>Read more about this",
+					CssClasses: []string{"ons-u-mt-no", "ons-u-mb-l"},
+				},
+			}
+			Convey("Then the 'quality notice' panel is displayed", func() {
+				So(page.DatasetLandingPage.QualityStatements, ShouldHaveLength, 2)
+				So(page.DatasetLandingPage.QualityStatements, ShouldResemble, mockPanel)
 			})
 		})
 	})

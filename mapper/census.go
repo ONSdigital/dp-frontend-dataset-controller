@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
@@ -54,7 +55,9 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		for _, alert := range *version.Alerts {
 			if alert.Type == CorrectionAlertType {
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-					IsCorrection: true,
+					DisplayIcon: true,
+					Body:        helper.Localise("HasCorrectionNotice", lang, 1),
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 				break
 			}
@@ -191,6 +194,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "protecting-personal-data")
 
+	if d.RelatedContent != nil {
+		sections["related-content"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "RelatedContentTitle",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "related-content")
+	}
+
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
@@ -216,7 +229,9 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 		if latestVersionNumber != version.Version && hasOtherVersions {
 			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-				IsCorrection: false,
+				DisplayIcon: true,
+				Body:        helper.Localise("HasNewVersion", lang, 1),
+				CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 			})
 		}
 		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
@@ -260,7 +275,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.ShowCensusBranding = d.Survey == "census"
 
 	if len(opts) > 0 && !isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, isFlex)
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -293,6 +308,17 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		p.DatasetLandingPage.IsFlexibleForm = true
 	}
 
+	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
+	if d.RelatedContent != nil {
+		for _, content := range *d.RelatedContent {
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
+				Title: content.Title,
+				Link:  content.HRef,
+				Text:  content.Description,
+			})
+		}
+	}
+
 	if isValidationError {
 		p.Error = coreModel.Error{
 			Title: p.Metadata.Title,
@@ -315,6 +341,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 			Plural:    4,
 		},
 		AnchorFragment: "toc",
+	}
+
+	if len(p.DatasetLandingPage.QualityStatements) > 0 {
+		qsLen := len(p.DatasetLandingPage.QualityStatements)
+		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
 	return p
@@ -348,8 +379,9 @@ func populateCollapsible(Dimensions []dataset.VersionDimension) []coreModel.Coll
 	return collapsibleContentItems
 }
 
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path string, isFlex bool) []sharedModel.Dimension {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
+	qs := []datasetLandingPageCensus.Panel{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 
@@ -361,6 +393,12 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.ShowChange = pDim.IsAreaType && isFlex
 				pDim.Title = dimension.Label
 				pDim.ID = dimension.ID
+				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
+					qs = append(qs, datasetLandingPageCensus.Panel{
+						Body:       fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL)),
+						CssClasses: []string{"ons-u-mt-no"},
+					})
+				}
 			}
 		}
 
@@ -388,7 +426,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
 		dimensions = append(dimensions, pDim)
 	}
-	return dimensions
+	return dimensions, qs
 }
 
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string) []sharedModel.Dimension {
