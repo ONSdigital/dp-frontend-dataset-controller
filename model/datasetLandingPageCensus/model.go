@@ -30,12 +30,16 @@ type DatasetLandingPage struct {
 	IsFlexibleForm      bool                 `json:"is_flexible_form"`
 	DatasetURL          string               `json:"dataset_url"`
 	Panels              []Panel              `json:"panels"`
+	QualityStatements   []Panel              `json:"quality_statements"`
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
 }
 
 // Panel contains the data required to populate a panel UI component
 type Panel struct {
-	IsCorrection bool `json:"is_correction"`
+	DisplayIcon bool     `json:"display_icon"`
+	CssClasses  []string `json:"css_classes"`
+	Body        string   `json:"body"`
+	Language    string   `json:"language"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation

@@ -3,7 +3,7 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 go 1.18
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.191.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.192.0
 	github.com/ONSdigital/dp-cache v0.1.0
 	github.com/ONSdigital/dp-cookies v0.3.3
 	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
@@ -21,9 +21,8 @@ require (
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 )
 
-require github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
-
 require (
+	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/ONSdigital/dp-api-clients-go v1.43.0 // indirect
 	github.com/ONSdigital/dp-topic-api v0.13.1
