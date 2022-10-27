@@ -37,6 +37,9 @@
             {{ if .DatasetLandingPage.HasOtherVersions }}
                 {{ template "partials/census/version-history" . }}
             {{ end }}
+            {{ if .DatasetLandingPage.RelatedContentItems }}
+                {{ template "partials/census/related-content" . }}
+            {{ end }}
         </div>
     </div>
     {{ template "partials/share-dataset/share-section" . }}

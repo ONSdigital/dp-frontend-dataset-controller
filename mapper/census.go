@@ -194,6 +194,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "protecting-personal-data")
 
+	if d.RelatedContent != nil {
+		sections["related-content"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "RelatedContentTitle",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "related-content")
+	}
+
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
@@ -294,6 +304,17 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
 		p.DatasetLandingPage.IsFlexibleForm = true
+	}
+
+	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
+	if d.RelatedContent != nil {
+		for _, content := range *d.RelatedContent {
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
+				Title: content.Title,
+				Link:  content.HRef,
+				Text:  content.Description,
+			})
+		}
 	}
 
 	if isValidationError {

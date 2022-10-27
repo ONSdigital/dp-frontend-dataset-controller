@@ -26,6 +26,19 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
 	}
+	relatedContent := []dataset.GeneralDetails{
+		{
+			Title:       "Test related content 1",
+			HRef:        "testrc1.example.com",
+			Description: "Description of test related content 1",
+		},
+		{
+			Title:       "Test related content 2",
+			HRef:        "testrc2.example.com",
+			Description: "Description of test related content 2",
+		},
+	}
+
 	datasetModel := dataset.DatasetDetails{
 		Contacts: &[]dataset.Contact{
 			contact,
@@ -35,6 +48,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Title:             "Test title",
 		Type:              "cantabular",
 		NationalStatistic: true,
+		RelatedContent:    &relatedContent,
 	}
 
 	versionOneDetails := dataset.Version{
@@ -174,6 +188,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].Name, ShouldEqual, "coverage")
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeFalse)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
+		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
+		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
 		So(page.Page.ServiceMessage, ShouldEqual, serviceMessage)
 		So(page.Page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
 		So(page.Page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
@@ -219,6 +235,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, fDims[0].Options)
 		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
+		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
+		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
 		So(page.SearchNoIndexEnabled, ShouldBeTrue)
 	})
 

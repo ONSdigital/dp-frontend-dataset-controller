@@ -167,6 +167,10 @@ one = "added small changes to some counts (cell key perturbation), for example, 
 description = "Read more in section 5"
 one = "Read more in <a href=\"/census/planningforcensus2021/censusdesign/designforcensus2021#outputs-and-disclosure-control\">Section 5 of our article Design for Census 2021</a>."
 
+[RelatedContentTitle]
+description = "Related content title"
+one = "Related content"
+
 [Summary]
 description = "Summary"
 one = "Summary"
