@@ -191,6 +191,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "protecting-personal-data")
 
+	if d.RelatedContent != nil {
+		sections["related-content"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "RelatedContentTitle",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "related-content")
+	}
+
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
