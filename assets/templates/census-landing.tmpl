@@ -5,9 +5,7 @@
             {{ template "partials/error-summary" .Page.Error }}
         {{ end }}
         <section class="ons-u-mb-xl">
-            {{ if .DatasetLandingPage.Panels }}
-                {{ template "partials/census/panel" . }}
-            {{ end }}
+            {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
             <div class="ons-grid">
                 <div class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{ end }}">
                     <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">
@@ -28,6 +26,7 @@
             {{ template "partials/table-of-contents" . }}
         </div>
         <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
+            {{ template "partials/census/panel" .DatasetLandingPage.QualityStatements }}
             {{ template "partials/census/summary" . }}
             {{ template "partials/census/variables-table" . }}
             {{ template "partials/census/get-data" . }}
@@ -37,6 +36,9 @@
             {{ template "partials/census/protecting-personal-data" . }}
             {{ if .DatasetLandingPage.HasOtherVersions }}
                 {{ template "partials/census/version-history" . }}
+            {{ end }}
+            {{ if .DatasetLandingPage.RelatedContentItems }}
+                {{ template "partials/census/related-content" . }}
             {{ end }}
         </div>
     </div>

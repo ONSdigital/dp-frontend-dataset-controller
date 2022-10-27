@@ -148,6 +148,10 @@ one = "added small changes to some counts (cell key perturbation), for example, 
 description = "Read more in section 5"
 one = "Read more in <a href=\"/census/planningforcensus2021/censusdesign/designforcensus2021#outputs-and-disclosure-control\">Section 5 of our article Design for Census 2021</a>."
 
+[RelatedContentTitle]
+description = "Related content title"
+one = "Related content"
+
 [Summary]
 description = "Summary"
 one = "Summary"
@@ -327,3 +331,7 @@ one = "<p>Census 2021 statistics are published for the whole of England and Wale
 [UKStatisticsAuthorityKitemark]
 description = "UK Statistics Authority Kitemark"
 one = "UK Statistics Authority Kitemark"
+
+[QualityNoticeReadMore]
+description = "<p>Read more about this <a href=\"{{.QualityStatementURL}}\">quality notice</a>.</p>"
+one = "<p class=\"ons-u-mb-no\">Read more about this <a href=\"{{.arg0}}\">quality notice</a>.</p>"

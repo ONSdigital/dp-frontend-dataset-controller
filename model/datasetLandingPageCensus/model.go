@@ -21,20 +21,25 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	HasOtherVersions bool                    `json:"has_other_versions"`
-	HasDownloads     bool                    `json:"has_downloads"`
-	LatestVersionURL string                  `json:"latest_version_url"`
-	Dimensions       []sharedModel.Dimension `json:"dimensions"`
-	ShareDetails     ShareDetails
-	Description      []string `json:"description"`
-	IsFlexibleForm   bool     `json:"is_flexible_form"`
-	DatasetURL       string   `json:"dataset_url"`
-	Panels           []Panel  `json:"panels"`
+	HasOtherVersions    bool                    `json:"has_other_versions"`
+	HasDownloads        bool                    `json:"has_downloads"`
+	LatestVersionURL    string                  `json:"latest_version_url"`
+	Dimensions          []sharedModel.Dimension `json:"dimensions"`
+	ShareDetails        ShareDetails
+	Description         []string             `json:"description"`
+	IsFlexibleForm      bool                 `json:"is_flexible_form"`
+	DatasetURL          string               `json:"dataset_url"`
+	Panels              []Panel              `json:"panels"`
+	QualityStatements   []Panel              `json:"quality_statements"`
+	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
 }
 
 // Panel contains the data required to populate a panel UI component
 type Panel struct {
-	IsCorrection bool `json:"is_correction"`
+	DisplayIcon bool     `json:"display_icon"`
+	CssClasses  []string `json:"css_classes"`
+	Body        string   `json:"body"`
+	Language    string   `json:"language"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
@@ -50,4 +55,12 @@ type Share struct {
 	Title string `json:"title"`
 	Link  string `json:"link"`
 	Icon  string `json:"icon"`
+}
+
+/* RelatedContentItem contains details for a section of related content
+ */
+type RelatedContentItem struct {
+	Title string `json:"title"`
+	Link  string `json:"link"`
+	Text  string `json:"text"`
 }
