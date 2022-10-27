@@ -17,6 +17,7 @@ type Page struct {
 	ContactDetails      contactDetails.ContactDetails `json:"contact_details"`
 	HasContactDetails   bool                          `json:"has_contact_details"`
 	IsNationalStatistic bool                          `json:"is_national_statistic"`
+	ShowCensusBranding  bool                          `json:"show_census_branding"`
 }
 
 // DatasetLandingPage contains properties related to the census dataset landing page
