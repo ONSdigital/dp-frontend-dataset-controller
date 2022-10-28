@@ -20,6 +20,17 @@
                     </div>
                 {{ end }}
             </div>
+            {{ if .ShowCensusBranding }}
+                <div class="ons-grid ons-u-mb-m">
+                    <div class="ons-grid__col">
+                        {{ if eq .Language "en" }}
+                            <img src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-census-2021-purple-landscape.svg" title="Census 2021" class="header__svg-logo margin-right--1" xmlns="http://www.w3.org/2000/svg" focusable="false" width="167" height="32" viewBox="0 0 242 44"/>
+                        {{ else }}
+                            <img src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-cyfrifiad-2021-purple-landscape.svg" title="Cyfrifiad 2021" class="header__svg-logo margin-right--1" xmlns="http://www.w3.org/2000/svg" focusable="false" width="167" height="32" viewBox="0 0 242 44"/>
+                        {{ end }}
+                    </div>
+                </div>
+            {{ end }}
             {{ template "partials/census/id-datestamp" . }}
         </section>
         <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
