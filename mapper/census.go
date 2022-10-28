@@ -168,11 +168,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "get-data")
 
-	if len(version.Downloads) > 0 && !isFilterOutput {
+	if len(version.Downloads) >= 3 && !isFilterOutput {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
-	if isFilterOutput && len(filterOutput) > 0 {
+	if isFilterOutput && len(filterOutput) >= 3 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
