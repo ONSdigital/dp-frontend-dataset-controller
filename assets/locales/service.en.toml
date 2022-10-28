@@ -268,9 +268,9 @@ description = "Download"
 one = "download,"
 
 [DownloadsReady]
-description = "Your files are being created. Please <a href=\"{{.URI}}\">refresh</a> the page."
-one = "Your file is being created. Please <a href=\"{{.arg0}}\">refresh</a> the page."
-other = "Your files are being created. Please <a href=\"{{.arg0}}\">refresh</a> the page."
+description = "<strong>Your files are being created for download.</strong><br />If the page doesn't automatically update <a href=\"{{.URI}}\">reload the page</a>."
+one = "<strong>Your file is being created for download.</strong><br />If the page doesn't automatically update <a href=\"{{.arg0}}\">reload the page</a>."
+other = "<strong>Your files are being created for download.</strong><br />If the page doesn't automatically update <a href=\"{{.arg0}}\">reload the page</a>."
 
 [ImportantInformation]
 description = "Important information"
