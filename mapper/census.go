@@ -272,6 +272,8 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.BetaBannerEnabled = true
 
+	p.ShowCensusBranding = d.Survey == "census"
+
 	if len(opts) > 0 && !isFilterOutput {
 		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex)
 		coverage := []sharedModel.Dimension{

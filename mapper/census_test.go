@@ -48,6 +48,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		Title:             "Test title",
 		Type:              "cantabular",
 		NationalStatistic: true,
+		Survey:            "census",
 		RelatedContent:    &relatedContent,
 	}
 
@@ -197,6 +198,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
 		So(page.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 		So(page.SearchNoIndexEnabled, ShouldBeFalse)
+		So(page.ShowCensusBranding, ShouldBeTrue)
 	})
 
 	Convey("Census dataset landing page maps correctly with filter output", t, func() {
