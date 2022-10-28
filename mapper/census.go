@@ -106,7 +106,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	p.IsNationalStatistic = d.NationalStatistic
 
-	collapsibleContentItems := populateCollapsible(version.Dimensions)
+	collapsibleContentItems := populateCollapsible(version.Dimensions, isFilterOutput)
 	p.Collapsible = coreModel.Collapsible{
 		Title: coreModel.Localisation{
 			LocaleKey: "VariablesExplanation",
@@ -351,7 +351,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	return p
 }
 
-func populateCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
 		Subheading: AreaType,
@@ -368,14 +368,18 @@ func populateCollapsible(Dimensions []dataset.VersionDimension) []coreModel.Coll
 		},
 	})
 
-	for _, dims := range Dimensions {
-		if dims.Description != "" {
-			var collapsibleContent coreModel.CollapsibleItem
-			collapsibleContent.Subheading = dims.Label
-			collapsibleContent.Content = strings.Split(dims.Description, "\n")
-			collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+	// TODO: Temporarily removing mapping on filter output pages until API is updated
+	if !isFilterOutput {
+		for _, dims := range Dimensions {
+			if dims.Description != "" {
+				var collapsibleContent coreModel.CollapsibleItem
+				collapsibleContent.Subheading = dims.Label
+				collapsibleContent.Content = strings.Split(dims.Description, "\n")
+				collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+			}
 		}
 	}
+
 	return collapsibleContentItems
 }
 
