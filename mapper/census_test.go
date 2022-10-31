@@ -134,7 +134,19 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	filterOutput := map[string]filter.Download{
-		"CSV": {
+		"csv": {
+			Size: "12345",
+			URL:  "https://mydomain.com/my-request",
+		},
+		"xls": {
+			Size: "12345",
+			URL:  "https://mydomain.com/my-request",
+		},
+		"csvw": {
+			Size: "12345",
+			URL:  "https://mydomain.com/my-request",
+		},
+		"txt": {
 			Size: "12345",
 			URL:  "https://mydomain.com/my-request",
 		},
@@ -210,10 +222,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ReleaseDate, ShouldEqual, page.Version.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldBeFalse)
 		// Downloads are mapped from filterOutput
-		So(page.Version.Downloads[0].Size, ShouldEqual, "12345")
-		So(page.Version.Downloads[0].Extension, ShouldEqual, "csv")
-		So(page.Version.Downloads[0].URI, ShouldEqual, "https://mydomain.com/my-request")
-		So(page.Version.Downloads, ShouldHaveLength, 1)
+		So(page.Version.Downloads, ShouldHaveLength, 4)
 		So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
 		So(page.Metadata.Description, ShouldEqual, datasetModel.Description)
 		So(page.DatasetLandingPage.Description, ShouldResemble, strings.Split(datasetModel.Description, "\n"))
@@ -224,11 +233,8 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
 		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, "Area type")
 		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Coverage")
-		So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
-		So(page.Collapsible.CollapsibleItems[2].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
-		So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
-		So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
-		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 4)
+		// TODO: Removing test coverage until API is created
+		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, fDims[0].Label)
 		So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, fDims[0].Options)
@@ -493,11 +499,23 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Test HasDownloads", t, func() {
 		Convey("On version", func() {
-			Convey("HasDownloads set to true when downloads are greater than zero", func() {
+			Convey("HasDownloads set to true when downloads are greater than three or more", func() {
 				page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
-					"XLSX": {
-						Size: "1234",
-						URL:  "https://mydomain.com/my-request.xlsx",
+					"csv": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+					"xls": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+					"csvw": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+					"txt": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
 					},
 				}}, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -508,7 +526,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			})
 		})
 		Convey("On filterOutput", func() {
-			Convey("HasDownloads set to true when downloads are greater than zero", func() {
+			Convey("HasDownloads set to true when downloads are greater than three or more", func() {
 				page := CreateCensusDatasetLandingPage(context.Background(),
 					req,
 					pageModel,
