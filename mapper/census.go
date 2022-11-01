@@ -216,7 +216,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		if latestVersionNumber != version.Version && hasOtherVersions {
 			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 				DisplayIcon: true,
-				Body:        helper.Localise("HasNewVersion", lang, 1, strconv.Itoa(latestVersionNumber)),
+				Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
 				CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 			})
 		}
