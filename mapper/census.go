@@ -124,10 +124,6 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 			Title: "Census",
 			URI:   "/census",
 		},
-		{
-			Title: "Datasets",
-			URI:   "/census/datasets",
-		},
 	}
 
 	sections := make(map[string]coreModel.ContentSection)
