@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -97,7 +96,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient) http.HandlerFunc {
 			return
 		}
 
-		dimensionName := url.QueryEscape(strings.ToLower(req.FormValue("dimension")))
+		dimensionName := url.QueryEscape(req.FormValue("dimension"))
 		filterPath := createFilterPath(fid, dimensionName)
 
 		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})
@@ -141,7 +140,7 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 			return
 		}
 
-		dimensionName := url.QueryEscape(strings.ToLower(req.FormValue("dimension")))
+		dimensionName := url.QueryEscape(req.FormValue("dimension"))
 		filterPath := createFilterPath(fid, dimensionName)
 
 		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})
