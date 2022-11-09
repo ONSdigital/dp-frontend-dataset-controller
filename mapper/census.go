@@ -164,11 +164,11 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	}
 	displayOrder = append(displayOrder, "get-data")
 
-	if len(version.Downloads) > 0 && !isFilterOutput {
+	if len(version.Downloads) >= 3 && !isFilterOutput {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
-	if isFilterOutput && len(filterOutput) > 0 {
+	if isFilterOutput && len(filterOutput) >= 3 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
@@ -216,7 +216,7 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 		if latestVersionNumber != version.Version && hasOtherVersions {
 			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 				DisplayIcon: true,
-				Body:        helper.Localise("HasNewVersion", lang, 1),
+				Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
 				CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 			})
 		}
