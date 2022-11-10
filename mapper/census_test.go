@@ -341,6 +341,27 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			})
 		})
 
+		Convey("When there is an alert on the current version", func() {
+			versionTwoDetails.Alerts = &[]dataset.Alert{
+				{
+					Description: "Important notice",
+					Type:        "alert",
+				},
+			}
+			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					DisplayIcon: true,
+					Body:        "Important notice",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+				},
+			}
+			Convey("Then the 'alert' panel is displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 1)
+				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
+
 		Convey("When there is a quality notice on a dimension", func() {
 			datasetOptions := []dataset.Options{
 				{
