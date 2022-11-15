@@ -21,6 +21,7 @@ import (
 
 // Constants...
 const (
+	AlertType           = "alert"
 	CorrectionAlertType = "correction"
 	queryStrKey         = "showAll"
 	Coverage            = "Coverage"
@@ -53,13 +54,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if version.Alerts != nil {
 		for _, alert := range *version.Alerts {
-			if alert.Type == CorrectionAlertType {
+			switch alert.Type {
+			case CorrectionAlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 					DisplayIcon: true,
 					Body:        helper.Localise("HasCorrectionNotice", lang, 1),
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
-				break
+			case AlertType:
+				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+					DisplayIcon: true,
+					Body:        helper.Localise("HasAlert", lang, 1, alert.Description),
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+				})
 			}
 		}
 	}
