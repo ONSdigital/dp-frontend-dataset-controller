@@ -205,6 +205,10 @@ description = "Variable and dataset information"
 one = "Variable and dataset information"
 other = "Variable and dataset information"
 
+[VariableChange]
+description = "Add or remove variable"
+one = "Add or remove variable"
+
 [Category]
 description = "Category"
 one = "Category"

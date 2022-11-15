@@ -13,6 +13,7 @@ type Config struct {
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
 	Debug                         bool          `envconfig:"DEBUG"`
 	EnableCensusPages             bool          `envconfig:"ENABLE_CENSUS_PAGES"`
+	EnableMultivariate            bool          `envconfig:"ENABLE_MULTIVARIATE"`
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
 	PatternLibraryAssetsPath      string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
@@ -53,6 +54,7 @@ func get() (*Config, error) {
 		BindAddr:                      "localhost:20200",
 		Debug:                         false,
 		EnableCensusPages:             false,
+		EnableMultivariate:            false,
 		APIRouterURL:                  "http://localhost:23200/v1",
 		DownloadServiceURL:            "http://localhost:23600",
 		SiteDomain:                    "localhost",
