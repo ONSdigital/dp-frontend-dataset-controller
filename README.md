@@ -2,24 +2,27 @@
 
 ==================
 
-An HTTP service for the controlling of data relevant to a particular dataset.
+An HTTP service for the controlling of data and rendering templates relevant to a particular dataset.
 
 ## Configuration
 
-| Environment variable         | Default                 | Description
-| -----------------------------| ----------------------- | --------------------------------------
-| BIND_ADDR                    | :20200                  | The host and port to bind to.
-| DEBUG                        | false                   | Enable debug mode
-| API_ROUTER_URL               | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)
-| SITE_DOMAIN                  | localhost               |
-| PATTERN_LIBRARY_ASSETS_PATH  | ""                      | Pattern library location
-| SUPPORTED_LANGUAGES          | [2]string{"en", "cy"}   | Supported languages
-| DOWNLOAD_SERVICE_URL         | http://localhost:23600  | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).
-| GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                      | The graceful shutdown timeout in seconds
-| HEALTHCHECK_INTERVAL         | 30s                     | The time between calling healthcheck endpoints for check subsystems
-| HEALTHCHECK_CRITICAL_TIMEOUT | 90s                     | The time taken for the health changes from warning state to critical due to subsystem check failures
-| ENABLE_PROFILER              | false                   | Flag to enable go profiler
-| PPROF_TOKEN                  | ""                      | The profiling token to access service profiling
+| Environment variable         | Default                   | Description                                                                                          |
+| ---------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| BIND_ADDR                    | :20200                    | The host and port to bind to.                                                                        |
+| DEBUG                        | false                     | Enable debug mode                                                                                    |
+| ENABLE_CENSUS_PAGES          | false                     | Enable 2021 census pages                                                                             |
+| ENABLE_MULTIVARIATE          | false                     | Enable 2021 [multivariate datasets](https://github.com/ONSdigital/dp-dataset-api/blob/5f9f4218b65aae4803809f4a876e9f72b9bf5305/models/dataset.go#L43); use with ENABLE_CENSUS_PAGES                                      |
+| API_ROUTER_URL               | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                          |
+| SITE_DOMAIN                  | localhost                 |
+| PATTERN_LIBRARY_ASSETS_PATH  | ""                        | Pattern library location                                                                             |
+| SUPPORTED_LANGUAGES          | []string{"en", "cy"}      | Supported languages                                                                                  |
+| DOWNLOAD_SERVICE_URL         | http://localhost:23600    | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).             |
+| GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                        | The graceful shutdown timeout in seconds                                                             |
+| HEALTHCHECK_INTERVAL         | 30s                       | The time between calling healthcheck endpoints for check subsystems                                  |
+| HEALTHCHECK_CRITICAL_TIMEOUT | 90s                       | The time taken for the health changes from warning state to critical due to subsystem check failures |
+| ENABLE_PROFILER              | false                     | Flag to enable go profiler                                                                           |
+| PPROF_TOKEN                  | ""                        | The profiling token to access service profiling                                                      |
+| ENABLE_NEW_NAV_BAR           | false                     | Enable new nav bar                                                                                   |
 
 ## Profiling
 
@@ -37,12 +40,12 @@ Then you can us the profiler as follows:
 
 2- Send authenticated request and store response in a file (this can be best done in command line like so: `curl <host>:<port>/debug/pprof/heap -H "Authorization: Bearer {generated uuid} > heap.out` - see pprof documentation on other endpoints
 
-3- View profile either using a web ui to navigate data (a) or using pprof on command line to navigate data (b) 
-  a) `go tool pprof -http=:8080 heap.out`
-  b) `go tool pprof heap.out`, -o flag to see various options
+3- View profile either using a web ui to navigate data (a) or using pprof on command line to navigate data (b)
+a) `go tool pprof -http=:8080 heap.out`
+b) `go tool pprof heap.out`, -o flag to see various options
 
 ## Licence
 
-Copyright ©‎ 2017 2020, Office for National Statistics (https://www.ons.gov.uk)
+Copyright ©‎ 2022, Office for National Statistics (https://www.ons.gov.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
