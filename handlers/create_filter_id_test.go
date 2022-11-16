@@ -114,6 +114,34 @@ func TestCreateFilterID(t *testing.T) {
 			So(location, ShouldEqual, "/filters/12345/dimensions/geography")
 		})
 
+		Convey("test CreateFilterFlexID handler, creates a filter id and redirect for multivariate", func() {
+			mockDims := []filter.ModelDimension{
+				{
+					Name: "geography",
+				},
+				{
+					Name: "age",
+				},
+			}
+			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
+				Return("12345", "testETag", nil)
+
+			mockDatasetClient := NewMockDatasetClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
+				Return(mockVersions.Items[1], nil)
+			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
+				Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{ID: "Example"}}, nil)
+
+			body := strings.NewReader("dimension=change")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1", mockClient, mockDatasetClient, FilterFlex)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/change")
+		})
+
 		Convey("test CreateFilterFlexID handler, creates a filter id and redirect for coverage appends to geography", func() {
 			mockDims := []filter.ModelDimension{
 				{
@@ -179,6 +207,26 @@ func TestCreateFilterID(t *testing.T) {
 				},
 			},
 		}
+
+		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect for multivariate", func() {
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(mockFo, nil)
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprint(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), mockFo.Dataset.DatasetID, mockFo.Dataset.Edition, "1", mockFo.Dimensions, mockFo.PopulationType).
+				Return("12345", "testETag", nil)
+
+			body := strings.NewReader("dimension=change")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/change")
+		})
 
 		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect includes dimension name", func() {
 			mockFc := NewMockFilterClient(mockCtrl)

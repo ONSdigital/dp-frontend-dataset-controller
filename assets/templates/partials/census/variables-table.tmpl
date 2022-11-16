@@ -1,6 +1,7 @@
 {{$dims := .DatasetLandingPage.Dimensions}}
 {{$language := .Language }}
 {{$isFlexibleForm := .DatasetLandingPage.IsFlexibleForm}}
+{{$isMultivarite := .DatasetLandingPage.IsMultivariate}}
 <section id="variables" aria-label="{{ localise "Variables" .Language 4}}">
     <h2 class="ons-u-mt-xl">{{ localise "Variables" .Language 4}}</h2>
     {{ if $isFlexibleForm }}
@@ -88,6 +89,13 @@
                 {{ end }}
             </tbody>
         </table>
+        {{ if $isMultivarite }}
+            <button type="submit" class="ons-btn ons-btn--secondary" name="dimension" value="change">
+                <span class="ons-btn__inner">
+                    <span class="ons-btn__text">{{- localise "VariableChange" $language 1 -}}</span>
+                </span>
+            </button>
+        {{ end }}
         {{ if $isFlexibleForm }}
         </form>
     {{ end }}

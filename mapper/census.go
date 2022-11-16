@@ -30,7 +30,7 @@ const (
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -74,9 +74,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 	var isFlex bool
-	if strings.Contains(d.Type, "flex") {
+	switch {
+	case strings.Contains(d.Type, "flex"):
 		isFlex = true
 		p.DatasetLandingPage.IsFlexibleForm = true
+	case strings.Contains(d.Type, "multivariate"):
+		if isEnableMultivariate {
+			isFlex = true
+			p.DatasetLandingPage.IsMultivariate = true
+			p.DatasetLandingPage.IsFlexibleForm = true
+		}
 	}
 
 	if isFilterOutput {

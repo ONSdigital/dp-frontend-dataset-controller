@@ -33,6 +33,7 @@ type DatasetLandingPage struct {
 	Panels              []Panel              `json:"panels"`
 	QualityStatements   []Panel              `json:"quality_statements"`
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
+	IsMultivariate      bool                 `json:"is_multivariate"`
 }
 
 // Panel contains the data required to populate a panel UI component
