@@ -186,6 +186,10 @@ description = "Variable and dataset information"
 one = "Variable and dataset information"
 other = "Variable and dataset information"
 
+[VariableChange]
+description = "Add or remove variable"
+one = "Add or remove variable"
+
 [Category]
 description = "Category"
 one = "Category"
@@ -283,6 +287,10 @@ one = "<strong>There is a new version of this dataset.</strong> View the <a href
 [HasCorrectionNotice]
 description = "<strong>Correction to this dataset.</strong> View the <a href=\"#update-reason\">reason for update</a>."
 one = "<strong>Correction to this dataset.</strong> View the <a href=\"#update-reason\">reason for update</a>."
+
+[HasAlert]
+description = "<strong>Important notice</strong><p>{{.Description}}</p>"
+one = "<p><strong>Important notice</strong></p><p class=\"ons-u-mb-no\">{{.arg0}}</p>"
 
 [Change]
 description = "Change"

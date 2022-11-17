@@ -9,6 +9,8 @@ var cyLocale = []string{
 	"one = \"New version\"",
 	"[QualityNoticeReadMore]",
 	"one = \"Read more about this\"",
+	"[HasAlert]",
+	"one = \"Important notice\"",
 }
 
 var enLocale = []string{
@@ -18,6 +20,8 @@ var enLocale = []string{
 	"one = \"New version\"",
 	"[QualityNoticeReadMore]",
 	"one = \"Read more about this\"",
+	"[HasAlert]",
+	"one = \"Important notice\"",
 }
 
 // MockAssetFunction returns mocked toml []bytes

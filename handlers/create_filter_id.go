@@ -151,9 +151,12 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 func createFilterPath(fid, dimensionName string) string {
 	filterPath := fmt.Sprintf("/filters/%s/dimensions", fid)
 	if dimensionName != "" {
-		if dimensionName == "coverage" {
+		switch dimensionName {
+		case "coverage":
 			filterPath += fmt.Sprintf("/geography/%s", dimensionName)
-		} else {
+		case "change":
+			filterPath += "/change"
+		default:
 			filterPath += fmt.Sprintf("/%s", dimensionName)
 		}
 	}

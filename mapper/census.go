@@ -21,6 +21,7 @@ import (
 
 // Constants...
 const (
+	AlertType           = "alert"
 	CorrectionAlertType = "correction"
 	queryStrKey         = "showAll"
 	Coverage            = "Coverage"
@@ -29,7 +30,7 @@ const (
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
 	}
@@ -53,13 +54,19 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 
 	if version.Alerts != nil {
 		for _, alert := range *version.Alerts {
-			if alert.Type == CorrectionAlertType {
+			switch alert.Type {
+			case CorrectionAlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 					DisplayIcon: true,
 					Body:        helper.Localise("HasCorrectionNotice", lang, 1),
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
-				break
+			case AlertType:
+				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+					DisplayIcon: true,
+					Body:        helper.Localise("HasAlert", lang, 1, alert.Description),
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+				})
 			}
 		}
 	}
@@ -67,9 +74,16 @@ func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, base
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
 	var isFlex bool
-	if strings.Contains(d.Type, "flex") {
+	switch {
+	case strings.Contains(d.Type, "flex"):
 		isFlex = true
 		p.DatasetLandingPage.IsFlexibleForm = true
+	case strings.Contains(d.Type, "multivariate"):
+		if isEnableMultivariate {
+			isFlex = true
+			p.DatasetLandingPage.IsMultivariate = true
+			p.DatasetLandingPage.IsFlexibleForm = true
+		}
 	}
 
 	if isFilterOutput {

@@ -168,7 +168,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("Census dataset landing page maps correctly as version 1", t, func() {
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Type, ShouldEqual, datasetModel.Type)
 		So(page.DatasetId, ShouldEqual, datasetModel.ID)
 		So(page.Version.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
@@ -215,7 +215,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Census dataset landing page maps correctly with filter output", t, func() {
 		datasetModel.Type = "flexible"
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutput, fDims, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutput, fDims, serviceMessage, emergencyBanner)
 		So(page.Type, ShouldEqual, fmt.Sprintf("%s_filter_output", datasetModel.Type))
 		So(page.DatasetId, ShouldEqual, datasetModel.ID)
 		So(page.Version.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
@@ -250,7 +250,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
 		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/2", nil)
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "/a/version/123", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "/a/version/123", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
 		So(page.Version.ReleaseDate, ShouldEqual, versionTwoDetails.ReleaseDate)
 		So(page.DatasetLandingPage.HasOtherVersions, ShouldBeTrue)
@@ -264,13 +264,13 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("IsCurrent returns false when request is for a different page", t, func() {
 		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/1", nil)
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Versions[0].VersionURL, ShouldEqual, "/datasets/cantabular-1/editions/2021/versions/2")
 		So(page.Versions[0].IsCurrentPage, ShouldBeFalse)
 	})
 
 	Convey("Versions history is in descending order", t, func() {
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Versions[0].VersionNumber, ShouldEqual, 3)
 		So(page.Versions[1].VersionNumber, ShouldEqual, 2)
 		So(page.Versions[2].VersionNumber, ShouldEqual, 1)
@@ -278,7 +278,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Given a census dataset landing page testing panels", t, func() {
 		Convey("When there is more than one version", func() {
-			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
@@ -293,21 +293,21 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("When there is one version", func() {
-			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{versionOneDetails}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{versionOneDetails}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			Convey("Then the 'other versions' panel is not displayed", func() {
 				So(page.DatasetLandingPage.Panels, ShouldBeEmpty)
 			})
 		})
 
 		Convey("When you are on the latest version", func() {
-			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionThreeDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionThreeDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			Convey("Then the 'other versions' panel is not displayed", func() {
 				So(page.DatasetLandingPage.Panels, ShouldBeEmpty)
 			})
 		})
 
 		Convey("When there a correction notice on the current version", func() {
-			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
@@ -322,7 +322,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("When you are not on the latest version and a correction notice is on the current version", func() {
-			page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
@@ -337,6 +337,27 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			}
 			Convey("Then the 'correction notice' and 'other versions' panels are displayed", func() {
 				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 2)
+				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
+			})
+		})
+
+		Convey("When there is an alert on the current version", func() {
+			versionTwoDetails.Alerts = &[]dataset.Alert{
+				{
+					Description: "Important notice",
+					Type:        "alert",
+				},
+			}
+			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+			mockPanel := []datasetLandingPageCensus.Panel{
+				{
+					DisplayIcon: true,
+					Body:        "Important notice",
+					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+				},
+			}
+			Convey("Then the 'alert' panel is displayed", func() {
+				So(page.DatasetLandingPage.Panels, ShouldHaveLength, 1)
 				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
 			})
 		})
@@ -361,6 +382,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			page := CreateCensusDatasetLandingPage(
+				true,
 				context.Background(),
 				req,
 				pageModel,
@@ -422,7 +444,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			},
 		}
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, true, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, true, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Error, ShouldResemble, mockErr)
 	})
 
@@ -436,7 +458,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			},
 		}
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Error.Title, ShouldBeBlank)
 	})
 
@@ -450,7 +472,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			},
 		}
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionDetails, datasetOptions, versionOneDetails.ReleaseDate, false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.Error.Title, ShouldBeBlank)
 	})
 
@@ -465,7 +487,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("No contacts provided, contact section is not displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, noContactDM, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, noContactDM, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.ContactDetails.Email, ShouldEqual, noContact.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, noContact.Telephone)
 		So(page.HasContactDetails, ShouldBeFalse)
@@ -482,7 +504,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	}
 
 	Convey("One contact detail provided, contact section is displayed", t, func() {
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.ContactDetails.Email, ShouldEqual, oneContactDetail.Email)
 		So(page.ContactDetails.Telephone, ShouldEqual, oneContactDetail.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
@@ -493,14 +515,35 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			Type: "cantabular_flexible_table",
 			ID:   "test-flex",
 		}
-		page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, flexDm, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, flexDm, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
+		So(page.DatasetLandingPage.IsMultivariate, ShouldBeFalse)
+	})
+
+	Convey("Dataset type is multivariate, additional mapping is correct", t, func() {
+		mvd := dataset.DatasetDetails{
+			Type: "cantabular_multivariate_table",
+			ID:   "test-multi",
+		}
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, mvd, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
+		So(page.DatasetLandingPage.IsMultivariate, ShouldBeTrue)
+	})
+
+	Convey("Config for multivariate=false, additional mapping is correct", t, func() {
+		mvd := dataset.DatasetDetails{
+			Type: "cantabular_multivariate_table",
+			ID:   "test-multi",
+		}
+		page := CreateCensusDatasetLandingPage(false, context.Background(), req, pageModel, mvd, versionOneDetails, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
+		So(page.DatasetLandingPage.IsMultivariate, ShouldBeFalse)
 	})
 
 	Convey("Test HasDownloads", t, func() {
 		Convey("On version", func() {
 			Convey("HasDownloads set to true when downloads are greater than three or more", func() {
-				page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
+				page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
 					"csv": {
 						Size: "12345",
 						URL:  "https://mydomain.com/my-request",
@@ -521,13 +564,15 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
 			})
 			Convey("HasDownloads set to false when downloads are zero", func() {
-				page := CreateCensusDatasetLandingPage(context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: nil}, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+				page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: nil}, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
 			})
 		})
 		Convey("On filterOutput", func() {
 			Convey("HasDownloads set to true when downloads are greater than three or more", func() {
-				page := CreateCensusDatasetLandingPage(context.Background(),
+				page := CreateCensusDatasetLandingPage(
+					true,
+					context.Background(),
 					req,
 					pageModel,
 					oneContactDetailDM,
@@ -551,7 +596,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
 			})
 			Convey("HasDownloads set to false when downloads are zero", func() {
-				page := CreateCensusDatasetLandingPage(context.Background(),
+				page := CreateCensusDatasetLandingPage(
+					true,
+					context.Background(),
 					req,
 					pageModel,
 					oneContactDetailDM,
@@ -757,6 +804,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 		Convey("when valid parameters are provided", func() {
 			p := CreateCensusDatasetLandingPage(
+				true,
 				context.Background(),
 				req,
 				pageModel,
@@ -793,6 +841,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 		Convey("when 'showAll' parameter provided", func() {
 			p := CreateCensusDatasetLandingPage(
+				true,
 				context.Background(),
 				req,
 				pageModel,
@@ -884,6 +933,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 		Convey("when valid parameters are provided", func() {
 			p := CreateCensusDatasetLandingPage(
+				true,
 				context.Background(),
 				req,
 				pageModel,
@@ -920,6 +970,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 		Convey("when 'showAll' parameter provided", func() {
 			p := CreateCensusDatasetLandingPage(
+				true,
 				context.Background(),
 				req,
 				pageModel,
