@@ -542,7 +542,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	Convey("Downloads are properly mapped", t, func() {
 		Convey("On version", func() {
-			Convey("Where downloads are greater than three", func() {
+			Convey("Where all four downloads exist", func() {
 				page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
 					"csv": {
 						Size: "12345",
@@ -573,8 +573,33 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					So(page.Version.Downloads[3].Extension, ShouldEqual, "csvw")
 				})
 			})
+			Convey("Where excel download is missing", func() {
+				page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: map[string]dataset.Download{
+					"csv": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+					"csvw": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+					"txt": {
+						Size: "12345",
+						URL:  "https://mydomain.com/my-request",
+					},
+				}}, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 
-			Convey("Where downloads are zero", func() {
+				Convey("HasDownloads set to true when downloads are greater than three or more", func() {
+					So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
+				})
+
+				Convey("Downloads are sorted by fixed extension order", func() {
+					So(page.Version.Downloads[0].Extension, ShouldEqual, "csv")
+					So(page.Version.Downloads[1].Extension, ShouldEqual, "txt")
+					So(page.Version.Downloads[2].Extension, ShouldEqual, "csvw")
+				})
+			})
+			Convey("Where no downloads exist", func() {
 				page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, oneContactDetailDM, dataset.Version{Downloads: nil}, datasetOptions, "", false, []dataset.Version{}, 1, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 
 				Convey("HasDownloads set to false", func() {
@@ -584,7 +609,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("On filterOutput", func() {
-			Convey("Where downloads are greater than three", func() {
+			Convey("Where all four downloads exist", func() {
 				page := CreateCensusDatasetLandingPage(
 					true,
 					context.Background(),
@@ -620,7 +645,55 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					So(page.Version.Downloads[3].Extension, ShouldEqual, "csvw")
 				})
 			})
-			Convey("Where downloads are zero", func() {
+			Convey("Where excel download is missing", func() {
+				page := CreateCensusDatasetLandingPage(
+					true,
+					context.Background(),
+					req,
+					pageModel,
+					oneContactDetailDM,
+					dataset.Version{},
+					datasetOptions,
+					"",
+					false,
+					[]dataset.Version{},
+					1,
+					"",
+					"",
+					[]string{},
+					50,
+					false,
+					true,
+					false,
+					map[string]filter.Download{
+						"csv": {
+							Size: "12345",
+							URL:  "https://mydomain.com/my-request",
+						},
+						"csvw": {
+							Size: "12345",
+							URL:  "https://mydomain.com/my-request",
+						},
+						"txt": {
+							Size: "12345",
+							URL:  "https://mydomain.com/my-request",
+						},
+					},
+					fDims,
+					serviceMessage,
+					emergencyBanner)
+
+				Convey("HasDownloads set to true", func() {
+					So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
+				})
+
+				Convey("Downloads are sorted by fixed extension order", func() {
+					So(page.Version.Downloads[0].Extension, ShouldEqual, "csv")
+					So(page.Version.Downloads[1].Extension, ShouldEqual, "txt")
+					So(page.Version.Downloads[2].Extension, ShouldEqual, "csvw")
+				})
+			})
+			Convey("Where no downloads exist", func() {
 				page := CreateCensusDatasetLandingPage(
 					true,
 					context.Background(),
