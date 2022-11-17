@@ -104,6 +104,8 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		}
 	}
 
+	p.Version.Downloads = orderDownloads(p.Version.Downloads)
+
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
 		if contacts[0].Telephone != "" {
@@ -359,6 +361,21 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	}
 
 	return p
+}
+
+func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
+	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw"}
+	mapped := make(map[string]sharedModel.Download, 5)
+	for _, download := range downloads {
+		mapped[download.Extension] = download
+	}
+	var ordered []sharedModel.Download
+	for _, ext := range downloadOrder {
+		if download, ok := mapped[ext]; ok {
+			ordered = append(ordered, download)
+		}
+	}
+	return ordered
 }
 
 func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
