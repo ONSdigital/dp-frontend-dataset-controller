@@ -221,30 +221,31 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
 
-		if dim.FilterByParent != "" {
+		// TODO: Hotfix to remove api call due to graphQL error
+		// if dim.FilterByParent != "" {
 
-			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
-				AuthTokens: population.AuthTokens{
-					UserAuthToken: userAccessToken,
-				},
-				PopulationType:   filterOutput.PopulationType,
-				AreaTypeID:       dim.ID,
-				ParentAreaTypeID: dim.FilterByParent,
-				Areas:            optsIDs,
-			})
+		// 	count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
+		// 		AuthTokens: population.AuthTokens{
+		// 			UserAuthToken: userAccessToken,
+		// 		},
+		// 		PopulationType:   filterOutput.PopulationType,
+		// 		AreaTypeID:       dim.ID,
+		// 		ParentAreaTypeID: dim.FilterByParent,
+		// 		Areas:            optsIDs,
+		// 	})
 
-			if err != nil {
-				log.Error(ctx, "failed to get parent area count", err, log.Data{
-					"dataset_id":          filterOutput.PopulationType,
-					"area_type_id":        dim.ID,
-					"parent_area_type_id": dim.FilterByParent,
-					"areas":               optsIDs,
-				})
-				return nil, 0, err
-			}
+		// 	if err != nil {
+		// 		log.Error(ctx, "failed to get parent area count", err, log.Data{
+		// 			"dataset_id":          filterOutput.PopulationType,
+		// 			"area_type_id":        dim.ID,
+		// 			"parent_area_type_id": dim.FilterByParent,
+		// 			"areas":               optsIDs,
+		// 		})
+		// 		return nil, 0, err
+		// 	}
 
-			totalCount = count
-		}
+		// 	totalCount = count
+		// }
 
 		return options, totalCount, nil
 	}
