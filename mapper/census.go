@@ -186,6 +186,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 
 	if isFilterOutput && len(filterOutput) >= 3 {
 		p.DatasetLandingPage.HasDownloads = true
+		p.DatasetLandingPage.ShowXLSXInfo = true
 	}
 
 	if p.HasContactDetails {
