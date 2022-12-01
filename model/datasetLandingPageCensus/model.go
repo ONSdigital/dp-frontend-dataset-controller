@@ -34,6 +34,7 @@ type DatasetLandingPage struct {
 	QualityStatements   []Panel              `json:"quality_statements"`
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
 	IsMultivariate      bool                 `json:"is_multivariate"`
+	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
 }
 
 // Panel contains the data required to populate a panel UI component

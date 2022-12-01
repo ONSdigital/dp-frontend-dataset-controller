@@ -566,6 +566,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
 				})
 
+				Convey("GetDataXLSXInfo set to false", func() {
+					So(page.DatasetLandingPage.ShowXLSXInfo, ShouldBeFalse)
+				})
+
 				Convey("Downloads are sorted by fixed extension order", func() {
 					So(page.Version.Downloads[0].Extension, ShouldEqual, "xls")
 					So(page.Version.Downloads[1].Extension, ShouldEqual, "csv")
@@ -685,6 +689,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 				Convey("HasDownloads set to true", func() {
 					So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
+				})
+
+				Convey("GetDataXLSXInfo set to true for custom datasets", func() {
+					So(page.DatasetLandingPage.ShowXLSXInfo, ShouldBeTrue)
 				})
 
 				Convey("Downloads are sorted by fixed extension order", func() {

@@ -274,6 +274,10 @@ one = "Select your download format"
 description = "Get the data component lead text"
 one = "Download the data in the following formats"
 
+[GetDataXLSXInfo]
+description = "xlsx delay information with {{.URI}}"
+one = "If you are not seeing an <strong>xlsx</strong> download file, please <a href=\"{{.arg0}}\">refresh the page</a>. If the number of rows within the data set exceeds 1 million, the <strong>xlsx</strong> download file will not be available."
+
 [IncludesSupportingInfo]
 description = "Dataset and supporting information" 
 one = "Dataset and supporting information"

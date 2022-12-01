@@ -3,13 +3,20 @@
     <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
     {{ if .DatasetLandingPage.HasDownloads }}
         <div data-get-data-form-downloads="ready">
+            {{ if .DatasetLandingPage.ShowXLSXInfo }}
+            <div class="ons-text-indent">
+                <p class="default-line-height">
+                    {{- localise "GetDataXLSXInfo" .Language 1 .URI | safeHTML -}}
+                </p>
+            </div>
+            {{ end }}
             {{ if .Error.Title }}
-            <div class="ons-panel ons-panel--error ons-panel--no-title" id="select-format-error">
-                <span class="ons-u-vh">Error: </span>
-                <div class="ons-panel__body">
-            <p class="ons-panel__error">
-            <strong>{{ localise "GetDataValidationError" .Language 1 }}</strong>
-            </p>
+                <div class="ons-panel ons-panel--error ons-panel--no-title" id="select-format-error">
+                    <span class="ons-u-vh">Error: </span>
+                    <div class="ons-panel__body">
+                <p class="ons-panel__error">
+                    <strong>{{ localise "GetDataValidationError" .Language 1 }}</strong>
+                </p>
             {{ end }}
             <form method="get" name="get-data-form">
                 <input type="hidden" name="f" value="get-data">
