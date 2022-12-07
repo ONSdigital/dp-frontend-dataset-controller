@@ -9,7 +9,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.6.0
-	github.com/ONSdigital/dp-renderer v1.53.0
+	github.com/ONSdigital/dp-renderer v1.57.1
 	github.com/ONSdigital/log.go/v2 v2.3.0-beta
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/golang/mock v1.6.0
@@ -18,7 +18,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.7.2
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 )
 
 require (
