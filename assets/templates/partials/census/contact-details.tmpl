@@ -5,13 +5,13 @@
             {{ if .ContactDetails.Email }}
                 <li class="ons-list__item ons-u-mt-s">
                     <p class="ons-u-mb-no">{{ localise "Email" .Language 1 }}</p>
-                    <a href="mailto:{{.ContactDetails.Email}}" class="ons-list__link">{{ .ContactDetails.Email }}</a>
+                    <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
                 </li>
             {{ end }}
             {{ if .ContactDetails.Telephone }}
                 <li class="ons-list__item ons-u-mt-s">
                     <p class="ons-u-mb-no">{{ localise "Phone" .Language 1 }}</p>
-                    <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}" class="ons-list__link">{{ .ContactDetails.Telephone }}</a>
+                    <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
                 </li>
             {{ end }}
         </ul>
