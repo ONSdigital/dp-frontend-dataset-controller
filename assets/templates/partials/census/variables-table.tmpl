@@ -2,93 +2,93 @@
 {{$language := .Language }}
 {{$isFlexibleForm := .DatasetLandingPage.IsFlexibleForm}}
 {{$isMultivarite := .DatasetLandingPage.IsMultivariate}}
-<section id="variables" aria-label="{{ localise "Variables" .Language 4}}">
-    <h2 class="ons-u-mt-xl">{{ localise "Variables" .Language 4}}</h2>
+<section id="variables" aria-label="{{- localise "Variables" .Language 4 -}}">
+    <h2 class="ons-u-mt-xl">{{- localise "Variables" .Language 4 -}}</h2>
     {{ if $isFlexibleForm }}
         <form method="post">
         {{ end }}
-        <table class="ons-table">
-            <tbody class="ons-table__body">
-                {{range $i, $dim := $dims}}
-                    <tr class="ons-table__row ons-u-bb ons-grid--flex@xxs@s ons-grid--between@xxs@s{{ if eq $i 0 }} ons-u-bt{{ end }}" id="{{- .ID -}}">
-                        <th
-                            scope="col"
-                            class="ons-table__header ons-table__cell ons-col-4@s ons-u-pb-s ons-u-pt-s ons-u-pl-no ons-u-order--1 ons-u-bb-no@xxs@s
-                                ons-u-flex--2@xxs@s">
-                            <span>
-                                {{ if $dim.IsAreaType }}
-                                    {{- localise "AreaTypeDescription" $language 1 -}}
-                                {{ else if $dim.IsCoverage }}
-                                    {{- localise "AreaTypeCoverageTitle" $language 1 -}}
-                                {{ else }}
-                                    {{ $dim.Title }}
-                                {{ end }}
-                            </span>
-                        </th>
-                        <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-pl-no@xxs@s ons-u-order--3 ons-u-fw@xxs@s ons-u-pt-no@xxs@s
-                                ons-u-bb-no@xxs@s">
-                            {{ if or ($dim.IsAreaType) ($dim.IsDefaultCoverage) }}
-                                <div>
-                                    {{ if $dim.IsDefaultCoverage }}
-                                        {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
-                                    {{ else }}
-                                        {{- $dim.Title }}
-                                    {{ end }}
-                                </div>
-                            {{else}}
-                                {{ if and (.IsCoverage) ($dim.Values) }}
-                                    {{ if gt (len $dim.Values) 1 }}
-                                        <ul class="ons-list ons-u-mb-no">
-                                            {{ range $dim.Values }}
-                                                <li class="ons-list__item">{{- . -}}</li>
-                                            {{ end }}
-                                        </ul>
-                                    {{ else }}
-                                        {{- index $dim.Values 0 -}}
-                                    {{ end }}
-                                {{ else }}
-                                    {{ $strOptCount := intToString $dim.TotalItems }}
-                                    <div>
-                                        {{ $dim.TotalItems }}
-                                        {{ if gt $dim.TotalItems 1 }}
-                                            {{ localise "Category" $language 4 }}
-                                        {{else}}
-                                            {{ localise "Category" $language 1 }}
-                                        {{end}}
-                                    </div>
-                                    <div class="ons-u-mt-s ons-u-fs-s ons-list--container">
-                                        <ul class="ons-list{{ if $dim.IsTruncated }}--truncated{{end}}{{ if or (gt $dim.TotalItems 9) ($dim.IsTruncated) }}
-                                                ons-u-mb-xs{{else}} ons-u-m-no{{end}}">
-                                            {{ range $j, $val := $dim.Values}}
-                                                <li class="ons-list__item{{ if $dim.IsTruncated }}--truncated{{end}} ons-u-mb-no">
-                                                    {{- $val -}}
-                                                </li>
-                                            {{ end }}
-                                        </ul>
-                                        {{ if $dim.IsTruncated }}
-                                            <a href="{{$dim.TruncateLink}}">{{- localise "TruncateShowAll" $language 1 $strOptCount -}}</a>
-                                        {{ else if gt $dim.TotalItems 9 }}
-                                            <a href="{{.TruncateLink}}">{{- localise "TruncateShowFewer" $language 1 -}}</a>
+        <div class="ons-summary ons-summary--hub">
+            <div class="ons-summary__group">
+                <div class="ons-summary__items ons-u-mb-s ons-u-bt ons-u-bb">
+                    {{range $i, $dim := $dims}}
+                        <div class="ons-summary__item">
+                            <dl class="ons-summary__row ons-summary__row--has-values ons-grid--flex@xxs@m ons-grid--row@xxs@m ons-u-order--sb@xxs@m{{ if eq $i 0 }} ons-u-bt{{ end }}" id="{{- .ID -}}">
+                                <dt class="ons-summary__item-title ons-u-pt-s ons-u-pb-s ons-u-pr-m ons-u-order--1@xxs@m ons-u-flex--2@xxs@m ons-col-4@m">
+                                    <div class="ons-summary__item--text ons-u-fw-b">
+                                        {{ if $dim.IsAreaType }}
+                                            {{- localise "AreaTypeDescription" $language 1 -}}
+                                        {{ else if $dim.IsCoverage }}
+                                            {{- localise "AreaTypeCoverageTitle" $language 1 -}}
+                                        {{ else }}
+                                            {{ $dim.Title }}
                                         {{ end }}
                                     </div>
+                                </dt>
+                                <dd class="ons-summary__values ons-u-pt-s ons-u-pb-s ons-u-pr-m ons-u-pl-no@xxs@m ons-u-order--3@xxs@m ons-u-fw@xxs@m
+                                        ons-u-pt-no@xxs@m ons-u-pt-no@xxs@m ons-u-bb-no@xxs@m ons-u-d-b@xxs@m">
+                                    {{ if or ($dim.IsAreaType) ($dim.IsDefaultCoverage) }}
+                                        <div>
+                                            {{ if $dim.IsDefaultCoverage }}
+                                                {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
+                                            {{ else }}
+                                                {{- $dim.Title }}
+                                            {{ end }}
+                                        </div>
+                                    {{else}}
+                                        {{ if and (.IsCoverage) ($dim.Values) }}
+                                            {{ if gt (len $dim.Values) 1 }}
+                                                <ul class="ons-list ons-u-mb-no">
+                                                    {{ range $dim.Values }}
+                                                        <li class="ons-list__item">{{- . -}}</li>
+                                                    {{ end }}
+                                                </ul>
+                                            {{ else }}
+                                                {{- index $dim.Values 0 -}}
+                                            {{ end }}
+                                        {{ else }}
+                                            {{ $strOptCount := intToString $dim.TotalItems }}
+                                            <div>
+                                                {{ $dim.TotalItems }}
+                                                {{ if gt $dim.TotalItems 1 }}
+                                                    {{ localise "Category" $language 4 }}
+                                                {{else}}
+                                                    {{ localise "Category" $language 1 }}
+                                                {{end}}
+                                            </div>
+                                            <div class="ons-u-mt-s ons-u-fs-s ons-list--container">
+                                                <ul class="ons-list{{ if $dim.IsTruncated }}--truncated{{end}}{{ if or (gt $dim.TotalItems 9) ($dim.IsTruncated) }}
+                                                        ons-u-mb-xs{{else}} ons-u-m-no{{end}}">
+                                                    {{ range $j, $val := $dim.Values}}
+                                                        <li class="ons-list__item{{ if $dim.IsTruncated }}--truncated{{end}} ons-u-mb-no">
+                                                            {{- $val -}}
+                                                        </li>
+                                                    {{ end }}
+                                                </ul>
+                                                {{ if $dim.IsTruncated }}
+                                                    <a href="{{$dim.TruncateLink}}">{{- localise "TruncateShowAll" $language 1 $strOptCount -}}</a>
+                                                {{ else if gt $dim.TotalItems 9 }}
+                                                    <a href="{{.TruncateLink}}">{{- localise "TruncateShowFewer" $language 1 -}}</a>
+                                                {{ end }}
+                                            </div>
+                                        {{ end }}
+                                    {{end}}
+                                </dd>
+                                {{ if and $dim.ShowChange $isFlexibleForm}}
+                                    <dd class="ons-summary__actions ons-u-flex-ai-fs ons-u-pt-s ons-u-pb-s ons-u-pl-no@xxs ons-u-ml-xs@xxs ons-u-order--2@xxs@m ons-col-2@m">
+                                        <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
+                                            {{ localise "Change" $language 1 }}
+                                            <span class="ons-u-vh">{{ localise "Variables" $language 1 }}
+                                                {{ $dim.Title }}
+                                            </span>
+                                        </button>
+                                    </dd>
                                 {{ end }}
-                            {{end}}
-                        </td>
-                        <td class="ons-table__cell ons-u-pb-s ons-u-pt-s ons-u-ta-right ons-u-pl-no@xxs@s ons-u-ml-xs@xxs@s ons-u-order--2
-                                ons-u-bb-no@xxs@s">
-                            {{ if and $dim.ShowChange $isFlexibleForm}}
-                                <button type="submit" class="ons-btn ons-btn__btn--link" name="dimension" value="{{ $dim.Name }}" role="link">
-                                    {{ localise "Change" $language 1 }}
-                                    <span class="ons-u-vh">{{ localise "Variables" $language 1 }}
-                                        {{ $dim.Title }}
-                                    </span>
-                                </button>
-                            {{ end }}
-                        </td>
-                    </tr>
-                {{ end }}
-            </tbody>
-        </table>
+                            </dl>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
         {{ if $isMultivarite }}
             <button type="submit" class="ons-btn ons-btn--secondary" name="dimension" value="change">
                 <span class="ons-btn__inner">
