@@ -868,6 +868,31 @@ func TestFilterOutputHandler(t *testing.T) {
 					So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				})
 			})
+			// TODO: Hotfix to remove api call due to graphQL error
+			// Convey("and the additional call to pc.GetParentAreaCount fails", func() {
+			// 	mockDc := NewMockDatasetClient(mockCtrl)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+			// 		Return(dataset.DatasetDetails{
+			// 			Contacts: &[]dataset.Contact{{Name: "Nick"}},
+			// 			Type:     "flexible",
+			// 			URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			// 			Links: dataset.Links{
+			// 				LatestVersion: dataset.Link{
+			// 					URL: "/datasets/12345/editions/2021/versions/1",
+			// 				},
+			// 			},
+			// 			ID: "12345",
+			// 		}, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+			// 		Return(versions, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+			// 		Return(versions.Items[0], nil)
 
 			// TODO: Hotfix to remove api call due to graphQL error
 			// Convey("and the additional call to pc.GetParentAreaCount fails", func() {
