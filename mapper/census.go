@@ -2,7 +2,9 @@ package mapper
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/url"
 	"sort"
@@ -361,6 +363,11 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
+	analyticsJavaScript, err := getAnalyticsJavaScript(fDims)
+	if err == nil {
+		p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
+	}
+
 	return p
 }
 
@@ -523,4 +530,43 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 		truncatePath += fmt.Sprintf("#%s", dimID)
 	}
 	return truncatePath
+}
+
+func getAnalyticsJavaScript(filterDimensions []sharedModel.FilterDimension) (template.JS, error) {
+	analytics := getAnalytics(filterDimensions)
+
+	jsonStr, err := json.Marshal(analytics)
+	if err != nil {
+		return template.JS(``), err
+	} else {
+		return template.JS(`dataLayer.push(` + string(jsonStr) + `);`), nil
+	}
+}
+
+func getAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
+	analytics := make(map[string]string, 5)
+	var dimensionIDs []string
+	for _, filterDimension := range filterDimensions {
+		dimension := filterDimension.ModelDimension
+		if *dimension.IsAreaType {
+			analytics["areaType"] = dimension.ID
+			analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
+
+			if len(dimension.Options) > 0 {
+				if len(dimension.Options) <= 4 {
+					analytics["coverage"] = strings.Join(dimension.Options, ",")
+				}
+				if dimension.FilterByParent == "" {
+					analytics["coverageAreaType"] = dimension.ID
+				} else {
+					analytics["coverageAreaType"] = dimension.FilterByParent
+				}
+			}
+		} else {
+			dimensionIDs = append(dimensionIDs, dimension.ID)
+		}
+	}
+	analytics["dimensions"] = strings.Join(dimensionIDs, ",")
+
+	return analytics
 }
