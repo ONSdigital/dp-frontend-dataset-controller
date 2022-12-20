@@ -462,6 +462,9 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 }
 
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string) []sharedModel.Dimension {
+	sort.Slice(dims, func(i, j int) bool {
+		return *dims[i].IsAreaType
+	})
 	dimensions := []sharedModel.Dimension{}
 	for _, dim := range dims {
 		var isAreaType bool
