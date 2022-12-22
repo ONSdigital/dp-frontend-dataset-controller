@@ -29,7 +29,7 @@ func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc Dat
 func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
-	var initialVersionReleaseDate string
+	var initialVersionReleaseDate, supVar string
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
@@ -221,31 +221,30 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
 
-		// TODO: Hotfix to remove api call due to graphQL error
-		// if dim.FilterByParent != "" {
+		if dim.FilterByParent != "" {
+			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
+				AuthTokens: population.AuthTokens{
+					UserAuthToken: userAccessToken,
+				},
+				PopulationType:   filterOutput.PopulationType,
+				AreaTypeID:       dim.ID,
+				ParentAreaTypeID: dim.FilterByParent,
+				Areas:            optsIDs,
+				SVarID:           supVar,
+			})
+			if err != nil {
+				log.Error(ctx, "failed to get parent area count", err, log.Data{
+					"dataset_id":                filterOutput.PopulationType,
+					"area_type_id":              dim.ID,
+					"parent_area_type_id":       dim.FilterByParent,
+					"areas":                     optsIDs,
+					"supplementary_variable_id": supVar,
+				})
+				return nil, 0, err
+			}
 
-		// 	count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
-		// 		AuthTokens: population.AuthTokens{
-		// 			UserAuthToken: userAccessToken,
-		// 		},
-		// 		PopulationType:   filterOutput.PopulationType,
-		// 		AreaTypeID:       dim.ID,
-		// 		ParentAreaTypeID: dim.FilterByParent,
-		// 		Areas:            optsIDs,
-		// 	})
-
-		// 	if err != nil {
-		// 		log.Error(ctx, "failed to get parent area count", err, log.Data{
-		// 			"dataset_id":          filterOutput.PopulationType,
-		// 			"area_type_id":        dim.ID,
-		// 			"parent_area_type_id": dim.FilterByParent,
-		// 			"areas":               optsIDs,
-		// 		})
-		// 		return nil, 0, err
-		// 	}
-
-		// 	totalCount = count
-		// }
+			totalCount = count
+		}
 
 		return options, totalCount, nil
 	}
@@ -259,17 +258,20 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	}
 
 	var fDims []model.FilterDimension
-	for _, dim := range filterOutput.Dimensions {
-		options, count, err := getOptions(dim)
+	for i := len(filterOutput.Dimensions) - 1; i >= 0; i-- {
+		if filterOutput.Dimensions[i].IsAreaType == nil || !*filterOutput.Dimensions[i].IsAreaType {
+			supVar = filterOutput.Dimensions[i].ID
+		}
+		options, count, err := getOptions(filterOutput.Dimensions[i])
 		if err != nil {
-			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": dim.Name})
+			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": filterOutput.Dimensions[i].Name})
 			setStatusCode(ctx, w, err)
 			return
 		}
 
-		dim.Options = options
+		filterOutput.Dimensions[i].Options = options
 		fDims = append(fDims, model.FilterDimension{
-			ModelDimension: dim,
+			ModelDimension: filterOutput.Dimensions[i],
 			OptionsCount:   count,
 		})
 	}
