@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
@@ -363,9 +364,16 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
-	analyticsJavaScript, err := getAnalyticsJavaScript(fDims)
-	if err == nil {
-		p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
+	if isFilterOutput {
+		analyticsJavaScript, err := getDataLayerJavaScript(getFilterAnalytics(fDims))
+		if err == nil {
+			p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
+		}
+	} else {
+		analyticsJavaScript, err := getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions))
+		if err == nil {
+			p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
+		}
 	}
 
 	return p
@@ -532,9 +540,7 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 	return truncatePath
 }
 
-func getAnalyticsJavaScript(filterDimensions []sharedModel.FilterDimension) (template.JS, error) {
-	analytics := getAnalytics(filterDimensions)
-
+func getDataLayerJavaScript(analytics map[string]string) (template.JS, error) {
 	jsonStr, err := json.Marshal(analytics)
 	if err != nil {
 		return template.JS(``), err
@@ -543,12 +549,28 @@ func getAnalyticsJavaScript(filterDimensions []sharedModel.FilterDimension) (tem
 	}
 }
 
-func getAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
+func getAnalytics(dimensions []model.Dimension) map[string]string {
+	analytics := make(map[string]string, 5)
+	var dimensionIDs []string
+	for _, dimension := range dimensions {
+		if dimension.IsAreaType {
+			analytics["areaType"] = dimension.ID
+			analytics["coverageCount"] = "0"
+		} else if !dimension.IsCoverage {
+			dimensionIDs = append(dimensionIDs, dimension.ID)
+		}
+	}
+	analytics["dimensions"] = strings.Join(dimensionIDs, ",")
+
+	return analytics
+}
+
+func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
 	for _, filterDimension := range filterDimensions {
 		dimension := filterDimension.ModelDimension
-		if *dimension.IsAreaType {
+		if dimension.IsAreaType != nil && *dimension.IsAreaType {
 			analytics["areaType"] = dimension.ID
 			analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
 
