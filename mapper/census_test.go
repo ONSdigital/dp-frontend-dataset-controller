@@ -276,6 +276,124 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Versions[2].VersionNumber, ShouldEqual, 1)
 	})
 
+	Convey("Dimension options are sorted", t, func() {
+		getOptionList := func(items []dataset.Option) []string {
+			results := []string{}
+			for _, item := range items {
+				results = append(results, item.Option)
+			}
+			return results
+		}
+
+		Convey("given non-numeric options", func() {
+			nonNumeric := []dataset.Option{
+				{
+					DimensionID: "dim_2",
+					Option:      "option 2",
+				},
+				{
+					DimensionID: "dim_1",
+					Option:      "option 1",
+				},
+			}
+			Convey("when they are sorted", func() {
+				sorted := sortOptions(nonNumeric)
+
+				Convey("then options are sorted alphabetically", func() {
+					actual := getOptionList(sorted)
+					expected := []string{"option 1", "option 2"}
+					So(actual, ShouldResemble, expected)
+				})
+			})
+		})
+
+		Convey("given simple numeric options", func() {
+			nonNumeric := []dataset.Option{
+				{
+					DimensionID: "dim_2",
+					Option:      "2",
+				},
+				{
+					DimensionID: "dim_10",
+					Option:      "10",
+				},
+				{
+					DimensionID: "dim_1",
+					Option:      "1",
+				},
+			}
+			Convey("when they are sorted", func() {
+				sorted := sortOptions(nonNumeric)
+
+				Convey("then options are sorted numerically", func() {
+					actual := getOptionList(sorted)
+					expected := []string{"1", "2", "10"}
+					So(actual, ShouldResemble, expected)
+				})
+			})
+		})
+
+		Convey("given numeric options with negatives", func() {
+			nonNumeric := []dataset.Option{
+				{
+					DimensionID: "dim_2",
+					Option:      "2",
+				},
+				{
+					DimensionID: "dim_-1",
+					Option:      "-1",
+				},
+				{
+					DimensionID: "dim_10",
+					Option:      "10",
+				},
+				{
+					DimensionID: "dim_-10",
+					Option:      "-10",
+				},
+				{
+					DimensionID: "dim_1",
+					Option:      "1",
+				},
+			}
+			Convey("when they are sorted", func() {
+				sorted := sortOptions(nonNumeric)
+
+				Convey("then options are sorted numerically with negatives at the end", func() {
+					actual := getOptionList(sorted)
+					expected := []string{"1", "2", "10", "-1", "-10"}
+					So(actual, ShouldResemble, expected)
+				})
+			})
+		})
+
+		Convey("given mixed numeric and non-numeric options", func() {
+			nonNumeric := []dataset.Option{
+				{
+					DimensionID: "dim_2",
+					Option:      "2 Option",
+				},
+				{
+					DimensionID: "dim_1",
+					Option:      "1",
+				},
+				{
+					DimensionID: "dim_10",
+					Option:      "10",
+				},
+			}
+			Convey("when they are sorted", func() {
+				sorted := sortOptions(nonNumeric)
+
+				Convey("then options are sorted alphanumerically", func() {
+					actual := getOptionList(sorted)
+					expected := []string{"1", "10", "2nd Option"}
+					So(actual, ShouldResemble, expected)
+				})
+			})
+		})
+	})
+
 	Convey("Given a census dataset landing page testing panels", t, func() {
 		Convey("When there is more than one version", func() {
 			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails, versionThreeDetails}, 3, "", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
@@ -1148,4 +1266,5 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			})
 		})
 	})
+
 }

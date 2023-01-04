@@ -73,6 +73,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
+
 	var isFlex, isMultivariate bool
 	switch {
 	case strings.Contains(d.Type, "flex"):
@@ -437,14 +438,16 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TotalItems = opt.TotalCount
 		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
 
+		sortedItems := sortOptions(opt.Items)
+
 		var displayedOptions []dataset.Option
 		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
-			displayedOptions = opt.Items[:3]
-			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)
-			displayedOptions = append(displayedOptions, opt.Items[len(opt.Items)-3:]...)
+			displayedOptions = sortedItems[:3]
+			displayedOptions = append(displayedOptions, sortedItems[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, sortedItems[len(sortedItems)-3:]...)
 			pDim.IsTruncated = true
 		} else {
-			displayedOptions = opt.Items
+			displayedOptions = sortedItems
 		}
 
 		for _, opt := range displayedOptions {
@@ -459,6 +462,29 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		dimensions = append(dimensions, pDim)
 	}
 	return dimensions, qs
+}
+
+func sortOptions(items []dataset.Option) []dataset.Option {
+	sorted := []dataset.Option{}
+	sorted = append(sorted, items...)
+
+	sort.Slice(sorted, func(i, j int) bool {
+		// Orders negative values at the end of the positive values, ordered by absolute value
+		// i.e. { 1, 2, 3, -1, -2, -3 }
+		left, leftErr := strconv.Atoi(sorted[i].Option)
+		right, rightErr := strconv.Atoi(sorted[j].Option)
+
+		if leftErr == nil && rightErr == nil {
+			if left*right < 0 {
+				return right < 0
+			} else {
+				return left*left < right*right
+			}
+		} else {
+			return sorted[i].Option < sorted[j].Option
+		}
+	})
+	return sorted
 }
 
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
