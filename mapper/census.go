@@ -463,26 +463,36 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions, qs
 }
 
+// sorts options by code - numerically if possible, with negatives listed last
 func sortOptionsByCode(items []dataset.Option) []dataset.Option {
 	sorted := []dataset.Option{}
 	sorted = append(sorted, items...)
 
-	sort.Slice(sorted, func(i, j int) bool {
-		// Orders negative values at the end of the positive values, ordered by absolute value
-		// i.e. { 1, 2, 3, -1, -2, -3 }
-		left, leftErr := strconv.Atoi(sorted[i].Option)
-		right, rightErr := strconv.Atoi(sorted[j].Option)
+	doNumericSort := func(items []dataset.Option) bool {
+		for _, item := range items {
+			_, err := strconv.Atoi(item.Option)
+			if err != nil {
+				return false
+			}
+		}
+		return true
+	}
 
-		if leftErr == nil && rightErr == nil {
+	if doNumericSort(items) {
+		sort.Slice(sorted, func(i, j int) bool {
+			left, _ := strconv.Atoi(sorted[i].Option)
+			right, _ := strconv.Atoi(sorted[j].Option)
 			if left*right < 0 {
 				return right < 0
 			} else {
 				return left*left < right*right
 			}
-		} else {
+		})
+	} else {
+		sort.Slice(sorted, func(i, j int) bool {
 			return sorted[i].Option < sorted[j].Option
-		}
-	})
+		})
+	}
 	return sorted
 }
 

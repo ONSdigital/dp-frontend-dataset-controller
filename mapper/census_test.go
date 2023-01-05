@@ -368,7 +368,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("given mixed numeric and non-numeric options", func() {
-			nonNumeric := []dataset.Option{
+			alphanumeric := []dataset.Option{
 				{
 					DimensionID: "dim_2",
 					Option:      "2nd Option",
@@ -383,7 +383,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			Convey("when they are sorted", func() {
-				sorted := sortOptionsByCode(nonNumeric)
+				sorted := sortOptionsByCode(alphanumeric)
 
 				Convey("then options are sorted alphanumerically", func() {
 					actual := getOptionList(sorted)
