@@ -365,15 +365,9 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	}
 
 	if isFilterOutput {
-		analyticsJavaScript, err := getDataLayerJavaScript(getFilterAnalytics(fDims))
-		if err == nil {
-			p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
-		}
+		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims)))
 	} else {
-		analyticsJavaScript, err := getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions))
-		if err == nil {
-			p.PreGTMJavaScript = append(p.PreGTMJavaScript, analyticsJavaScript)
-		}
+		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
 	}
 
 	return p
@@ -540,13 +534,9 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 	return truncatePath
 }
 
-func getDataLayerJavaScript(analytics map[string]string) (template.JS, error) {
-	jsonStr, err := json.Marshal(analytics)
-	if err != nil {
-		return template.JS(``), err
-	} else {
-		return template.JS(`dataLayer.push(` + string(jsonStr) + `);`), nil
-	}
+func getDataLayerJavaScript(analytics map[string]string) template.JS {
+	jsonStr, _ := json.Marshal(analytics)
+	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
 }
 
 func getAnalytics(dimensions []model.Dimension) map[string]string {
