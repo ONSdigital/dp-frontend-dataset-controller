@@ -77,14 +77,14 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
-	var isFlex bool
+	var isFlex, isMultivariate bool
 	switch {
 	case strings.Contains(d.Type, "flex"):
 		isFlex = true
 		p.DatasetLandingPage.IsFlexibleForm = true
 	case strings.Contains(d.Type, "multivariate"):
 		if isEnableMultivariate {
-			isFlex = true
+			isMultivariate = true
 			p.DatasetLandingPage.IsMultivariate = true
 			p.DatasetLandingPage.IsFlexibleForm = true
 		}
@@ -292,14 +292,14 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.ShowCensusBranding = d.Survey == "census"
 
 	if len(opts) > 0 && !isFilterOutput {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex)
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
 				IsDefaultCoverage: true,
 				Title:             Coverage,
 				Name:              strings.ToLower(Coverage),
-				ShowChange:        isFlex,
+				ShowChange:        isFlex || isMultivariate,
 				ID:                strings.ToLower(Coverage),
 			},
 		}
@@ -308,7 +308,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	}
 
 	if isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path)
+		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, isMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -421,7 +421,7 @@ func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput b
 	return collapsibleContentItems
 }
 
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
 	qs := []datasetLandingPageCensus.Panel{}
 	for _, opt := range opts {
@@ -432,7 +432,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.Name = dimension.Name
 				pDim.Description = dimension.Description
 				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
-				pDim.ShowChange = pDim.IsAreaType && isFlex
+				pDim.ShowChange = pDim.IsAreaType && isFlex || isMultivariate
 				pDim.Title = dimension.Label
 				pDim.ID = dimension.ID
 				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
@@ -471,7 +471,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions, qs
 }
 
-func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string) []sharedModel.Dimension {
+func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
 	sort.Slice(dims, func(i, j int) bool {
 		return *dims[i].IsAreaType
 	})
@@ -486,7 +486,7 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 		pDim.ID = dim.ID
 		pDim.Name = dim.Name
 		pDim.IsAreaType = isAreaType
-		pDim.ShowChange = isAreaType
+		pDim.ShowChange = isAreaType || isMultivariate
 		pDim.TotalItems = dim.OptionsCount
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
