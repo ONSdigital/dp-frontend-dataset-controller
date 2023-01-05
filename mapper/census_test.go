@@ -297,7 +297,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			Convey("when they are sorted", func() {
-				sorted := sortOptions(nonNumeric)
+				sorted := sortOptionsByCode(nonNumeric)
 
 				Convey("then options are sorted alphabetically", func() {
 					actual := getOptionList(sorted)
@@ -308,7 +308,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("given simple numeric options", func() {
-			nonNumeric := []dataset.Option{
+			numeric := []dataset.Option{
 				{
 					DimensionID: "dim_2",
 					Option:      "2",
@@ -323,7 +323,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			Convey("when they are sorted", func() {
-				sorted := sortOptions(nonNumeric)
+				sorted := sortOptionsByCode(numeric)
 
 				Convey("then options are sorted numerically", func() {
 					actual := getOptionList(sorted)
@@ -334,7 +334,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 
 		Convey("given numeric options with negatives", func() {
-			nonNumeric := []dataset.Option{
+			numericWithNegatives := []dataset.Option{
 				{
 					DimensionID: "dim_2",
 					Option:      "2",
@@ -357,7 +357,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			Convey("when they are sorted", func() {
-				sorted := sortOptions(nonNumeric)
+				sorted := sortOptionsByCode(numericWithNegatives)
 
 				Convey("then options are sorted numerically with negatives at the end", func() {
 					actual := getOptionList(sorted)
@@ -371,7 +371,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			nonNumeric := []dataset.Option{
 				{
 					DimensionID: "dim_2",
-					Option:      "2 Option",
+					Option:      "2nd Option",
 				},
 				{
 					DimensionID: "dim_1",
@@ -383,7 +383,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			}
 			Convey("when they are sorted", func() {
-				sorted := sortOptions(nonNumeric)
+				sorted := sortOptionsByCode(nonNumeric)
 
 				Convey("then options are sorted alphanumerically", func() {
 					actual := getOptionList(sorted)

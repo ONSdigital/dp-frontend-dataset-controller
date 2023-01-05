@@ -73,7 +73,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
-
 	var isFlex, isMultivariate bool
 	switch {
 	case strings.Contains(d.Type, "flex"):
@@ -438,7 +437,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TotalItems = opt.TotalCount
 		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
 
-		sortedItems := sortOptions(opt.Items)
+		sortedItems := sortOptionsByCode(opt.Items)
 
 		var displayedOptions []dataset.Option
 		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
@@ -464,7 +463,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions, qs
 }
 
-func sortOptions(items []dataset.Option) []dataset.Option {
+func sortOptionsByCode(items []dataset.Option) []dataset.Option {
 	sorted := []dataset.Option{}
 	sorted = append(sorted, items...)
 
