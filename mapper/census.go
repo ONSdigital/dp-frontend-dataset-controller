@@ -557,7 +557,6 @@ func getAnalytics(dimensions []model.Dimension) map[string]string {
 }
 
 func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
-
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
 	for _, filterDimension := range filterDimensions {
