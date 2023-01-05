@@ -30,6 +30,7 @@ const (
 	Coverage            = "Coverage"
 	FilterOutput        = "_filter_output"
 	AreaType            = "Area type"
+	AnalyticsMaxItems   = 4
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
@@ -556,6 +557,7 @@ func getAnalytics(dimensions []model.Dimension) map[string]string {
 }
 
 func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
+
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
 	for _, filterDimension := range filterDimensions {
@@ -565,7 +567,7 @@ func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension) map[stri
 			analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
 
 			if len(dimension.Options) > 0 {
-				if len(dimension.Options) <= 4 {
+				if len(dimension.Options) <= AnalyticsMaxItems {
 					analytics["coverage"] = strings.Join(dimension.Options, ",")
 				}
 				if dimension.FilterByParent == "" {
