@@ -199,6 +199,7 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 		setStatusCode(ctx, w, err)
 		return
 	}
+	opts = sortedOpts(opts)
 
 	if version.Downloads == nil {
 		log.Warn(ctx, "version downloads are nil", log.Data{"version_id": version.ID})
@@ -224,4 +225,18 @@ func getDownloadFile(downloads map[string]dataset.Download, format string, w htt
 			http.Redirect(w, req, download.URL, http.StatusFound)
 		}
 	}
+}
+
+func sortedOpts(opts []dataset.Options) []dataset.Options {
+	sorted := []dataset.Options{}
+	for _, opt := range opts {
+		sorted = append(sorted, dataset.Options{
+			Items:      sortOptionsByCode(opt.Items),
+			Count:      opt.Count,
+			Offset:     opt.Offset,
+			Limit:      opt.Limit,
+			TotalCount: opt.TotalCount,
+		})
+	}
+	return sorted
 }

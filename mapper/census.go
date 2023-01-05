@@ -437,16 +437,14 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TotalItems = opt.TotalCount
 		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
 
-		sortedItems := sortOptionsByCode(opt.Items)
-
 		var displayedOptions []dataset.Option
 		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
-			displayedOptions = sortedItems[:3]
-			displayedOptions = append(displayedOptions, sortedItems[midFloor:midCeiling]...)
-			displayedOptions = append(displayedOptions, sortedItems[len(sortedItems)-3:]...)
+			displayedOptions = opt.Items[:3]
+			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, opt.Items[len(opt.Items)-3:]...)
 			pDim.IsTruncated = true
 		} else {
-			displayedOptions = sortedItems
+			displayedOptions = opt.Items
 		}
 
 		for _, opt := range displayedOptions {
@@ -461,39 +459,6 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		dimensions = append(dimensions, pDim)
 	}
 	return dimensions, qs
-}
-
-// sorts options by code - numerically if possible, with negatives listed last
-func sortOptionsByCode(items []dataset.Option) []dataset.Option {
-	sorted := []dataset.Option{}
-	sorted = append(sorted, items...)
-
-	doNumericSort := func(items []dataset.Option) bool {
-		for _, item := range items {
-			_, err := strconv.Atoi(item.Option)
-			if err != nil {
-				return false
-			}
-		}
-		return true
-	}
-
-	if doNumericSort(items) {
-		sort.Slice(sorted, func(i, j int) bool {
-			left, _ := strconv.Atoi(sorted[i].Option)
-			right, _ := strconv.Atoi(sorted[j].Option)
-			if left*right < 0 {
-				return right < 0
-			} else {
-				return left*left < right*right
-			}
-		})
-	} else {
-		sort.Slice(sorted, func(i, j int) bool {
-			return sorted[i].Option < sorted[j].Option
-		})
-	}
-	return sorted
 }
 
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
