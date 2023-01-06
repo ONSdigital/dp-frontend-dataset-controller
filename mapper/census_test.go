@@ -1011,4 +1011,141 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		})
 	})
 
+	Convey("given a dimension to truncate on filter output landing page", t, func() {
+		fDims := []sharedModel.FilterDimension{
+			{
+				ModelDimension: filter.ModelDimension{
+					Label: "Dimension 1",
+					ID:    "dim_1",
+					Options: []string{
+						"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
+						"Label 6", "Label 7", "Label 8", "Label 9", "Label 10",
+						"Label 11", "Label 12", "Label 13", "Label 14", "Label 15",
+						"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
+						"Label 21",
+					},
+					IsAreaType: helpers.ToBoolPtr(false),
+				},
+				OptionsCount: 21,
+			},
+			{
+				ModelDimension: filter.ModelDimension{
+					Label: "Dimension 2",
+					ID:    "dim_2",
+					Options: []string{
+						"Label 1", "Label 2", "Label 3", "Label 4",
+						"Label 5", "Label 6", "Label 7", "Label 8",
+						"Label 9", "Label 10", "Label 11", "Label 12",
+					},
+					IsAreaType: helpers.ToBoolPtr(false),
+				},
+				OptionsCount: 12,
+			},
+			{
+				ModelDimension: filter.ModelDimension{
+					Label:      "Dimension 3",
+					ID:         "dim_3",
+					IsAreaType: helpers.ToBoolPtr(true),
+				},
+				OptionsCount: 1,
+			},
+		}
+
+		Convey("when valid parameters are provided", func() {
+			p := CreateCensusDatasetLandingPage(
+				true,
+				context.Background(),
+				req,
+				pageModel,
+				oneContactDetailDM,
+				versionOneDetails,
+				datasetOptions,
+				"",
+				false,
+				[]dataset.Version{},
+				1,
+				"",
+				"",
+				[]string{},
+				50,
+				false,
+				true,
+				false,
+				filterOutput,
+				fDims,
+				serviceMessage,
+				emergencyBanner)
+			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
+				So(p.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, 21)
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 9)
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
+					"Label 1", "Label 2", "Label 3",
+					"Label 9", "Label 10", "Label 11",
+					"Label 19", "Label 20", "Label 21",
+				})
+				So(p.DatasetLandingPage.Dimensions[2].IsTruncated, ShouldBeTrue)
+				So(p.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/?showAll=dim_1#dim_1")
+			})
+		})
+
+		Convey("when 'showAll' parameter provided", func() {
+			p := CreateCensusDatasetLandingPage(
+				true,
+				context.Background(),
+				req,
+				pageModel,
+				oneContactDetailDM,
+				versionOneDetails,
+				datasetOptions,
+				"",
+				false,
+				[]dataset.Version{},
+				1,
+				"",
+				"",
+				[]string{"dim_1"},
+				50,
+				false,
+				true,
+				false,
+				filterOutput,
+				fDims,
+				serviceMessage,
+				emergencyBanner)
+			Convey("then the dimension is no longer truncated", func() {
+				So(p.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, 21)
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 21)
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
+					"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
+					"Label 6", "Label 7", "Label 8", "Label 9", "Label 10",
+					"Label 11", "Label 12", "Label 13", "Label 14", "Label 15",
+					"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
+					"Label 21",
+				})
+				So(p.DatasetLandingPage.Dimensions[2].IsTruncated, ShouldBeFalse)
+				So(p.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/#dim_1")
+			})
+
+			Convey("then other truncated dimensions are persisted", func() {
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 21)
+				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
+					"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
+					"Label 6", "Label 7", "Label 8", "Label 9", "Label 10",
+					"Label 11", "Label 12", "Label 13", "Label 14", "Label 15",
+					"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
+					"Label 21",
+				})
+				So(p.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/#dim_1")
+				So(p.DatasetLandingPage.Dimensions[3].TotalItems, ShouldEqual, 12)
+				So(p.DatasetLandingPage.Dimensions[3].Values, ShouldHaveLength, 9)
+				So(p.DatasetLandingPage.Dimensions[3].Values, ShouldResemble, []string{
+					"Label 1", "Label 2", "Label 3",
+					"Label 5", "Label 6", "Label 7",
+					"Label 10", "Label 11", "Label 12",
+				})
+				So(p.DatasetLandingPage.Dimensions[3].IsTruncated, ShouldBeTrue)
+				So(p.DatasetLandingPage.Dimensions[3].TruncateLink, ShouldEqual, "/?showAll=dim_2#dim_2")
+			})
+		})
+	})
 }
