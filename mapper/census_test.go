@@ -1211,9 +1211,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					},
 				},
 			}
+			defaultCoverage := true
 
 			Convey("when we generate analytics data", func() {
-				analytics := getFilterAnalytics(fDims)
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
 
 				Convey("then and areatype should be set to the area dimension ID", func() {
 					So(analytics["areaType"], ShouldEqual, "area_type_ID")
@@ -1260,9 +1261,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					},
 				},
 			}
+			defaultCoverage := false
 
 			Convey("when we generate analytics data", func() {
-				analytics := getFilterAnalytics(fDims)
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
 
 				Convey("then areatype should be set to the area dimension ID", func() {
 					So(analytics["areaType"], ShouldEqual, "area_type_ID")
@@ -1307,9 +1309,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					},
 				},
 			}
+			defaultCoverage := false
 
 			Convey("when we generate analytics data", func() {
-				analytics := getFilterAnalytics(fDims)
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
 
 				Convey("then coverage count is set", func() {
 					So(analytics["coverageCount"], ShouldEqual, "5")
@@ -1350,9 +1353,10 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 					},
 				},
 			}
+			defaultCoverage := false
 
 			Convey("when we generate analytics data", func() {
-				analytics := getFilterAnalytics(fDims)
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
 
 				Convey("then coverageAreaType is set to the larger area", func() {
 					So(analytics["coverageAreaType"], ShouldEqual, "parent_area_type_ID")

@@ -366,7 +366,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	}
 
 	if isFilterOutput {
-		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims)))
+		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims, hasNoAreaOptions)))
 	} else {
 		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
 	}
@@ -556,23 +556,28 @@ func getAnalytics(dimensions []model.Dimension) map[string]string {
 	return analytics
 }
 
-func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension) map[string]string {
+func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultCoverage bool) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
 	for _, filterDimension := range filterDimensions {
 		dimension := filterDimension.ModelDimension
 		if dimension.IsAreaType != nil && *dimension.IsAreaType {
 			analytics["areaType"] = dimension.ID
-			analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
 
-			if len(dimension.Options) > 0 {
-				if len(dimension.Options) <= AnalyticsMaxItems {
-					analytics["coverage"] = strings.Join(dimension.Options, ",")
-				}
-				if dimension.FilterByParent == "" {
-					analytics["coverageAreaType"] = dimension.ID
-				} else {
-					analytics["coverageAreaType"] = dimension.FilterByParent
+			if defaultCoverage {
+				analytics["coverageCount"] = "0"
+			} else {
+				analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
+
+				if len(dimension.Options) > 0 {
+					if len(dimension.Options) <= AnalyticsMaxItems {
+						analytics["coverage"] = strings.Join(dimension.Options, ",")
+					}
+					if dimension.FilterByParent == "" {
+						analytics["coverageAreaType"] = dimension.ID
+					} else {
+						analytics["coverageAreaType"] = dimension.FilterByParent
+					}
 				}
 			}
 		} else {
