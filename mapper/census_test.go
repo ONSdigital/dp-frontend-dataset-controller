@@ -284,6 +284,24 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.SearchNoIndexEnabled, ShouldBeTrue)
 	})
 
+	Convey("Census dataset landing page formats dimension labels with filter output", t, func() {
+		datasetModel.Type = "flexible"
+		fDimsWithCounts := []sharedModel.FilterDimension{
+			{
+				ModelDimension: filter.ModelDimension{
+					Label:      "Label 1 (100 categories)",
+					Options:    []string{"An option", "and another"},
+					IsAreaType: helpers.ToBoolPtr(true),
+					Name:       "Geography",
+				},
+				OptionsCount: 2,
+			},
+		}
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutput, fDimsWithCounts, serviceMessage, emergencyBanner)
+
+		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
+	})
+
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
 		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/2", nil)
 		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionTwoDetails, datasetOptions, versionOneDetails.ReleaseDate, true, []dataset.Version{versionOneDetails, versionTwoDetails}, 2, "/a/version/123", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
