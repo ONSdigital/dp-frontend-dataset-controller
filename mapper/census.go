@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -411,7 +412,7 @@ func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput b
 		for _, dims := range Dimensions {
 			if dims.Description != "" {
 				var collapsibleContent coreModel.CollapsibleItem
-				collapsibleContent.Subheading = dims.Label
+				collapsibleContent.Subheading = cleanDimensionLabel(dims.Label)
 				collapsibleContent.Content = strings.Split(dims.Description, "\n")
 				collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
 			}
@@ -433,7 +434,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.Description = dimension.Description
 				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
 				pDim.ShowChange = pDim.IsAreaType && isFlex || isMultivariate
-				pDim.Title = dimension.Label
+				pDim.Title = cleanDimensionLabel(dimension.Label)
 				pDim.ID = dimension.ID
 				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
 					qs = append(qs, datasetLandingPageCensus.Panel{
@@ -482,7 +483,7 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 			isAreaType = true
 		}
 		pDim := sharedModel.Dimension{}
-		pDim.Title = dim.Label
+		pDim.Title = cleanDimensionLabel(dim.Label)
 		pDim.ID = dim.ID
 		pDim.Name = dim.Name
 		pDim.IsAreaType = isAreaType
@@ -533,6 +534,13 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 		truncatePath += fmt.Sprintf("#%s", dimID)
 	}
 	return truncatePath
+}
+
+// cleanDimensionlabel is a helper function that parses dimension labels from cantabular into display text
+func cleanDimensionLabel(label string) string {
+	matcher := regexp.MustCompile(`(\(\d+ ((C|c)ategories|(C|c)ategory)\))`)
+	result := matcher.ReplaceAllString(label, "")
+	return strings.TrimSpace(result)
 }
 
 func getDataLayerJavaScript(analytics map[string]string) template.JS {

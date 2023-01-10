@@ -214,6 +214,41 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.ShowCensusBranding, ShouldBeTrue)
 	})
 
+	Convey("Census dataset landing page formats dimension labels", t, func() {
+		withDimensionLabelsDetails := dataset.Version{
+			ReleaseDate: "01-01-2021",
+			Downloads:   map[string]dataset.Download{},
+			Edition:     "2021",
+			Version:     1,
+			Links:       dataset.Links{},
+			Dimensions: []dataset.VersionDimension{
+				{
+					Description:          "A description on one line",
+					Name:                 "dim_1",
+					ID:                   "dim_1",
+					Label:                "Label 1 (1 Category)",
+					IsAreaType:           helpers.ToBoolPtr(true),
+					QualityStatementText: "This is a quality notice statement",
+					QualityStatementURL:  "#",
+				},
+				{
+					Description:          "A description on one line \n Then a line break",
+					Name:                 "dim_2",
+					Label:                "Label 2 (100 categories)",
+					ID:                   "dim_2",
+					QualityStatementText: "This is another quality notice statement",
+					QualityStatementURL:  "#",
+				},
+			},
+		}
+
+		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, withDimensionLabelsDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
+
+		So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, "Label 1")
+		So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, "Label 2")
+		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
+	})
+
 	Convey("Census dataset landing page maps correctly with filter output", t, func() {
 		datasetModel.Type = "flexible"
 		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, versionOneDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutput, fDims, serviceMessage, emergencyBanner)
@@ -1366,4 +1401,13 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 	})
 
+}
+
+func TestCleanDimensionsLabel(t *testing.T) {
+	Convey("Removes categories count from label - case insensitive", t, func() {
+		So(cleanDimensionLabel("Example (100 categories)"), ShouldEqual, "Example")
+		So(cleanDimensionLabel("Example (7 Categories)"), ShouldEqual, "Example")
+		So(cleanDimensionLabel("Example (1 category)"), ShouldEqual, "Example")
+		So(cleanDimensionLabel("Example (1 Category)"), ShouldEqual, "Example")
+	})
 }
