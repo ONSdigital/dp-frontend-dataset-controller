@@ -635,10 +635,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						EXPECT().
 						GetArea(gomock.Any(), gomock.Any()).
 						Return(population.GetAreaResponse{}, nil)
-					mockPc.
-						EXPECT().
-						GetParentAreaCount(gomock.Any(), gomock.Any()).
-						Return(0, nil)
+					// TODO: pc.GetParentAreaCount is causing production issues
+					// mockPc.
+					// 	EXPECT().
+					// 	GetParentAreaCount(gomock.Any(), gomock.Any()).
+					// 	Return(0, nil)
 
 					mockRend := NewMockRenderClient(mockCtrl)
 					mockRend.
@@ -867,70 +868,95 @@ func TestFilterOutputHandler(t *testing.T) {
 					So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				})
 			})
+			// TODO: Hotfix to remove api call due to graphQL error
+			// Convey("and the additional call to pc.GetParentAreaCount fails", func() {
+			// 	mockDc := NewMockDatasetClient(mockCtrl)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+			// 		Return(dataset.DatasetDetails{
+			// 			Contacts: &[]dataset.Contact{{Name: "Nick"}},
+			// 			Type:     "flexible",
+			// 			URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			// 			Links: dataset.Links{
+			// 				LatestVersion: dataset.Link{
+			// 					URL: "/datasets/12345/editions/2021/versions/1",
+			// 				},
+			// 			},
+			// 			ID: "12345",
+			// 		}, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+			// 		Return(versions, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+			// 		Return(versions.Items[0], nil)
 
-			Convey("and the additional call to pc.GetParentAreaCount fails", func() {
-				mockDc := NewMockDatasetClient(mockCtrl)
-				mockDc.
-					EXPECT().
-					Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
-					Return(dataset.DatasetDetails{
-						Contacts: &[]dataset.Contact{{Name: "Nick"}},
-						Type:     "flexible",
-						URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-						Links: dataset.Links{
-							LatestVersion: dataset.Link{
-								URL: "/datasets/12345/editions/2021/versions/1",
-							},
-						},
-						ID: "12345",
-					}, nil)
-				mockDc.
-					EXPECT().
-					GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
-					Return(versions, nil)
-				mockDc.
-					EXPECT().
-					GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
-					Return(versions.Items[0], nil)
+			// Convey("and the additional call to pc.GetParentAreaCount fails", func() {
+			// 	mockDc := NewMockDatasetClient(mockCtrl)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+			// 		Return(dataset.DatasetDetails{
+			// 			Contacts: &[]dataset.Contact{{Name: "Nick"}},
+			// 			Type:     "flexible",
+			// 			URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+			// 			Links: dataset.Links{
+			// 				LatestVersion: dataset.Link{
+			// 					URL: "/datasets/12345/editions/2021/versions/1",
+			// 				},
+			// 			},
+			// 			ID: "12345",
+			// 		}, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+			// 		Return(versions, nil)
+			// 	mockDc.
+			// 		EXPECT().
+			// 		GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+			// 		Return(versions.Items[0], nil)
 
-				mockFc := NewMockFilterClient(mockCtrl)
-				mockFc.
-					EXPECT().
-					GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(filterModels[3], nil)
-				mockFc.
-					EXPECT().
-					GetDimensionOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(filter.DimensionOptions{
-						Items: []filter.DimensionOption{
-							{
-								Option: "area 1",
-							},
-						},
-						TotalCount: 1,
-					}, "", nil)
+			// 	mockFc := NewMockFilterClient(mockCtrl)
+			// 	mockFc.
+			// 		EXPECT().
+			// 		GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+			// 		Return(filterModels[3], nil)
+			// 	mockFc.
+			// 		EXPECT().
+			// 		GetDimensionOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+			// 		Return(filter.DimensionOptions{
+			// 			Items: []filter.DimensionOption{
+			// 				{
+			// 					Option: "area 1",
+			// 				},
+			// 			},
+			// 			TotalCount: 1,
+			// 		}, "", nil)
 
-				mockPc := NewMockPopulationClient(mockCtrl)
-				mockPc.
-					EXPECT().
-					GetArea(gomock.Any(), gomock.Any()).
-					Return(population.GetAreaResponse{}, nil)
-				mockPc.
-					EXPECT().
-					GetParentAreaCount(gomock.Any(), gomock.Any()).
-					Return(0, errors.New("area parent count client error"))
+			// 	mockPc := NewMockPopulationClient(mockCtrl)
+			// 	mockPc.
+			// 		EXPECT().
+			// 		GetArea(gomock.Any(), gomock.Any()).
+			// 		Return(population.GetAreaResponse{}, nil)
+			// 	mockPc.
+			// 		EXPECT().
+			// 		GetParentAreaCount(gomock.Any(), gomock.Any()).
+			// 		Return(0, errors.New("area parent count client error"))
 
-				w := httptest.NewRecorder()
-				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			// 	w := httptest.NewRecorder()
+			// 	req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
-				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, NewMockRenderClient(mockCtrl), cfg, ""))
+			// 	router := mux.NewRouter()
+			// 	router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, NewMockRenderClient(mockCtrl), cfg, ""))
 
-				router.ServeHTTP(w, req)
-				Convey("Then the status code is 500", func() {
-					So(w.Code, ShouldEqual, http.StatusInternalServerError)
-				})
-			})
+			// 	router.ServeHTTP(w, req)
+			// 	Convey("Then the status code is 500", func() {
+			// 		So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			// 	})
+			// })
 		})
 	})
 }
