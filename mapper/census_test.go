@@ -1427,5 +1427,8 @@ func TestCleanDimensionsLabel(t *testing.T) {
 		So(cleanDimensionLabel("Example (7 Categories)"), ShouldEqual, "Example")
 		So(cleanDimensionLabel("Example (1 category)"), ShouldEqual, "Example")
 		So(cleanDimensionLabel("Example (1 Category)"), ShouldEqual, "Example")
+		So(cleanDimensionLabel(""), ShouldEqual, "")
+		So(cleanDimensionLabel("Example 1 category"), ShouldEqual, "Example 1 category")
+		So(cleanDimensionLabel("Example (something in brackets) (1 Category)"), ShouldEqual, "Example (something in brackets)")
 	})
 }
