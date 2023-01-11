@@ -5,6 +5,8 @@ import (
 	"context"
 	"net/http"
 	"regexp"
+	"sort"
+	"strconv"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -115,4 +117,37 @@ func handleRequestForZebedeeJsonData(ctx context.Context, w http.ResponseWriter,
 	}
 
 	return
+}
+
+// sorts options by code - numerically if possible, with negatives listed last
+func sortOptionsByCode(items []dataset.Option) []dataset.Option {
+	sorted := []dataset.Option{}
+	sorted = append(sorted, items...)
+
+	doNumericSort := func(items []dataset.Option) bool {
+		for _, item := range items {
+			_, err := strconv.Atoi(item.Option)
+			if err != nil {
+				return false
+			}
+		}
+		return true
+	}
+
+	if doNumericSort(items) {
+		sort.Slice(sorted, func(i, j int) bool {
+			left, _ := strconv.Atoi(sorted[i].Option)
+			right, _ := strconv.Atoi(sorted[j].Option)
+			if left*right < 0 {
+				return right < 0
+			} else {
+				return left*left < right*right
+			}
+		})
+	} else {
+		sort.Slice(sorted, func(i, j int) bool {
+			return sorted[i].Option < sorted[j].Option
+		})
+	}
+	return sorted
 }

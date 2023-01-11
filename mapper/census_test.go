@@ -11,17 +11,18 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
-	"github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateCensusDatasetLandingPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
-	pageModel := model.Page{}
+	pageModel := coreModel.Page{}
 	contact := dataset.Contact{
 		Telephone: "01232 123 123",
 		Email:     "hello@testing.com",
@@ -432,11 +433,11 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 				},
 			},
 		}
-		mockErr := model.Error{
+		mockErr := coreModel.Error{
 			Title: datasetModel.Title,
-			ErrorItems: []model.ErrorItem{
+			ErrorItems: []coreModel.ErrorItem{
 				{
-					Description: model.Localisation{
+					Description: coreModel.Localisation{
 						LocaleKey: "GetDataValidationError",
 						Plural:    1,
 					},
@@ -1148,4 +1149,221 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("given dimension data for a dataset landing page", t, func() {
+		dimensions := []model.Dimension{
+			{
+				ID:         "area_ID",
+				IsAreaType: true,
+				IsCoverage: false,
+			},
+			{
+				ID:         "coverage",
+				IsAreaType: false,
+				IsCoverage: true,
+			},
+			{
+				ID:         "dimension_ID_1",
+				IsAreaType: false,
+				IsCoverage: false,
+			},
+			{
+				ID:         "dimension_ID_2",
+				IsAreaType: false,
+				IsCoverage: false,
+			},
+		}
+
+		Convey("when we generate analytics data", func() {
+			analytics := getAnalytics(dimensions)
+
+			Convey("then coverage count is zero", func() {
+				So(analytics["coverageCount"], ShouldEqual, "0")
+			})
+			Convey("and areatype should be set to the area dimension ID", func() {
+				So(analytics["areaType"], ShouldEqual, "area_ID")
+			})
+			Convey("and dimensions should exclude IsAreaType or IsCoverage dimensions", func() {
+				So(analytics["dimensions"], ShouldEqual, "dimension_ID_1,dimension_ID_2")
+			})
+		})
+	})
+
+	Convey("Analytics for Filter Outputs Pages are properly mapped", t, func() {
+		Convey("given we have changed area_type only", func() {
+			fDims := []sharedModel.FilterDimension{
+				{
+					ModelDimension: filter.ModelDimension{
+						ID:         "area_type_ID",
+						IsAreaType: helpers.ToBoolPtr(true),
+					},
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 1",
+						ID:    "dimension_ID_1",
+					},
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 2",
+						ID:    "dimension_ID_2",
+					},
+				},
+			}
+			defaultCoverage := true
+
+			Convey("when we generate analytics data", func() {
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
+
+				Convey("then and areatype should be set to the area dimension ID", func() {
+					So(analytics["areaType"], ShouldEqual, "area_type_ID")
+				})
+				Convey("and coverage count is zero", func() {
+					So(analytics["coverageCount"], ShouldEqual, "0")
+				})
+				Convey("and coverage is not set", func() {
+					_, ok := analytics["coverage"]
+					So(ok, ShouldBeFalse)
+				})
+				Convey("and coverageAreaType is not set", func() {
+					_, ok := analytics["coverageAreaType"]
+					So(ok, ShouldBeFalse)
+				})
+				Convey("and dimensions should exclude IsAreaType", func() {
+					So(analytics["dimensions"], ShouldEqual, "dimension_ID_1,dimension_ID_2")
+				})
+			})
+		})
+
+		Convey("given we have changed area_type and have three coverage items at area_type level", func() {
+			fDims := []sharedModel.FilterDimension{
+				{
+					ModelDimension: filter.ModelDimension{
+						ID:         "area_type_ID",
+						IsAreaType: helpers.ToBoolPtr(true),
+						Options: []string{
+							"Area1", "Area2", "Area3",
+						},
+					},
+					OptionsCount: 3,
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 1",
+						ID:    "dimension_ID_1",
+					},
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 2",
+						ID:    "dimension_ID_2",
+					},
+				},
+			}
+			defaultCoverage := false
+
+			Convey("when we generate analytics data", func() {
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
+
+				Convey("then areatype should be set to the area dimension ID", func() {
+					So(analytics["areaType"], ShouldEqual, "area_type_ID")
+				})
+				Convey("and coverage count is three", func() {
+					So(analytics["coverageCount"], ShouldEqual, "3")
+				})
+				Convey("and coverage is set to the comma joined list of areas", func() {
+					So(analytics["coverage"], ShouldEqual, "Area1,Area2,Area3")
+				})
+				Convey("and coverageAreaType is set to the area dimension ID", func() {
+					So(analytics["coverageAreaType"], ShouldEqual, "area_type_ID")
+				})
+				Convey("and dimensions should exclude IsAreaType", func() {
+					So(analytics["dimensions"], ShouldEqual, "dimension_ID_1,dimension_ID_2")
+				})
+			})
+		})
+
+		Convey("given we have more than four coverage items at area_type level", func() {
+			fDims := []sharedModel.FilterDimension{
+				{
+					ModelDimension: filter.ModelDimension{
+						ID:         "area_type_ID",
+						IsAreaType: helpers.ToBoolPtr(true),
+						Options: []string{
+							"Area1", "Area2", "Area3", "Area4", "Area5",
+						},
+					},
+					OptionsCount: 3,
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 1",
+						ID:    "dimension_ID_1",
+					},
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 2",
+						ID:    "dimension_ID_2",
+					},
+				},
+			}
+			defaultCoverage := false
+
+			Convey("when we generate analytics data", func() {
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
+
+				Convey("then coverage count is set", func() {
+					So(analytics["coverageCount"], ShouldEqual, "5")
+				})
+				Convey("and coverageAreaType is set", func() {
+					So(analytics["coverageAreaType"], ShouldEqual, "area_type_ID")
+				})
+				Convey("but coverage is not set ", func() {
+					_, ok := analytics["coverage"]
+					So(ok, ShouldBeFalse)
+				})
+			})
+		})
+
+		Convey("given we are doing coverage using areas within a larger area", func() {
+			fDims := []sharedModel.FilterDimension{
+				{
+					ModelDimension: filter.ModelDimension{
+						ID:             "area_type_ID",
+						IsAreaType:     helpers.ToBoolPtr(true),
+						FilterByParent: "parent_area_type_ID",
+						Options: []string{
+							"Area1", "Area2", "Area3",
+							``},
+					},
+					OptionsCount: 3,
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 1",
+						ID:    "dimension_ID_1",
+					},
+				},
+				{
+					ModelDimension: filter.ModelDimension{
+						Label: "Dimension 2",
+						ID:    "dimension_ID_2",
+					},
+				},
+			}
+			defaultCoverage := false
+
+			Convey("when we generate analytics data", func() {
+				analytics := getFilterAnalytics(fDims, defaultCoverage)
+
+				Convey("then coverageAreaType is set to the larger area", func() {
+					So(analytics["coverageAreaType"], ShouldEqual, "parent_area_type_ID")
+				})
+			})
+		})
+
+	})
+
 }

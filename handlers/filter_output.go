@@ -127,7 +127,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 
 		var options []string
-		for _, opt := range opts.Items {
+		for _, opt := range sortOptionsByCode(opts.Items) {
 			options = append(options, opt.Label)
 		}
 
