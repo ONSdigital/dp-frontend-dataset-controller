@@ -189,9 +189,9 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
 		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, "Area type")
-		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Coverage")
-		So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
-		So(page.Collapsible.CollapsibleItems[2].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
+		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
+		So(page.Collapsible.CollapsibleItems[1].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
+		So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, "Coverage")
 		So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
 		So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 4)
@@ -244,7 +244,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 
 		page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, withDimensionLabelsDetails, datasetOptions, "", false, []dataset.Version{versionOneDetails}, 1, "/a/version/1", "", []string{}, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 
-		So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, "Label 1")
+		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")
 		So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, "Label 2")
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
 	})
