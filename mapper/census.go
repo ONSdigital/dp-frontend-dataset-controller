@@ -391,26 +391,44 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 }
 
 func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
+	// TODO: This helper func will be re-written when filter output mapping work is done
 	var collapsibleContentItems []coreModel.CollapsibleItem
-	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
-		Subheading: AreaType,
-		SafeHTML: coreModel.Localisation{
-			LocaleKey: "VariableInfoAreaType",
-			Plural:    1,
+	collapsibleContentItems = append(collapsibleContentItems, []coreModel.CollapsibleItem{
+		{
+			Subheading: AreaType,
+			SafeHTML: coreModel.Localisation{
+				LocaleKey: "VariableInfoAreaType",
+				Plural:    1,
+			},
 		},
-	})
-	collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
-		Subheading: Coverage,
-		SafeHTML: coreModel.Localisation{
-			LocaleKey: "VariableInfoCoverage",
-			Plural:    1,
+		{
+			Subheading: Coverage,
+			SafeHTML: coreModel.Localisation{
+				LocaleKey: "VariableInfoCoverage",
+				Plural:    1,
+			},
 		},
-	})
+	}...)
 
 	// TODO: Temporarily removing mapping on filter output pages until API is updated
 	if !isFilterOutput {
 		for _, dims := range Dimensions {
-			if dims.Description != "" {
+			if helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
+				collapsibleContentItems = append(collapsibleContentItems[:1], []coreModel.CollapsibleItem{
+					{
+						Subheading: cleanDimensionLabel(dims.Label),
+						Content:    strings.Split(dims.Description, "\n"),
+					},
+					{
+						Subheading: Coverage,
+						SafeHTML: coreModel.Localisation{
+							LocaleKey: "VariableInfoCoverage",
+							Plural:    1,
+						},
+					},
+				}...)
+			}
+			if !helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
 				var collapsibleContent coreModel.CollapsibleItem
 				collapsibleContent.Subheading = cleanDimensionLabel(dims.Label)
 				collapsibleContent.Content = strings.Split(dims.Description, "\n")
@@ -536,7 +554,7 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 	return truncatePath
 }
 
-// cleanDimensionlabel is a helper function that parses dimension labels from cantabular into display text
+// cleanDimensionLabel is a helper function that parses dimension labels from cantabular into display text
 func cleanDimensionLabel(label string) string {
 	matcher := regexp.MustCompile(`(\(\d+ ((C|c)ategories|(C|c)ategory)\))`)
 	result := matcher.ReplaceAllString(label, "")
