@@ -39,16 +39,10 @@ func CreateCensusBasePage(isEnableMultivariate bool, ctx context.Context, req *h
 	p.Metadata.Description = d.Description
 	p.IsNationalStatistic = d.NationalStatistic
 	p.DatasetId = d.ID
-
 	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
 	p.ReleaseDate = getReleaseDate(initialVersionReleaseDate, p.Version.ReleaseDate)
-	if initialVersionReleaseDate == "" {
-		p.ReleaseDate = p.Version.ReleaseDate
-	} else {
-		p.ReleaseDate = initialVersionReleaseDate
-	}
 
 	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions

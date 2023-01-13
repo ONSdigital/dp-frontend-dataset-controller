@@ -14,6 +14,10 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
+const (
+	FilterOutput = "_filter_output"
+)
+
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
 func CreateCensusFilterOutputsPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
