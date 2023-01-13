@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -39,19 +40,10 @@ func CreateCensusBasePage(isEnableMultivariate bool, ctx context.Context, req *h
 	p.IsNationalStatistic = d.NationalStatistic
 	p.DatasetId = d.ID
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
-		if contacts[0].Telephone != "" {
-			p.ContactDetails.Telephone = contacts[0].Telephone
-			p.HasContactDetails = true
-		}
-		if contacts[0].Email != "" {
-			p.ContactDetails.Email = contacts[0].Email
-			p.HasContactDetails = true
-		}
-	}
+	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
+	p.ReleaseDate = getReleaseDate(initialVersionReleaseDate, p.Version.ReleaseDate)
 	if initialVersionReleaseDate == "" {
 		p.ReleaseDate = p.Version.ReleaseDate
 	} else {
@@ -111,10 +103,133 @@ func CreateCensusBasePage(isEnableMultivariate bool, ctx context.Context, req *h
 	}
 
 	// TABLE OF CONTENTS
+	p.TableOfContents = buildTableOfContents(p, d, hasOtherVersions)
+
+	// VERSIONS TABLE
+	if hasOtherVersions {
+		for _, ver := range allVersions {
+			var version sharedModel.Version
+			version.VersionNumber = ver.Version
+			version.ReleaseDate = ver.ReleaseDate
+			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
+			version.VersionURL = versionUrl
+			version.IsCurrentPage = versionUrl == req.URL.Path
+			mapCorrectionAlert(&ver, &version)
+
+			p.Versions = append(p.Versions, version)
+		}
+
+		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
+
+		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
+	}
+
+	// LATEST VERSIONS PANEL
+	if latestVersionNumber != version.Version && hasOtherVersions {
+		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+			DisplayIcon: true,
+			Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
+			CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+		})
+	}
+
+	// SHARING LINKS
+	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
+	p.DatasetLandingPage.DatasetURL = currentUrl
+	p.DatasetLandingPage.ShareDetails = buildSharingDetails(d, lang, currentUrl)
+
+	// RELATED CONTENT
+	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
+	if d.RelatedContent != nil {
+		for _, content := range *d.RelatedContent {
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
+				Title: content.Title,
+				Link:  content.HRef,
+				Text:  content.Description,
+			})
+		}
+	}
+
+	// ERRORS
+	if isValidationError {
+		p.Error = coreModel.Error{
+			Title: p.Metadata.Title,
+			ErrorItems: []coreModel.ErrorItem{
+				{
+					Description: coreModel.Localisation{
+						LocaleKey: "GetDataValidationError",
+						Plural:    1,
+					},
+					URL: "#select-format-error",
+				},
+			},
+			Language: lang,
+		}
+	}
+
+	return p
+}
+
+func getContactDetails(d dataset.DatasetDetails) (contactDetails.ContactDetails, bool) {
+	details := contactDetails.ContactDetails{}
+	hasContactDetails := false
+
+	if d.Contacts != nil && len(*d.Contacts) > 0 {
+		contacts := *d.Contacts
+		if contacts[0].Telephone != "" {
+			details.Telephone = contacts[0].Telephone
+			hasContactDetails = true
+		}
+		if contacts[0].Email != "" {
+			details.Email = contacts[0].Email
+			hasContactDetails = true
+		}
+	}
+
+	return details, hasContactDetails
+}
+
+func getReleaseDate(initialDate string, alternateDate string) string {
+	if initialDate == "" {
+		return alternateDate
+	} else {
+		return initialDate
+	}
+}
+
+func buildSharingDetails(d dataset.DatasetDetails, lang, currentUrl string) datasetLandingPageCensus.ShareDetails {
+	shareDetails := datasetLandingPageCensus.ShareDetails{}
+	shareDetails.Language = lang
+	shareDetails.ShareLocations = []datasetLandingPageCensus.Share{
+		{
+			Title: "Facebook",
+			Link:  helpers.GenerateSharingLink("facebook", currentUrl, d.Title),
+			Icon:  "facebook",
+		},
+		{
+			Title: "Twitter",
+			Link:  helpers.GenerateSharingLink("twitter", currentUrl, d.Title),
+			Icon:  "twitter",
+		},
+		{
+			Title: "LinkedIn",
+			Link:  helpers.GenerateSharingLink("linkedin", currentUrl, d.Title),
+			Icon:  "linkedin",
+		},
+		{
+			Title: "Email",
+			Link:  helpers.GenerateSharingLink("email", currentUrl, d.Title),
+			Icon:  "email",
+		},
+	}
+	return shareDetails
+}
+
+func buildTableOfContents(p datasetLandingPageCensus.Page, d dataset.DatasetDetails, hasOtherVersions bool) coreModel.TableOfContents {
 	sections := make(map[string]coreModel.ContentSection)
 	displayOrder := make([]string, 0)
 
-	p.TableOfContents = coreModel.TableOfContents{
+	tableOfContents := coreModel.TableOfContents{
 		AriaLabel: coreModel.Localisation{
 			LocaleKey: "ContentsAria",
 			Plural:    1,
@@ -187,92 +302,8 @@ func CreateCensusBasePage(isEnableMultivariate bool, ctx context.Context, req *h
 		displayOrder = append(displayOrder, "related-content")
 	}
 
-	p.TableOfContents.Sections = sections
-	p.TableOfContents.DisplayOrder = displayOrder
+	tableOfContents.Sections = sections
+	tableOfContents.DisplayOrder = displayOrder
 
-	// VERSIONS TABLE
-	if hasOtherVersions {
-		for _, ver := range allVersions {
-			var version sharedModel.Version
-			version.VersionNumber = ver.Version
-			version.ReleaseDate = ver.ReleaseDate
-			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
-			version.VersionURL = versionUrl
-			version.IsCurrentPage = versionUrl == req.URL.Path
-			mapCorrectionAlert(&ver, &version)
-
-			p.Versions = append(p.Versions, version)
-		}
-
-		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
-
-		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
-	}
-
-	// LATEST VERSIONS PANEL
-	if latestVersionNumber != version.Version && hasOtherVersions {
-		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-			DisplayIcon: true,
-			Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
-			CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
-		})
-	}
-
-	// SHARING LINKS
-	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
-	p.DatasetLandingPage.DatasetURL = currentUrl
-	p.DatasetLandingPage.ShareDetails.Language = lang
-	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
-		{
-			Title: "Facebook",
-			Link:  helpers.GenerateSharingLink("facebook", currentUrl, d.Title),
-			Icon:  "facebook",
-		},
-		{
-			Title: "Twitter",
-			Link:  helpers.GenerateSharingLink("twitter", currentUrl, d.Title),
-			Icon:  "twitter",
-		},
-		{
-			Title: "LinkedIn",
-			Link:  helpers.GenerateSharingLink("linkedin", currentUrl, d.Title),
-			Icon:  "linkedin",
-		},
-		{
-			Title: "Email",
-			Link:  helpers.GenerateSharingLink("email", currentUrl, d.Title),
-			Icon:  "email",
-		},
-	}
-
-	// RELATED CONTENT
-	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
-	if d.RelatedContent != nil {
-		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
-				Title: content.Title,
-				Link:  content.HRef,
-				Text:  content.Description,
-			})
-		}
-	}
-
-	// ERRORS
-	if isValidationError {
-		p.Error = coreModel.Error{
-			Title: p.Metadata.Title,
-			ErrorItems: []coreModel.ErrorItem{
-				{
-					Description: coreModel.Localisation{
-						LocaleKey: "GetDataValidationError",
-						Plural:    1,
-					},
-					URL: "#select-format-error",
-				},
-			},
-			Language: lang,
-		}
-	}
-
-	return p
+	return tableOfContents
 }
