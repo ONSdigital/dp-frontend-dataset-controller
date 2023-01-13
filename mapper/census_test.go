@@ -47,7 +47,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		ID:                "12345",
 		Description:       "An interesting test description \n with a line break",
 		Title:             "Test title",
-		Type:              "cantabular",
+		Type:              "cantabular_flexible_table",
 		NationalStatistic: true,
 		Survey:            "census",
 		RelatedContent:    &relatedContent,
@@ -195,12 +195,12 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
 		So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
 		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 4)
-		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeFalse)
+		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions, ShouldHaveLength, 2) // coverage is inserted
 		So(page.DatasetLandingPage.Dimensions[1].IsCoverage, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Coverage")
 		So(page.DatasetLandingPage.Dimensions[1].Name, ShouldEqual, "coverage")
-		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeFalse)
+		So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
 		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)

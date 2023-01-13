@@ -22,11 +22,6 @@ import (
 func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
 
-	isFlex := strings.Contains(d.Type, "flex")
-	isMultivariate := strings.Contains(d.Type, "multivariate") && isEnableMultivariate
-	p.DatasetLandingPage.IsMultivariate = isMultivariate
-	p.DatasetLandingPage.IsFlexibleForm = isFlex || isMultivariate
-
 	// DOWNLOADS
 	for ext, download := range version.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
@@ -43,14 +38,14 @@ func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req
 
 	// DIMENSIONS
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, true, p.DatasetLandingPage.IsMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
 				IsDefaultCoverage: true,
 				Title:             Coverage,
 				Name:              strings.ToLower(Coverage),
-				ShowChange:        isFlex || isMultivariate,
+				ShowChange:        true,
 				ID:                strings.ToLower(Coverage),
 			},
 		}

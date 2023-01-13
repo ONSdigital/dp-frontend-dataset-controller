@@ -47,6 +47,9 @@ func CreateCensusBasePage(isEnableMultivariate bool, ctx context.Context, req *h
 	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 
+	p.DatasetLandingPage.IsMultivariate = strings.Contains(d.Type, "multivariate") && isEnableMultivariate
+	p.DatasetLandingPage.IsFlexibleForm = p.DatasetLandingPage.IsMultivariate || strings.Contains(d.Type, "flexible")
+
 	// SITE-WIDE BANNERS
 	p.BetaBannerEnabled = true
 	p.ServiceMessage = serviceMessage
