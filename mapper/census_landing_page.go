@@ -1,0 +1,92 @@
+package mapper
+
+import (
+	"context"
+	"net/http"
+	"strings"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
+)
+
+// CreateCensusLandingPage creates a census-landing page based on api model responses
+func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
+	p := CreateCensusBasePage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
+
+	isFlex := strings.Contains(d.Type, "flex")
+	isMultivariate := strings.Contains(d.Type, "multivariate") && isEnableMultivariate
+	p.DatasetLandingPage.IsMultivariate = isMultivariate
+	p.DatasetLandingPage.IsFlexibleForm = isFlex || isMultivariate
+
+	// DOWNLOADS
+	for ext, download := range version.Downloads {
+		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+			Extension: strings.ToLower(ext),
+			Size:      download.Size,
+			URI:       download.URL,
+		})
+	}
+	p.Version.Downloads = orderDownloads(p.Version.Downloads)
+
+	if len(version.Downloads) >= 3 {
+		p.DatasetLandingPage.HasDownloads = true
+	}
+
+	// DIMENSIONS
+	if len(opts) > 0 {
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
+		coverage := []sharedModel.Dimension{
+			{
+				IsCoverage:        true,
+				IsDefaultCoverage: true,
+				Title:             Coverage,
+				Name:              strings.ToLower(Coverage),
+				ShowChange:        isFlex || isMultivariate,
+				ID:                strings.ToLower(Coverage),
+			},
+		}
+		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+	}
+
+	// COLLAPSIBLE
+	p.Collapsible = coreModel.Collapsible{
+		Title: coreModel.Localisation{
+			LocaleKey: "VariablesExplanation",
+			Plural:    4,
+		},
+		CollapsibleItems: populateCollapsible(version.Dimensions, false),
+	}
+
+	// ANALYTICS
+	p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
+
+	// FINAL FORMATTING
+	if len(p.DatasetLandingPage.QualityStatements) > 0 {
+		qsLen := len(p.DatasetLandingPage.QualityStatements)
+		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
+	}
+
+	return p
+}
+
+func getAnalytics(dimensions []model.Dimension) map[string]string {
+	analytics := make(map[string]string, 5)
+	var dimensionIDs []string
+	for _, dimension := range dimensions {
+		if dimension.IsAreaType {
+			analytics["areaType"] = dimension.ID
+			analytics["coverageCount"] = "0"
+		} else if !dimension.IsCoverage {
+			dimensionIDs = append(dimensionIDs, dimension.ID)
+		}
+	}
+	analytics["dimensions"] = strings.Join(dimensionIDs, ",")
+
+	return analytics
+}
