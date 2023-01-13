@@ -42,9 +42,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 
-	/*
-		PAGE META-DATA
-	*/
+	// PAGE META-DATA
 	p.Type = d.Type
 	p.Metadata.Title = d.Title
 	p.Language = lang
@@ -294,18 +292,10 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		--------------------------------
 	*/
 
-	var isFlex, isMultivariate bool
-	switch {
-	case strings.Contains(d.Type, "flex"):
-		isFlex = true
-		p.DatasetLandingPage.IsFlexibleForm = true
-	case strings.Contains(d.Type, "multivariate"):
-		if isEnableMultivariate {
-			isMultivariate = true
-			p.DatasetLandingPage.IsMultivariate = true
-			p.DatasetLandingPage.IsFlexibleForm = true
-		}
-	}
+	isFlex := strings.Contains(d.Type, "flex")
+	isMultivariate := strings.Contains(d.Type, "multivariate") && isEnableMultivariate
+	p.DatasetLandingPage.IsMultivariate = isMultivariate
+	p.DatasetLandingPage.IsFlexibleForm = isFlex || isMultivariate
 
 	/*
 		--------------------------------
@@ -316,9 +306,8 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	if isFilterOutput {
 		p.Type += FilterOutput
 		p.SearchNoIndexEnabled = true
-	}
 
-	if isFilterOutput {
+		// DOWNLOADS
 		for ext, download := range filterOutput {
 			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 				Extension: strings.ToLower(ext),
@@ -326,47 +315,14 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 				URI:       download.URL,
 			})
 		}
-	} else {
-		for ext, download := range version.Downloads {
-			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(ext),
-				Size:      download.Size,
-				URI:       download.URL,
-			})
+		p.Version.Downloads = orderDownloads(p.Version.Downloads)
+
+		if len(filterOutput) >= 3 {
+			p.DatasetLandingPage.HasDownloads = true
+			p.DatasetLandingPage.ShowXLSXInfo = true
 		}
-	}
 
-	if len(version.Downloads) >= 3 && !isFilterOutput {
-		p.DatasetLandingPage.HasDownloads = true
-	}
-	p.Version.Downloads = orderDownloads(p.Version.Downloads)
-
-	if isFilterOutput && len(filterOutput) >= 3 {
-		p.DatasetLandingPage.HasDownloads = true
-		p.DatasetLandingPage.ShowXLSXInfo = true
-	}
-
-	if len(opts) > 0 && !isFilterOutput {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: true,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ShowChange:        isFlex || isMultivariate,
-				ID:                strings.ToLower(Coverage),
-			},
-		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-	}
-	if len(p.DatasetLandingPage.QualityStatements) > 0 {
-		qsLen := len(p.DatasetLandingPage.QualityStatements)
-		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
-	}
-
-	if isFilterOutput {
+		// DIMENSIONS
 		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, isMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
@@ -381,21 +337,68 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-		p.DatasetLandingPage.IsFlexibleForm = true
-	}
 
-	collapsibleContentItems := populateCollapsible(version.Dimensions, isFilterOutput)
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
-			LocaleKey: "VariablesExplanation",
-			Plural:    4,
-		},
-		CollapsibleItems: collapsibleContentItems,
-	}
-	if isFilterOutput {
+		// COLLAPSIBLE CONTENT
+		p.Collapsible = coreModel.Collapsible{
+			Title: coreModel.Localisation{
+				LocaleKey: "VariablesExplanation",
+				Plural:    4,
+			},
+			CollapsibleItems: populateCollapsible(version.Dimensions, true),
+		}
+
+		// ANALYTICS
 		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims, hasNoAreaOptions)))
 	} else {
+
+		// DOWNLOADS
+		for ext, download := range version.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+		p.Version.Downloads = orderDownloads(p.Version.Downloads)
+
+		if len(version.Downloads) >= 3 {
+			p.DatasetLandingPage.HasDownloads = true
+		}
+
+		// DIMENSIONS
+		if len(opts) > 0 {
+			p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
+			coverage := []sharedModel.Dimension{
+				{
+					IsCoverage:        true,
+					IsDefaultCoverage: true,
+					Title:             Coverage,
+					Name:              strings.ToLower(Coverage),
+					ShowChange:        isFlex || isMultivariate,
+					ID:                strings.ToLower(Coverage),
+				},
+			}
+			temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+			p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+		}
+
+		// COLLAPSIBLE
+		p.Collapsible = coreModel.Collapsible{
+			Title: coreModel.Localisation{
+				LocaleKey: "VariablesExplanation",
+				Plural:    4,
+			},
+			CollapsibleItems: populateCollapsible(version.Dimensions, false),
+		}
+
+		// ANALYTICS
 		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
+
+		// FINAL FORMATTING
+		if len(p.DatasetLandingPage.QualityStatements) > 0 {
+			qsLen := len(p.DatasetLandingPage.QualityStatements)
+			p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
+		}
 	}
 
 	return p
