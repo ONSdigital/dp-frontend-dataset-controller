@@ -43,10 +43,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 
 	p.Type = d.Type
-	if isFilterOutput {
-		p.Type += FilterOutput
-		p.SearchNoIndexEnabled = true
-	}
 	p.Language = lang
 	p.URI = req.URL.Path
 	p.DatasetId = d.ID
@@ -78,38 +74,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
 	p.Metadata.Title = d.Title
 	p.Metadata.Description = d.Description
-	var isFlex, isMultivariate bool
-	switch {
-	case strings.Contains(d.Type, "flex"):
-		isFlex = true
-		p.DatasetLandingPage.IsFlexibleForm = true
-	case strings.Contains(d.Type, "multivariate"):
-		if isEnableMultivariate {
-			isMultivariate = true
-			p.DatasetLandingPage.IsMultivariate = true
-			p.DatasetLandingPage.IsFlexibleForm = true
-		}
-	}
-
-	if isFilterOutput {
-		for ext, download := range filterOutput {
-			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(ext),
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
-	} else {
-		for ext, download := range version.Downloads {
-			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(ext),
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
-	}
-
-	p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
@@ -126,15 +90,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
 
 	p.IsNationalStatistic = d.NationalStatistic
-
-	collapsibleContentItems := populateCollapsible(version.Dimensions, isFilterOutput)
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
-			LocaleKey: "VariablesExplanation",
-			Plural:    4,
-		},
-		CollapsibleItems: collapsibleContentItems,
-	}
 
 	p.Breadcrumb = []coreModel.TaxonomyNode{
 		{
@@ -184,15 +139,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		},
 	}
 	displayOrder = append(displayOrder, "get-data")
-
-	if len(version.Downloads) >= 3 && !isFilterOutput {
-		p.DatasetLandingPage.HasDownloads = true
-	}
-
-	if isFilterOutput && len(filterOutput) >= 3 {
-		p.DatasetLandingPage.HasDownloads = true
-		p.DatasetLandingPage.ShowXLSXInfo = true
-	}
 
 	if p.HasContactDetails {
 		sections["contact"] = coreModel.ContentSection{
@@ -292,40 +238,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 
 	p.ShowCensusBranding = d.Survey == "census"
 
-	if len(opts) > 0 && !isFilterOutput {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: true,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ShowChange:        isFlex || isMultivariate,
-				ID:                strings.ToLower(Coverage),
-			},
-		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-	}
-
-	if isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, isMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: hasNoAreaOptions,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ID:                strings.ToLower(Coverage),
-				Values:            fDims[0].Options,
-				ShowChange:        true,
-			},
-		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-		p.DatasetLandingPage.IsFlexibleForm = true
-	}
-
 	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
 	if d.RelatedContent != nil {
 		for _, content := range *d.RelatedContent {
@@ -366,6 +278,106 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
+	/*
+		--------------------------------
+		FILTER FLEX CONTENT BELOW THIS LINE
+		--------------------------------
+	*/
+
+	var isFlex, isMultivariate bool
+	switch {
+	case strings.Contains(d.Type, "flex"):
+		isFlex = true
+		p.DatasetLandingPage.IsFlexibleForm = true
+	case strings.Contains(d.Type, "multivariate"):
+		if isEnableMultivariate {
+			isMultivariate = true
+			p.DatasetLandingPage.IsMultivariate = true
+			p.DatasetLandingPage.IsFlexibleForm = true
+		}
+	}
+
+	/*
+		--------------------------------
+		isFilterOutput DEPENDENT CONTENT BELOW THIS LINE
+		--------------------------------
+	*/
+
+	if isFilterOutput {
+		p.Type += FilterOutput
+		p.SearchNoIndexEnabled = true
+	}
+
+	if isFilterOutput {
+		for ext, download := range filterOutput {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+	} else {
+		for ext, download := range version.Downloads {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(ext),
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+	}
+
+	if len(version.Downloads) >= 3 && !isFilterOutput {
+		p.DatasetLandingPage.HasDownloads = true
+	}
+	p.Version.Downloads = orderDownloads(p.Version.Downloads)
+
+	if isFilterOutput && len(filterOutput) >= 3 {
+		p.DatasetLandingPage.HasDownloads = true
+		p.DatasetLandingPage.ShowXLSXInfo = true
+	}
+
+	if len(opts) > 0 && !isFilterOutput {
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
+		coverage := []sharedModel.Dimension{
+			{
+				IsCoverage:        true,
+				IsDefaultCoverage: true,
+				Title:             Coverage,
+				Name:              strings.ToLower(Coverage),
+				ShowChange:        isFlex || isMultivariate,
+				ID:                strings.ToLower(Coverage),
+			},
+		}
+		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+	}
+
+	if isFilterOutput {
+		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, isMultivariate)
+		coverage := []sharedModel.Dimension{
+			{
+				IsCoverage:        true,
+				IsDefaultCoverage: hasNoAreaOptions,
+				Title:             Coverage,
+				Name:              strings.ToLower(Coverage),
+				ID:                strings.ToLower(Coverage),
+				Values:            fDims[0].Options,
+				ShowChange:        true,
+			},
+		}
+		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
+		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+		p.DatasetLandingPage.IsFlexibleForm = true
+	}
+
+	collapsibleContentItems := populateCollapsible(version.Dimensions, isFilterOutput)
+	p.Collapsible = coreModel.Collapsible{
+		Title: coreModel.Localisation{
+			LocaleKey: "VariablesExplanation",
+			Plural:    4,
+		},
+		CollapsibleItems: collapsibleContentItems,
+	}
 	if isFilterOutput {
 		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims, hasNoAreaOptions)))
 	} else {
