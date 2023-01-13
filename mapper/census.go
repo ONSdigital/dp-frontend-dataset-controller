@@ -42,10 +42,29 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 
+	/*
+		PAGE META-DATA
+	*/
 	p.Type = d.Type
+	p.Metadata.Title = d.Title
 	p.Language = lang
 	p.URI = req.URL.Path
+	p.Metadata.Description = d.Description
+	p.IsNationalStatistic = d.NationalStatistic
 	p.DatasetId = d.ID
+
+	if d.Contacts != nil && len(*d.Contacts) > 0 {
+		contacts := *d.Contacts
+		if contacts[0].Telephone != "" {
+			p.ContactDetails.Telephone = contacts[0].Telephone
+			p.HasContactDetails = true
+		}
+		if contacts[0].Email != "" {
+			p.ContactDetails.Email = contacts[0].Email
+			p.HasContactDetails = true
+		}
+	}
+
 	p.Version.ReleaseDate = version.ReleaseDate
 	if initialVersionReleaseDate == "" {
 		p.ReleaseDate = p.Version.ReleaseDate
@@ -53,6 +72,39 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		p.ReleaseDate = initialVersionReleaseDate
 	}
 
+	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
+	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
+
+	// SITE-WIDE BANNERS
+	p.BetaBannerEnabled = true
+	p.ServiceMessage = serviceMessage
+	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+
+	// CENSUS BRANDING
+	p.ShowCensusBranding = d.Survey == "census"
+
+	// BREADCRUMBS
+	p.Breadcrumb = []coreModel.TaxonomyNode{
+		{
+			Title: "Home",
+			URI:   "/",
+		},
+		{
+			Title: "Census",
+			URI:   "/census",
+		},
+	}
+
+	// BACK LINK
+	p.BackTo = coreModel.BackTo{
+		Text: coreModel.Localisation{
+			LocaleKey: "BackToContents",
+			Plural:    4,
+		},
+		AnchorFragment: "toc",
+	}
+
+	// ALERTS
 	if version.Alerts != nil {
 		for _, alert := range *version.Alerts {
 			switch alert.Type {
@@ -71,37 +123,8 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 			}
 		}
 	}
-	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
-	p.Metadata.Title = d.Title
-	p.Metadata.Description = d.Description
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
-		if contacts[0].Telephone != "" {
-			p.ContactDetails.Telephone = contacts[0].Telephone
-			p.HasContactDetails = true
-		}
-		if contacts[0].Email != "" {
-			p.ContactDetails.Email = contacts[0].Email
-			p.HasContactDetails = true
-		}
-	}
-
-	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
-
-	p.IsNationalStatistic = d.NationalStatistic
-
-	p.Breadcrumb = []coreModel.TaxonomyNode{
-		{
-			Title: "Home",
-			URI:   "/",
-		},
-		{
-			Title: "Census",
-			URI:   "/census",
-		},
-	}
-
+	// TABLE OF CONTENTS
 	sections := make(map[string]coreModel.ContentSection)
 	displayOrder := make([]string, 0)
 
@@ -166,29 +189,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 			},
 		}
 		displayOrder = append(displayOrder, "version-history")
-
-		for _, ver := range allVersions {
-			var version sharedModel.Version
-			version.VersionNumber = ver.Version
-			version.ReleaseDate = ver.ReleaseDate
-			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
-			version.VersionURL = versionUrl
-			version.IsCurrentPage = versionUrl == req.URL.Path
-			mapCorrectionAlert(&ver, &version)
-
-			p.Versions = append(p.Versions, version)
-		}
-
-		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
-
-		if latestVersionNumber != version.Version && hasOtherVersions {
-			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-				DisplayIcon: true,
-				Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
-				CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
-			})
-		}
-		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	}
 
 	if d.RelatedContent != nil {
@@ -204,13 +204,38 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	p.TableOfContents.Sections = sections
 	p.TableOfContents.DisplayOrder = displayOrder
 
-	p.DatasetLandingPage.ShareDetails.Language = lang
+	// VERSIONS TABLE
+	if hasOtherVersions {
+		for _, ver := range allVersions {
+			var version sharedModel.Version
+			version.VersionNumber = ver.Version
+			version.ReleaseDate = ver.ReleaseDate
+			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
+			version.VersionURL = versionUrl
+			version.IsCurrentPage = versionUrl == req.URL.Path
+			mapCorrectionAlert(&ver, &version)
+
+			p.Versions = append(p.Versions, version)
+		}
+
+		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
+
+		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
+	}
+
+	// LATEST VERSIONS PANEL
+	if latestVersionNumber != version.Version && hasOtherVersions {
+		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
+			DisplayIcon: true,
+			Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
+			CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
+		})
+	}
+
+	// SHARING LINKS
 	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
 	p.DatasetLandingPage.DatasetURL = currentUrl
-
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
-
+	p.DatasetLandingPage.ShareDetails.Language = lang
 	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
 		{
 			Title: "Facebook",
@@ -234,10 +259,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		},
 	}
 
-	p.BetaBannerEnabled = true
-
-	p.ShowCensusBranding = d.Survey == "census"
-
+	// RELATED CONTENT
 	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
 	if d.RelatedContent != nil {
 		for _, content := range *d.RelatedContent {
@@ -249,6 +271,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		}
 	}
 
+	// ERRORS
 	if isValidationError {
 		p.Error = coreModel.Error{
 			Title: p.Metadata.Title,
@@ -263,19 +286,6 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 			},
 			Language: lang,
 		}
-	}
-
-	p.BackTo = coreModel.BackTo{
-		Text: coreModel.Localisation{
-			LocaleKey: "BackToContents",
-			Plural:    4,
-		},
-		AnchorFragment: "toc",
-	}
-
-	if len(p.DatasetLandingPage.QualityStatements) > 0 {
-		qsLen := len(p.DatasetLandingPage.QualityStatements)
-		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
 	/*
@@ -350,6 +360,10 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 		}
 		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+	}
+	if len(p.DatasetLandingPage.QualityStatements) > 0 {
+		qsLen := len(p.DatasetLandingPage.QualityStatements)
+		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
 	}
 
 	if isFilterOutput {
