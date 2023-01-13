@@ -2,15 +2,19 @@ package mapper
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
@@ -73,6 +77,56 @@ func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req
 	}
 
 	return p
+}
+
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
+	dimensions := []sharedModel.Dimension{}
+	qs := []datasetLandingPageCensus.Panel{}
+	for _, opt := range opts {
+		var pDim sharedModel.Dimension
+
+		for _, dimension := range dims {
+			if dimension.Name == opt.Items[0].DimensionID {
+				pDim.Name = dimension.Name
+				pDim.Description = dimension.Description
+				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+				pDim.ShowChange = pDim.IsAreaType || isMultivariate
+				pDim.Title = cleanDimensionLabel(dimension.Label)
+				pDim.ID = dimension.ID
+				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
+					qs = append(qs, datasetLandingPageCensus.Panel{
+						Body:       fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL)),
+						CssClasses: []string{"ons-u-mt-no"},
+					})
+				}
+			}
+		}
+
+		pDim.TotalItems = opt.TotalCount
+		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
+
+		var displayedOptions []dataset.Option
+		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
+			displayedOptions = opt.Items[:3]
+			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, opt.Items[len(opt.Items)-3:]...)
+			pDim.IsTruncated = true
+		} else {
+			displayedOptions = opt.Items
+		}
+
+		for _, opt := range displayedOptions {
+			pDim.Values = append(pDim.Values, opt.Label)
+		}
+
+		q := url.Values{}
+		if pDim.IsTruncated {
+			q.Add(queryStrKey, pDim.ID)
+		}
+		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
+		dimensions = append(dimensions, pDim)
+	}
+	return dimensions, qs
 }
 
 func getAnalytics(dimensions []model.Dimension) map[string]string {
