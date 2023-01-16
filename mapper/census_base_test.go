@@ -33,7 +33,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 				Type:        "correction",
 			},
 		})
-	versionThreeDetails := getTestVersionDetails(4, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), &[]dataset.Alert{})
+	versionThreeDetails := getTestVersionDetails(3, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), &[]dataset.Alert{})
 	datasetOptions := getTestOptionsList()
 
 	serviceMessage := getTestServiceMessage()
@@ -55,7 +55,6 @@ func TestCreateCensusBasePage(t *testing.T) {
 		So(page.ContactDetails.Telephone, ShouldEqual, contact.Telephone)
 		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
-		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 4)
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 
 		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)

@@ -63,7 +63,10 @@ func TestCleanDimensionsLabel(t *testing.T) {
 		contact := getTestContacts()
 		relatedContent := getTestRelatedContent()
 		datasetModel := getTestDatasetDetails(contact, relatedContent)
-		datasetOptions := getTestOptionsList()
+		datasetOptions := []dataset.Options{
+			getTestOptions("dim_1", 10),
+			getTestOptions("dim_2", 10),
+		}
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
 
@@ -100,7 +103,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 			})
 		})
 
-		Convey("and filter dimension labels that include category counts", t, func() {
+		Convey("and filter dimension labels that include category counts", func() {
 			filterDimensions := []sharedModel.FilterDimension{
 				{
 					ModelDimension: filter.ModelDimension{
@@ -194,9 +197,18 @@ func getTestFilterDimension(name string, isAreaType bool, options []string) shar
 			Options:    options,
 			IsAreaType: helpers.ToBoolPtr(isAreaType),
 			Name:       name,
+			ID:         name,
 		},
 		OptionsCount: len(options),
 	}
+}
+
+func buildTestFilterDimension(name string, isAreaType bool, optionCount int) sharedModel.FilterDimension {
+	options := []string{}
+	for i := 1; i <= optionCount; i++ {
+		options = append(options, fmt.Sprintf("Label %d", i))
+	}
+	return getTestFilterDimension(name, isAreaType, options)
 }
 
 func getTestDownloads(formats []string) map[string]dataset.Download {
@@ -227,7 +239,7 @@ func getTestDefaultDimensions() []dataset.VersionDimension {
 	dim1.QualityStatementURL = "#"
 
 	dim2 := getTestDimension("2", false)
-	dim2.QualityStatementText = "This is a another quality notice statement"
+	dim2.QualityStatementText = "This is another quality notice statement"
 	dim2.QualityStatementURL = "#"
 
 	dim3 := getTestDimension("3", false)
@@ -238,11 +250,12 @@ func getTestDefaultDimensions() []dataset.VersionDimension {
 }
 
 func getTestOptions(dimensionID string, count int) dataset.Options {
-	items := make([]dataset.Option, count)
-	for i := 1; i <= 10; i++ {
+	items := []dataset.Option{}
+	for i := 1; i <= count; i++ {
 		items = append(items, dataset.Option{
 			DimensionID: dimensionID,
-			Option:      fmt.Sprintf("option %d", i),
+			Label:       fmt.Sprintf("Label %d", i),
+			Option:      fmt.Sprintf("Label %d", i),
 		})
 	}
 

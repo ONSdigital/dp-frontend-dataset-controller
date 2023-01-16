@@ -53,11 +53,11 @@ func TestCreateCensusLandingPage(t *testing.T) {
 
 			Convey("And collapsible items are mapped from dimensions", func() {
 				So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, "Area type")
-				So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, versionOneDetails.Dimensions[0].Label)
-				So(page.Collapsible.CollapsibleItems[1].Content[0], ShouldEqual, versionOneDetails.Dimensions[0].Description)
+				So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, version.Dimensions[0].Label)
+				So(page.Collapsible.CollapsibleItems[1].Content[0], ShouldEqual, version.Dimensions[0].Description)
 				So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, "Coverage")
-				So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, versionOneDetails.Dimensions[1].Label)
-				So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, strings.Split(versionOneDetails.Dimensions[1].Description, "\n"))
+				So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, version.Dimensions[1].Label)
+				So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, strings.Split(version.Dimensions[1].Description, "\n"))
 				So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 4)
 			})
 
@@ -84,7 +84,7 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 		dim1.QualityStatementURL = "#"
 
 		dim2 := getTestDimension("2", false)
-		dim2.QualityStatementText = "This is a another quality notice statement"
+		dim2.QualityStatementText = "This is another quality notice statement"
 		dim2.QualityStatementURL = "#"
 
 		dim3 := getTestDimension("3", false)
@@ -166,13 +166,13 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 			})
 
 			Convey("and ShowXLSXInfo is set to false", func() {
-				So(page.DatasetLandingPage.ShowXLSXInfo, ShouldBeTrue)
+				So(page.DatasetLandingPage.ShowXLSXInfo, ShouldBeFalse)
 			})
 
 			Convey("and downloads are sorted by fixed extension order", func() {
-				So(page.Version.Downloads[1].Extension, ShouldEqual, "csv")
-				So(page.Version.Downloads[2].Extension, ShouldEqual, "txt")
-				So(page.Version.Downloads[3].Extension, ShouldEqual, "csvw")
+				So(page.Version.Downloads[0].Extension, ShouldEqual, "csv")
+				So(page.Version.Downloads[1].Extension, ShouldEqual, "txt")
+				So(page.Version.Downloads[2].Extension, ShouldEqual, "csvw")
 			})
 		})
 	})
@@ -204,7 +204,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 
 	Convey("given a dimension to truncate on census dataset landing page", t, func() {
 		datasetOptions := []dataset.Options{
-			getTestOptions("Dimension 1", 20),
+			getTestOptions("Dimension 1", 21),
 			getTestOptions("Dimension 2", 20),
 		}
 
@@ -225,67 +225,47 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 		})
 
 		Convey("when 'showAll' parameter provided", func() {
-			p := CreateCensusDatasetLandingPage(
-				true,
-				context.Background(),
-				req,
-				pageModel,
-				datasetModel,
-				versionOneDetails,
-				datasetOptions,
-				"",
-				false,
-				[]dataset.Version{},
-				1,
-				"",
-				"",
-				[]string{"dim_1"},
-				50,
-				false,
-				false,
-				false,
-				map[string]filter.Download{},
-				[]sharedModel.FilterDimension{},
-				serviceMessage,
-				emergencyBanner)
+			parameters := []string{"dim_1"}
+			page := CreateCensusLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, false, false, map[string]filter.Download{}, []sharedModel.FilterDimension{}, serviceMessage, emergencyBanner)
 
 			Convey("then the dimension is no longer truncated", func() {
-				So(p.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
-				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 21)
-				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{
+				So(page.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
+				So(page.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 21)
+				So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
 					"Label 6", "Label 7", "Label 8", "Label 9", "Label 10",
 					"Label 11", "Label 12", "Label 13", "Label 14", "Label 15",
 					"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
 					"Label 21",
 				})
-				So(p.DatasetLandingPage.Dimensions[0].IsTruncated, ShouldBeFalse)
-				So(p.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
+				So(page.DatasetLandingPage.Dimensions[0].IsTruncated, ShouldBeFalse)
+				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
 			})
 
 			Convey("then other truncated dimensions are persisted", func() {
-				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 21)
-				So(p.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{
+				So(page.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 21)
+				So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
 					"Label 6", "Label 7", "Label 8", "Label 9", "Label 10",
 					"Label 11", "Label 12", "Label 13", "Label 14", "Label 15",
 					"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
 					"Label 21",
 				})
-				So(p.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
-				So(p.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, datasetOptions[1].TotalCount)
-				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 9)
-				So(p.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
+				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
+				So(page.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, datasetOptions[1].TotalCount)
+				So(page.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 9)
+				So(page.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3",
 					"Label 9", "Label 10", "Label 11",
 					"Label 18", "Label 19", "Label 20",
 				})
-				So(p.DatasetLandingPage.Dimensions[2].IsTruncated, ShouldBeTrue)
-				So(p.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/?showAll=dim_2#dim_2")
+				So(page.DatasetLandingPage.Dimensions[2].IsTruncated, ShouldBeTrue)
+				So(page.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/?showAll=dim_2#dim_2")
 			})
 		})
 	})
-
+}
+func TestCreateCensusLandingAnalytics(t *testing.T) {
 	Convey("given dimension data for a dataset landing page", t, func() {
 		dimensions := []model.Dimension{
 			{
