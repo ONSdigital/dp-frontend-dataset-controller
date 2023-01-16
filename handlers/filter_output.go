@@ -302,6 +302,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(cfg.EnableMultivariate, ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateCensusFilterOutputsPage(cfg.EnableMultivariate, ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "census-landing")
 }
