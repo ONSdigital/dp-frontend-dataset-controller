@@ -211,7 +211,6 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 }
 
 func TestCreateCensusFilterOutputsAnalytics(t *testing.T) {
-
 	Convey("given we have changed area_type only", t, func() {
 		filterDimensions := []sharedModel.FilterDimension{
 			{
@@ -356,9 +355,7 @@ func TestCreateCensusFilterOutputsAnalytics(t *testing.T) {
 					ID:             "area_type_ID",
 					IsAreaType:     helpers.ToBoolPtr(true),
 					FilterByParent: "parent_area_type_ID",
-					Options: []string{
-						"Area1", "Area2", "Area3",
-						``},
+					Options:        []string{"Area1", "Area2", "Area3"},
 				},
 				OptionsCount: 3,
 			},

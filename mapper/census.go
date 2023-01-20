@@ -52,7 +52,7 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	return ordered
 }
 
-// populateCollapsible maps dimension data for the collabsible section
+// populateCollapsible maps dimension data for the collapsible section
 func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
 	// TODO: This helper func will be re-written when filter output mapping work is done
 	var collapsibleContentItems []coreModel.CollapsibleItem
