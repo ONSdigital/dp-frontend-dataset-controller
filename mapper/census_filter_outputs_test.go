@@ -23,7 +23,6 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	datasetOptions := getTestOptionsList()
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
 
@@ -33,7 +32,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		filterOutputs := getTestFilterDownloads([]string{"xlsx"})
 
 		Convey("when we build a filter outputs page", func() {
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutputs, filterDims, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true)
 
 			Convey("then the type should have _filter_output appended", func() {
 				So(page.Type, ShouldEqual, fmt.Sprintf("%s_filter_output", datasetModel.Type))
@@ -69,7 +68,6 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
-	datasetOptions := getTestOptionsList()
 	version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 	filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"})}
 
@@ -77,7 +75,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 		filterOutputs := getTestFilterDownloads([]string{"xlsx", "txt", "csv", "csvw"})
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutputs, filterDims, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -100,7 +98,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 		filterOutputs := getTestFilterDownloads([]string{"txt", "csv", "csvw"})
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutputs, filterDims, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -122,7 +120,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 		filterOutputs := map[string]filter.Download{}
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutputs, filterDims, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to false", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
@@ -141,7 +139,6 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
-	datasetOptions := getTestOptionsList()
 	version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 	filterOutputs := getTestFilterDownloads([]string{"xlsx", "txt", "csv", "csvw"})
 
@@ -153,7 +150,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 		}
 
 		Convey("when valid parameters are provided", func() {
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true)
 
 			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(page.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, 21)
@@ -170,7 +167,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 
 		Convey("when 'showAll' parameter provided", func() {
 			parameters := []string{"dim_1"}
-			page := CreateCensusDatasetLandingPage(true, context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, true, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true)
 
 			Convey("then the dimension is no longer truncated", func() {
 				So(page.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, 21)
