@@ -32,7 +32,6 @@ func TestCreateCensusBasePage(t *testing.T) {
 			},
 		})
 	versionThreeDetails := getTestVersionDetails(3, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), &[]dataset.Alert{})
-	datasetOptions := getTestOptionsList()
 
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
