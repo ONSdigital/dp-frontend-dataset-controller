@@ -16,34 +16,6 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-// func TestCreateCensusDatasetLandingPage(t *testing.T) {
-// helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-// req := httptest.NewRequest("", "/", nil)
-// pageModel := coreModel.Page{}
-// contacts := getTestContacts()
-// relatedContent := getTestRelatedContent()
-// datasetModel := getTestDatasetDetails(contacts, relatedContent)
-// datasetOptions := getTestOptionsList()
-// serviceMessage := getTestServiceMessage()
-// emergencyBanner := getTestEmergencyBanner()
-// datasetOptions := getTestOptionsList()
-// 	versionOneDetails := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
-// 	versionTwoDetails := getTestVersionDetails(2, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}),
-// 		&[]dataset.Alert{
-// 			{
-// 				Date:        "",
-// 				Description: "This is a correction",
-// 				Type:        "correction",
-// 			},
-// 		})
-// 	versionThreeDetails := getTestVersionDetails(4, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), &[]dataset.Alert{})
-
-// 	filterDims := []sharedModel.FilterDimension{
-// 		getTestFilterDimension("Geography", true, []string{"An option", "and another"}),
-// 	}
-
-// }
-
 func TestCleanDimensionsLabel(t *testing.T) {
 
 	Convey("Removes categories count from label - case insensitive", t, func() {
