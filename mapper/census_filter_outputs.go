@@ -21,7 +21,7 @@ const (
 	FilterOutput = "_filter_output"
 )
 
-// CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
+// CreateCensusFilterOutputsPage creates a filter output page based on api model responses
 func CreateCensusFilterOutputsPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(isEnableMultivariate, ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent)
 
@@ -74,6 +74,7 @@ func CreateCensusFilterOutputsPage(isEnableMultivariate bool, ctx context.Contex
 	return p
 }
 
+// mapFilterOutputDims links dimension options to FilterDimensions and preppares them for display
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
 	sort.Slice(dims, func(i, j int) bool {
 		return *dims[i].IsAreaType
@@ -115,6 +116,7 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 	return dimensions
 }
 
+// getFilterAnalytics returns a map to add to the data layer which will be used on file download
 func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultCoverage bool) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string

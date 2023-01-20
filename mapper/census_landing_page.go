@@ -74,6 +74,7 @@ func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req
 	return p
 }
 
+// mapCensusOptionsToDimensions links dimension options to dimensions and preppares them for display
 func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
 	qs := []datasetLandingPageCensus.Panel{}
@@ -124,6 +125,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	return dimensions, qs
 }
 
+// getAnalytics returns a map to add to the data layer which will be used on file download
 func getAnalytics(dimensions []model.Dimension) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string

@@ -36,6 +36,7 @@ func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Conte
 	}
 }
 
+// orderDownloads orders a set of sharedModel.Downloads using a hardcoded download order
 func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw"}
 	mapped := make(map[string]sharedModel.Download, 5)
@@ -51,6 +52,7 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	return ordered
 }
 
+// populateCollapsible maps dimension data for the collabsible section
 func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
 	// TODO: This helper func will be re-written when filter output mapping work is done
 	var collapsibleContentItems []coreModel.CollapsibleItem
@@ -131,6 +133,7 @@ func cleanDimensionLabel(label string) string {
 	return strings.TrimSpace(result)
 }
 
+// getDataLayerJavaScript returns a template.JS for page.PreGTMJavaScript that maps a map to the data layer
 func getDataLayerJavaScript(analytics map[string]string) template.JS {
 	jsonStr, _ := json.Marshal(analytics)
 	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
