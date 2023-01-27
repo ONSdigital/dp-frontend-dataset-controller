@@ -144,6 +144,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				EXPECT().
 				GetAreas(ctx, gomock.Any()).
 				Return(population.GetAreasResponse{}, nil)
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -208,6 +212,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				EXPECT().
 				GetAreas(ctx, gomock.Any()).
 				Return(population.GetAreasResponse{}, nil)
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -270,6 +278,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				EXPECT().
 				GetAreas(ctx, gomock.Any()).
 				Return(population.GetAreasResponse{}, nil)
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
@@ -328,6 +340,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				EXPECT().
 				GetAreas(ctx, gomock.Any()).
 				Return(population.GetAreasResponse{}, nil)
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -390,6 +406,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				EXPECT().
 				GetAreas(ctx, gomock.Any()).
 				Return(population.GetAreasResponse{}, nil)
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -440,11 +460,17 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 				mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
+				mockPc := NewMockPopulationClient(mockCtrl)
+				mockPc.
+					EXPECT().
+					GetDimensionsDescription(ctx, gomock.Any()).
+					Return(population.GetDimensionsResponse{}, nil)
+
 				w := httptest.NewRecorder()
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
 
 				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, NewMockPopulationClient(mockCtrl), mockDc, mockRend, cfg, ""))
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
 
 				router.ServeHTTP(w, req)
 				Convey("Then the status code is 200", func() {
@@ -494,6 +520,10 @@ func TestFilterOutputHandler(t *testing.T) {
 					EXPECT().
 					GetAreas(gomock.Any(), gomock.Any()).
 					Return(population.GetAreasResponse{}, nil)
+				mockPc.
+					EXPECT().
+					GetDimensionsDescription(ctx, gomock.Any()).
+					Return(population.GetDimensionsResponse{}, nil)
 
 				mockRend := NewMockRenderClient(mockCtrl)
 				mockRend.
@@ -564,6 +594,10 @@ func TestFilterOutputHandler(t *testing.T) {
 						EXPECT().
 						GetArea(gomock.Any(), gomock.Any()).
 						Return(population.GetAreaResponse{}, nil)
+					mockPc.
+						EXPECT().
+						GetDimensionsDescription(ctx, gomock.Any()).
+						Return(population.GetDimensionsResponse{}, nil)
 
 					mockRend := NewMockRenderClient(mockCtrl)
 					mockRend.
@@ -635,6 +669,10 @@ func TestFilterOutputHandler(t *testing.T) {
 						EXPECT().
 						GetArea(gomock.Any(), gomock.Any()).
 						Return(population.GetAreaResponse{}, nil)
+					mockPc.
+						EXPECT().
+						GetDimensionsDescription(ctx, gomock.Any()).
+						Return(population.GetDimensionsResponse{}, nil)
 					// TODO: pc.GetParentAreaCount is causing production issues
 					// mockPc.
 					// 	EXPECT().
@@ -808,6 +846,47 @@ func TestFilterOutputHandler(t *testing.T) {
 			})
 		})
 
+		Convey("When the pc.GetDimensionsDescription fails", func() {
+			mockDc := NewMockDatasetClient(mockCtrl)
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockPc := NewMockPopulationClient(mockCtrl)
+			mockRend := NewMockRenderClient(mockCtrl)
+
+			mockDc.
+				EXPECT().
+				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				Return(dataset.DatasetDetails{}, nil)
+			mockDc.
+				EXPECT().
+				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				Return(versions, nil)
+			mockDc.
+				EXPECT().
+				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				Return(versions.Items[0], nil)
+
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(filter.Model{}, nil)
+
+			mockPc.
+				EXPECT().
+				GetDimensionsDescription(ctx, gomock.Any()).
+				Return(population.GetDimensionsResponse{}, errors.New("Internal error"))
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
+
+			router.ServeHTTP(w, req)
+			Convey("Then the status code is 500", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
 		Convey("When the fc.GetDimensionOptions is called", func() {
 			Convey("and the additional call to pc.GetArea fails", func() {
 				mockDc := NewMockDatasetClient(mockCtrl)
@@ -856,6 +935,10 @@ func TestFilterOutputHandler(t *testing.T) {
 					EXPECT().
 					GetArea(gomock.Any(), gomock.Any()).
 					Return(population.GetAreaResponse{}, errors.New("area client error"))
+				mockPc.
+					EXPECT().
+					GetDimensionsDescription(ctx, gomock.Any()).
+					Return(population.GetDimensionsResponse{}, nil)
 
 				w := httptest.NewRecorder()
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)

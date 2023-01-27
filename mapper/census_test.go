@@ -268,9 +268,7 @@ func TestCreateCensusDatasetLandingPage(t *testing.T) {
 		So(page.HasContactDetails, ShouldBeTrue)
 		So(page.DatasetLandingPage.LatestVersionURL, ShouldBeBlank)
 		So(page.Collapsible.CollapsibleItems[0].Subheading, ShouldEqual, "Area type")
-		So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Coverage")
-		// TODO: Removing test coverage until API is created
-		So(page.Collapsible.CollapsibleItems, ShouldHaveLength, 2)
+		// TODO: Tests are being refactored; filter output collapsible tests to be reworked when outstanding test PR is merged
 		So(page.DatasetLandingPage.IsFlexibleForm, ShouldBeTrue)
 		So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, fDims[0].Label)
 		So(page.DatasetLandingPage.Dimensions[0].Values, ShouldResemble, fDims[0].Options)

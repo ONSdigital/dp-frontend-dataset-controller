@@ -12,6 +12,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -30,7 +31,7 @@ const (
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
 func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
 	if isFilterOutput {
-		return CreateCensusFilterOutputsPage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
+		return CreateCensusFilterOutputsPage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent, population.GetDimensionsResponse{})
 	} else {
 		return CreateCensusLandingPage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
 	}
@@ -51,52 +52,74 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	return ordered
 }
 
-func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
-	// TODO: This helper func will be re-written when filter output mapping work is done
-	var collapsibleContentItems []coreModel.CollapsibleItem
-	collapsibleContentItems = append(collapsibleContentItems, []coreModel.CollapsibleItem{
-		{
-			Subheading: AreaType,
-			SafeHTML: coreModel.Localisation{
-				LocaleKey: "VariableInfoAreaType",
-				Plural:    1,
-			},
+func areaTypeItem() coreModel.CollapsibleItem {
+	return coreModel.CollapsibleItem{
+		Subheading: AreaType,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoAreaType",
+			Plural:    1,
 		},
-		{
-			Subheading: Coverage,
-			SafeHTML: coreModel.Localisation{
-				LocaleKey: "VariableInfoCoverage",
-				Plural:    1,
-			},
-		},
-	}...)
+	}
+}
 
-	// TODO: Temporarily removing mapping on filter output pages until API is updated
-	if !isFilterOutput {
-		for _, dims := range Dimensions {
-			if helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
-				collapsibleContentItems = append(collapsibleContentItems[:1], []coreModel.CollapsibleItem{
-					{
-						Subheading: cleanDimensionLabel(dims.Label),
-						Content:    strings.Split(dims.Description, "\n"),
-					},
-					{
-						Subheading: Coverage,
-						SafeHTML: coreModel.Localisation{
-							LocaleKey: "VariableInfoCoverage",
-							Plural:    1,
-						},
-					},
-				}...)
-			}
-			if !helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
-				var collapsibleContent coreModel.CollapsibleItem
-				collapsibleContent.Subheading = cleanDimensionLabel(dims.Label)
-				collapsibleContent.Content = strings.Split(dims.Description, "\n")
-				collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+func coverageItem() coreModel.CollapsibleItem {
+	return coreModel.CollapsibleItem{
+		Subheading: Coverage,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoCoverage",
+			Plural:    1,
+		},
+	}
+}
+
+// mapOutputCollapsible maps the collapsible on the output page
+func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	var areaItem coreModel.CollapsibleItem
+
+	for _, dim := range dims {
+		for _, dimDescription := range dimDescriptions.Dimensions {
+			if dim.ID == dimDescription.ID && dim.IsAreaType {
+				areaItem.Subheading = cleanDimensionLabel(dimDescription.Label)
+				areaItem.Content = strings.Split(dimDescription.Description, "\n")
+			} else if dim.ID == dimDescription.ID && !dim.IsAreaType {
+				collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+					Subheading: cleanDimensionLabel(dimDescription.Label),
+					Content:    strings.Split(dimDescription.Description, "\n"),
+				})
 			}
 		}
 	}
+
+	return concatenateCollapsibleItems(collapsibleContentItems, areaItem)
+}
+
+// mapLandingCollapsible maps the collapsible on the landing page
+func mapLandingCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	var areaItem coreModel.CollapsibleItem
+	for _, dim := range Dimensions {
+		if helpers.IsBoolPtr(dim.IsAreaType) && dim.Description != "" {
+			areaItem.Subheading = cleanDimensionLabel(dim.Label)
+			areaItem.Content = strings.Split(dim.Description, "\n")
+		} else if dim.Description != "" {
+			collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+				Subheading: cleanDimensionLabel(dim.Label),
+				Content:    strings.Split(dim.Description, "\n"),
+			})
+		}
+	}
+
+	return concatenateCollapsibleItems(collapsibleContentItems, areaItem)
+}
+
+// concatenateCollapsibleItems returns the collapsible in the order: area type, area type description, coverage then other dimensions
+func concatenateCollapsibleItems(collapsibleContentItems []coreModel.CollapsibleItem, areaItem coreModel.CollapsibleItem) []coreModel.CollapsibleItem {
+	collapsibleContentItems = append([]coreModel.CollapsibleItem{
+		areaTypeItem(),
+		areaItem,
+		coverageItem(),
+	}, collapsibleContentItems...)
 
 	return collapsibleContentItems
 }

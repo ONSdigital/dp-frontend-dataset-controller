@@ -59,7 +59,7 @@ func CreateCensusLandingPage(isEnableMultivariate bool, ctx context.Context, req
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: populateCollapsible(version.Dimensions, false),
+		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
 	}
 
 	// ANALYTICS
