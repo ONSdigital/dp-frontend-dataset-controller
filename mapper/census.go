@@ -1,22 +1,17 @@
 package mapper
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
@@ -27,15 +22,6 @@ const (
 	AreaType          = "Area type"
 	AnalyticsMaxItems = 4
 )
-
-// CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
-	if isFilterOutput {
-		return CreateCensusFilterOutputsPage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent, isEnableMultivariate, population.GetDimensionsResponse{})
-	} else {
-		return CreateCensusLandingPage(ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
-	}
-}
 
 // orderDownloads orders a set of sharedModel.Downloads using a hardcoded download order
 func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
