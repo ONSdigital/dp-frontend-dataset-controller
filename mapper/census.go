@@ -29,14 +29,15 @@ const (
 )
 
 // CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
+func CreateCensusDatasetLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
 	if isFilterOutput {
-		return CreateCensusFilterOutputsPage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent, population.GetDimensionsResponse{})
+		return CreateCensusFilterOutputsPage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent, isEnableMultivariate, population.GetDimensionsResponse{})
 	} else {
-		return CreateCensusLandingPage(isEnableMultivariate, ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, isFilterOutput, hasNoAreaOptions, filterOutput, fDims, serviceMessage, emergencyBannerContent)
+		return CreateCensusLandingPage(ctx, req, basePage, d, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, queryStrValues, maxNumberOfOptions, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 	}
 }
 
+// orderDownloads orders a set of sharedModel.Downloads using a hardcoded download order
 func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw"}
 	mapped := make(map[string]sharedModel.Download, 5)
@@ -154,6 +155,7 @@ func cleanDimensionLabel(label string) string {
 	return strings.TrimSpace(result)
 }
 
+// getDataLayerJavaScript returns a template.JS for page.PreGTMJavaScript that maps a map to the data layer
 func getDataLayerJavaScript(analytics map[string]string) template.JS {
 	jsonStr, _ := json.Marshal(analytics)
 	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
