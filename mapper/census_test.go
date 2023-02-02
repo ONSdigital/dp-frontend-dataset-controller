@@ -18,32 +18,6 @@ import (
 )
 
 func TestCleanDimensionsLabel(t *testing.T) {
-
-	Convey("Removes categories count from label - case insensitive", t, func() {
-		So(cleanDimensionLabel("Example (100 categories)"), ShouldEqual, "Example")
-		So(cleanDimensionLabel("Example (7 Categories)"), ShouldEqual, "Example")
-		So(cleanDimensionLabel("Example (1 category)"), ShouldEqual, "Example")
-		So(cleanDimensionLabel("Example (1 Category)"), ShouldEqual, "Example")
-		So(cleanDimensionLabel(""), ShouldEqual, "")
-		So(cleanDimensionLabel("Example 1 category"), ShouldEqual, "Example 1 category")
-		So(cleanDimensionLabel("Example (something in brackets) (1 Category)"), ShouldEqual, "Example (something in brackets)")
-	})
-
-	Convey("Given simple page data", t, func() {
-		helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-		req := httptest.NewRequest("", "/", nil)
-		pageModel := coreModel.Page{}
-		contact := getTestContacts()
-		relatedContent := getTestRelatedContent()
-		datasetModel := getTestDatasetDetails(contact, relatedContent)
-		datasetOptions := []dataset.Options{
-			getTestOptions("dim_1", 10),
-			getTestOptions("dim_2", 10),
-		}
-		serviceMessage := getTestServiceMessage()
-		emergencyBanner := getTestEmergencyBanner()
-func TestCleanDimensionsLabel(t *testing.T) {
-
 	Convey("Removes categories count from label - case insensitive", t, func() {
 		So(cleanDimensionLabel("Example (100 categories)"), ShouldEqual, "Example")
 		So(cleanDimensionLabel("Example (7 Categories)"), ShouldEqual, "Example")
