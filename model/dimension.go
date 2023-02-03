@@ -22,5 +22,6 @@ type Dimension struct {
 // FilterDimension represents a DTO for filter.Dimension with the additional OptionsCount field
 type FilterDimension struct {
 	filter.ModelDimension
-	OptionsCount int
+	OptionsCount        int
+	CategorisationCount int
 }
