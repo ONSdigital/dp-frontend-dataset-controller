@@ -162,7 +162,7 @@ func getTestDimension(dimensionID string, isAreaType bool) dataset.VersionDimens
 	}
 }
 
-func getTestFilterDimension(name string, isAreaType bool, options []string) sharedModel.FilterDimension {
+func getTestFilterDimension(name string, isAreaType bool, options []string, categorisations int) sharedModel.FilterDimension {
 	return sharedModel.FilterDimension{
 		ModelDimension: filter.ModelDimension{
 			Label:      fmt.Sprintf("Label %s", name),
@@ -171,7 +171,8 @@ func getTestFilterDimension(name string, isAreaType bool, options []string) shar
 			Name:       name,
 			ID:         name,
 		},
-		OptionsCount: len(options),
+		OptionsCount:        len(options),
+		CategorisationCount: categorisations,
 	}
 }
 
@@ -180,7 +181,7 @@ func buildTestFilterDimension(name string, isAreaType bool, optionCount int) sha
 	for i := 1; i <= optionCount; i++ {
 		options = append(options, fmt.Sprintf("Label %d", i))
 	}
-	return getTestFilterDimension(name, isAreaType, options)
+	return getTestFilterDimension(name, isAreaType, options, 2)
 }
 
 func getTestDownloads(formats []string) map[string]dataset.Download {
