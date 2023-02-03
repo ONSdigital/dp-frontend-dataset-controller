@@ -106,7 +106,7 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 		pDim.ID = dim.ID
 		pDim.Name = dim.Name
 		pDim.IsAreaType = isAreaType
-		pDim.ShowChange = isAreaType || isMultivariate
+		pDim.ShowChange = isAreaType || (isMultivariate && dim.CategorisationCount > 1)
 		pDim.TotalItems = dim.OptionsCount
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 

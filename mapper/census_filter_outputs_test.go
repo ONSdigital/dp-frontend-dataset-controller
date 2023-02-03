@@ -27,25 +27,27 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
+	dimDesc := population.GetDimensionsResponse{
+		Dimensions: []population.Dimension{
+			{
+				ID:          "geography",
+				Label:       "Label geography",
+				Description: "a geography description",
+			},
+			{
+				ID:          "non-geog",
+				Label:       "Label non-geog",
+				Description: "a non-geography description",
+			},
+		},
+	}
 
 	Convey("given data for a census landing page with version 1", t, func() {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
-		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}), getTestFilterDimension("non-geog", false, []string{"option a", "option b"})}
+		filterDims := []sharedModel.FilterDimension{
+			getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2),
+			getTestFilterDimension("non-geog", false, []string{"option a", "option b"}, 2)}
 		filterOutputs := getTestFilterDownloads([]string{"xlsx"})
-		dimDesc := population.GetDimensionsResponse{
-			Dimensions: []population.Dimension{
-				{
-					ID:          "geography",
-					Label:       "Label geography",
-					Description: "a geography description",
-				},
-				{
-					ID:          "non-geog",
-					Label:       "Label non-geog",
-					Description: "a non-geography description",
-				},
-			},
-		}
 
 		Convey("when we build a filter outputs page", func() {
 			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, population.GetBlockedAreaCountResult{})
@@ -74,6 +76,35 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 				So(page.Collapsible.CollapsibleItems[2].Subheading, ShouldEqual, "Coverage")
 				So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, dimDesc.Dimensions[1].Label)
 				So(page.Collapsible.CollapsibleItems[3].Content, ShouldResemble, []string{dimDesc.Dimensions[1].Description})
+			})
+		})
+	})
+
+	Convey("test IsChangeVisible parameter", t, func() {
+		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
+		filterDims := []sharedModel.FilterDimension{
+			getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2),
+			getTestFilterDimension("one-cat", false, []string{"option 1", "option 2"}, 1),
+			getTestFilterDimension("two-cats", false, []string{"option 1", "option 2"}, 2),
+		}
+		filterOutputs := getTestFilterDownloads([]string{"xlsx"})
+
+		Convey("when isMultivariate is false", func() {
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, false, dimDesc)
+
+			Convey("then ShowChange is false for all", func() {
+				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
+				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeFalse)
+			})
+		})
+
+		Convey("when isMultivariate is true", func() {
+			multivariateModel := getTestDatasetDetails(contacts, relatedContent)
+			multivariateModel.Type = "cantabular_multivariate_table"
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, multivariateModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc)
+			Convey("then IsChangeCategories is false if categorisation is only one available", func() {
+				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
+				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeTrue)
 			})
 		})
 	})
@@ -139,7 +170,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
 	version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
-	filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"})}
+	filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2)}
 
 	Convey("given filter outputs where all four file types exist", t, func() {
 		filterOutputs := getTestFilterDownloads([]string{"xlsx", "txt", "csv", "csvw"})

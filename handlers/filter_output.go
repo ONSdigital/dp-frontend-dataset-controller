@@ -321,6 +321,20 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		return getDimensionOptions(dim)
 	}
 
+	getDimensionCategorisations := func(populationType string, dimension string) (int, error) {
+		cats, err := pc.GetCategorisations(ctx, population.GetCategorisationsInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PaginationParams: population.PaginationParams{
+				Limit: 1000,
+			},
+			PopulationType: populationType,
+			Dimension:      dimension,
+		})
+		return cats.PaginationResponse.TotalCount, err
+	}
+
 	var fDims []model.FilterDimension
 	for i := len(filterOutput.Dimensions) - 1; i >= 0; i-- {
 		// TODO: pc.GetParentAreaCount is causing production issues
@@ -334,10 +348,13 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return
 		}
 
+		categorisationCount, err := getDimensionCategorisations(filterOutput.PopulationType, filterOutput.Dimensions[i].Name)
+
 		filterOutput.Dimensions[i].Options = options
 		fDims = append(fDims, model.FilterDimension{
-			ModelDimension: filterOutput.Dimensions[i],
-			OptionsCount:   count,
+			ModelDimension:      filterOutput.Dimensions[i],
+			OptionsCount:        count,
+			CategorisationCount: categorisationCount,
 		})
 	}
 
