@@ -58,7 +58,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: populateCollapsible(version.Dimensions, false),
+		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
 	}
 
 	// ANALYTICS

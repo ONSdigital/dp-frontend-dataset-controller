@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -17,7 +18,6 @@ import (
 )
 
 func TestCleanDimensionsLabel(t *testing.T) {
-
 	Convey("Removes categories count from label - case insensitive", t, func() {
 		So(cleanDimensionLabel("Example (100 categories)"), ShouldEqual, "Example")
 		So(cleanDimensionLabel("Example (7 Categories)"), ShouldEqual, "Example")
@@ -88,7 +88,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true)
+				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
