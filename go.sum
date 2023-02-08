@@ -7,8 +7,8 @@ github.com/ONSdigital/dp-api-clients-go v1.34.3/go.mod h1:kX+YKuoLYLfkeLHMvQKRRy
 github.com/ONSdigital/dp-api-clients-go v1.41.1/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
 github.com/ONSdigital/dp-api-clients-go v1.43.0 h1:0982P/YxnYXvba1RhEcFmwF3xywC4eXokWQ8YH3Mm24=
 github.com/ONSdigital/dp-api-clients-go v1.43.0/go.mod h1:V5MfINik+o3OAF985UXUoMjXIfrZe3JKYa5AhZn5jts=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.207.0 h1:DJZ1+FNJm5EtCNzKmQ1btAF8R83I/NSc5RmJIjsOwHs=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.207.0/go.mod h1:JhWrjETosIKYjbLoa3d19QJlKv7dx+/+x09qg355Rxg=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.221.0 h1:G/csDdLInZ6ajSRcR+9BOwt57e2pJf/MZkeZxqTpjxE=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.221.0/go.mod h1:JhWrjETosIKYjbLoa3d19QJlKv7dx+/+x09qg355Rxg=
 github.com/ONSdigital/dp-cache v0.3.0 h1:E0T3XVjpcl6PDHL/4Go9a+EGekIwwNsfL0MsSgNK/jM=
 github.com/ONSdigital/dp-cache v0.3.0/go.mod h1:cyduXeUO8n9TLZIorCWDzEoLkk1jK8q4Ex5CBsxptKA=
 github.com/ONSdigital/dp-cookies v0.4.0 h1:B938xsFzj9OVM5yIRVVyteYYKjWN4Oz7i+u9+PEF8nk=
@@ -28,8 +28,8 @@ github.com/ONSdigital/dp-net v1.2.0/go.mod h1:NinlaqcsPbIR+X7j5PXCl3UI5G2zCL041S
 github.com/ONSdigital/dp-net v1.4.1/go.mod h1:VK8dah+G0TeVO/Os/w17Rk4WM6hIGmdUXrm8fBWyC+g=
 github.com/ONSdigital/dp-net v1.5.0 h1:H47O5N+eXyXCYqPoQGWwuK12uLds3pCgzxpYwepg+bQ=
 github.com/ONSdigital/dp-net v1.5.0/go.mod h1:d/S4n6FJlQwmVIa2rnVt1HnAUgM8XsG0QEJBQp48uGg=
-github.com/ONSdigital/dp-net/v2 v2.7.1 h1:k9uUAxZ8YCEnnFVp/rKyHaWteJgKwUr7U/3Qm2Lo/k0=
-github.com/ONSdigital/dp-net/v2 v2.7.1/go.mod h1:nn3cn88fGqOfndfwlzhN/mshs2fOpRZqj+mRI5qg6Bw=
+github.com/ONSdigital/dp-net/v2 v2.6.0 h1:orxdb0SVDrJgz/zma0QXgQCAGJdLDhp6g2XqH6VFUZw=
+github.com/ONSdigital/dp-net/v2 v2.6.0/go.mod h1:4/2ZyId//hFa7AtbbRNQctY729C1Vbw4UEdOliRvpZI=
 github.com/ONSdigital/dp-renderer v1.58.0 h1:GBGKiFFtP91Q6XJ4VwYlKUh8LPjpNRNVAaDk1Mkmc0Q=
 github.com/ONSdigital/dp-renderer v1.58.0/go.mod h1:aEgUZoxxw4vy5QG/1WYid3ApbLkaakbyn3/CqIGR/yE=
 github.com/ONSdigital/dp-topic-api v0.15.0 h1:I7tWhUnx2ufqaaqDd/n4qAUAKX1Y7iDwVx2DORwrj7M=

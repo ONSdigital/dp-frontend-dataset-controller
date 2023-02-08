@@ -37,7 +37,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var allVers dataset.VersionsList
 	var ver dataset.Version
 	var filterOutput filter.Model
-	var dmErr, versErr, verErr, fErr error
+	var dimDescriptions population.GetDimensionsResponse
+	var dimIds []string
+	var dmErr, versErr, verErr, fErr, dErr error
 
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
@@ -72,6 +74,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	go func() {
 		defer wg.Done()
 		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
+		for _, dim := range filterOutput.Dimensions {
+			dimIds = append(dimIds, dim.ID)
+		}
 	}()
 
 	wg.Wait()
@@ -101,6 +106,37 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	if fErr != nil {
 		log.Error(ctx, "failed to get filter output", fErr, log.Data{"filter_output_id": filterOutputID})
 		setStatusCode(ctx, w, fErr)
+		return
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		dimDescriptions, dErr = pc.GetDimensionsDescription(ctx, population.GetDimensionsDescriptionInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PopulationType: filterOutput.PopulationType,
+			DimensionIDs:   dimIds,
+		})
+		if dErr != nil {
+			log.Error(ctx, "failed to get dimension descriptions", dErr, log.Data{
+				"population_type": filterOutput.PopulationType,
+				"dimension_ids":   dimIds,
+			})
+			setStatusCode(ctx, w, dErr)
+			return
+		}
+	}()
+
+	wg.Wait()
+
+	if dErr != nil {
+		log.Error(ctx, "failed to get dimension descriptions", dErr, log.Data{
+			"population_type": filterOutput.PopulationType,
+			"dimension_ids":   dimIds,
+		})
+		setStatusCode(ctx, w, dErr)
 		return
 	}
 
@@ -302,6 +338,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(cfg.EnableMultivariate, ctx, req, basePage, datasetModel, ver, []dataset.Options{}, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, true, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions)
 	rend.BuildPage(w, m, "census-landing")
 }

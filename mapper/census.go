@@ -1,380 +1,29 @@
 package mapper
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"net/http"
 	"net/url"
 	"regexp"
-	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
-	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 // Constants...
 const (
-	AlertType           = "alert"
-	CorrectionAlertType = "correction"
-	queryStrKey         = "showAll"
-	Coverage            = "Coverage"
-	FilterOutput        = "_filter_output"
-	AreaType            = "Area type"
-	AnalyticsMaxItems   = 4
+	queryStrKey       = "showAll"
+	Coverage          = "Coverage"
+	AreaType          = "Area type"
+	AnalyticsMaxItems = 4
 )
 
-// CreateCensusDatasetLandingPage creates a census-landing page based on api model responses
-func CreateCensusDatasetLandingPage(isEnableMultivariate bool, ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, isFilterOutput, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) datasetLandingPageCensus.Page {
-	p := datasetLandingPageCensus.Page{
-		Page: basePage,
-	}
-
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-
-	p.Type = d.Type
-	if isFilterOutput {
-		p.Type += FilterOutput
-		p.SearchNoIndexEnabled = true
-	}
-	p.Language = lang
-	p.URI = req.URL.Path
-	p.DatasetId = d.ID
-	p.Version.ReleaseDate = version.ReleaseDate
-	if initialVersionReleaseDate == "" {
-		p.ReleaseDate = p.Version.ReleaseDate
-	} else {
-		p.ReleaseDate = initialVersionReleaseDate
-	}
-
-	if version.Alerts != nil {
-		for _, alert := range *version.Alerts {
-			switch alert.Type {
-			case CorrectionAlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-					DisplayIcon: true,
-					Body:        helper.Localise("HasCorrectionNotice", lang, 1),
-					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
-				})
-			case AlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-					DisplayIcon: true,
-					Body:        helper.Localise("HasAlert", lang, 1, alert.Description),
-					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
-				})
-			}
-		}
-	}
-	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
-	p.Metadata.Title = d.Title
-	p.Metadata.Description = d.Description
-	var isFlex, isMultivariate bool
-	switch {
-	case strings.Contains(d.Type, "flex"):
-		isFlex = true
-		p.DatasetLandingPage.IsFlexibleForm = true
-	case strings.Contains(d.Type, "multivariate"):
-		if isEnableMultivariate {
-			isMultivariate = true
-			p.DatasetLandingPage.IsMultivariate = true
-			p.DatasetLandingPage.IsFlexibleForm = true
-		}
-	}
-
-	if isFilterOutput {
-		for ext, download := range filterOutput {
-			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(ext),
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
-	} else {
-		for ext, download := range version.Downloads {
-			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(ext),
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
-	}
-
-	p.Version.Downloads = orderDownloads(p.Version.Downloads)
-
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
-		if contacts[0].Telephone != "" {
-			p.ContactDetails.Telephone = contacts[0].Telephone
-			p.HasContactDetails = true
-		}
-		if contacts[0].Email != "" {
-			p.ContactDetails.Email = contacts[0].Email
-			p.HasContactDetails = true
-		}
-	}
-
-	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
-
-	p.IsNationalStatistic = d.NationalStatistic
-
-	collapsibleContentItems := populateCollapsible(version.Dimensions, isFilterOutput)
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
-			LocaleKey: "VariablesExplanation",
-			Plural:    4,
-		},
-		CollapsibleItems: collapsibleContentItems,
-	}
-
-	p.Breadcrumb = []coreModel.TaxonomyNode{
-		{
-			Title: "Home",
-			URI:   "/",
-		},
-		{
-			Title: "Census",
-			URI:   "/census",
-		},
-	}
-
-	sections := make(map[string]coreModel.ContentSection)
-	displayOrder := make([]string, 0)
-
-	p.TableOfContents = coreModel.TableOfContents{
-		AriaLabel: coreModel.Localisation{
-			LocaleKey: "ContentsAria",
-			Plural:    1,
-		},
-		Title: coreModel.Localisation{
-			LocaleKey: "Contents",
-			Plural:    1,
-		},
-	}
-
-	sections["summary"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "Summary",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "summary")
-
-	sections["variables"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "Variables",
-			Plural:    4,
-		},
-	}
-	displayOrder = append(displayOrder, "variables")
-
-	sections["get-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "GetData",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "get-data")
-
-	if len(version.Downloads) >= 3 && !isFilterOutput {
-		p.DatasetLandingPage.HasDownloads = true
-	}
-
-	if isFilterOutput && len(filterOutput) >= 3 {
-		p.DatasetLandingPage.HasDownloads = true
-		p.DatasetLandingPage.ShowXLSXInfo = true
-	}
-
-	if p.HasContactDetails {
-		sections["contact"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "ContactUs",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "contact")
-	}
-
-	sections["protecting-personal-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "ProtectingPersonalDataTitle",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "protecting-personal-data")
-
-	if hasOtherVersions {
-		sections["version-history"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "VersionHistory",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "version-history")
-
-		for _, ver := range allVersions {
-			var version sharedModel.Version
-			version.VersionNumber = ver.Version
-			version.ReleaseDate = ver.ReleaseDate
-			versionUrl := helpers.DatasetVersionUrl(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
-			version.VersionURL = versionUrl
-			version.IsCurrentPage = versionUrl == req.URL.Path
-			mapCorrectionAlert(&ver, &version)
-
-			p.Versions = append(p.Versions, version)
-		}
-
-		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
-
-		if latestVersionNumber != version.Version && hasOtherVersions {
-			p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
-				DisplayIcon: true,
-				Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
-				CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
-			})
-		}
-		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
-	}
-
-	if d.RelatedContent != nil {
-		sections["related-content"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "RelatedContentTitle",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "related-content")
-	}
-
-	p.TableOfContents.Sections = sections
-	p.TableOfContents.DisplayOrder = displayOrder
-
-	p.DatasetLandingPage.ShareDetails.Language = lang
-	currentUrl := helpers.GetCurrentUrl(lang, p.SiteDomain, req.URL.Path)
-	p.DatasetLandingPage.DatasetURL = currentUrl
-
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
-
-	p.DatasetLandingPage.ShareDetails.ShareLocations = []datasetLandingPageCensus.Share{
-		{
-			Title: "Facebook",
-			Link:  helpers.GenerateSharingLink("facebook", currentUrl, d.Title),
-			Icon:  "facebook",
-		},
-		{
-			Title: "Twitter",
-			Link:  helpers.GenerateSharingLink("twitter", currentUrl, d.Title),
-			Icon:  "twitter",
-		},
-		{
-			Title: "LinkedIn",
-			Link:  helpers.GenerateSharingLink("linkedin", currentUrl, d.Title),
-			Icon:  "linkedin",
-		},
-		{
-			Title: "Email",
-			Link:  helpers.GenerateSharingLink("email", currentUrl, d.Title),
-			Icon:  "email",
-		},
-	}
-
-	p.BetaBannerEnabled = true
-
-	p.ShowCensusBranding = d.Survey == "census"
-
-	if len(opts) > 0 && !isFilterOutput {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, isFlex, isMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: true,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ShowChange:        isFlex || isMultivariate,
-				ID:                strings.ToLower(Coverage),
-			},
-		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-	}
-
-	if isFilterOutput {
-		p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, isMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: hasNoAreaOptions,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ID:                strings.ToLower(Coverage),
-				Values:            fDims[0].Options,
-				ShowChange:        true,
-			},
-		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-		p.DatasetLandingPage.IsFlexibleForm = true
-	}
-
-	p.DatasetLandingPage.RelatedContentItems = []datasetLandingPageCensus.RelatedContentItem{}
-	if d.RelatedContent != nil {
-		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, datasetLandingPageCensus.RelatedContentItem{
-				Title: content.Title,
-				Link:  content.HRef,
-				Text:  content.Description,
-			})
-		}
-	}
-
-	if isValidationError {
-		p.Error = coreModel.Error{
-			Title: p.Metadata.Title,
-			ErrorItems: []coreModel.ErrorItem{
-				{
-					Description: coreModel.Localisation{
-						LocaleKey: "GetDataValidationError",
-						Plural:    1,
-					},
-					URL: "#select-format-error",
-				},
-			},
-			Language: lang,
-		}
-	}
-
-	p.BackTo = coreModel.BackTo{
-		Text: coreModel.Localisation{
-			LocaleKey: "BackToContents",
-			Plural:    4,
-		},
-		AnchorFragment: "toc",
-	}
-
-	if len(p.DatasetLandingPage.QualityStatements) > 0 {
-		qsLen := len(p.DatasetLandingPage.QualityStatements)
-		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
-	}
-
-	if isFilterOutput {
-		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getFilterAnalytics(fDims, hasNoAreaOptions)))
-	} else {
-		p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
-	}
-
-	return p
-}
-
+// orderDownloads orders a set of sharedModel.Downloads using a hardcoded download order
 func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw"}
 	mapped := make(map[string]sharedModel.Download, 5)
@@ -390,145 +39,76 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	return ordered
 }
 
-func populateCollapsible(Dimensions []dataset.VersionDimension, isFilterOutput bool) []coreModel.CollapsibleItem {
-	// TODO: This helper func will be re-written when filter output mapping work is done
-	var collapsibleContentItems []coreModel.CollapsibleItem
-	collapsibleContentItems = append(collapsibleContentItems, []coreModel.CollapsibleItem{
-		{
-			Subheading: AreaType,
-			SafeHTML: coreModel.Localisation{
-				LocaleKey: "VariableInfoAreaType",
-				Plural:    1,
-			},
+func areaTypeItem() coreModel.CollapsibleItem {
+	return coreModel.CollapsibleItem{
+		Subheading: AreaType,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoAreaType",
+			Plural:    1,
 		},
-		{
-			Subheading: Coverage,
-			SafeHTML: coreModel.Localisation{
-				LocaleKey: "VariableInfoCoverage",
-				Plural:    1,
-			},
-		},
-	}...)
+	}
+}
 
-	// TODO: Temporarily removing mapping on filter output pages until API is updated
-	if !isFilterOutput {
-		for _, dims := range Dimensions {
-			if helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
-				collapsibleContentItems = append(collapsibleContentItems[:1], []coreModel.CollapsibleItem{
-					{
-						Subheading: cleanDimensionLabel(dims.Label),
-						Content:    strings.Split(dims.Description, "\n"),
-					},
-					{
-						Subheading: Coverage,
-						SafeHTML: coreModel.Localisation{
-							LocaleKey: "VariableInfoCoverage",
-							Plural:    1,
-						},
-					},
-				}...)
-			}
-			if !helpers.IsBoolPtr(dims.IsAreaType) && dims.Description != "" {
-				var collapsibleContent coreModel.CollapsibleItem
-				collapsibleContent.Subheading = cleanDimensionLabel(dims.Label)
-				collapsibleContent.Content = strings.Split(dims.Description, "\n")
-				collapsibleContentItems = append(collapsibleContentItems, collapsibleContent)
+func coverageItem() coreModel.CollapsibleItem {
+	return coreModel.CollapsibleItem{
+		Subheading: Coverage,
+		SafeHTML: coreModel.Localisation{
+			LocaleKey: "VariableInfoCoverage",
+			Plural:    1,
+		},
+	}
+}
+
+// mapOutputCollapsible maps the collapsible on the output page
+func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	var areaItem coreModel.CollapsibleItem
+
+	for _, dim := range dims {
+		for _, dimDescription := range dimDescriptions.Dimensions {
+			if dim.ID == dimDescription.ID && dim.IsAreaType {
+				areaItem.Subheading = cleanDimensionLabel(dimDescription.Label)
+				areaItem.Content = strings.Split(dimDescription.Description, "\n")
+			} else if dim.ID == dimDescription.ID && !dim.IsAreaType {
+				collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+					Subheading: cleanDimensionLabel(dimDescription.Label),
+					Content:    strings.Split(dimDescription.Description, "\n"),
+				})
 			}
 		}
 	}
+
+	return concatenateCollapsibleItems(collapsibleContentItems, areaItem)
+}
+
+// mapLandingCollapsible maps the collapsible on the landing page
+func mapLandingCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+	var collapsibleContentItems []coreModel.CollapsibleItem
+	var areaItem coreModel.CollapsibleItem
+	for _, dim := range Dimensions {
+		if helpers.IsBoolPtr(dim.IsAreaType) && dim.Description != "" {
+			areaItem.Subheading = cleanDimensionLabel(dim.Label)
+			areaItem.Content = strings.Split(dim.Description, "\n")
+		} else if dim.Description != "" {
+			collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+				Subheading: cleanDimensionLabel(dim.Label),
+				Content:    strings.Split(dim.Description, "\n"),
+			})
+		}
+	}
+
+	return concatenateCollapsibleItems(collapsibleContentItems, areaItem)
+}
+
+// concatenateCollapsibleItems returns the collapsible in the order: area type, area type description, coverage then other dimensions
+func concatenateCollapsibleItems(collapsibleContentItems []coreModel.CollapsibleItem, areaItem coreModel.CollapsibleItem) []coreModel.CollapsibleItem {
+	collapsibleContentItems = append([]coreModel.CollapsibleItem{
+		areaTypeItem(),
+		areaItem,
+		coverageItem(),
+	}, collapsibleContentItems...)
 
 	return collapsibleContentItems
-}
-
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
-	dimensions := []sharedModel.Dimension{}
-	qs := []datasetLandingPageCensus.Panel{}
-	for _, opt := range opts {
-		var pDim sharedModel.Dimension
-
-		for _, dimension := range dims {
-			if dimension.Name == opt.Items[0].DimensionID {
-				pDim.Name = dimension.Name
-				pDim.Description = dimension.Description
-				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
-				pDim.ShowChange = pDim.IsAreaType && isFlex || isMultivariate
-				pDim.Title = cleanDimensionLabel(dimension.Label)
-				pDim.ID = dimension.ID
-				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
-					qs = append(qs, datasetLandingPageCensus.Panel{
-						Body:       fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL)),
-						CssClasses: []string{"ons-u-mt-no"},
-					})
-				}
-			}
-		}
-
-		pDim.TotalItems = opt.TotalCount
-		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
-
-		var displayedOptions []dataset.Option
-		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
-			displayedOptions = opt.Items[:3]
-			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)
-			displayedOptions = append(displayedOptions, opt.Items[len(opt.Items)-3:]...)
-			pDim.IsTruncated = true
-		} else {
-			displayedOptions = opt.Items
-		}
-
-		for _, opt := range displayedOptions {
-			pDim.Values = append(pDim.Values, opt.Label)
-		}
-
-		q := url.Values{}
-		if pDim.IsTruncated {
-			q.Add(queryStrKey, pDim.ID)
-		}
-		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
-		dimensions = append(dimensions, pDim)
-	}
-	return dimensions, qs
-}
-
-func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
-	sort.Slice(dims, func(i, j int) bool {
-		return *dims[i].IsAreaType
-	})
-	dimensions := []sharedModel.Dimension{}
-	for _, dim := range dims {
-		var isAreaType bool
-		if helpers.IsBoolPtr(dim.IsAreaType) {
-			isAreaType = true
-		}
-		pDim := sharedModel.Dimension{}
-		pDim.Title = cleanDimensionLabel(dim.Label)
-		pDim.ID = dim.ID
-		pDim.Name = dim.Name
-		pDim.IsAreaType = isAreaType
-		pDim.ShowChange = isAreaType || isMultivariate
-		pDim.TotalItems = dim.OptionsCount
-		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
-
-		var displayedOptions []string
-		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) && !pDim.IsAreaType {
-			displayedOptions = dim.Options[:3]
-			displayedOptions = append(displayedOptions, dim.Options[midFloor:midCeiling]...)
-			displayedOptions = append(displayedOptions, dim.Options[len(dim.Options)-3:]...)
-			pDim.IsTruncated = true
-		} else {
-			displayedOptions = dim.Options
-		}
-
-		pDim.Values = append(pDim.Values, displayedOptions...)
-
-		q := url.Values{}
-		if pDim.IsTruncated {
-			q.Add(queryStrKey, pDim.ID)
-		}
-		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
-		dimensions = append(dimensions, pDim)
-	}
-	return dimensions
 }
 
 // getTruncationMidRange returns ints that can be used as the truncation mid range
@@ -561,56 +141,8 @@ func cleanDimensionLabel(label string) string {
 	return strings.TrimSpace(result)
 }
 
+// getDataLayerJavaScript returns a template.JS for page.PreGTMJavaScript that maps a map to the data layer
 func getDataLayerJavaScript(analytics map[string]string) template.JS {
 	jsonStr, _ := json.Marshal(analytics)
 	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
-}
-
-func getAnalytics(dimensions []model.Dimension) map[string]string {
-	analytics := make(map[string]string, 5)
-	var dimensionIDs []string
-	for _, dimension := range dimensions {
-		if dimension.IsAreaType {
-			analytics["areaType"] = dimension.ID
-			analytics["coverageCount"] = "0"
-		} else if !dimension.IsCoverage {
-			dimensionIDs = append(dimensionIDs, dimension.ID)
-		}
-	}
-	analytics["dimensions"] = strings.Join(dimensionIDs, ",")
-
-	return analytics
-}
-
-func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultCoverage bool) map[string]string {
-	analytics := make(map[string]string, 5)
-	var dimensionIDs []string
-	for _, filterDimension := range filterDimensions {
-		dimension := filterDimension.ModelDimension
-		if dimension.IsAreaType != nil && *dimension.IsAreaType {
-			analytics["areaType"] = dimension.ID
-
-			if defaultCoverage {
-				analytics["coverageCount"] = "0"
-			} else {
-				analytics["coverageCount"] = strconv.Itoa(len(dimension.Options))
-
-				if len(dimension.Options) > 0 {
-					if len(dimension.Options) <= AnalyticsMaxItems {
-						analytics["coverage"] = strings.Join(dimension.Options, ",")
-					}
-					if dimension.FilterByParent == "" {
-						analytics["coverageAreaType"] = dimension.ID
-					} else {
-						analytics["coverageAreaType"] = dimension.FilterByParent
-					}
-				}
-			}
-		} else {
-			dimensionIDs = append(dimensionIDs, dimension.ID)
-		}
-	}
-	analytics["dimensions"] = strings.Join(dimensionIDs, ",")
-
-	return analytics
 }

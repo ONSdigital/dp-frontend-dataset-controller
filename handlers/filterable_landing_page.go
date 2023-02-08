@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -215,7 +214,7 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusDatasetLandingPage(isEnableMultivariate, ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, false, false, map[string]filter.Download{}, []model.FilterDimension{}, serviceMessage, emergencyBannerContent)
+	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 	rend.BuildPage(w, m, "census-landing")
 }
 
