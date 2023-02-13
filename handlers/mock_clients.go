@@ -401,6 +401,21 @@ func (mr *MockPopulationClientMockRecorder) GetAreas(ctx, input interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAreas", reflect.TypeOf((*MockPopulationClient)(nil).GetAreas), ctx, input)
 }
 
+// GetDimensionCategories mocks base method.
+func (m *MockPopulationClient) GetDimensionCategories(ctx context.Context, input population.GetDimensionCategoryInput) (population.GetDimensionCategoriesResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDimensionCategories", ctx, input)
+	ret0, _ := ret[0].(population.GetDimensionCategoriesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDimensionCategories indicates an expected call of GetDimensionCategories.
+func (mr *MockPopulationClientMockRecorder) GetDimensionCategories(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionCategories", reflect.TypeOf((*MockPopulationClient)(nil).GetDimensionCategories), ctx, input)
+}
+
 // GetDimensionsDescription mocks base method.
 func (m *MockPopulationClient) GetDimensionsDescription(ctx context.Context, input population.GetDimensionsDescriptionInput) (population.GetDimensionsResponse, error) {
 	m.ctrl.T.Helper()

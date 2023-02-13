@@ -38,8 +38,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var ver dataset.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
+	var dimCategories population.GetDimensionCategoriesResponse
 	var dimIds []string
-	var dmErr, versErr, verErr, fErr, dErr error
+	var dmErr, versErr, verErr, fErr, dErr, dcErr error
 
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
@@ -109,7 +110,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		return
 	}
 
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		dimDescriptions, dErr = pc.GetDimensionsDescription(ctx, population.GetDimensionsDescriptionInput{
@@ -129,6 +130,21 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+		dimCategories, dcErr = pc.GetDimensionCategories(ctx, population.GetDimensionCategoryInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PaginationParams: population.PaginationParams{
+				Limit:  1000,
+				Offset: 0,
+			},
+			PopulationType: filterOutput.PopulationType,
+			Dimensions:     dimIds,
+		})
+	}()
+
 	wg.Wait()
 
 	if dErr != nil {
@@ -139,6 +155,16 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		setStatusCode(ctx, w, dErr)
 		return
 	}
+
+	if dcErr != nil {
+		log.Error(ctx, "failed to get dimension categories", dErr, log.Data{
+			"population_type": filterOutput.PopulationType,
+			"dimension_ids":   dimIds,
+		})
+		setStatusCode(ctx, w, dcErr)
+		return
+	}
+	dimensionCategoriesMap := mapDimensionCategories(dimCategories)
 
 	// TODO: Inherited from census landing, refactor to check in mapper
 	var hasOtherVersions bool
@@ -156,18 +182,14 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	latestVersionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, int, error) {
-		q := dataset.QueryParams{Offset: 0, Limit: 1000}
-		opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, strconv.Itoa(ver.Version), dim.Name, &q)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to get options for dimension: %w", err)
-		}
+		dimensionCategory := dimensionCategoriesMap[dim.ID]
 
 		var options []string
-		for _, opt := range sortOptionsByCode(opts.Items) {
+		for _, opt := range sortCategoriesByID(dimensionCategory.Categories) {
 			options = append(options, opt.Label)
 		}
 
-		return options, opts.TotalCount, nil
+		return options, len(options), nil
 	}
 
 	var hasNoAreaOptions bool

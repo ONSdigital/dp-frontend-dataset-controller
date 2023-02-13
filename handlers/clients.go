@@ -52,6 +52,7 @@ type FilesAPIClient interface {
 type PopulationClient interface {
 	GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error)
 	GetArea(ctx context.Context, input population.GetAreaInput) (population.GetAreaResponse, error)
+	GetDimensionCategories(ctx context.Context, input population.GetDimensionCategoryInput) (population.GetDimensionCategoriesResponse, error)
 	GetDimensionsDescription(ctx context.Context, input population.GetDimensionsDescriptionInput) (population.GetDimensionsResponse, error)
 	GetParentAreaCount(ctx context.Context, input population.GetParentAreaCountInput) (int, error)
 }
