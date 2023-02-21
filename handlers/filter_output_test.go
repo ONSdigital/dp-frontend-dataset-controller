@@ -842,6 +842,11 @@ func TestFilterOutputHandler(t *testing.T) {
 							PaginationResponse: population.PaginationResponse{TotalCount: 1},
 							Categories:         mockDimensionCategories,
 						}, nil).AnyTimes()
+					mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+						PaginationResponse: population.PaginationResponse{
+							TotalCount: 2,
+						},
+					}, nil).AnyTimes()
 					mockPc.
 						EXPECT().
 						GetBlockedAreaCount(ctx, gomock.Any()).

@@ -16,6 +16,8 @@ import (
 
 func TestFilterableLandingPage(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
+	mockPc := NewMockPopulationClient(mockCtrl)
+
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
@@ -60,7 +62,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -89,7 +91,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, ""))
 
 			router.ServeHTTP(w, req)
 
@@ -107,7 +109,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, nil, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, nil, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -134,7 +136,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, nil, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, mockPc, nil, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -198,7 +200,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -224,7 +226,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -258,7 +260,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -296,7 +298,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=csv", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -329,7 +331,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=aFormat", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -362,7 +364,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=blah-blah&format=bob", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -411,7 +413,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 

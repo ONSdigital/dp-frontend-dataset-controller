@@ -65,7 +65,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 			version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
 
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")

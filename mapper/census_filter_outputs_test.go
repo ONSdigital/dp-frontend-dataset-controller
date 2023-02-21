@@ -90,7 +90,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		filterOutputs := getTestFilterDownloads([]string{"xlsx"})
 
 		Convey("when isMultivariate is false", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, false, dimDesc)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, false, dimDesc, population.GetBlockedAreaCountResult{})
 
 			Convey("then ShowChange is false for all", func() {
 				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
@@ -101,7 +101,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		Convey("when isMultivariate is true", func() {
 			multivariateModel := getTestDatasetDetails(contacts, relatedContent)
 			multivariateModel.Type = "cantabular_multivariate_table"
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, multivariateModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, multivariateModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, population.GetBlockedAreaCountResult{})
 			Convey("then IsChangeCategories is false if categorisation is only one available", func() {
 				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
 				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeTrue)
@@ -123,7 +123,7 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 
 	Convey("given a request for a filter outputs census landing page", t, func() {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
-		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}), getTestFilterDimension("non-geog", false, []string{"option a", "option b"})}
+		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2), getTestFilterDimension("non-geog", false, []string{"option a", "option b"}, 2)}
 		filterOutputs := getTestFilterDownloads([]string{"xlsx"})
 		sdc := population.GetBlockedAreaCountResult{
 			Passed:  0,
