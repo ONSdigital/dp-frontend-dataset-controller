@@ -101,11 +101,11 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
-					Body:       "<p>This is a quality notice statement</p>Read more about this",
+					Body:       []string{"<p>This is a quality notice statement</p>Read more about this"},
 					CssClasses: []string{"ons-u-mt-no"},
 				},
 				{
-					Body:       "<p>This is another quality notice statement</p>Read more about this",
+					Body:       []string{"<p>This is another quality notice statement</p>Read more about this"},
 					CssClasses: []string{"ons-u-mt-no", "ons-u-mb-l"},
 				},
 			}

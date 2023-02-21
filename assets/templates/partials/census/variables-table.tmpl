@@ -3,7 +3,13 @@
 {{$isFlexibleForm := .DatasetLandingPage.IsFlexibleForm}}
 {{$isMultivarite := .DatasetLandingPage.IsMultivariate}}
 <section id="variables" aria-label="{{- localise "Variables" .Language 4 -}}">
-    <h2 class="ons-u-mt-xl">{{- localise "Variables" .Language 4 -}}</h2>
+    {{ if .DatasetLandingPage.HasSDC }}
+        {{ template "partials/census/panel" .DatasetLandingPage.SDC }}
+        {{ if .DatasetLandingPage.ImproveResults.CollapsibleItems }}
+            {{ template "partials/collapsible" .DatasetLandingPage.ImproveResults }}
+        {{ end }}
+    {{ end }}
+    <h2 class="ons-u-mt-{{ if .DatasetLandingPage.HasSDC }}l{{else}}xl{{end}}">{{- localise "Variables" .Language 4 -}}</h2>
     {{ if $isFlexibleForm }}
         <form method="post">
         {{ end }}

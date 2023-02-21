@@ -37,7 +37,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 
 	// DIMENSIONS
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, true, p.DatasetLandingPage.IsMultivariate)
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -73,8 +73,8 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 	return p
 }
 
-// mapCensusOptionsToDimensions links dimension options to dimensions and preppares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isFlex, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
+// mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
 	qs := []datasetLandingPageCensus.Panel{}
 	for _, opt := range opts {
@@ -90,7 +90,7 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.ID = dimension.ID
 				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
 					qs = append(qs, datasetLandingPageCensus.Panel{
-						Body:       fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL)),
+						Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
 						CssClasses: []string{"ons-u-mt-no"},
 					})
 				}

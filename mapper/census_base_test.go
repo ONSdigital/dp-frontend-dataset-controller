@@ -100,7 +100,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
-					Body:        "New version",
+					Body:        []string{"New version"},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
@@ -129,7 +129,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
-					Body:        "Correction notice",
+					Body:        []string{"Correction notice"},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
@@ -144,12 +144,12 @@ func TestCreateCensusBasePage(t *testing.T) {
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
-					Body:        "Correction notice",
+					Body:        []string{"Correction notice"},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 				{
 					DisplayIcon: true,
-					Body:        "New version",
+					Body:        []string{"New version"},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}
@@ -170,7 +170,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
 					DisplayIcon: true,
-					Body:        "Important notice",
+					Body:        []string{"Important notice"},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				},
 			}

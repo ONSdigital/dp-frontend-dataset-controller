@@ -347,3 +347,28 @@ one = "UK Statistics Authority Kitemark"
 [QualityNoticeReadMore]
 description = "<p>Read more about this <a href=\"{{.QualityStatementURL}}\">quality notice</a>.</p>"
 one = "<p class=\"ons-u-mb-no\">Read more about this <a href=\"{{.arg0}}\">quality notice</a>.</p>"
+
+[ImproveResultsTitle]
+description = "How to improve your results"
+other = "How to improve your results"
+
+[ImproveResultsSubHeading]
+description = "Try one or more of the following steps"
+one = "Try one or more of the following steps."
+
+[ImproveResultsList]
+description = "Improve results list ((.dimsList}}"
+one = "<ul class=\"ons-list\"><li class=\"ons-list__item\">Select a larger area type.</li><li class=\"ons-list__item\">Select fewer categories in {{.arg0}}.</li><li class=\"ons-list__item\">Remove variables from this dataset.</li></ul>"
+
+[SDCAreasAvailable]
+description = "Areas available {{.passed}} {{.total}}"
+one = "<strong>{{.arg0}} out of {{.arg1}} areas available</strong>"
+
+[SDCRestrictedAreas]
+description = "Protecting data will prevent {{.blocked}} areas from being published"
+one = "<a href=\"/peoplepopulationandcommunity/populationandmigration/populationestimates/methodologies/protectingpersonaldataincensus2021results\">Protecting personal data</a> will prevent {{.arg0}} area from being published"
+other = "<br><a href=\"/peoplepopulationandcommunity/populationandmigration/populationestimates/methodologies/protectingpersonaldataincensus2021results\">Protecting personal data</a> will prevent {{.arg0}} areas from being published."
+
+[SDCAllAreasAvailable]
+description = "All {{.total}} areas available"
+one = "<strong>All {{.arg0}} areas available</strong>"
