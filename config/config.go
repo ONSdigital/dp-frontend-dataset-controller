@@ -12,7 +12,6 @@ var cfg *Config
 type Config struct {
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
 	Debug                         bool          `envconfig:"DEBUG"`
-	EnableCensusPages             bool          `envconfig:"ENABLE_CENSUS_PAGES"`
 	EnableMultivariate            bool          `envconfig:"ENABLE_MULTIVARIATE"`
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
@@ -53,7 +52,6 @@ func get() (*Config, error) {
 	cfg = &Config{
 		BindAddr:                      "localhost:20200",
 		Debug:                         false,
-		EnableCensusPages:             false,
 		EnableMultivariate:            false,
 		APIRouterURL:                  "http://localhost:23200/v1",
 		DownloadServiceURL:            "http://localhost:23600",
