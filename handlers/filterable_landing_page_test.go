@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/golang/mock/gomock"
@@ -186,6 +187,7 @@ func TestFilterableLandingPage(t *testing.T) {
 								URL: "/datasets/12345/editions/2021/versions/1",
 							},
 						},
+						IsBasedOn: &dataset.IsBasedOn{ID: "UR"},
 					},
 				},
 			}
@@ -195,6 +197,11 @@ func TestFilterableLandingPage(t *testing.T) {
 				&dataset.QueryParams{Offset: 0, Limit: 1000}).Return(mockOpts[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)
@@ -212,8 +219,8 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/2"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
 				Items: []dataset.Version{
-					{ReleaseDate: "02-01-2005", Version: 1, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, Dimensions: []dataset.VersionDimension{{Name: "Dim 1"}}},
-					{ReleaseDate: "05-01-2005", Version: 2, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/2"}}},
+					{ReleaseDate: "02-01-2005", Version: 1, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, Dimensions: []dataset.VersionDimension{{Name: "Dim 1"}}, IsBasedOn: &dataset.IsBasedOn{ID: "UR"}},
+					{ReleaseDate: "05-01-2005", Version: 2, Links: dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2021/versions/2"}}, IsBasedOn: &dataset.IsBasedOn{ID: "UR"}},
 				},
 			}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
@@ -247,6 +254,7 @@ func TestFilterableLandingPage(t *testing.T) {
 								URL: "/datasets/12345/editions/2021/versions/1",
 							},
 						},
+						IsBasedOn: &dataset.IsBasedOn{ID: "UR"},
 					},
 				},
 			}
@@ -286,6 +294,7 @@ func TestFilterableLandingPage(t *testing.T) {
 								URL: "/datasets/12345/editions/2021/versions/1",
 							},
 						},
+						IsBasedOn: &dataset.IsBasedOn{ID: "UR"},
 					},
 				},
 			}
@@ -293,6 +302,11 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=csv", nil)
@@ -319,6 +333,7 @@ func TestFilterableLandingPage(t *testing.T) {
 								URL: "/datasets/12345/editions/2021/versions/1",
 							},
 						},
+						IsBasedOn: &dataset.IsBasedOn{ID: "UR"},
 					},
 				},
 			}
@@ -326,6 +341,11 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=aFormat", nil)
@@ -352,6 +372,7 @@ func TestFilterableLandingPage(t *testing.T) {
 								URL: "/datasets/12345/editions/2021/versions/1",
 							},
 						},
+						IsBasedOn: &dataset.IsBasedOn{ID: "UR"},
 					},
 				},
 			}
@@ -359,6 +380,11 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345?f=blah-blah&format=bob", nil)
@@ -408,6 +434,11 @@ func TestFilterableLandingPage(t *testing.T) {
 
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "filterable")
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)

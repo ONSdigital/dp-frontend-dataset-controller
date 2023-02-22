@@ -155,8 +155,8 @@ func getTestVersionDetails(versionNo int, dimensions []dataset.VersionDimension,
 func getTestDimension(dimensionID string, isAreaType bool) dataset.VersionDimension {
 	return dataset.VersionDimension{
 		Description: fmt.Sprintf("A description for Dimension %s", dimensionID),
-		Name:        fmt.Sprintf("Dimension %s", dimensionID),
-		ID:          fmt.Sprintf("dim_%s", dimensionID),
+		Name:        fmt.Sprintf("%s", dimensionID),
+		ID:          fmt.Sprintf("%s", dimensionID),
 		Label:       fmt.Sprintf("Label %s", dimensionID),
 		IsAreaType:  helpers.ToBoolPtr(isAreaType),
 	}
