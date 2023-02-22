@@ -21,7 +21,7 @@ func TestFilterOutputHandler(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
-	cfg := config.Config{EnableCensusPages: true}
+	cfg := config.Config{}
 	versions := dataset.VersionsList{
 		Items: []dataset.Version{
 			{

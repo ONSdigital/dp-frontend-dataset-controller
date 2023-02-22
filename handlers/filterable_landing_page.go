@@ -93,7 +93,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
+	if strings.Contains(datasetModel.Type, "cantabular") {
 		censusLanding(cfg.EnableMultivariate, ctx, w, req, dc, pc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 		return
 	}
