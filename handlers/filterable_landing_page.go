@@ -236,7 +236,7 @@ func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient
 	var wg sync.WaitGroup
 
 	for _, dim := range dims {
-		if !isTrue(dim.IsAreaType) {
+		if !helpers.IsBoolPtr(dim.IsAreaType) {
 			wg.Add(1)
 			go func(dim dataset.VersionDimension) {
 				defer wg.Done()

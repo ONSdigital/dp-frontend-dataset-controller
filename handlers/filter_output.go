@@ -349,7 +349,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 
 		categorisationCount := 0
-		if !isTrue(filterOutput.Dimensions[i].IsAreaType) {
+		if !helpers.IsBoolPtr(filterOutput.Dimensions[i].IsAreaType) {
 			categorisationCount, err = getDimensionCategorisations(filterOutput.PopulationType, filterOutput.Dimensions[i].Name)
 		}
 		if err != nil {

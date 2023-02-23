@@ -193,11 +193,3 @@ func sortCategoriesByID(items []population.DimensionCategoryItem) []population.D
 	}
 	return sorted
 }
-
-func isTrue(boolPtr *bool) bool {
-	if boolPtr == nil {
-		return false
-	}
-
-	return *boolPtr
-}
