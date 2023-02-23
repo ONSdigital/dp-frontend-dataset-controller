@@ -236,28 +236,30 @@ func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient
 	var wg sync.WaitGroup
 
 	for _, dim := range dims {
-		wg.Add(1)
-		go func(dim dataset.VersionDimension) {
-			defer wg.Done()
-			cats, err := pc.GetCategorisations(ctx, population.GetCategorisationsInput{
-				AuthTokens: population.AuthTokens{
-					UserAuthToken: userAccessToken,
-				},
-				PaginationParams: population.PaginationParams{
-					Limit: 1000,
-				},
-				PopulationType: populationType,
-				Dimension:      dim.ID,
-			})
-			defer mutex.Unlock()
-			mutex.Lock()
+		if !isTrue(dim.IsAreaType) {
+			wg.Add(1)
+			go func(dim dataset.VersionDimension) {
+				defer wg.Done()
+				cats, err := pc.GetCategorisations(ctx, population.GetCategorisationsInput{
+					AuthTokens: population.AuthTokens{
+						UserAuthToken: userAccessToken,
+					},
+					PaginationParams: population.PaginationParams{
+						Limit: 1000,
+					},
+					PopulationType: populationType,
+					Dimension:      dim.ID,
+				})
+				defer mutex.Unlock()
+				mutex.Lock()
 
-			if err != nil {
-				m[dim.ID] = 1
-			} else {
-				m[dim.ID] = cats.PaginationResponse.TotalCount
-			}
-		}(dim)
+				if err != nil {
+					m[dim.ID] = 1
+				} else {
+					m[dim.ID] = cats.PaginationResponse.TotalCount
+				}
+			}(dim)
+		}
 	}
 	wg.Wait()
 

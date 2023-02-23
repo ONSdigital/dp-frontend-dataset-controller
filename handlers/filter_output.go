@@ -348,7 +348,10 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return
 		}
 
-		categorisationCount, err := getDimensionCategorisations(filterOutput.PopulationType, filterOutput.Dimensions[i].Name)
+		categorisationCount := 0
+		if !isTrue(filterOutput.Dimensions[i].IsAreaType) {
+			categorisationCount, err = getDimensionCategorisations(filterOutput.PopulationType, filterOutput.Dimensions[i].Name)
+		}
 		if err != nil {
 			log.Error(ctx, "failed to get categorisations for dimension", err, log.Data{"dimension_name": filterOutput.Dimensions[i].Name})
 			setStatusCode(ctx, w, err)
