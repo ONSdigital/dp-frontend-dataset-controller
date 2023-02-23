@@ -73,7 +73,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 	return p
 }
 
-// mapCensusOptionsToDimensions links dimension options to dimensions and preppares them for display
+// mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
 func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
 	qs := []datasetLandingPageCensus.Panel{}
