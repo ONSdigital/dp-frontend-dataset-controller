@@ -189,7 +189,7 @@ func mapBlockedAreasPanel(sdc *population.GetBlockedAreaCountResult, panelType d
 				DisplayIcon: false,
 				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
-					helper.Localise("SDCAllAreasAvailable", lang, 1, strconv.Itoa(sdc.Total)),
+					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, strconv.Itoa(sdc.Total)),
 				},
 				Language: lang,
 			},

@@ -390,4 +390,5 @@ other = "<br><a href=\"/peoplepopulationandcommunity/populationandmigration/popu
 
 [SDCAllAreasAvailable]
 description = "All {{.total}} areas available"
-one = "<strong>All {{.arg0}} areas available</strong>"
+one = "<strong>{{.arg0}} area available</strong>"
+other = "<strong>All {{.arg0}} areas available</strong>"
