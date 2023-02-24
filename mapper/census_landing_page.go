@@ -18,7 +18,7 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
+func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
@@ -37,7 +37,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 
 	// DIMENSIONS
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
+		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, categorisationsMap, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
 		coverage := []sharedModel.Dimension{
 			{
 				IsCoverage:        true,
@@ -74,7 +74,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, queryStrValues []string, path, lang string, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
 	dimensions := []sharedModel.Dimension{}
 	qs := []datasetLandingPageCensus.Panel{}
 	for _, opt := range opts {
@@ -85,7 +85,10 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.Name = dimension.Name
 				pDim.Description = dimension.Description
 				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
-				pDim.ShowChange = pDim.IsAreaType || isMultivariate
+
+				categorisationCount := categorisationsMap[dimension.ID]
+				pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
+
 				pDim.Title = cleanDimensionLabel(dimension.Label)
 				pDim.ID = dimension.ID
 				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {

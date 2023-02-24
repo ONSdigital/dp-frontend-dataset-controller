@@ -416,6 +416,21 @@ func (mr *MockPopulationClientMockRecorder) GetBlockedAreaCount(ctx, input inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockedAreaCount", reflect.TypeOf((*MockPopulationClient)(nil).GetBlockedAreaCount), ctx, input)
 }
 
+// GetCategorisations mocks base method.
+func (m *MockPopulationClient) GetCategorisations(ctx context.Context, input population.GetCategorisationsInput) (population.GetCategorisationsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategorisations", ctx, input)
+	ret0, _ := ret[0].(population.GetCategorisationsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCategorisations indicates an expected call of GetCategorisations.
+func (mr *MockPopulationClientMockRecorder) GetCategorisations(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockPopulationClient)(nil).GetCategorisations), ctx, input)
+}
+
 // GetDimensionCategories mocks base method.
 func (m *MockPopulationClient) GetDimensionCategories(ctx context.Context, input population.GetDimensionCategoryInput) (population.GetDimensionCategoriesResponse, error) {
 	m.ctrl.T.Helper()

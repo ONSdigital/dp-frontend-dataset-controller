@@ -154,6 +154,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -227,6 +232,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -298,6 +308,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
@@ -365,6 +380,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -436,6 +456,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
@@ -494,6 +519,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						PaginationResponse: population.PaginationResponse{TotalCount: 1},
 						Categories:         mockDimensionCategories,
 					}, nil).AnyTimes()
+				mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+					PaginationResponse: population.PaginationResponse{
+						TotalCount: 2,
+					},
+				}, nil).AnyTimes()
 
 				w := httptest.NewRecorder()
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -560,6 +590,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						PaginationResponse: population.PaginationResponse{TotalCount: 1},
 						Categories:         mockDimensionCategories,
 					}, nil).AnyTimes()
+				mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+					PaginationResponse: population.PaginationResponse{
+						TotalCount: 2,
+					},
+				}, nil).AnyTimes()
 
 				mockRend := NewMockRenderClient(mockCtrl)
 				mockRend.
@@ -639,6 +674,11 @@ func TestFilterOutputHandler(t *testing.T) {
 							PaginationResponse: population.PaginationResponse{TotalCount: 1},
 							Categories:         mockDimensionCategories,
 						}, nil).AnyTimes()
+					mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+						PaginationResponse: population.PaginationResponse{
+							TotalCount: 2,
+						},
+					}, nil).AnyTimes()
 
 					mockRend := NewMockRenderClient(mockCtrl)
 					mockRend.
@@ -714,6 +754,12 @@ func TestFilterOutputHandler(t *testing.T) {
 						EXPECT().
 						GetDimensionsDescription(ctx, gomock.Any()).
 						Return(population.GetDimensionsResponse{}, nil)
+					mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+						PaginationResponse: population.PaginationResponse{
+							TotalCount: 2,
+						},
+					}, nil).AnyTimes()
+
 					// TODO: pc.GetParentAreaCount is causing production issues
 					// mockPc.
 					// 	EXPECT().
@@ -796,6 +842,11 @@ func TestFilterOutputHandler(t *testing.T) {
 							PaginationResponse: population.PaginationResponse{TotalCount: 1},
 							Categories:         mockDimensionCategories,
 						}, nil).AnyTimes()
+					mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+						PaginationResponse: population.PaginationResponse{
+							TotalCount: 2,
+						},
+					}, nil).AnyTimes()
 					mockPc.
 						EXPECT().
 						GetBlockedAreaCount(ctx, gomock.Any()).
@@ -853,6 +904,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -895,6 +951,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -937,6 +998,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -979,6 +1045,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -1025,6 +1096,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					PaginationResponse: population.PaginationResponse{TotalCount: 1},
 					Categories:         mockDimensionCategories,
 				}, nil).AnyTimes()
+			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+				PaginationResponse: population.PaginationResponse{
+					TotalCount: 2,
+				},
+			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -1149,6 +1225,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						PaginationResponse: population.PaginationResponse{TotalCount: 1},
 						Categories:         mockDimensionCategories,
 					}, nil).AnyTimes()
+				mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
+					PaginationResponse: population.PaginationResponse{
+						TotalCount: 2,
+					},
+				}, nil).AnyTimes()
 
 				w := httptest.NewRecorder()
 				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
