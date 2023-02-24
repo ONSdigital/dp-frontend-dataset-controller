@@ -583,6 +583,47 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given a list of dimensions", t, func() {
+		mockDims := []sharedModel.Dimension{
+			{
+				Name:       "Area type",
+				IsAreaType: true,
+				IsCoverage: false,
+			},
+			{
+				Name:       "Coverage",
+				IsAreaType: false,
+				IsCoverage: true,
+			},
+			{
+				Name:       "Age",
+				IsAreaType: false,
+				IsCoverage: false,
+				ShowChange: true,
+			},
+			{
+				Name:       "Sex",
+				IsAreaType: false,
+				IsCoverage: false,
+				ShowChange: false,
+			},
+			{
+				Name:       "Ethnicity",
+				IsAreaType: false,
+				IsCoverage: false,
+				ShowChange: true,
+			},
+		}
+		Convey("When the mapImproveResultsCollapsible function is called", func() {
+			collapsible := mapImproveResultsCollapsible(&mockDims, "en")
+
+			Convey("Then only changeable dimensions should be listed", func() {
+				text := collapsible.CollapsibleItems[0].SafeHTML
+				So(text, ShouldEqual, "Age or Ethnicity")
+			})
+		})
+	})
 }
 
 func TestBuildDimsList(t *testing.T) {

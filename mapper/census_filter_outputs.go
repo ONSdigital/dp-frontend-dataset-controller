@@ -201,7 +201,7 @@ func mapBlockedAreasPanel(sdc *population.GetBlockedAreaCountResult, panelType d
 func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) coreModel.Collapsible {
 	var dimsList []string
 	for _, dim := range *dims {
-		if !dim.IsAreaType && !dim.IsCoverage {
+		if !dim.IsAreaType && !dim.IsCoverage && dim.ShowChange {
 			dimsList = append(dimsList, dim.Title)
 		}
 	}
