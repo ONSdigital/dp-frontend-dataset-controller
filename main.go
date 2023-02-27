@@ -143,6 +143,10 @@ func run(ctx context.Context) error {
 
 	router.Path("/health").HandlerFunc(healthcheck.Handler)
 
+	if cfg.EnableCreateDataset {
+		router.Path("/datasets/create").Methods("GET").HandlerFunc(handlers.CreateDataset(pc, rend, *cfg, apiRouterVersion))
+	}
+
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, pc, rend, zc, *cfg, apiRouterVersion))
