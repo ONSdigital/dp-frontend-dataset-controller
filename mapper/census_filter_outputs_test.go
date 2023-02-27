@@ -556,8 +556,10 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 		},
 		{
 			Name:       "Another dimension",
+			Title:      "Another dimension",
 			IsAreaType: false,
 			IsCoverage: false,
+			ShowChange: true,
 		},
 	}
 	mockCollapsible := coreModel.Collapsible{
@@ -570,7 +572,7 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 				Subheading: "Try the following",
 				Content:    []string(nil),
 				SafeHTML: coreModel.Localisation{
-					Text: "A list of suggestions",
+					Text: "Another dimension",
 				},
 			},
 		},
@@ -588,28 +590,33 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 		mockDims := []sharedModel.Dimension{
 			{
 				Name:       "Area type",
+				Title:      "Area type",
 				IsAreaType: true,
 				IsCoverage: false,
 			},
 			{
 				Name:       "Coverage",
+				Title:      "Coverage",
 				IsAreaType: false,
 				IsCoverage: true,
 			},
 			{
 				Name:       "Age",
+				Title:      "Age",
 				IsAreaType: false,
 				IsCoverage: false,
 				ShowChange: true,
 			},
 			{
 				Name:       "Sex",
+				Title:      "Sex",
 				IsAreaType: false,
 				IsCoverage: false,
 				ShowChange: false,
 			},
 			{
 				Name:       "Ethnicity",
+				Title:      "Ethnicity",
 				IsAreaType: false,
 				IsCoverage: false,
 				ShowChange: true,
@@ -619,7 +626,7 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 			collapsible := mapImproveResultsCollapsible(&mockDims, "en")
 
 			Convey("Then only changeable dimensions should be listed", func() {
-				text := collapsible.CollapsibleItems[0].SafeHTML
+				text := collapsible.CollapsibleItems[0].SafeHTML.Text
 				So(text, ShouldEqual, "Age or Ethnicity")
 			})
 		})
