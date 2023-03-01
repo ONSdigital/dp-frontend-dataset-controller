@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -850,7 +851,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockPc.
 						EXPECT().
 						GetBlockedAreaCount(ctx, gomock.Any()).
-						Return(&population.GetBlockedAreaCountResult{}, nil)
+						Return(&cantabular.GetBlockedAreaCountResult{}, nil)
 
 					mockRend := NewMockRenderClient(mockCtrl)
 					mockRend.
@@ -1154,7 +1155,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockPc.
 				EXPECT().
 				GetBlockedAreaCount(ctx, gomock.Any()).
-				Return(&population.GetBlockedAreaCountResult{}, errors.New("Internal error"))
+				Return(&cantabular.GetBlockedAreaCountResult{}, errors.New("Internal error"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)

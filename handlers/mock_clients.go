@@ -9,6 +9,7 @@ import (
 	io "io"
 	reflect "reflect"
 
+	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
 	filter "github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -402,10 +403,10 @@ func (mr *MockPopulationClientMockRecorder) GetAreas(ctx, input interface{}) *go
 }
 
 // GetBlockedAreaCount mocks base method.
-func (m *MockPopulationClient) GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*population.GetBlockedAreaCountResult, error) {
+func (m *MockPopulationClient) GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*cantabular.GetBlockedAreaCountResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBlockedAreaCount", ctx, input)
-	ret0, _ := ret[0].(*population.GetBlockedAreaCountResult)
+	ret0, _ := ret[0].(*cantabular.GetBlockedAreaCountResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -474,6 +475,36 @@ func (m *MockPopulationClient) GetParentAreaCount(ctx context.Context, input pop
 func (mr *MockPopulationClientMockRecorder) GetParentAreaCount(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParentAreaCount", reflect.TypeOf((*MockPopulationClient)(nil).GetParentAreaCount), ctx, input)
+}
+
+// GetPopulationTypeMetadata mocks base method.
+func (m *MockPopulationClient) GetPopulationTypeMetadata(ctx context.Context, input population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopulationTypeMetadata", ctx, input)
+	ret0, _ := ret[0].(population.GetPopulationTypeMetadataResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopulationTypeMetadata indicates an expected call of GetPopulationTypeMetadata.
+func (mr *MockPopulationClientMockRecorder) GetPopulationTypeMetadata(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypeMetadata", reflect.TypeOf((*MockPopulationClient)(nil).GetPopulationTypeMetadata), ctx, input)
+}
+
+// GetPopulationTypes mocks base method.
+func (m *MockPopulationClient) GetPopulationTypes(ctx context.Context, input population.GetPopulationTypesInput) (population.GetPopulationTypesResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopulationTypes", ctx, input)
+	ret0, _ := ret[0].(population.GetPopulationTypesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopulationTypes indicates an expected call of GetPopulationTypes.
+func (mr *MockPopulationClientMockRecorder) GetPopulationTypes(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypes", reflect.TypeOf((*MockPopulationClient)(nil).GetPopulationTypes), ctx, input)
 }
 
 // MockClientError is a mock of ClientError interface.

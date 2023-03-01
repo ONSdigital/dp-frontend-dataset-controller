@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -39,7 +40,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var ver dataset.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
-	var sdc *population.GetBlockedAreaCountResult
+	var sdc *cantabular.GetBlockedAreaCountResult
 	var areaTypeID, parent string
 	var dimCategories population.GetDimensionCategoriesResponse
 	var dimIds, areaOpts []string
@@ -401,7 +402,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return
 		}
 	} else {
-		sdc = &population.GetBlockedAreaCountResult{}
+		sdc = &cantabular.GetBlockedAreaCountResult{}
 	}
 
 	if filterOutput.Downloads == nil {

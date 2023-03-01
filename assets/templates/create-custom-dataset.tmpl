@@ -1,0 +1,40 @@
+{{$Language := .Language}}
+{{ $length := len .CreateCustomDatasetPage.PopulationTypes }}
+<div class="ons-page__container ons-container">
+    <div class="ons-grid ons-u-ml-no">
+        {{ template "partials/breadcrumb" . }}
+        <h1 class="ons-u-fs-xxxl ons-u-mt-s">{{localise "CreateCustomDatasetTitle" .Language 1}}</h1>
+        <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
+            <div class="ons-page__main ons-u-mt-l">
+                <form method="post">
+                    <fieldset class="ons-fieldset">
+                        <legend class="ons-fieldset__legend ons-u-mb-s">
+                            {{localise "CreateCustomDatasetLegend" .Language 1}}
+                        </legend>
+                        <div class="ons-radios__items">
+                            {{ range $i, $populationType := .CreateCustomDatasetPage.PopulationTypes }}
+                                <span class="ons-radios__item ons-radios__item--no-border ons-u-mb-s">
+                                    <span class="ons-radio ons-radio--no-border">
+                                    <input type="radio" id="{{ .Name }}" class="ons-radio__input ons-js-radio" value="" name="populationType">
+                                        <label class=" ons-radio__label  ons-label--with-description ons-badge" aria-describedby="{{ .Name }}-label-description-hint" for="{{ .Name }}" id="{{ .Name }}-label">{{ .Label }}
+                                        {{ if .Description }}
+                                                <span class="ons-label__description ons-radio__label--with-description">{{- .Description -}}</span>
+                                        </label>
+                                        <span class="ons-label__visually-hidden-description ons-u-vh" id="{{ .Name }}-label-description-hint">{{- .Description -}}</span>
+                                        </span>
+                                    {{ end }}
+                                </span>
+                                {{ if notLastItem $length $i }}<br>{{ end }}
+                            {{ end }}
+                        </div>
+                    </fieldset>
+                    <div class="ons-u-mt-l">
+                        <button type="submit" class="ons-btn ons-u-mt-s ons-u-mb-s">
+                            <span class="ons-btn__inner">{{ localise "Continue" $.Language 1 }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

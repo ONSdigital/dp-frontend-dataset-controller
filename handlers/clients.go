@@ -4,6 +4,7 @@ import (
 	"context"
 	io "io"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
@@ -52,11 +53,13 @@ type FilesAPIClient interface {
 type PopulationClient interface {
 	GetArea(ctx context.Context, input population.GetAreaInput) (population.GetAreaResponse, error)
 	GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error)
-	GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*population.GetBlockedAreaCountResult, error)
+	GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*cantabular.GetBlockedAreaCountResult, error)
 	GetDimensionCategories(ctx context.Context, input population.GetDimensionCategoryInput) (population.GetDimensionCategoriesResponse, error)
 	GetDimensionsDescription(ctx context.Context, input population.GetDimensionsDescriptionInput) (population.GetDimensionsResponse, error)
 	GetParentAreaCount(ctx context.Context, input population.GetParentAreaCountInput) (int, error)
 	GetCategorisations(ctx context.Context, input population.GetCategorisationsInput) (population.GetCategorisationsResponse, error)
+	GetPopulationTypes(ctx context.Context, input population.GetPopulationTypesInput) (population.GetPopulationTypesResponse, error)
+	GetPopulationTypeMetadata(ctx context.Context, input population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

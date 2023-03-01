@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -88,7 +89,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, population.GetBlockedAreaCountResult{})
+				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")

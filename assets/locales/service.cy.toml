@@ -393,6 +393,14 @@ description = "All {{.total}} areas available"
 one = "<strong>{{.arg0}} area available</strong>"
 other = "<strong>All {{.arg0}} areas available</strong>"
 
-[CreateDatasetTitle]
+[CreateCustomDatasetTitle]
 description = "Create a custom dataset"
 one = "Create a custom dataset"
+
+[CreateCustomDatasetLegend]
+description = "Select population type"
+one = "Select population type"
+
+[Continue]
+description = "Continue"
+one = "Continue"
