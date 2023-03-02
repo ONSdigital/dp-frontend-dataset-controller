@@ -11,7 +11,7 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-// FilterOutput will load a filtered landing page
+// CreateCustomDataset will load the create custom dataset page
 func CreateCustomDataset(pc PopulationClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		createCustomDataset(w, req, pc, zc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
