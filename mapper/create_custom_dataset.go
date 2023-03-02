@@ -10,7 +10,7 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
-// CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
+// CreateCustomDatasetPage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
 func CreateCustomDatasetPage(ctx context.Context, req *http.Request, basePage coreModel.Page, populationTypes []population.PopulationType, lang string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) createCustomDatasetPage.Page {
 	p := createCustomDatasetPage.Page{
 		Page: basePage,

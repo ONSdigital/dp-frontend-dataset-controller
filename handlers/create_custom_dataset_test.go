@@ -33,7 +33,6 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 	}
 
 	Convey("Given the expected calls to render a Create Custom Dataset page", t, func() {
-
 		rend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 		rend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "create-custom-dataset")
 
@@ -41,7 +40,6 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 		pc.EXPECT().GetPopulationTypes(ctx, gomock.Any()).Return(mockPopulationTypes, nil)
 
 		Convey("When the page is rendered", func() {
-
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/create", nil)
 

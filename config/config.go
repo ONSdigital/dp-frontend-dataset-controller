@@ -13,7 +13,6 @@ type Config struct {
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
 	Debug                         bool          `envconfig:"DEBUG"`
 	EnableMultivariate            bool          `envconfig:"ENABLE_MULTIVARIATE"`
-	EnableCreateDataset           bool          `envconfig:"ENABLE_CREATE_DATASET"`
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
 	PatternLibraryAssetsPath      string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
@@ -54,7 +53,6 @@ func get() (*Config, error) {
 		BindAddr:                      "localhost:20200",
 		Debug:                         false,
 		EnableMultivariate:            false,
-		EnableCreateDataset:           false,
 		APIRouterURL:                  "http://localhost:23200/v1",
 		DownloadServiceURL:            "http://localhost:23600",
 		SiteDomain:                    "localhost",

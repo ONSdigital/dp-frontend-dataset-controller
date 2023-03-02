@@ -143,7 +143,7 @@ func run(ctx context.Context) error {
 
 	router.Path("/health").HandlerFunc(healthcheck.Handler)
 
-	if cfg.EnableCreateDataset {
+	if cfg.EnableMultivariate {
 		router.Path("/datasets/create").Methods("GET").HandlerFunc(handlers.CreateCustomDataset(pc, zc, rend, *cfg, apiRouterVersion))
 	}
 
