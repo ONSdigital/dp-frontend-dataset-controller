@@ -7,6 +7,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/createCustomDatasetPage"
+	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
@@ -15,6 +16,12 @@ func CreateCustomDatasetPage(ctx context.Context, req *http.Request, basePage co
 	p := createCustomDatasetPage.Page{
 		Page: basePage,
 	}
+
+	// PAGE BASICS
+	p.Metadata.Title = helper.Localise("CreateCustomDatasetTitle", lang, 1)
+	p.Language = lang
+	p.URI = req.URL.Path
+	p.Metadata.Description = p.Metadata.Title
 
 	// BANNERS
 	p.BetaBannerEnabled = true

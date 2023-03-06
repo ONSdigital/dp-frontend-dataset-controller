@@ -382,6 +382,14 @@ one = "Create a custom dataset"
 description = "Select population type"
 one = "Select population type"
 
+[CreateCustomDatasetErrorTitle]
+description = "Error"
+one = "Error"
+
+[CreateCustomDatasetErrorText]
+description = "Select population type"
+one = "Select population type"
+
 [Continue]
 description = "Continue"
 one = "Continue"

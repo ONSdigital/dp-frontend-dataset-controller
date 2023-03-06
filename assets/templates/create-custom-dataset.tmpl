@@ -3,11 +3,25 @@
 <div class="ons-page__container ons-container">
     <div class="ons-grid ons-u-ml-no">
         {{ template "partials/breadcrumb" . }}
+        {{ if .Page.Error.Title }}
+            {{ template "partials/error-summary" .Page.Error }}
+        {{ end }}
         <h1 class="ons-u-fs-xxxl ons-u-mt-s">{{localise "CreateCustomDatasetTitle" .Language 1}}</h1>
         <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
             <div class="ons-page__main ons-u-mt-l">
-                <form method="post">
-                    <fieldset class="ons-fieldset">
+                <form method="post" id="population-type">
+                    {{ if .Page.Error.Title }}
+                        <div class="ons-panel ons-panel--error ons-panel--no-title" id="coverage-error">
+                            <span class="ons-u-vh">
+                                {{ localise "CreateCustomDatasetErrorTitle" .Language 1 }}:
+                            </span>
+                            <div class="ons-panel__body">
+                                <p class="ons-panel__error">
+                                    <strong>{{- localise "CreateCustomDatasetErrorText" .Language 1 -}}</strong>
+                                </p>
+                    {{ end }}
+
+                    <fieldset class="ons-fieldset" >
                         <legend class="ons-fieldset__legend ons-u-mb-s">
                             {{localise "CreateCustomDatasetLegend" .Language 1}}
                         </legend>
@@ -15,7 +29,7 @@
                             {{ range $i, $populationType := .CreateCustomDatasetPage.PopulationTypes }}
                                 <span class="ons-radios__item ons-radios__item--no-border ons-u-mb-s">
                                     <span class="ons-radio ons-radio--no-border">
-                                    <input type="radio" id="{{ .Name }}" class="ons-radio__input ons-js-radio" value="" name="populationType">
+                                    <input type="radio" id="{{ .Name }}" class="ons-radio__input ons-js-radio" value="{{ .Name }}" name="populationType">
                                         <label class=" ons-radio__label  ons-label--with-description ons-badge" aria-describedby="{{ .Name }}-label-description-hint" for="{{ .Name }}" id="{{ .Name }}-label">{{ .Label }}
                                         {{ if .Description }}
                                                 <span class="ons-label__description ons-radio__label--with-description">{{- .Description -}}</span>
@@ -28,6 +42,12 @@
                             {{ end }}
                         </div>
                     </fieldset>
+
+                    {{ if .Page.Error.Title }}
+                            </div>
+                        </div>
+                    {{ end }}
+
                     <div class="ons-u-mt-l">
                         <button type="submit" class="ons-btn ons-u-mt-s ons-u-mb-s">
                             <span class="ons-btn__inner">{{ localise "Continue" $.Language 1 }}</span>

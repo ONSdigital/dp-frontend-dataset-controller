@@ -8,6 +8,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	"github.com/ONSdigital/dp-renderer/helper"
+	"github.com/ONSdigital/dp-renderer/model"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -22,6 +24,23 @@ func createCustomDataset(w http.ResponseWriter, req *http.Request, pc Population
 	basePage := rend.NewBasePageModel()
 
 	ctx := req.Context()
+
+	errorVal := req.URL.Query().Get("error")
+	if errorVal == "true" {
+		basePage.Error = model.Error{
+			Title: helper.Localise("CreateCustomDatasetErrorText", lang, 1),
+			ErrorItems: []model.ErrorItem{
+				{
+					Description: model.Localisation{
+						LocaleKey: "CreateCustomDatasetErrorText",
+						Plural:    1,
+					},
+					URL: "#population-type",
+				},
+			},
+			Language: lang,
+		}
+	}
 
 	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
