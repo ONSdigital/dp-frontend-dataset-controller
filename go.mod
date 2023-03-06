@@ -3,7 +3,7 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 go 1.19
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.236.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.237.0
 	github.com/ONSdigital/dp-cache v0.3.0
 	github.com/ONSdigital/dp-cookies v0.4.0
 	github.com/ONSdigital/dp-healthcheck v1.5.0

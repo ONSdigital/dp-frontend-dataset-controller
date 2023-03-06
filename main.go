@@ -145,6 +145,7 @@ func run(ctx context.Context) error {
 
 	if cfg.EnableMultivariate {
 		router.Path("/datasets/create").Methods("GET").HandlerFunc(handlers.CreateCustomDataset(pc, zc, rend, *cfg, apiRouterVersion))
+		router.Path("/datasets/create").Methods("POST").HandlerFunc(handlers.PostCreateCustomDataset(f))
 	}
 
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))

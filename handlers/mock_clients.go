@@ -57,6 +57,21 @@ func (mr *MockFilterClientMockRecorder) CreateBlueprint(ctx, userAuthToken, serv
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
 }
 
+// CreateCustomFilter mocks base method.
+func (m *MockFilterClient) CreateCustomFilter(ctx context.Context, userAuthToken, serviceAuthToken, populationType string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCustomFilter", ctx, userAuthToken, serviceAuthToken, populationType)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCustomFilter indicates an expected call of CreateCustomFilter.
+func (mr *MockFilterClientMockRecorder) CreateCustomFilter(ctx, userAuthToken, serviceAuthToken, populationType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomFilter", reflect.TypeOf((*MockFilterClient)(nil).CreateCustomFilter), ctx, userAuthToken, serviceAuthToken, populationType)
+}
+
 // CreateFlexibleBlueprint mocks base method.
 func (m *MockFilterClient) CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, dimensions []filter.ModelDimension, population_type string) (string, string, error) {
 	m.ctrl.T.Helper()
