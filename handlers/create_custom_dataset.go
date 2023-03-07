@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
@@ -37,6 +36,6 @@ func createCustomDataset(w http.ResponseWriter, req *http.Request, pc Population
 	}
 
 	basePage := rend.NewBasePageModel()
-	page := mapper.CreateCustomDatasetPage(ctx, req, basePage, populationTypes.Items, lang, homepageContent.ServiceMessage, zebedee.EmergencyBanner{})
+	page := mapper.CreateCustomDatasetPage(ctx, req, basePage, populationTypes.Items, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, page, "create-custom-dataset")
 }
