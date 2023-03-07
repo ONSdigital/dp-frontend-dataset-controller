@@ -21,7 +21,8 @@ var cyLocale = []string{
 	"one = \"Protecting personal data will prevent 1 area from being published\"",
 	"other = \"Protecting personal data will prevent 15 areas from being published\"",
 	"[SDCAllAreasAvailable]",
-	"one = \"All 10 areas available\"",
+	"one = \"1 area available\"",
+	"other = \"All 10 areas available\"",
 }
 
 var enLocale = []string{
@@ -43,7 +44,8 @@ var enLocale = []string{
 	"one = \"Protecting personal data will prevent 1 area from being published\"",
 	"other = \"Protecting personal data will prevent 15 areas from being published\"",
 	"[SDCAllAreasAvailable]",
-	"one = \"All 10 areas available\"",
+	"one = \"1 area available\"",
+	"other = \"All 10 areas available\"",
 }
 
 // MockAssetFunction returns mocked toml []bytes
