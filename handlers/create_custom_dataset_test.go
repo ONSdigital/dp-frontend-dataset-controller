@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
+	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -17,6 +19,7 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	zc := NewMockZebedeeClient(mockCtrl)
 	pc := NewMockPopulationClient(mockCtrl)

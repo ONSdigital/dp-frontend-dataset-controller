@@ -22,11 +22,6 @@ require (
 )
 
 require (
-	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
-	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
-)
-
-require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ONSdigital/dp-api-clients-go v1.43.0 // indirect
 	github.com/ONSdigital/dp-topic-api v0.15.0
@@ -50,4 +45,6 @@ require (
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
+	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
+	github.com/shurcooL/graphql v0.0.0-20220606043923-3cf50f8a0a29 // indirect
 )

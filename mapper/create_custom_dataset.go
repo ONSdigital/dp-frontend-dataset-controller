@@ -46,10 +46,28 @@ func CreateCustomDatasetPage(ctx context.Context, req *http.Request, basePage co
 	// PAGE CONTENT
 	p.CreateCustomDatasetPage.PopulationTypes = mapPopulationTypes(populationTypes)
 
+	// ERROR HANDLING
+	errorVal := req.URL.Query().Get("error")
+	if errorVal == "true" {
+		p.Error = coreModel.Error{
+			Title: helper.Localise("CreateCustomDatasetErrorText", lang, 1),
+			ErrorItems: []coreModel.ErrorItem{
+				{
+					Description: coreModel.Localisation{
+						LocaleKey: "CreateCustomDatasetErrorText",
+						Plural:    1,
+					},
+					URL: "#population-type",
+				},
+			},
+			Language: lang,
+		}
+	}
+
 	return p
 }
 
-// mapPapulationTypes maps population.PopulationType to createCensusDatasetPage.PopulationType
+// mapPopulationTypes maps population.PopulationType to createCensusDatasetPage.PopulationType
 func mapPopulationTypes(populationTypes []population.PopulationType) []createCustomDatasetPage.PopulationType {
 	mapped := []createCustomDatasetPage.PopulationType{}
 	for _, pop := range populationTypes {

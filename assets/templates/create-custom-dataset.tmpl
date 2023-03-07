@@ -31,12 +31,10 @@
                                     <span class="ons-radio ons-radio--no-border">
                                     <input type="radio" id="{{ .Name }}" class="ons-radio__input ons-js-radio" value="{{ .Name }}" name="populationType">
                                         <label class=" ons-radio__label  ons-label--with-description ons-badge" aria-describedby="{{ .Name }}-label-description-hint" for="{{ .Name }}" id="{{ .Name }}-label">{{ .Label }}
-                                        {{ if .Description }}
                                                 <span class="ons-label__description ons-radio__label--with-description">{{- .Description -}}</span>
                                         </label>
                                         <span class="ons-label__visually-hidden-description ons-u-vh" id="{{ .Name }}-label-description-hint">{{- .Description -}}</span>
                                         </span>
-                                    {{ end }}
                                 </span>
                                 {{ if notLastItem $length $i }}<br>{{ end }}
                             {{ end }}

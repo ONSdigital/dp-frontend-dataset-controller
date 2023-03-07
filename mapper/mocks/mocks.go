@@ -23,6 +23,8 @@ var cyLocale = []string{
 	"[SDCAllAreasAvailable]",
 	"one = \"1 area available\"",
 	"other = \"All 10 areas available\"",
+	"[CreateCustomDatasetTitle]",
+	"one = \"Create a custom dataset\"",
 }
 
 var enLocale = []string{
@@ -46,6 +48,8 @@ var enLocale = []string{
 	"[SDCAllAreasAvailable]",
 	"one = \"1 area available\"",
 	"other = \"All 10 areas available\"",
+	"[CreateCustomDatasetTitle]",
+	"one = \"Create a custom dataset\"",
 }
 
 // MockAssetFunction returns mocked toml []bytes
