@@ -50,10 +50,13 @@ type FilesAPIClient interface {
 
 // PopulationClient is an interface with methods required for a population client
 type PopulationClient interface {
-	GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error)
 	GetArea(ctx context.Context, input population.GetAreaInput) (population.GetAreaResponse, error)
+	GetAreas(ctx context.Context, input population.GetAreasInput) (population.GetAreasResponse, error)
+	GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*population.GetBlockedAreaCountResult, error)
+	GetDimensionCategories(ctx context.Context, input population.GetDimensionCategoryInput) (population.GetDimensionCategoriesResponse, error)
 	GetDimensionsDescription(ctx context.Context, input population.GetDimensionsDescriptionInput) (population.GetDimensionsResponse, error)
 	GetParentAreaCount(ctx context.Context, input population.GetParentAreaCountInput) (int, error)
+	GetCategorisations(ctx context.Context, input population.GetCategorisationsInput) (population.GetCategorisationsResponse, error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

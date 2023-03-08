@@ -4,7 +4,7 @@
         <p>{{ . }}</p>
     {{ end }}
     {{ if .Collapsible.CollapsibleItems }}
-        {{ template "partials/collapsible" . }}
+        {{ template "partials/collapsible" .Collapsible }}
     {{ end }}
     {{ template "partials/census/back-to-contents" . }}
 </section>

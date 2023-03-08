@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
@@ -147,6 +148,47 @@ func sortOptionsByCode(items []dataset.Option) []dataset.Option {
 	} else {
 		sort.Slice(sorted, func(i, j int) bool {
 			return sorted[i].Option < sorted[j].Option
+		})
+	}
+	return sorted
+}
+
+func mapDimensionCategories(dimCategories population.GetDimensionCategoriesResponse) map[string]population.DimensionCategory {
+	dimensionCategoryMap := make(map[string]population.DimensionCategory)
+	for _, dimensionCategory := range dimCategories.Categories {
+		dimensionCategoryMap[dimensionCategory.Id] = dimensionCategory
+	}
+	return dimensionCategoryMap
+}
+
+// sorts population.DimensionCategoryItems - numerically if possible, with negatives listed last
+func sortCategoriesByID(items []population.DimensionCategoryItem) []population.DimensionCategoryItem {
+	sorted := []population.DimensionCategoryItem{}
+	sorted = append(sorted, items...)
+
+	doNumericSort := func(items []population.DimensionCategoryItem) bool {
+		for _, item := range items {
+			_, err := strconv.Atoi(item.ID)
+			if err != nil {
+				return false
+			}
+		}
+		return true
+	}
+
+	if doNumericSort(items) {
+		sort.Slice(sorted, func(i, j int) bool {
+			left, _ := strconv.Atoi(sorted[i].ID)
+			right, _ := strconv.Atoi(sorted[j].ID)
+			if left*right < 0 {
+				return right < 0
+			} else {
+				return left*left < right*right
+			}
+		})
+	} else {
+		sort.Slice(sorted, func(i, j int) bool {
+			return sorted[i].ID < sorted[j].ID
 		})
 	}
 	return sorted

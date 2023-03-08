@@ -32,17 +32,12 @@ type DatasetLandingPage struct {
 	DatasetURL          string               `json:"dataset_url"`
 	Panels              []Panel              `json:"panels"`
 	QualityStatements   []Panel              `json:"quality_statements"`
+	SDC                 []Panel              `json:"sdc"`
+	HasSDC              bool                 `json:"has_sdc"`
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
 	IsMultivariate      bool                 `json:"is_multivariate"`
 	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
-}
-
-// Panel contains the data required to populate a panel UI component
-type Panel struct {
-	DisplayIcon bool     `json:"display_icon"`
-	CssClasses  []string `json:"css_classes"`
-	Body        string   `json:"body"`
-	Language    string   `json:"language"`
+	ImproveResults      model.Collapsible
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
@@ -51,8 +46,9 @@ type ShareDetails struct {
 	Language       string  `json:"language"`
 }
 
-/* Share includes details for a specific place the dataset can be shared
-   Included icons: 'facebook', 'twitter', 'email', 'linkedin'
+/*
+Share includes details for a specific place the dataset can be shared
+Included icons: 'facebook', 'twitter', 'email', 'linkedin'
 */
 type Share struct {
 	Title string `json:"title"`

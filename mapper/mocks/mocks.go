@@ -11,6 +11,18 @@ var cyLocale = []string{
 	"one = \"Read more about this\"",
 	"[HasAlert]",
 	"one = \"Important notice\"",
+	"[ImproveResultsSubHeading]",
+	"one = \"Try the following\"",
+	"[ImproveResultsList]",
+	"one = \"A list of suggestions\"",
+	"[SDCAreasAvailable]",
+	"one = \"10 out of 25 areas available\"",
+	"[SDCRestrictedAreas]",
+	"one = \"Protecting personal data will prevent 1 area from being published\"",
+	"other = \"Protecting personal data will prevent 15 areas from being published\"",
+	"[SDCAllAreasAvailable]",
+	"one = \"1 area available\"",
+	"other = \"All 10 areas available\"",
 }
 
 var enLocale = []string{
@@ -22,6 +34,18 @@ var enLocale = []string{
 	"one = \"Read more about this\"",
 	"[HasAlert]",
 	"one = \"Important notice\"",
+	"[ImproveResultsSubHeading]",
+	"one = \"Try the following\"",
+	"[ImproveResultsList]",
+	"one = \"A list of suggestions\"",
+	"[SDCAreasAvailable]",
+	"one = \"10 out of 25 areas available\"",
+	"[SDCRestrictedAreas]",
+	"one = \"Protecting personal data will prevent 1 area from being published\"",
+	"other = \"Protecting personal data will prevent 15 areas from being published\"",
+	"[SDCAllAreasAvailable]",
+	"one = \"1 area available\"",
+	"other = \"All 10 areas available\"",
 }
 
 // MockAssetFunction returns mocked toml []bytes

@@ -23,7 +23,7 @@ const (
 	CorrectionAlertType = "correction"
 )
 
-//  CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
+// CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
 func CreateCensusBasePage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
 	p := datasetLandingPageCensus.Page{
 		Page: basePage,
@@ -86,13 +86,13 @@ func CreateCensusBasePage(ctx context.Context, req *http.Request, basePage coreM
 			case CorrectionAlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 					DisplayIcon: true,
-					Body:        helper.Localise("HasCorrectionNotice", lang, 1),
+					Body:        []string{helper.Localise("HasCorrectionNotice", lang, 1)},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			case AlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 					DisplayIcon: true,
-					Body:        helper.Localise("HasAlert", lang, 1, alert.Description),
+					Body:        []string{helper.Localise("HasAlert", lang, 1, alert.Description)},
 					CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			}
@@ -125,7 +125,7 @@ func CreateCensusBasePage(ctx context.Context, req *http.Request, basePage coreM
 	if latestVersionNumber != version.Version && hasOtherVersions {
 		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, datasetLandingPageCensus.Panel{
 			DisplayIcon: true,
-			Body:        helper.Localise("HasNewVersion", lang, 1, latestVersionURL),
+			Body:        []string{helper.Localise("HasNewVersion", lang, 1, latestVersionURL)},
 			CssClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 		})
 	}

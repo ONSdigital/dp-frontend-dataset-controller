@@ -1,5 +1,5 @@
 {{ range . }}
-    <div class="ons-panel ons-panel--info ons-panel--no-title{{ if .CssClasses}}{{ range .CssClasses }} {{ . }}{{ end }}{{ end }}">
+    <div class="ons-panel ons-panel--{{.FuncGetPanelType}} ons-panel--no-title{{ if .CssClasses}}{{ range .CssClasses }} {{ . }}{{ end }}{{ end }}">
         {{ if .DisplayIcon }}
             <div class="ons-panel--warn ons-u-bg--tr">
                 <div class="ons-panel__icon" aria-hidden="true">
@@ -11,7 +11,9 @@
             </span>
             <div class="ons-panel__body">
                 <div class="ons-u-fs-r default-line-height">
-                    {{- .Body | safeHTML -}}
+                    {{ range .Body }}
+                        {{- . | safeHTML -}}
+                    {{ end }}
                 </div>
             </div>
             {{ if .DisplayIcon }}

@@ -30,7 +30,7 @@ func TestCreateCensusLandingPage(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("Then downloads map correctly", func() {
 				So(page.Version.Downloads[0].Size, ShouldEqual, "438290")
@@ -66,6 +66,78 @@ func TestCreateCensusLandingPage(t *testing.T) {
 	})
 }
 
+func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := coreModel.Page{}
+	contacts := getTestContacts()
+	relatedContent := getTestRelatedContent()
+	datasetModel := getTestDatasetDetails(contacts, relatedContent)
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
+
+	dimensions := []dataset.VersionDimension{
+		getTestDimension("geography", true),
+		getTestDimension("sex", false),
+		getTestDimension("ethnicity", false),
+	}
+	datasetOptions := []dataset.Options{
+		getTestOptions("geography", 3),
+		getTestOptions("sex", 2),
+		getTestOptions("ethnicity", 20),
+	}
+	version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
+
+	Convey("Given data for cantabular_flexible_table census landing page", t, func() {
+		Convey("When we build a Census Landing Page", func() {
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+
+			Convey("Then the geography dimension has a change button", func() {
+				So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
+			})
+			Convey("And other variables do not", func() {
+				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
+				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeFalse)
+			})
+		})
+	})
+
+	Convey("Given data for cantabular_multivariate census landing page", t, func() {
+		datasetModel.Type = "cantabular_multivariate_table"
+		categorisationsMap := map[string]int{
+			"geography": 6,
+			"sex":       1,
+			"ethnicity": 5,
+		}
+
+		Convey("When we build a Census Landing Page with enableMultivariate false", func() {
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, categorisationsMap, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, false)
+
+			Convey("Then the geography dimension only has a change button", func() {
+				So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
+				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
+				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeFalse)
+			})
+		})
+
+		Convey("When we build a Census Landing Page with enableMultivariate true", func() {
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, categorisationsMap, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+
+			Convey("Then the geography dimension only has a change button", func() {
+				So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeTrue)
+			})
+
+			Convey("And the sex dimension (1 categorisation) does not show a change button", func() {
+				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeFalse)
+			})
+
+			Convey("And the ethnicity dimension (5 categorisations) does show a change button", func() {
+				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeTrue)
+			})
+		})
+	})
+}
+
 func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
@@ -92,20 +164,20 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 		dimensions := []dataset.VersionDimension{dim1, dim2, dim3}
 		version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
 		datasetOptions := []dataset.Options{
-			getTestOptions("Dimension 1", 1),
-			getTestOptions("Dimension 2", 1),
+			getTestOptions("1", 1),
+			getTestOptions("2", 1),
 		}
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			mockPanel := []datasetLandingPageCensus.Panel{
 				{
-					Body:       "<p>This is a quality notice statement</p>Read more about this",
+					Body:       []string{"<p>This is a quality notice statement</p>Read more about this"},
 					CssClasses: []string{"ons-u-mt-no"},
 				},
 				{
-					Body:       "<p>This is another quality notice statement</p>Read more about this",
+					Body:       []string{"<p>This is another quality notice statement</p>Read more about this"},
 					CssClasses: []string{"ons-u-mt-no", "ons-u-mb-l"},
 				},
 			}
@@ -133,7 +205,7 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -157,7 +229,7 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -180,7 +252,7 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("then HasDownloads set to false", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
@@ -202,12 +274,12 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 
 	Convey("given a dimension to truncate on census dataset landing page", t, func() {
 		datasetOptions := []dataset.Options{
-			getTestOptions("Dimension 1", 21),
-			getTestOptions("Dimension 2", 20),
+			getTestOptions("1", 21),
+			getTestOptions("2", 20),
 		}
 
 		Convey("when valid parameters are provided", func() {
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(page.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
@@ -218,13 +290,13 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 					"Label 19", "Label 20", "Label 21",
 				})
 				So(page.DatasetLandingPage.Dimensions[0].IsTruncated, ShouldBeTrue)
-				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/?showAll=dim_1#dim_1")
+				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/?showAll=1#1")
 			})
 		})
 
 		Convey("when 'showAll' parameter provided", func() {
-			parameters := []string{"dim_1"}
-			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, serviceMessage, emergencyBanner, true)
+			parameters := []string{"1"}
+			page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, serviceMessage, emergencyBanner, true)
 
 			Convey("then the dimension is no longer truncated", func() {
 				So(page.DatasetLandingPage.Dimensions[0].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
@@ -237,7 +309,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 					"Label 21",
 				})
 				So(page.DatasetLandingPage.Dimensions[0].IsTruncated, ShouldBeFalse)
-				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
+				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#1")
 			})
 
 			Convey("then other truncated dimensions are persisted", func() {
@@ -249,7 +321,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 					"Label 16", "Label 17", "Label 18", "Label 19", "Label 20",
 					"Label 21",
 				})
-				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#dim_1")
+				So(page.DatasetLandingPage.Dimensions[0].TruncateLink, ShouldEqual, "/#1")
 				So(page.DatasetLandingPage.Dimensions[2].TotalItems, ShouldEqual, datasetOptions[1].TotalCount)
 				So(page.DatasetLandingPage.Dimensions[2].Values, ShouldHaveLength, 9)
 				So(page.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, []string{
@@ -258,7 +330,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 					"Label 18", "Label 19", "Label 20",
 				})
 				So(page.DatasetLandingPage.Dimensions[2].IsTruncated, ShouldBeTrue)
-				So(page.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/?showAll=dim_2#dim_2")
+				So(page.DatasetLandingPage.Dimensions[2].TruncateLink, ShouldEqual, "/?showAll=2#2")
 			})
 		})
 	})

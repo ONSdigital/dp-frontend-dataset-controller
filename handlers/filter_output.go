@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -38,8 +39,11 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var ver dataset.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
-	var dimIds []string
-	var dmErr, versErr, verErr, fErr, dErr error
+	var sdc *population.GetBlockedAreaCountResult
+	var areaTypeID, parent string
+	var dimCategories population.GetDimensionCategoriesResponse
+	var dimIds, areaOpts []string
+	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr error
 
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
@@ -109,7 +113,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		return
 	}
 
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		dimDescriptions, dErr = pc.GetDimensionsDescription(ctx, population.GetDimensionsDescriptionInput{
@@ -129,6 +133,21 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+		dimCategories, dcErr = pc.GetDimensionCategories(ctx, population.GetDimensionCategoryInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PaginationParams: population.PaginationParams{
+				Limit:  1000,
+				Offset: 0,
+			},
+			PopulationType: filterOutput.PopulationType,
+			Dimensions:     dimIds,
+		})
+	}()
+
 	wg.Wait()
 
 	if dErr != nil {
@@ -139,6 +158,16 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		setStatusCode(ctx, w, dErr)
 		return
 	}
+
+	if dcErr != nil {
+		log.Error(ctx, "failed to get dimension categories", dErr, log.Data{
+			"population_type": filterOutput.PopulationType,
+			"dimension_ids":   dimIds,
+		})
+		setStatusCode(ctx, w, dcErr)
+		return
+	}
+	dimensionCategoriesMap := mapDimensionCategories(dimCategories)
 
 	// TODO: Inherited from census landing, refactor to check in mapper
 	var hasOtherVersions bool
@@ -156,18 +185,14 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	latestVersionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, int, error) {
-		q := dataset.QueryParams{Offset: 0, Limit: 1000}
-		opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetModel.ID, edition, strconv.Itoa(ver.Version), dim.Name, &q)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to get options for dimension: %w", err)
-		}
+		dimensionCategory := dimensionCategoriesMap[dim.ID]
 
 		var options []string
-		for _, opt := range sortOptionsByCode(opts.Items) {
+		for _, opt := range sortCategoriesByID(dimensionCategory.Categories) {
 			options = append(options, opt.Label)
 		}
 
-		return options, opts.TotalCount, nil
+		return options, len(options), nil
 	}
 
 	var hasNoAreaOptions bool
@@ -256,7 +281,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		if hasErrs {
 			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
-
+		areaOpts = optsIDs
 		// TODO: pc.GetParentAreaCount is causing production issues
 		// if dim.FilterByParent != "" {
 		// 	count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
@@ -288,10 +313,26 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	getOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		if dim.IsAreaType != nil && *dim.IsAreaType {
+			areaTypeID = dim.ID
+			parent = dim.FilterByParent
 			return getAreaOptions(dim)
 		}
 
 		return getDimensionOptions(dim)
+	}
+
+	getDimensionCategorisations := func(populationType string, dimension string) (int, error) {
+		cats, err := pc.GetCategorisations(ctx, population.GetCategorisationsInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PaginationParams: population.PaginationParams{
+				Limit: 1000,
+			},
+			PopulationType: populationType,
+			Dimension:      dimension,
+		})
+		return cats.PaginationResponse.TotalCount, err
 	}
 
 	var fDims []model.FilterDimension
@@ -307,11 +348,60 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return
 		}
 
+		categorisationCount := 0
+		if !helpers.IsBoolPtr(filterOutput.Dimensions[i].IsAreaType) {
+			categorisationCount, err = getDimensionCategorisations(filterOutput.PopulationType, filterOutput.Dimensions[i].Name)
+		}
+		if err != nil {
+			log.Error(ctx, "failed to get categorisations for dimension", err, log.Data{"dimension_name": filterOutput.Dimensions[i].Name})
+			setStatusCode(ctx, w, err)
+			return
+		}
+
 		filterOutput.Dimensions[i].Options = options
 		fDims = append(fDims, model.FilterDimension{
-			ModelDimension: filterOutput.Dimensions[i],
-			OptionsCount:   count,
+			ModelDimension:      filterOutput.Dimensions[i],
+			OptionsCount:        count,
+			CategorisationCount: categorisationCount,
 		})
+	}
+
+	if strings.Contains(datasetModel.Type, "multivariate") {
+		sort.Slice(dimIds, func(i, j int) bool {
+			return dimIds[i] == areaTypeID || dimIds[i] == parent
+		})
+
+		if parent != "" {
+			areaTypeID = parent
+		}
+
+		// set default coverage
+		if len(areaOpts) == 0 {
+			areaOpts = []string{"K04000001"}
+			areaTypeID = "nat"
+		}
+		sdc, sErr = pc.GetBlockedAreaCount(ctx, population.GetBlockedAreaCountInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PopulationType: filterOutput.PopulationType,
+			Variables:      dimIds,
+			Filter: population.Filter{
+				Codes:    areaOpts,
+				Variable: areaTypeID,
+			}})
+		if sErr != nil {
+			log.Error(ctx, "failed to get blocked area count", sErr, log.Data{
+				"population_type": filterOutput.PopulationType,
+				"variables":       dimIds,
+				"area_codes":      areaOpts,
+				"area_type_id":    areaTypeID,
+			})
+			setStatusCode(ctx, w, sErr)
+			return
+		}
+	} else {
+		sdc = &population.GetBlockedAreaCountResult{}
 	}
 
 	if filterOutput.Downloads == nil {
@@ -338,6 +428,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions)
+	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc)
 	rend.BuildPage(w, m, "census-landing")
 }

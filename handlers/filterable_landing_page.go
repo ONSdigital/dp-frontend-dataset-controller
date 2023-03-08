@@ -7,8 +7,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
@@ -20,13 +22,13 @@ import (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
@@ -91,8 +93,8 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	if cfg.EnableCensusPages && strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(cfg.EnableMultivariate, ctx, w, req, dc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	if strings.Contains(datasetModel.Type, "cantabular") {
+		censusLanding(cfg.EnableMultivariate, ctx, w, req, dc, pc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 		return
 	}
 
@@ -172,7 +174,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	rend.BuildPage(w, m, templateName)
 }
 
-func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
+func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -192,6 +194,8 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 	}
 
 	dims := dataset.VersionDimensions{Items: version.Dimensions}
+	categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, version.IsBasedOn.ID, version.Dimensions)
+	fmt.Println(categorisationsMap)
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
 	if err != nil {
@@ -214,7 +218,7 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 	rend.BuildPage(w, m, "census-landing")
 }
 
@@ -224,6 +228,42 @@ func getDownloadFile(downloads map[string]dataset.Download, format string, w htt
 			http.Redirect(w, req, download.URL, http.StatusFound)
 		}
 	}
+}
+
+func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient, userAccessToken string, populationType string, dims []dataset.VersionDimension) map[string]int {
+	m := make(map[string]int)
+	var mutex sync.Mutex
+	var wg sync.WaitGroup
+
+	for _, dim := range dims {
+		if !helpers.IsBoolPtr(dim.IsAreaType) {
+			wg.Add(1)
+			go func(dim dataset.VersionDimension) {
+				defer wg.Done()
+				cats, err := pc.GetCategorisations(ctx, population.GetCategorisationsInput{
+					AuthTokens: population.AuthTokens{
+						UserAuthToken: userAccessToken,
+					},
+					PaginationParams: population.PaginationParams{
+						Limit: 1000,
+					},
+					PopulationType: populationType,
+					Dimension:      dim.ID,
+				})
+				defer mutex.Unlock()
+				mutex.Lock()
+
+				if err != nil {
+					m[dim.ID] = 1
+				} else {
+					m[dim.ID] = cats.PaginationResponse.TotalCount
+				}
+			}(dim)
+		}
+	}
+	wg.Wait()
+
+	return m
 }
 
 func sortedOpts(opts []dataset.Options) []dataset.Options {

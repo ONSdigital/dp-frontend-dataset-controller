@@ -22,7 +22,6 @@ func TestConfig(t *testing.T) {
 			Convey("That the values should be set to the expected defaults", func() {
 				So(cfg.BindAddr, ShouldEqual, "localhost:20200")
 				So(cfg.Debug, ShouldBeFalse)
-				So(cfg.EnableCensusPages, ShouldBeFalse)
 				So(cfg.EnableMultivariate, ShouldBeFalse)
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.DownloadServiceURL, ShouldEqual, "http://localhost:23600")
@@ -32,7 +31,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.EnableProfiler, ShouldBeFalse)
-				So(cfg.PatternLibraryAssetsPath, ShouldEqual, "//cdn.ons.gov.uk/dp-design-system/51a7546")
+				So(cfg.PatternLibraryAssetsPath, ShouldEqual, "//cdn.ons.gov.uk/dp-design-system/db32164")
 			})
 		})
 	})

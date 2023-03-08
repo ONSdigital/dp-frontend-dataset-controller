@@ -65,7 +65,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 			version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
 
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")
@@ -88,7 +88,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{})
+				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, population.GetBlockedAreaCountResult{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
@@ -155,14 +155,14 @@ func getTestVersionDetails(versionNo int, dimensions []dataset.VersionDimension,
 func getTestDimension(dimensionID string, isAreaType bool) dataset.VersionDimension {
 	return dataset.VersionDimension{
 		Description: fmt.Sprintf("A description for Dimension %s", dimensionID),
-		Name:        fmt.Sprintf("Dimension %s", dimensionID),
-		ID:          fmt.Sprintf("dim_%s", dimensionID),
+		Name:        fmt.Sprintf("%s", dimensionID),
+		ID:          fmt.Sprintf("%s", dimensionID),
 		Label:       fmt.Sprintf("Label %s", dimensionID),
 		IsAreaType:  helpers.ToBoolPtr(isAreaType),
 	}
 }
 
-func getTestFilterDimension(name string, isAreaType bool, options []string) sharedModel.FilterDimension {
+func getTestFilterDimension(name string, isAreaType bool, options []string, categorisations int) sharedModel.FilterDimension {
 	return sharedModel.FilterDimension{
 		ModelDimension: filter.ModelDimension{
 			Label:      fmt.Sprintf("Label %s", name),
@@ -171,7 +171,8 @@ func getTestFilterDimension(name string, isAreaType bool, options []string) shar
 			Name:       name,
 			ID:         name,
 		},
-		OptionsCount: len(options),
+		OptionsCount:        len(options),
+		CategorisationCount: categorisations,
 	}
 }
 
@@ -180,7 +181,7 @@ func buildTestFilterDimension(name string, isAreaType bool, optionCount int) sha
 	for i := 1; i <= optionCount; i++ {
 		options = append(options, fmt.Sprintf("Label %d", i))
 	}
-	return getTestFilterDimension(name, isAreaType, options)
+	return getTestFilterDimension(name, isAreaType, options, 2)
 }
 
 func getTestDownloads(formats []string) map[string]dataset.Download {
