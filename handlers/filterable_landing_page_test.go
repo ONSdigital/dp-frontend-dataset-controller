@@ -147,7 +147,6 @@ func TestFilterableLandingPage(t *testing.T) {
 	})
 
 	Convey("test census landing page", t, func() {
-		const numOptsSummary = 1000
 		mockOpts := []dataset.Options{
 			{
 				Items: []dataset.Option{
@@ -202,6 +201,11 @@ func TestFilterableLandingPage(t *testing.T) {
 					TotalCount: 2,
 				},
 			}, nil).AnyTimes()
+			mockPc.
+				EXPECT().
+				GetPopulationTypes(gomock.Any(), gomock.Any()).
+				Return(population.GetPopulationTypesResponse{}, nil).
+				AnyTimes()
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345", nil)

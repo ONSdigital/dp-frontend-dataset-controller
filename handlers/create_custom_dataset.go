@@ -13,11 +13,11 @@ import (
 // CreateCustomDataset will load the create custom dataset page
 func CreateCustomDataset(pc PopulationClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		createCustomDataset(w, req, pc, zc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		createCustomDataset(w, req, pc, zc, rend, collectionID, lang, userAccessToken)
 	})
 }
 
-func createCustomDataset(w http.ResponseWriter, req *http.Request, pc PopulationClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func createCustomDataset(w http.ResponseWriter, req *http.Request, pc PopulationClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, userAccessToken string) {
 	ctx := req.Context()
 
 	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
@@ -32,7 +32,9 @@ func createCustomDataset(w http.ResponseWriter, req *http.Request, pc Population
 		},
 	})
 	if err != nil {
-		log.Warn(ctx, "unable to get population types", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
+		log.Error(ctx, "unable to get population types", err)
+		setStatusCode(ctx, w, err)
+		return
 	}
 
 	basePage := rend.NewBasePageModel()

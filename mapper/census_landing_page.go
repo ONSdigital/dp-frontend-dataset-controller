@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
@@ -18,7 +19,7 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) datasetLandingPageCensus.Page {
+func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, pops population.GetPopulationTypesResponse) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
@@ -37,19 +38,29 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 
 	// DIMENSIONS
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapCensusOptionsToDimensions(version.Dimensions, opts, categorisationsMap, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
-		coverage := []sharedModel.Dimension{
-			{
-				IsCoverage:        true,
-				IsDefaultCoverage: true,
-				Title:             Coverage,
-				Name:              strings.ToLower(Coverage),
-				ShowChange:        true,
-				ID:                strings.ToLower(Coverage),
-			},
+		area, dims, qs := mapCensusOptionsToDimensions(version.Dimensions, opts, categorisationsMap, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
+		p.DatasetLandingPage.QualityStatements = qs
+		sort.Slice(dims, func(i, j int) bool {
+			return dims[i].Name < dims[j].Name
+		})
+
+		pop := sharedModel.Dimension{}
+		for _, population := range pops.Items {
+			if population.Name == d.IsBasedOn.ID {
+				pop.Title = population.Label
+				pop.IsPopulationType = true
+				break
+			}
 		}
-		temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-		p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+		coverage := sharedModel.Dimension{
+			IsCoverage:        true,
+			IsDefaultCoverage: true,
+			Title:             Coverage,
+			Name:              strings.ToLower(Coverage),
+			ShowChange:        true,
+			ID:                strings.ToLower(Coverage),
+		}
+		p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, dims...)
 	}
 
 	// COLLAPSIBLE
@@ -74,9 +85,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) ([]sharedModel.Dimension, []datasetLandingPageCensus.Panel) {
-	dimensions := []sharedModel.Dimension{}
-	qs := []datasetLandingPageCensus.Panel{}
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []datasetLandingPageCensus.Panel) {
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 
@@ -124,11 +133,16 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
 		dimensions = append(dimensions, pDim)
 	}
-	return dimensions, qs
+
+	sort.Slice(dimensions, func(i, j int) bool {
+		return dimensions[i].IsAreaType
+	})
+
+	return dimensions[0], dimensions[1:], qs
 }
 
 // getAnalytics returns a map to add to the data layer which will be used on file download
-func getAnalytics(dimensions []model.Dimension) map[string]string {
+func getAnalytics(dimensions []sharedModel.Dimension) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
 	for _, dimension := range dimensions {

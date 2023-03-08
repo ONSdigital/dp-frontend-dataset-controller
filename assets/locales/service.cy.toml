@@ -412,3 +412,7 @@ one = "Select population type"
 [Continue]
 description = "Continue"
 one = "Continue"
+
+[PopulationType]
+description = "Population type"
+one = "Population type"

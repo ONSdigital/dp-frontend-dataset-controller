@@ -66,12 +66,12 @@ func TestCleanDimensionsLabel(t *testing.T) {
 			version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
 
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true)
+				page := CreateCensusLandingPage(context.Background(), req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypesResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")
 					So(page.Collapsible.CollapsibleItems[3].Subheading, ShouldEqual, "Label 2")
-					So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
+					So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Label 1")
 				})
 			})
 		})
@@ -89,10 +89,10 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, getTestFilterDownloads([]string{"xlsx"}), filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{})
+				page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, 50, false, true, filter.Model{Downloads: getTestFilterDownloads([]string{"xlsx"})}, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
 
 				Convey("then labels are formatted without counts", func() {
-					So(page.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Label 1")
+					So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Label 1")
 				})
 			})
 		})
@@ -133,6 +133,9 @@ func getTestDatasetDetails(contacts []dataset.Contact, relatedContent []dataset.
 		NationalStatistic: true,
 		Survey:            "census",
 		RelatedContent:    &relatedContent,
+		IsBasedOn: &dataset.IsBasedOn{
+			ID: "UR",
+		},
 	}
 }
 
@@ -156,8 +159,8 @@ func getTestVersionDetails(versionNo int, dimensions []dataset.VersionDimension,
 func getTestDimension(dimensionID string, isAreaType bool) dataset.VersionDimension {
 	return dataset.VersionDimension{
 		Description: fmt.Sprintf("A description for Dimension %s", dimensionID),
-		Name:        fmt.Sprintf("%s", dimensionID),
-		ID:          fmt.Sprintf("%s", dimensionID),
+		Name:        dimensionID,
+		ID:          dimensionID,
 		Label:       fmt.Sprintf("Label %s", dimensionID),
 		IsAreaType:  helpers.ToBoolPtr(isAreaType),
 	}
