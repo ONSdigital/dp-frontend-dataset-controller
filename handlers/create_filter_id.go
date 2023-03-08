@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
@@ -134,7 +135,17 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 			dims = append(dims, dim)
 		}
 
-		fid, _, err := fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, fo.Dataset.DatasetID, fo.Dataset.Edition, strconv.Itoa(fo.Dataset.Version), dims, fo.PopulationType)
+		fid := ""
+		isCustom := helpers.IsBoolPtr(fo.Custom)
+		if isCustom {
+			fid, _, err = fc.CreateFlexibleBlueprintCustom(ctx, userAccessToken, "", "", filter.CreateFlexBlueprintCustomRequest{
+				Dataset:        fo.Dataset,
+				Dimensions:     fo.Dimensions,
+				PopulationType: fo.PopulationType,
+			})
+		} else {
+			fid, _, err = fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, fo.Dataset.DatasetID, fo.Dataset.Edition, strconv.Itoa(fo.Dataset.Version), dims, fo.PopulationType)
+		}
 		if err != nil {
 			setStatusCode(ctx, w, err)
 			return

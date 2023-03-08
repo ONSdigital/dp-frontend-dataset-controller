@@ -88,6 +88,22 @@ func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprint(ctx, userAuthTok
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, dimensions, population_type)
 }
 
+// CreateFlexibleBlueprintCustom mocks base method.
+func (m *MockFilterClient) CreateFlexibleBlueprintCustom(ctx context.Context, uAuthToken, svcAuthToken, dlServiceToken string, req filter.CreateFlexBlueprintCustomRequest) (string, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFlexibleBlueprintCustom", ctx, uAuthToken, svcAuthToken, dlServiceToken, req)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// CreateFlexibleBlueprintCustom indicates an expected call of CreateFlexibleBlueprintCustom.
+func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprintCustom(ctx, uAuthToken, svcAuthToken, dlServiceToken, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprintCustom", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprintCustom), ctx, uAuthToken, svcAuthToken, dlServiceToken, req)
+}
+
 // GetDimensionOptions mocks base method.
 func (m *MockFilterClient) GetDimensionOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, filterID, name string, q *filter.QueryParams) (filter.DimensionOptions, string, error) {
 	m.ctrl.T.Helper()
