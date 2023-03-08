@@ -140,8 +140,9 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 		if isCustom {
 			fid, _, err = fc.CreateFlexibleBlueprintCustom(ctx, userAccessToken, "", "", filter.CreateFlexBlueprintCustomRequest{
 				Dataset:        fo.Dataset,
-				Dimensions:     fo.Dimensions,
+				Dimensions:     dims,
 				PopulationType: fo.PopulationType,
+				CollectionID:   collectionID,
 			})
 		} else {
 			fid, _, err = fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, fo.Dataset.DatasetID, fo.Dataset.Edition, strconv.Itoa(fo.Dataset.Version), dims, fo.PopulationType)
