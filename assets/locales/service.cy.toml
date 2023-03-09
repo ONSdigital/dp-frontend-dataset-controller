@@ -416,3 +416,7 @@ one = "Continue"
 [PopulationType]
 description = "Population type"
 one = "Population type"
+
+[PopulationTypeIntro]
+description = "Introductory sentence for selecting a population type"
+one = "Census 2021 collected information about people and their households in England and Wales on Census Day, 21 March 2021. We group data together based on who or what the information is about, for example, people or households. We make population types from these groups or subsets of them. For example, people who are usually resident in England or Wales make up the population type usual residents. <a href=\"/census/census2021dictionary/measurementsusedincensus2021data\">Read about the measurements we used for Census 2021 data.</a>"
