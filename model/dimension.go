@@ -13,6 +13,7 @@ type Dimension struct {
 	IsAreaType        bool     `json:"is_area_type"`
 	IsCoverage        bool     `json:"is_coverage"`
 	IsDefaultCoverage bool     `json:"is_default_coverage"`
+	IsPopulationType  bool     `json:"is_population_type"`
 	ShowChange        bool     `json:"show_change"`
 	IsTruncated       bool     `json:"is_truncated"`
 	TruncateLink      string   `json:"truncate_link"`

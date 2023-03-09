@@ -187,15 +187,24 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
 		initialVersionReleaseDate = initialVersion.ReleaseDate
 	}
-
 	if err != nil {
+		setStatusCode(ctx, w, err)
+		return
+	}
+
+	pops, err := pc.GetPopulationTypes(ctx, population.GetPopulationTypesInput{
+		AuthTokens: population.AuthTokens{
+			UserAuthToken: userAccessToken,
+		},
+	})
+	if err != nil {
+		log.Error(ctx, "failed to get population types", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
 
 	dims := dataset.VersionDimensions{Items: version.Dimensions}
 	categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, version.IsBasedOn.ID, version.Dimensions)
-	fmt.Println(categorisationsMap)
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetModel.ID, edition, fmt.Sprint(version.Version), dims, numOptsSummary)
 	if err != nil {
@@ -218,7 +227,7 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate, pops)
 	rend.BuildPage(w, m, "census-landing")
 }
 

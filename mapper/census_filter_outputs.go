@@ -26,14 +26,14 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult) datasetLandingPageCensus.Page {
+func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pops population.GetPopulationTypesResponse) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	p.Type += FilterOutput
 	p.SearchNoIndexEnabled = true
 
 	// DOWNLOADS
-	for ext, download := range filterOutput {
+	for ext, download := range filterOutput.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: strings.ToLower(ext),
 			Size:      download.Size,
@@ -42,9 +42,19 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 	}
 	p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
-	if len(filterOutput) >= 3 {
+	if len(filterOutput.Downloads) >= 3 {
 		p.DatasetLandingPage.HasDownloads = true
 		p.DatasetLandingPage.ShowXLSXInfo = true
+	}
+
+	pop := sharedModel.Dimension{
+		IsPopulationType: true,
+	}
+	for _, population := range pops.Items {
+		if population.Name == filterOutput.PopulationType {
+			pop.Title = population.Label
+			break
+		}
 	}
 
 	// DIMENSIONS
@@ -62,6 +72,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 	}
 	temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
 	p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop}, p.DatasetLandingPage.Dimensions...)
 
 	// COLLAPSIBLE CONTENT
 	p.Collapsible = coreModel.Collapsible{

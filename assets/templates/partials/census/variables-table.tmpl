@@ -25,6 +25,8 @@
                                             {{- localise "AreaTypeDescription" $language 1 -}}
                                         {{ else if $dim.IsCoverage }}
                                             {{- localise "AreaTypeCoverageTitle" $language 1 -}}
+                                        {{ else if $dim.IsPopulationType }}
+                                           {{- localise "PopulationType" $language 1 -}}
                                         {{ else }}
                                             {{ $dim.Title }}
                                         {{ end }}
@@ -32,7 +34,7 @@
                                 </dt>
                                 <dd class="ons-summary__values ons-u-pt-s ons-u-pb-s ons-u-pr-m ons-u-pl-no@xxs@m ons-u-order--3@xxs@m ons-u-fw@xxs@m
                                         ons-u-pt-no@xxs@m ons-u-pt-no@xxs@m ons-u-bb-no@xxs@m ons-u-d-b@xxs@m">
-                                    {{ if or ($dim.IsAreaType) ($dim.IsDefaultCoverage) }}
+                                    {{ if or ($dim.IsAreaType) ($dim.IsDefaultCoverage) ($dim.IsPopulationType) }}
                                         <div>
                                             {{ if $dim.IsDefaultCoverage }}
                                                 {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
