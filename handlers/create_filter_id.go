@@ -120,6 +120,7 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 
 		fo, err := fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
 		if err != nil {
+			log.Error(ctx, "unable to get filter output", err)
 			setStatusCode(ctx, w, err)
 			return
 		}
@@ -148,6 +149,7 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 			fid, _, err = fc.CreateFlexibleBlueprint(ctx, userAccessToken, "", "", collectionID, fo.Dataset.DatasetID, fo.Dataset.Edition, strconv.Itoa(fo.Dataset.Version), dims, fo.PopulationType)
 		}
 		if err != nil {
+			log.Error(ctx, "unable to create new filter", err)
 			setStatusCode(ctx, w, err)
 			return
 		}
