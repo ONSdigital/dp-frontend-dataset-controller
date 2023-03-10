@@ -47,7 +47,9 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 		filterDims := []sharedModel.FilterDimension{
 			getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2),
-			getTestFilterDimension("non-geog", false, []string{"option a", "option b"}, 2)}
+			getTestFilterDimension("ethnicity", false, []string{"option a", "option b"}, 2),
+			getTestFilterDimension("age", false, []string{"option a", "option b"}, 2),
+			getTestFilterDimension("sex", false, []string{"option a", "option b"}, 1)}
 		filterOutputs := filter.Model{
 			Downloads:      getTestFilterDownloads([]string{"xlsx"}),
 			PopulationType: "UR",
@@ -72,7 +74,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 				So(page.SearchNoIndexEnabled, ShouldBeTrue)
 			})
 
-			Convey("and dimensions map correctly", func() {
+			Convey("and dimensions map correctly to population, area-type and coverage", func() {
 				So(page.DatasetLandingPage.Dimensions[0].IsPopulationType, ShouldBeTrue)
 				So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
 				So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, filterDims[0].Label)
@@ -82,6 +84,12 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 				So(page.DatasetLandingPage.Dimensions[2].IsCoverage, ShouldBeTrue)
 				So(page.DatasetLandingPage.Dimensions[2].Values, ShouldResemble, filterDims[0].Options)
 				So(page.DatasetLandingPage.Dimensions[2].ShowChange, ShouldBeTrue)
+			})
+
+			Convey("and variable dimensions are sorted alphabetically", func() {
+				So(page.DatasetLandingPage.Dimensions[3].Title, ShouldEqual, "Label age")
+				So(page.DatasetLandingPage.Dimensions[4].Title, ShouldEqual, "Label ethnicity")
+				So(page.DatasetLandingPage.Dimensions[5].Title, ShouldEqual, "Label sex")
 			})
 
 			Convey("and collapsible items are ordered correctly", func() {
@@ -603,6 +611,49 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 		Convey("When the mapImproveResultsCollapsible function is called", func() {
 			Convey("Then the given dimensions returns the expected collapsible", func() {
 				So(mapImproveResultsCollapsible(&mockDims, "en"), ShouldResemble, mockCollapsible)
+			})
+		})
+	})
+
+	Convey("Given a dimensions list including non variable dimensions", t, func() {
+		mockDims := []sharedModel.Dimension{
+			{
+				Title:      "Area type",
+				IsAreaType: true,
+				IsCoverage: false,
+			},
+			{
+				Title:      "Bob",
+				IsAreaType: false,
+				IsCoverage: false,
+			},
+			{
+				Title:      "Coverage",
+				IsAreaType: false,
+				IsCoverage: true,
+			},
+			{
+				Title:      "Charlie",
+				IsAreaType: false,
+				IsCoverage: false,
+			},
+			{
+				Title:      "Alice",
+				IsAreaType: false,
+				IsCoverage: false,
+			},
+			{
+				Title:            "Usual Residents",
+				IsAreaType:       false,
+				IsCoverage:       false,
+				IsPopulationType: true,
+			},
+		}
+		Convey("When the buildImproveResultsText function is called", func() {
+			text := buildImproveResultsText(&mockDims)
+
+			Convey("Then the text includes only the variable dimensions in original order", func() {
+				So(text, ShouldEqual, "Bob, Charlie or Alice")
 			})
 		})
 	})

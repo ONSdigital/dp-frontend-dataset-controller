@@ -105,7 +105,11 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 // mapFilterOutputDims links dimension options to FilterDimensions and prepares them for display
 func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
 	sort.Slice(dims, func(i, j int) bool {
-		return *dims[i].IsAreaType
+		if *dims[i].IsAreaType {
+			return true
+		} else {
+			return dims[i].Label < dims[j].Label
+		}
 	})
 	dimensions := []sharedModel.Dimension{}
 	for _, dim := range dims {
@@ -211,13 +215,7 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 }
 
 func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) coreModel.Collapsible {
-	var dimsList []string
-	for _, dim := range *dims {
-		if !dim.IsAreaType && !dim.IsCoverage {
-			dimsList = append(dimsList, dim.Title)
-		}
-	}
-	stringList := buildDimsList(dimsList)
+	text := buildImproveResultsText(dims)
 
 	return coreModel.Collapsible{
 		Title: coreModel.Localisation{
@@ -228,11 +226,21 @@ func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) co
 			{
 				Subheading: helper.Localise("ImproveResultsSubHeading", lang, 1),
 				SafeHTML: coreModel.Localisation{
-					Text: helper.Localise("ImproveResultsList", lang, 1, stringList),
+					Text: helper.Localise("ImproveResultsList", lang, 1, text),
 				},
 			},
 		},
 	}
+}
+
+func buildImproveResultsText(dims *[]sharedModel.Dimension) string {
+	var dimsList []string
+	for _, dim := range *dims {
+		if !dim.IsAreaType && !dim.IsCoverage && !dim.IsPopulationType {
+			dimsList = append(dimsList, dim.Title)
+		}
+	}
+	return buildDimsList(dimsList)
 }
 
 func buildDimsList(dimsList []string) (ListStr string) {
