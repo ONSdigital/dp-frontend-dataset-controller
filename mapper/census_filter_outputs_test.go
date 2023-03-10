@@ -179,6 +179,61 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 	})
 }
 
+func TestCustomHeadingOnFilterOutputs(t *testing.T) {
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := coreModel.Page{}
+	contacts := getTestContacts()
+	relatedContent := getTestRelatedContent()
+	datasetModel := getTestDatasetDetails(contacts, relatedContent)
+	datasetModel.Type = "multivariate"
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
+
+	Convey("given a request for a filter outputs census landing page", t, func() {
+		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
+		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2), getTestFilterDimension("first", false, []string{}, 2), getTestFilterDimension("second", false, []string{}, 2)}
+		filterOutputs := filter.Model{
+			Downloads: getTestFilterDownloads([]string{"xlsx"}),
+		}
+
+		Convey("when the filter is a customised multivariate", func() {
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+
+			Convey("then isCustom bool is set", func() {
+				So(page.DatasetLandingPage.IsCustom, ShouldBeTrue)
+			})
+			Convey("then the title is customised", func() {
+				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
+			})
+		})
+
+		Convey("when the filter is multivariate and has not been customised", func() {
+			filterDims = []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{}, 0), getTestFilterDimension("2", false, []string{}, 0), getTestFilterDimension("3", false, []string{}, 0)}
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+
+			Convey("then isCustom bool is set", func() {
+				So(page.DatasetLandingPage.IsCustom, ShouldBeFalse)
+			})
+			Convey("then the title is not customised", func() {
+				So(page.Metadata.Title, ShouldEqual, datasetModel.Title)
+			})
+		})
+
+		Convey("when the filter is a custom", func() {
+			filterOutputs.Custom = helpers.ToBoolPtr(true)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+
+			Convey("then isCustom bool is set", func() {
+				So(page.DatasetLandingPage.IsCustom, ShouldBeTrue)
+			})
+			Convey("then the title is customised", func() {
+				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
+			})
+		})
+	})
+}
+
 func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
@@ -611,6 +666,7 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 func TestBuildDimsList(t *testing.T) {
 	tc := []struct {
 		given    []string
+		useAnd   bool
 		expected string
 	}{
 		{
@@ -634,6 +690,14 @@ func TestBuildDimsList(t *testing.T) {
 			given: []string{
 				"a human name",
 				"another human name",
+			},
+			useAnd:   true,
+			expected: "a human name and another human name",
+		},
+		{
+			given: []string{
+				"a human name",
+				"another human name",
 				"this human name",
 			},
 			expected: "a human name, another human name or this human name",
@@ -647,13 +711,23 @@ func TestBuildDimsList(t *testing.T) {
 			},
 			expected: "a human name, another human name, this human name or human name",
 		},
+		{
+			given: []string{
+				"a human name",
+				"another human name",
+				"this human name",
+				"human name",
+			},
+			useAnd:   true,
+			expected: "a human name, another human name, this human name and human name",
+		},
 	}
 
 	Convey("Given a list", t, func() {
 		Convey("When the buildDimsList function is called", func() {
 			for i, test := range tc {
 				Convey(fmt.Sprintf("Then the given list (test index %d) returns %s", i, test.expected), func() {
-					So(buildDimsList(test.given), ShouldEqual, test.expected)
+					So(buildConjoinedList(test.given, test.useAnd), ShouldEqual, test.expected)
 				})
 			}
 		})

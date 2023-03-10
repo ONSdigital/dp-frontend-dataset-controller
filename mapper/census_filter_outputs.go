@@ -59,20 +59,33 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 
 	// DIMENSIONS
 	p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, p.DatasetLandingPage.IsMultivariate)
-	coverage := []sharedModel.Dimension{
-		{
-			IsCoverage:        true,
-			IsDefaultCoverage: hasNoAreaOptions,
-			Title:             Coverage,
-			Name:              strings.ToLower(Coverage),
-			ID:                strings.ToLower(Coverage),
-			Values:            fDims[0].Options,
-			ShowChange:        true,
-		},
+	coverage := sharedModel.Dimension{
+		IsCoverage:        true,
+		IsDefaultCoverage: hasNoAreaOptions,
+		Title:             Coverage,
+		Name:              strings.ToLower(Coverage),
+		ID:                strings.ToLower(Coverage),
+		Values:            fDims[0].Options,
+		ShowChange:        true,
 	}
-	temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-	p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
-	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop}, p.DatasetLandingPage.Dimensions...)
+	area := p.DatasetLandingPage.Dimensions[0]
+	displayedDims := p.DatasetLandingPage.Dimensions[1:]
+	sort.Slice(displayedDims, func(i, j int) bool {
+		return displayedDims[i].Title < displayedDims[j].Title
+	})
+	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, displayedDims...)
+
+	// CUSTOM TITLE
+	if helpers.IsBoolPtr(filterOutput.Custom) || p.DatasetLandingPage.IsMultivariate {
+		nonGeoDims := getNonGeographyDims(&p.DatasetLandingPage.Dimensions)
+		title := buildConjoinedList(nonGeoDims, true)
+		vDims := getNonGeographyVersionDims(&version.Dimensions)
+		vTitle := buildConjoinedList(vDims, true)
+		if vTitle != title {
+			p.Metadata.Title = strings.ToUpper(title[:1]) + strings.ToLower(title[1:])
+			p.DatasetLandingPage.IsCustom = true
+		}
+	}
 
 	// COLLAPSIBLE CONTENT
 	p.Collapsible = coreModel.Collapsible{
@@ -211,13 +224,8 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 }
 
 func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) coreModel.Collapsible {
-	var dimsList []string
-	for _, dim := range *dims {
-		if !dim.IsAreaType && !dim.IsCoverage {
-			dimsList = append(dimsList, dim.Title)
-		}
-	}
-	stringList := buildDimsList(dimsList)
+	dimsList := getNonGeographyDims(dims)
+	stringList := buildConjoinedList(dimsList, false)
 
 	return coreModel.Collapsible{
 		Title: coreModel.Localisation{
@@ -235,17 +243,43 @@ func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) co
 	}
 }
 
-func buildDimsList(dimsList []string) (ListStr string) {
+// getNonGeographyDims returns all dimensions that are non-geography (not area type, coverage or population type)
+func getNonGeographyDims(dims *[]sharedModel.Dimension) (dimsList []string) {
+	for _, dim := range *dims {
+		if !dim.IsAreaType && !dim.IsCoverage && !dim.IsPopulationType {
+			dimsList = append(dimsList, dim.Title)
+		}
+	}
+	return dimsList
+}
+
+// getNonGeographyVersionDims returns all version dimensions that is not an area type
+func getNonGeographyVersionDims(dims *[]dataset.VersionDimension) (dimsList []string) {
+	for _, dim := range *dims {
+		if !helpers.IsBoolPtr(dim.IsAreaType) {
+			dimsList = append(dimsList, cleanDimensionLabel(dim.Label))
+		}
+	}
+	sort.Strings(dimsList)
+	return dimsList
+}
+
+// buildConjoinedList returns a single string from an array that is conjoined with a comma, 'or', 'and'
+func buildConjoinedList(dimsList []string, useAnd bool) (str string) {
 	var penultimateItem = len(dimsList) - 2
 	for i, item := range dimsList {
 		switch {
 		case i < penultimateItem:
-			ListStr += fmt.Sprintf("%s, ", item)
+			str += fmt.Sprintf("%s, ", item)
 		case i == penultimateItem:
-			ListStr += fmt.Sprintf("%s or ", item)
+			if useAnd {
+				str += fmt.Sprintf("%s and ", item)
+			} else {
+				str += fmt.Sprintf("%s or ", item)
+			}
 		default:
-			ListStr += item
+			str += item
 		}
 	}
-	return ListStr
+	return str
 }
