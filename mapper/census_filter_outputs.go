@@ -81,7 +81,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 		title := buildConjoinedList(nonGeoDims, true)
 		vDims := getNonGeographyVersionDims(&version.Dimensions)
 		vTitle := buildConjoinedList(vDims, true)
-		if vTitle != title {
+		if vTitle != title || helpers.IsBoolPtr(filterOutput.Custom) {
 			p.Metadata.Title = strings.ToUpper(title[:1]) + strings.ToLower(title[1:])
 			p.DatasetLandingPage.IsCustom = true
 		}
