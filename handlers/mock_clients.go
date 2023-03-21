@@ -9,6 +9,7 @@ import (
 	io "io"
 	reflect "reflect"
 
+	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
 	filter "github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -56,6 +57,21 @@ func (mr *MockFilterClientMockRecorder) CreateBlueprint(ctx, userAuthToken, serv
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, names)
 }
 
+// CreateCustomFilter mocks base method.
+func (m *MockFilterClient) CreateCustomFilter(ctx context.Context, userAuthToken, serviceAuthToken, populationType string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCustomFilter", ctx, userAuthToken, serviceAuthToken, populationType)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCustomFilter indicates an expected call of CreateCustomFilter.
+func (mr *MockFilterClientMockRecorder) CreateCustomFilter(ctx, userAuthToken, serviceAuthToken, populationType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomFilter", reflect.TypeOf((*MockFilterClient)(nil).CreateCustomFilter), ctx, userAuthToken, serviceAuthToken, populationType)
+}
+
 // CreateFlexibleBlueprint mocks base method.
 func (m *MockFilterClient) CreateFlexibleBlueprint(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version string, dimensions []filter.ModelDimension, population_type string) (string, string, error) {
 	m.ctrl.T.Helper()
@@ -70,6 +86,22 @@ func (m *MockFilterClient) CreateFlexibleBlueprint(ctx context.Context, userAuth
 func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, dimensions, population_type interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprint", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprint), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, datasetID, edition, version, dimensions, population_type)
+}
+
+// CreateFlexibleBlueprintCustom mocks base method.
+func (m *MockFilterClient) CreateFlexibleBlueprintCustom(ctx context.Context, uAuthToken, svcAuthToken, dlServiceToken string, req filter.CreateFlexBlueprintCustomRequest) (string, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFlexibleBlueprintCustom", ctx, uAuthToken, svcAuthToken, dlServiceToken, req)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// CreateFlexibleBlueprintCustom indicates an expected call of CreateFlexibleBlueprintCustom.
+func (mr *MockFilterClientMockRecorder) CreateFlexibleBlueprintCustom(ctx, uAuthToken, svcAuthToken, dlServiceToken, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlexibleBlueprintCustom", reflect.TypeOf((*MockFilterClient)(nil).CreateFlexibleBlueprintCustom), ctx, uAuthToken, svcAuthToken, dlServiceToken, req)
 }
 
 // GetDimensionOptions mocks base method.
@@ -402,10 +434,10 @@ func (mr *MockPopulationClientMockRecorder) GetAreas(ctx, input interface{}) *go
 }
 
 // GetBlockedAreaCount mocks base method.
-func (m *MockPopulationClient) GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*population.GetBlockedAreaCountResult, error) {
+func (m *MockPopulationClient) GetBlockedAreaCount(ctx context.Context, input population.GetBlockedAreaCountInput) (*cantabular.GetBlockedAreaCountResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBlockedAreaCount", ctx, input)
-	ret0, _ := ret[0].(*population.GetBlockedAreaCountResult)
+	ret0, _ := ret[0].(*cantabular.GetBlockedAreaCountResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -474,6 +506,36 @@ func (m *MockPopulationClient) GetParentAreaCount(ctx context.Context, input pop
 func (mr *MockPopulationClientMockRecorder) GetParentAreaCount(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParentAreaCount", reflect.TypeOf((*MockPopulationClient)(nil).GetParentAreaCount), ctx, input)
+}
+
+// GetPopulationTypeMetadata mocks base method.
+func (m *MockPopulationClient) GetPopulationTypeMetadata(ctx context.Context, input population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopulationTypeMetadata", ctx, input)
+	ret0, _ := ret[0].(population.GetPopulationTypeMetadataResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopulationTypeMetadata indicates an expected call of GetPopulationTypeMetadata.
+func (mr *MockPopulationClientMockRecorder) GetPopulationTypeMetadata(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypeMetadata", reflect.TypeOf((*MockPopulationClient)(nil).GetPopulationTypeMetadata), ctx, input)
+}
+
+// GetPopulationTypes mocks base method.
+func (m *MockPopulationClient) GetPopulationTypes(ctx context.Context, input population.GetPopulationTypesInput) (population.GetPopulationTypesResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopulationTypes", ctx, input)
+	ret0, _ := ret[0].(population.GetPopulationTypesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopulationTypes indicates an expected call of GetPopulationTypes.
+func (mr *MockPopulationClientMockRecorder) GetPopulationTypes(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypes", reflect.TypeOf((*MockPopulationClient)(nil).GetPopulationTypes), ctx, input)
 }
 
 // MockClientError is a mock of ClientError interface.

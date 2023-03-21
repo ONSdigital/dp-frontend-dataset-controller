@@ -28,6 +28,7 @@ type DatasetLandingPage struct {
 	Dimensions          []sharedModel.Dimension `json:"dimensions"`
 	ShareDetails        ShareDetails
 	Description         []string             `json:"description"`
+	IsCustom            bool                 `json:"is_custom"`
 	IsFlexibleForm      bool                 `json:"is_flexible_form"`
 	DatasetURL          string               `json:"dataset_url"`
 	Panels              []Panel              `json:"panels"`

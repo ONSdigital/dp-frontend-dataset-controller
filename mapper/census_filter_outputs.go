@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -25,14 +26,14 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput map[string]filter.Download, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc population.GetBlockedAreaCountResult) datasetLandingPageCensus.Page {
+func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pops population.GetPopulationTypesResponse) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	p.Type += FilterOutput
 	p.SearchNoIndexEnabled = true
 
 	// DOWNLOADS
-	for ext, download := range filterOutput {
+	for ext, download := range filterOutput.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: strings.ToLower(ext),
 			Size:      download.Size,
@@ -41,26 +42,50 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 	}
 	p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
-	if len(filterOutput) >= 3 {
+	if len(filterOutput.Downloads) >= 3 {
 		p.DatasetLandingPage.HasDownloads = true
 		p.DatasetLandingPage.ShowXLSXInfo = true
 	}
 
+	pop := sharedModel.Dimension{
+		IsPopulationType: true,
+	}
+	for _, population := range pops.Items {
+		if population.Name == filterOutput.PopulationType {
+			pop.Title = population.Label
+			break
+		}
+	}
+
 	// DIMENSIONS
 	p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, p.DatasetLandingPage.IsMultivariate)
-	coverage := []sharedModel.Dimension{
-		{
-			IsCoverage:        true,
-			IsDefaultCoverage: hasNoAreaOptions,
-			Title:             Coverage,
-			Name:              strings.ToLower(Coverage),
-			ID:                strings.ToLower(Coverage),
-			Values:            fDims[0].Options,
-			ShowChange:        true,
-		},
+	coverage := sharedModel.Dimension{
+		IsCoverage:        true,
+		IsDefaultCoverage: hasNoAreaOptions,
+		Title:             Coverage,
+		Name:              strings.ToLower(Coverage),
+		ID:                strings.ToLower(Coverage),
+		Values:            fDims[0].Options,
+		ShowChange:        true,
 	}
-	temp := append(coverage, p.DatasetLandingPage.Dimensions[1:]...)
-	p.DatasetLandingPage.Dimensions = append(p.DatasetLandingPage.Dimensions[:1], temp...)
+	area := p.DatasetLandingPage.Dimensions[0]
+	displayedDims := p.DatasetLandingPage.Dimensions[1:]
+	sort.Slice(displayedDims, func(i, j int) bool {
+		return displayedDims[i].Title < displayedDims[j].Title
+	})
+	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, displayedDims...)
+
+	// CUSTOM TITLE
+	if helpers.IsBoolPtr(filterOutput.Custom) || p.DatasetLandingPage.IsMultivariate {
+		nonGeoDims := getNonGeographyDims(&p.DatasetLandingPage.Dimensions)
+		title := buildConjoinedList(nonGeoDims, true)
+		vDims := getNonGeographyVersionDims(&version.Dimensions)
+		vTitle := buildConjoinedList(vDims, true)
+		if vTitle != title || helpers.IsBoolPtr(filterOutput.Custom) {
+			p.Metadata.Title = strings.ToUpper(title[:1]) + strings.ToLower(title[1:])
+			p.DatasetLandingPage.IsCustom = true
+		}
+	}
 
 	// COLLAPSIBLE CONTENT
 	p.Collapsible = coreModel.Collapsible{
@@ -167,7 +192,7 @@ func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultC
 }
 
 // mapBlockedAreasPanel is a helper function that maps the blocked areas panel by panel type
-func mapBlockedAreasPanel(sdc *population.GetBlockedAreaCountResult, panelType datasetLandingPageCensus.PanelType, lang string) (p []datasetLandingPageCensus.Panel) {
+func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType datasetLandingPageCensus.PanelType, lang string) (p []datasetLandingPageCensus.Panel) {
 	switch panelType {
 	case datasetLandingPageCensus.Pending:
 		p = []datasetLandingPageCensus.Panel{
@@ -199,13 +224,8 @@ func mapBlockedAreasPanel(sdc *population.GetBlockedAreaCountResult, panelType d
 }
 
 func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) coreModel.Collapsible {
-	var dimsList []string
-	for _, dim := range *dims {
-		if !dim.IsAreaType && !dim.IsCoverage {
-			dimsList = append(dimsList, dim.Title)
-		}
-	}
-	stringList := buildDimsList(dimsList)
+	dimsList := getNonGeographyDims(dims)
+	stringList := buildConjoinedList(dimsList, false)
 
 	return coreModel.Collapsible{
 		Title: coreModel.Localisation{
@@ -223,17 +243,43 @@ func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) co
 	}
 }
 
-func buildDimsList(dimsList []string) (ListStr string) {
+// getNonGeographyDims returns all dimensions that are non-geography (not area type, coverage or population type)
+func getNonGeographyDims(dims *[]sharedModel.Dimension) (dimsList []string) {
+	for _, dim := range *dims {
+		if !dim.IsAreaType && !dim.IsCoverage && !dim.IsPopulationType {
+			dimsList = append(dimsList, dim.Title)
+		}
+	}
+	return dimsList
+}
+
+// getNonGeographyVersionDims returns all version dimensions that is not an area type
+func getNonGeographyVersionDims(dims *[]dataset.VersionDimension) (dimsList []string) {
+	for _, dim := range *dims {
+		if !helpers.IsBoolPtr(dim.IsAreaType) {
+			dimsList = append(dimsList, cleanDimensionLabel(dim.Label))
+		}
+	}
+	sort.Strings(dimsList)
+	return dimsList
+}
+
+// buildConjoinedList returns a single string from an array that is conjoined with a comma, 'or', 'and'
+func buildConjoinedList(dimsList []string, useAnd bool) (str string) {
 	var penultimateItem = len(dimsList) - 2
 	for i, item := range dimsList {
 		switch {
 		case i < penultimateItem:
-			ListStr += fmt.Sprintf("%s, ", item)
+			str += fmt.Sprintf("%s, ", item)
 		case i == penultimateItem:
-			ListStr += fmt.Sprintf("%s or ", item)
+			if useAnd {
+				str += fmt.Sprintf("%s and ", item)
+			} else {
+				str += fmt.Sprintf("%s or ", item)
+			}
 		default:
-			ListStr += item
+			str += item
 		}
 	}
-	return ListStr
+	return str
 }

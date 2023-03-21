@@ -392,3 +392,31 @@ other = "<br><a href=\"/peoplepopulationandcommunity/populationandmigration/popu
 description = "All {{.total}} areas available"
 one = "<strong>{{.arg0}} area available</strong>"
 other = "<strong>All {{.arg0}} areas available</strong>"
+
+[CreateCustomDatasetTitle]
+description = "Create a custom dataset"
+one = "Create a custom dataset"
+
+[CreateCustomDatasetLegend]
+description = "Select population type"
+one = "Select population type"
+
+[CreateCustomDatasetErrorTitle]
+description = "Error"
+one = "Error"
+
+[CreateCustomDatasetErrorText]
+description = "Select population type"
+one = "Select population type"
+
+[Continue]
+description = "Continue"
+one = "Continue"
+
+[PopulationType]
+description = "Population type"
+one = "Population type"
+
+[PopulationTypeIntro]
+description = "Introductory sentence for selecting a population type"
+one = "We group Census 2021 data together based on who or what the information is about, for example, people or households. We make population types from these groups or subsets of them. For example, people who are usually resident in England or Wales make up the population type usual residents. <a href=\"/census/census2021dictionary/measurementsusedincensus2021data\">Read about the measurements we used for Census 2021 data.</a>"

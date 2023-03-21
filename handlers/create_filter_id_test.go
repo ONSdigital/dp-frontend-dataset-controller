@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
@@ -246,6 +247,58 @@ func TestCreateFilterID(t *testing.T) {
 			So(location, ShouldNotBeEmpty)
 
 			So(location, ShouldEqual, "/filters/12345/dimensions/geography")
+		})
+
+		Convey("test CreateFilterFlexIDFromOutput handler, creates a custom filter id and redirect for create custom dataset", func() {
+			mockFo := filter.Model{
+				Dataset: filter.Dataset{
+					DatasetID: "1234",
+					Edition:   "2021",
+					Version:   1,
+				},
+				PopulationType: "Example",
+				Dimensions: []filter.ModelDimension{
+					{
+						Name:       "geography",
+						IsAreaType: toBoolPtr(true),
+						Options: []string{
+							"option 1", "option 2",
+						},
+						FilterByParent: "country",
+					},
+					{
+						Name:           "another dim",
+						IsAreaType:     new(bool),
+						Options:        []string{},
+						FilterByParent: "",
+					},
+				},
+				Custom: helpers.ToBoolPtr(true),
+			}
+
+			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc.
+				EXPECT().
+				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(mockFo, nil)
+			// Expect CreateFlexibleBlueprintCustom to be called
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprintCustom(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return("12345", "testETag", nil)
+			// .. instead of CreateFlexibleBlueprint
+			mockFc.
+				EXPECT().
+				CreateFlexibleBlueprint(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), mockFo.Dataset.DatasetID, mockFo.Dataset.Edition, "1", mockFo.Dimensions, mockFo.PopulationType).
+				Return("12345", "testETag", nil).MaxTimes(0)
+
+			body := strings.NewReader("dimension=change")
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockDatasetClient(mockCtrl), FilterFlexOutput)
+
+			location := w.Header().Get("Location")
+			So(location, ShouldNotBeEmpty)
+
+			So(location, ShouldEqual, "/filters/12345/dimensions/change")
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect for coverage appends to geography", func() {

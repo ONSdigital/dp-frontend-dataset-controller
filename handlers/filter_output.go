@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sort"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -39,22 +41,43 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var ver dataset.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
-	var sdc *population.GetBlockedAreaCountResult
+	var sdc *cantabular.GetBlockedAreaCountResult
 	var areaTypeID, parent string
 	var dimCategories population.GetDimensionCategoriesResponse
+	var pops population.GetPopulationTypesResponse
 	var dimIds, areaOpts []string
-	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr error
+	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr, pErr error
+	var wg sync.WaitGroup
 
 	vars := mux.Vars(req)
+	ctx := req.Context()
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	filterOutputID := vars["filterOutputID"]
-	ctx := req.Context()
 
-	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
+		for _, dim := range filterOutput.Dimensions {
+			dimIds = append(dimIds, dim.ID)
+		}
+	}()
+
+	// If url doesn't include datasetID, edition and version wait and retrieve from the filter object
+	if datasetID == "" {
+		wg.Wait()
+		if logError(ctx, w, fErr, "failed to get filter output", log.Data{"filterOutputID": filterOutputID}) {
+			return
+		}
+
+		datasetID = filterOutput.Dataset.DatasetID
+		edition = filterOutput.Dataset.Edition
+		version = strconv.Itoa(filterOutput.Dataset.Version)
+	}
+
 	wg.Add(4)
-
 	go func() {
 		defer wg.Done()
 		datasetModel, dmErr = dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
@@ -77,39 +100,30 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	go func() {
 		defer wg.Done()
-		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
-		for _, dim := range filterOutput.Dimensions {
-			dimIds = append(dimIds, dim.ID)
-		}
+		pops, pErr = pc.GetPopulationTypes(ctx, population.GetPopulationTypesInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+		})
 	}()
 
 	wg.Wait()
 
-	if dmErr != nil {
-		log.Error(ctx, "failed to get dataset", dmErr, log.Data{"dataset": datasetID})
-		setStatusCode(ctx, w, dmErr)
+	if logError(ctx, w, dmErr, "failed to get dataset", log.Data{"dataset": datasetID}) {
 		return
 	}
-	if versErr != nil {
-		log.Error(ctx, "failed to get dataset versions", versErr, log.Data{
-			"dataset": datasetID,
-			"edition": edition,
-		})
-		setStatusCode(ctx, w, versErr)
+	if logError(ctx, w, versErr, "failed to get dataset versions", log.Data{"dataset": datasetID, "edition": edition}) {
 		return
 	}
-	if verErr != nil {
-		log.Error(ctx, "failed to get dataset version", verErr, log.Data{
-			"dataset": datasetID,
-			"edition": edition,
-			"version": version,
-		})
-		setStatusCode(ctx, w, verErr)
+	if logError(ctx, w, verErr, "failed to get dataset version", log.Data{"dataset": datasetID, "edition": edition, "version": version}) {
 		return
 	}
-	if fErr != nil {
-		log.Error(ctx, "failed to get filter output", fErr, log.Data{"filter_output_id": filterOutputID})
-		setStatusCode(ctx, w, fErr)
+	if logError(ctx, w, fErr, "failed to get filter output", log.Data{"filterOutputID": filterOutputID}) {
+		return
+	}
+	if pErr != nil {
+		log.Error(ctx, "failed to get population types", pErr, log.Data{"filter_output_id": filterOutputID})
+		setStatusCode(ctx, w, pErr)
 		return
 	}
 
@@ -401,7 +415,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return
 		}
 	} else {
-		sdc = &population.GetBlockedAreaCountResult{}
+		sdc = &cantabular.GetBlockedAreaCountResult{}
 	}
 
 	if filterOutput.Downloads == nil {
@@ -428,6 +442,15 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput.Downloads, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc)
+	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pops)
 	rend.BuildPage(w, m, "census-landing")
+}
+
+func logError(ctx context.Context, w http.ResponseWriter, err error, msg string, data log.Data) bool {
+	if err != nil {
+		log.Error(ctx, msg, err, data)
+		setStatusCode(ctx, w, err)
+		return true
+	}
+	return false
 }
