@@ -219,8 +219,8 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 				DisplayIcon: false,
 				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
-					helper.Localise("SDCAreasAvailable", lang, 1, strconv.Itoa(sdc.Passed), strconv.Itoa(sdc.Total)),
-					helper.Localise("SDCRestrictedAreas", lang, sdc.Blocked, strconv.Itoa(sdc.Blocked)),
+					helper.Localise("SDCAreasAvailable", lang, 1, helper.ThousandsSeparator(sdc.Passed), helper.ThousandsSeparator(sdc.Total)),
+					helper.Localise("SDCRestrictedAreas", lang, sdc.Blocked, helper.ThousandsSeparator(sdc.Blocked)),
 				},
 				Language: lang,
 			},
@@ -232,7 +232,7 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 				DisplayIcon: false,
 				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
-					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, strconv.Itoa(sdc.Total)),
+					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, helper.ThousandsSeparator(sdc.Total)),
 				},
 				Language: lang,
 			},
