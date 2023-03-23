@@ -4,7 +4,7 @@
         {{ if .Page.Error.Title }}
             {{ template "partials/error-summary" .Page.Error }}
         {{ end }}
-        <section class="ons-u-mb-xl">
+        <section class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{ end }}">
             {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
             <div class="ons-grid">
                 <div class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{ end }}">

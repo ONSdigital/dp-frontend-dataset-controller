@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -200,9 +201,6 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 		Convey("when the filter is a customised multivariate", func() {
 			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
 
-			Convey("then isCustom bool is set", func() {
-				So(page.DatasetLandingPage.IsCustom, ShouldBeTrue)
-			})
 			Convey("then the title is customised", func() {
 				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
 			})
@@ -229,6 +227,57 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 			})
 			Convey("then the title is customised", func() {
 				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
+			})
+		})
+	})
+}
+
+func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := coreModel.Page{}
+	contacts := getTestContacts()
+	relatedContent := getTestRelatedContent()
+	datasetModel := getTestDatasetDetails(contacts, relatedContent)
+	datasetModel.Type = "multivariate"
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
+
+	Convey("given a request for a filter outputs census landing page", t, func() {
+		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
+		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2), getTestFilterDimension("first", false, []string{}, 2), getTestFilterDimension("second", false, []string{}, 2)}
+		filterOutputs := filter.Model{
+			Downloads: getTestFilterDownloads([]string{"xlsx"}),
+			Custom:    helpers.ToBoolPtr(true),
+		}
+
+		Convey("when the filter is custom", func() {
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+
+			Convey("then the title is customised", func() {
+				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
+			})
+			Convey("then the summary is set", func() {
+				So(page.DatasetLandingPage.Description, ShouldResemble, []string{"This is a custom dataset"})
+			})
+			Convey("then the dataset id is blank", func() {
+				So(page.DatasetId, ShouldBeBlank)
+			})
+			Convey("then the release date is blank", func() {
+				So(page.ReleaseDate, ShouldBeBlank)
+			})
+			Convey("then the contact details are set", func() {
+				So(page.ContactDetails, ShouldResemble, contactDetails.ContactDetails{
+					Email:     "census.customerservices@ons.gov.uk",
+					Telephone: "+44 1329 444972",
+				})
+				So(page.HasContactDetails, ShouldBeTrue)
+			})
+			Convey("then the census branding is displayed", func() {
+				So(page.ShowCensusBranding, ShouldBeTrue)
+			})
+			Convey("then the national statistic is displayed", func() {
+				So(page.IsNationalStatistic, ShouldBeTrue)
 			})
 		})
 	})

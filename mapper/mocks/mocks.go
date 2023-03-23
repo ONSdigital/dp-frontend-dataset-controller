@@ -25,6 +25,8 @@ var cyLocale = []string{
 	"other = \"All 10 areas available\"",
 	"[CreateCustomDatasetTitle]",
 	"one = \"Create a custom dataset\"",
+	"[CustomDatasetSummary]",
+	"one = \"This is a custom dataset\"",
 }
 
 var enLocale = []string{
@@ -50,6 +52,8 @@ var enLocale = []string{
 	"other = \"All 10 areas available\"",
 	"[CreateCustomDatasetTitle]",
 	"one = \"Create a custom dataset\"",
+	"[CustomDatasetSummary]",
+	"one = \"This is a custom dataset\"",
 }
 
 // MockAssetFunction returns mocked toml []bytes

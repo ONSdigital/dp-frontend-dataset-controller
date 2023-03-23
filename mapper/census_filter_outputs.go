@@ -16,6 +16,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	"github.com/ONSdigital/dp-renderer/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
@@ -31,6 +32,21 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 
 	p.Type += FilterOutput
 	p.SearchNoIndexEnabled = true
+
+	// CUSTOM PAGE METADATA OVERRIDES
+	if helpers.IsBoolPtr(filterOutput.Custom) {
+		p.ReleaseDate = ""
+		p.DatasetId = ""
+		p.IsNationalStatistic = true
+		p.ShowCensusBranding = true
+		p.DatasetLandingPage.IsCustom = true
+		p.HasContactDetails = true
+		p.ContactDetails = contactDetails.ContactDetails{
+			Email:     "census.customerservices@ons.gov.uk",
+			Telephone: "+44 1329 444972",
+		}
+		p.TableOfContents = buildTableOfContents(p, dataset.DatasetDetails{}, false)
+	}
 
 	// DOWNLOADS
 	for ext, download := range filterOutput.Downloads {
@@ -78,12 +94,14 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 	// CUSTOM TITLE
 	if helpers.IsBoolPtr(filterOutput.Custom) || p.DatasetLandingPage.IsMultivariate {
 		nonGeoDims := getNonGeographyDims(&p.DatasetLandingPage.Dimensions)
-		title := buildConjoinedList(nonGeoDims, true)
+		dimensionStr := buildConjoinedList(nonGeoDims, true)
 		vDims := getNonGeographyVersionDims(&version.Dimensions)
 		vTitle := buildConjoinedList(vDims, true)
-		if vTitle != title || helpers.IsBoolPtr(filterOutput.Custom) {
-			p.Metadata.Title = strings.ToUpper(title[:1]) + strings.ToLower(title[1:])
-			p.DatasetLandingPage.IsCustom = true
+		if vTitle != dimensionStr || helpers.IsBoolPtr(filterOutput.Custom) {
+			p.Metadata.Title = strings.ToUpper(dimensionStr[:1]) + strings.ToLower(dimensionStr[1:])
+			p.DatasetLandingPage.Description = []string{
+				helper.Localise("CustomDatasetSummary", lang, 1, strings.ToLower(pop.Title), strings.ToLower(dimensionStr)),
+			}
 		}
 	}
 
@@ -201,8 +219,8 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 				DisplayIcon: false,
 				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
-					helper.Localise("SDCAreasAvailable", lang, 1, strconv.Itoa(sdc.Passed), strconv.Itoa(sdc.Total)),
-					helper.Localise("SDCRestrictedAreas", lang, sdc.Blocked, strconv.Itoa(sdc.Blocked)),
+					helper.Localise("SDCAreasAvailable", lang, 1, helper.ThousandsSeparator(sdc.Passed), helper.ThousandsSeparator(sdc.Total)),
+					helper.Localise("SDCRestrictedAreas", lang, sdc.Blocked, helper.ThousandsSeparator(sdc.Blocked)),
 				},
 				Language: lang,
 			},
@@ -214,7 +232,7 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 				DisplayIcon: false,
 				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
-					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, strconv.Itoa(sdc.Total)),
+					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, helper.ThousandsSeparator(sdc.Total)),
 				},
 				Language: lang,
 			},
