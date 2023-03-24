@@ -22,7 +22,12 @@ func filterOutputDownloads(w http.ResponseWriter, req *http.Request, zc ZebedeeC
 	ctx := req.Context()
 	filterOutputID := vars["filterOutputID"]
 
-	filterOutput, _ := fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
+	filterOutput, fErr := fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
+	if fErr != nil {
+		log.Error(ctx, "failed to get filter-output", fErr, log.Data{"filter-output": filterOutputID})
+		setStatusCode(ctx, w, fErr)
+		return
+	}
 
 	downloads := filterOutput.Downloads
 	fileTypes := make([]string, 0, len(downloads))
