@@ -158,6 +158,7 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, dc))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, dc, rend, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}/downloads").Methods("GET").HandlerFunc(handlers.FilterOutputDownloads(zc, f, pc, dc, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexIDFromOutput(f))
 
 	router.Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
