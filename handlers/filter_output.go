@@ -45,7 +45,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var areaTypeID, parent string
 	var dimCategories population.GetDimensionCategoriesResponse
 	var pops population.GetPopulationTypesResponse
-	var dimIds, areaOpts []string
+	var dimIds, nonAreaDimIds, areaOpts []string
 	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr, pErr error
 	var wg sync.WaitGroup
 	var isSpinner = req.URL.Query().Get("spinner") == "true"
@@ -63,6 +63,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
 		for _, dim := range filterOutput.Dimensions {
 			dimIds = append(dimIds, dim.ID)
+			if !helpers.IsBoolPtr(dim.IsAreaType) {
+				nonAreaDimIds = append(nonAreaDimIds, dim.ID)
+			}
 		}
 	}()
 
@@ -159,7 +162,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 				Offset: 0,
 			},
 			PopulationType: filterOutput.PopulationType,
-			Dimensions:     dimIds,
+			Dimensions:     nonAreaDimIds,
 		})
 	}()
 
