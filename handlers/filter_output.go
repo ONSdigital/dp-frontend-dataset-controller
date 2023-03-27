@@ -153,17 +153,21 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	go func() {
 		defer wg.Done()
-		dimCategories, dcErr = pc.GetDimensionCategories(ctx, population.GetDimensionCategoryInput{
-			AuthTokens: population.AuthTokens{
-				UserAuthToken: userAccessToken,
-			},
-			PaginationParams: population.PaginationParams{
-				Limit:  1000,
-				Offset: 0,
-			},
-			PopulationType: filterOutput.PopulationType,
-			Dimensions:     nonAreaDimIds,
-		})
+		if len(nonAreaDimIds) > 0 {
+			dimCategories, dcErr = pc.GetDimensionCategories(ctx, population.GetDimensionCategoryInput{
+				AuthTokens: population.AuthTokens{
+					UserAuthToken: userAccessToken,
+				},
+				PaginationParams: population.PaginationParams{
+					Limit:  1000,
+					Offset: 0,
+				},
+				PopulationType: filterOutput.PopulationType,
+				Dimensions:     nonAreaDimIds,
+			})
+		} else {
+			dimCategories = population.GetDimensionCategoriesResponse{}
+		}
 	}()
 
 	wg.Wait()
