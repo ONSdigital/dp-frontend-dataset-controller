@@ -48,6 +48,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var dimIds, areaOpts []string
 	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr, pErr error
 	var wg sync.WaitGroup
+	var isSpinner = req.URL.Query().Get("spinner") == "true"
 
 	vars := mux.Vars(req)
 	ctx := req.Context()
@@ -394,25 +395,30 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			areaOpts = []string{"K04000001"}
 			areaTypeID = "nat"
 		}
-		sdc, sErr = pc.GetBlockedAreaCount(ctx, population.GetBlockedAreaCountInput{
-			AuthTokens: population.AuthTokens{
-				UserAuthToken: userAccessToken,
-			},
-			PopulationType: filterOutput.PopulationType,
-			Variables:      dimIds,
-			Filter: population.Filter{
-				Codes:    areaOpts,
-				Variable: areaTypeID,
-			}})
-		if sErr != nil {
-			log.Error(ctx, "failed to get blocked area count", sErr, log.Data{
-				"population_type": filterOutput.PopulationType,
-				"variables":       dimIds,
-				"area_codes":      areaOpts,
-				"area_type_id":    areaTypeID,
-			})
-			setStatusCode(ctx, w, sErr)
-			return
+
+		if isSpinner {
+			sdc = &cantabular.GetBlockedAreaCountResult{}
+		} else {
+			sdc, sErr = pc.GetBlockedAreaCount(ctx, population.GetBlockedAreaCountInput{
+				AuthTokens: population.AuthTokens{
+					UserAuthToken: userAccessToken,
+				},
+				PopulationType: filterOutput.PopulationType,
+				Variables:      dimIds,
+				Filter: population.Filter{
+					Codes:    areaOpts,
+					Variable: areaTypeID,
+				}})
+			if sErr != nil {
+				log.Error(ctx, "failed to get blocked area count", sErr, log.Data{
+					"population_type": filterOutput.PopulationType,
+					"variables":       dimIds,
+					"area_codes":      areaOpts,
+					"area_type_id":    areaTypeID,
+				})
+				setStatusCode(ctx, w, sErr)
+				return
+			}
 		}
 	} else {
 		sdc = &cantabular.GetBlockedAreaCountResult{}
