@@ -27,7 +27,7 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pops population.GetPopulationTypesResponse) datasetLandingPageCensus.Page {
+func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, population population.GetPopulationTypeResponse) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	p.Type += FilterOutput
@@ -65,12 +65,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 
 	pop := sharedModel.Dimension{
 		IsPopulationType: true,
-	}
-	for _, population := range pops.Items {
-		if population.Name == filterOutput.PopulationType {
-			pop.Title = population.Label
-			break
-		}
+		Title:            population.PopulationType.Label,
 	}
 
 	// DIMENSIONS
