@@ -108,6 +108,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			AuthTokens: population.AuthTokens{
 				UserAuthToken: userAccessToken,
 			},
+			PaginationParams: population.PaginationParams{
+				Limit: 1000,
+			},
 		})
 	}()
 

@@ -30,6 +30,9 @@ func createCustomDataset(w http.ResponseWriter, req *http.Request, pc Population
 		AuthTokens: population.AuthTokens{
 			UserAuthToken: userAccessToken,
 		},
+		PaginationParams: population.PaginationParams{
+			Limit: 1000,
+		},
 	})
 	if err != nil {
 		log.Error(ctx, "unable to get population types", err)

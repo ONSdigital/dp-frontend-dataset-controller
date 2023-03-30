@@ -196,6 +196,9 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 		AuthTokens: population.AuthTokens{
 			UserAuthToken: userAccessToken,
 		},
+		PaginationParams: population.PaginationParams{
+			Limit: 1000,
+		},
 	})
 	if err != nil {
 		log.Error(ctx, "failed to get population types", err)
