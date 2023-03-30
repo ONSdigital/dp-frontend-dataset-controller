@@ -950,10 +950,6 @@ func TestFilterOutputHandler(t *testing.T) {
 					TotalCount: 2,
 				},
 			}, nil).AnyTimes()
-			// mockPc.
-			// 	EXPECT().
-			// 	GetPopulationType(gomock.Any(), gomock.Any()).
-			// 	Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -1001,10 +997,6 @@ func TestFilterOutputHandler(t *testing.T) {
 					TotalCount: 2,
 				},
 			}, nil).AnyTimes()
-			// mockPc.
-			// 	EXPECT().
-			// 	GetPopulationType(gomock.Any(), gomock.Any()).
-			// 	Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -1052,10 +1044,6 @@ func TestFilterOutputHandler(t *testing.T) {
 					TotalCount: 2,
 				},
 			}, nil).AnyTimes()
-			// mockPc.
-			// 	EXPECT().
-			// 	GetPopulationType(gomock.Any(), gomock.Any()).
-			// 	Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
@@ -1103,10 +1091,6 @@ func TestFilterOutputHandler(t *testing.T) {
 					TotalCount: 2,
 				},
 			}, nil).AnyTimes()
-			// mockPc.
-			// 	EXPECT().
-			// 	GetPopulationType(gomock.Any(), gomock.Any()).
-			// 	Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
