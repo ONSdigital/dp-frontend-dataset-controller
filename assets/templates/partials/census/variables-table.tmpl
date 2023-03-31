@@ -39,7 +39,10 @@
                                             {{ if $dim.IsDefaultCoverage }}
                                                 {{- localise "AreaTypeDefaultCoverage" $language 1 -}}
                                             {{ else }}
-                                                {{- $dim.Title }}
+                                                {{- $dim.Title -}}
+                                                {{ if gt $dim.TotalItems 0 }}
+                                                    ({{- thousandsSeparator $dim.TotalItems -}})
+                                                {{ end }}
                                             {{ end }}
                                         </div>
                                     {{else}}
