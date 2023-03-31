@@ -42,9 +42,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
 	var sdc *cantabular.GetBlockedAreaCountResult
-	var areaTypeID, parent string
+	var areaTypeID, parent, supVar string
 	var dimCategories population.GetDimensionCategoriesResponse
-	var pops population.GetPopulationTypesResponse
+	var pop population.GetPopulationTypeResponse
 	var dimIds, nonAreaDimIds, areaOpts []string
 	var dmErr, versErr, verErr, fErr, dErr, sErr, dcErr, pErr error
 	var wg sync.WaitGroup
@@ -81,7 +81,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		version = strconv.Itoa(filterOutput.Dataset.Version)
 	}
 
-	wg.Add(4)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		datasetModel, dmErr = dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
@@ -102,15 +102,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 	}()
 
-	go func() {
-		defer wg.Done()
-		pops, pErr = pc.GetPopulationTypes(ctx, population.GetPopulationTypesInput{
-			AuthTokens: population.AuthTokens{
-				UserAuthToken: userAccessToken,
-			},
-		})
-	}()
-
 	wg.Wait()
 
 	if logError(ctx, w, dmErr, "failed to get dataset", log.Data{"dataset": datasetID}) {
@@ -125,13 +116,8 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	if logError(ctx, w, fErr, "failed to get filter output", log.Data{"filterOutputID": filterOutputID}) {
 		return
 	}
-	if pErr != nil {
-		log.Error(ctx, "failed to get population types", pErr, log.Data{"filter_output_id": filterOutputID})
-		setStatusCode(ctx, w, pErr)
-		return
-	}
 
-	wg.Add(2)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		dimDescriptions, dErr = pc.GetDimensionsDescription(ctx, population.GetDimensionsDescriptionInput{
@@ -149,6 +135,16 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			setStatusCode(ctx, w, dErr)
 			return
 		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		pop, pErr = pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
+			AuthTokens: population.AuthTokens{
+				UserAuthToken: userAccessToken,
+			},
+			PopulationType: filterOutput.PopulationType,
+		})
 	}()
 
 	go func() {
@@ -178,6 +174,15 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			"dimension_ids":   dimIds,
 		})
 		setStatusCode(ctx, w, dErr)
+		return
+	}
+
+	if pErr != nil {
+		log.Error(ctx, "failed to get population type", pErr, log.Data{
+			"filterOutputID":  filterOutputID,
+			"population_type": filterOutput.PopulationType,
+		})
+		setStatusCode(ctx, w, pErr)
 		return
 	}
 
@@ -304,31 +309,30 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
 		areaOpts = optsIDs
-		// TODO: pc.GetParentAreaCount is causing production issues
-		// if dim.FilterByParent != "" {
-		// 	count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
-		// 		AuthTokens: population.AuthTokens{
-		// 			UserAuthToken: userAccessToken,
-		// 		},
-		// 		PopulationType:   filterOutput.PopulationType,
-		// 		AreaTypeID:       dim.ID,
-		// 		ParentAreaTypeID: dim.FilterByParent,
-		// 		Areas:            optsIDs,
-		// 		SVarID:           supVar,
-		// 	})
-		// 	if err != nil {
-		// 		log.Error(ctx, "failed to get parent area count", err, log.Data{
-		// 			"dataset_id":                filterOutput.PopulationType,
-		// 			"area_type_id":              dim.ID,
-		// 			"parent_area_type_id":       dim.FilterByParent,
-		// 			"areas":                     optsIDs,
-		// 			"supplementary_variable_id": supVar,
-		// 		})
-		// 		return nil, 0, err
-		// 	}
+		if dim.FilterByParent != "" {
+			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
+				AuthTokens: population.AuthTokens{
+					UserAuthToken: userAccessToken,
+				},
+				PopulationType:   filterOutput.PopulationType,
+				AreaTypeID:       dim.ID,
+				ParentAreaTypeID: dim.FilterByParent,
+				Areas:            optsIDs,
+				SVarID:           supVar,
+			})
+			if err != nil {
+				log.Error(ctx, "failed to get parent area count", err, log.Data{
+					"dataset_id":                filterOutput.PopulationType,
+					"area_type_id":              dim.ID,
+					"parent_area_type_id":       dim.FilterByParent,
+					"areas":                     optsIDs,
+					"supplementary_variable_id": supVar,
+				})
+				return nil, 0, nil
+			}
 
-		// 	totalCount = count
-		// }
+			totalCount = count
+		}
 
 		return options, totalCount, nil
 	}
@@ -359,10 +363,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	var fDims []model.FilterDimension
 	for i := len(filterOutput.Dimensions) - 1; i >= 0; i-- {
-		// TODO: pc.GetParentAreaCount is causing production issues
-		// if filterOutput.Dimensions[i].IsAreaType == nil || !*filterOutput.Dimensions[i].IsAreaType {
-		// 	supVar = filterOutput.Dimensions[i].ID
-		// }
+		if filterOutput.Dimensions[i].IsAreaType == nil || !*filterOutput.Dimensions[i].IsAreaType {
+			supVar = filterOutput.Dimensions[i].ID
+		}
 		options, count, err := getOptions(filterOutput.Dimensions[i])
 		if err != nil {
 			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": filterOutput.Dimensions[i].Name})
@@ -455,7 +458,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pops)
+	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pop)
 	rend.BuildPage(w, m, "census-landing")
 }
 

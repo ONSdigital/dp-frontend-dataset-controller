@@ -203,8 +203,8 @@ func TestFilterableLandingPage(t *testing.T) {
 			}, nil).AnyTimes()
 			mockPc.
 				EXPECT().
-				GetPopulationTypes(gomock.Any(), gomock.Any()).
-				Return(population.GetPopulationTypesResponse{}, nil).
+				GetPopulationType(gomock.Any(), gomock.Any()).
+				Return(population.GetPopulationTypeResponse{}, nil).
 				AnyTimes()
 
 			w := httptest.NewRecorder()

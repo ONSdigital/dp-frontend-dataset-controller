@@ -192,7 +192,8 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 		return
 	}
 
-	pops, err := pc.GetPopulationTypes(ctx, population.GetPopulationTypesInput{
+	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
+		PopulationType: version.IsBasedOn.ID,
 		AuthTokens: population.AuthTokens{
 			UserAuthToken: userAccessToken,
 		},
@@ -227,7 +228,7 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate, pops)
+	m := mapper.CreateCensusLandingPage(ctx, req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate, pop)
 	rend.BuildPage(w, m, "census-landing")
 }
 

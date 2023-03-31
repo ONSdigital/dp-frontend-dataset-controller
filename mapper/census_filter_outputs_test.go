@@ -53,18 +53,16 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 			Downloads:      getTestFilterDownloads([]string{"xlsx"}),
 			PopulationType: "UR",
 		}
-		pops := population.GetPopulationTypesResponse{
-			Items: []population.PopulationType{
-				{
-					Name:        "UR",
-					Label:       "Usual residents",
-					Description: "A description about usual residents",
-				},
+		population := population.GetPopulationTypeResponse{
+			PopulationType: population.PopulationType{
+				Name:        "UR",
+				Label:       "Usual residents",
+				Description: "A description about usual residents",
 			},
 		}
 
 		Convey("when we build a filter outputs page", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, pops)
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, population)
 
 			Convey("then the type should have _filter_output appended", func() {
 				So(page.Type, ShouldEqual, fmt.Sprintf("%s_filter_output", datasetModel.Type))
@@ -108,7 +106,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		}
 
 		Convey("when isMultivariate is false", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, false, dimDesc, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, false, dimDesc, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then ShowChange is false for all", func() {
 				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeFalse)
@@ -119,7 +117,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		Convey("when isMultivariate is true", func() {
 			multivariateModel := getTestDatasetDetails(contacts, relatedContent)
 			multivariateModel.Type = "cantabular_multivariate_table"
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, multivariateModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, multivariateModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 			Convey("then IsChangeCategories is false if categorisation is only one available", func() {
 				So(page.DatasetLandingPage.Dimensions[3].ShowChange, ShouldBeFalse)
 				So(page.DatasetLandingPage.Dimensions[4].ShowChange, ShouldBeTrue)
@@ -152,7 +150,7 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 		}
 
 		Convey("when areas are blocked", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, sdc, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, sdc, population.GetPopulationTypeResponse{})
 
 			Convey("then the sdc panel is displayed", func() {
 				So(page.DatasetLandingPage.HasSDC, ShouldBeTrue)
@@ -168,7 +166,7 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 				Blocked: 0,
 				Total:   10,
 			}
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, sdc, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, sdc, population.GetPopulationTypeResponse{})
 
 			Convey("then the sdc panel is displayed", func() {
 				So(page.DatasetLandingPage.HasSDC, ShouldBeTrue)
@@ -199,7 +197,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 		}
 
 		Convey("when the filter is a customised multivariate", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then the title is customised", func() {
 				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
@@ -208,7 +206,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 
 		Convey("when the filter is multivariate and has not been customised", func() {
 			filterDims = []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{}, 0), getTestFilterDimension("2", false, []string{}, 0), getTestFilterDimension("3", false, []string{}, 0)}
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then isCustom bool is set", func() {
 				So(page.DatasetLandingPage.IsCustom, ShouldBeFalse)
@@ -220,7 +218,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 
 		Convey("when the filter is a custom", func() {
 			filterOutputs.Custom = helpers.ToBoolPtr(true)
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then isCustom bool is set", func() {
 				So(page.DatasetLandingPage.IsCustom, ShouldBeTrue)
@@ -252,7 +250,7 @@ func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 		}
 
 		Convey("when the filter is custom", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then the title is customised", func() {
 				So(page.Metadata.Title, ShouldEqual, "Label first and label second")
@@ -301,7 +299,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 		}
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -326,7 +324,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 		}
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -346,7 +344,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 
 	Convey("given no downloads exist", t, func() {
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filter.Model{}, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filter.Model{}, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to false", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
@@ -378,7 +376,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 		}
 
 		Convey("when valid parameters are provided", func() {
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(page.DatasetLandingPage.Dimensions[3].TotalItems, ShouldEqual, 21)
@@ -395,7 +393,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 
 		Convey("when 'showAll' parameter provided", func() {
 			parameters := []string{"dim_1"}
-			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypesResponse{})
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", parameters, 50, false, true, filterOutputs, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 			Convey("then the dimension is no longer truncated", func() {
 				So(page.DatasetLandingPage.Dimensions[3].TotalItems, ShouldEqual, 21)

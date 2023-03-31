@@ -19,7 +19,7 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, pops population.GetPopulationTypesResponse) datasetLandingPageCensus.Page {
+func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, population population.GetPopulationTypeResponse) datasetLandingPageCensus.Page {
 	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
@@ -44,13 +44,9 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 			return dims[i].Name < dims[j].Name
 		})
 
-		pop := sharedModel.Dimension{}
-		for _, population := range pops.Items {
-			if population.Name == d.IsBasedOn.ID {
-				pop.Title = population.Label
-				pop.IsPopulationType = true
-				break
-			}
+		pop := sharedModel.Dimension{
+			Title:            population.PopulationType.Label,
+			IsPopulationType: true,
 		}
 		coverage := sharedModel.Dimension{
 			IsCoverage:        true,
