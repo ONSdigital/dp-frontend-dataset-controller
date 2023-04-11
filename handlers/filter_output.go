@@ -42,7 +42,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
 	var sdc *cantabular.GetBlockedAreaCountResult
-	var areaTypeID, parent, supVar string
+	var areaTypeID, parent string
 	var dimCategories population.GetDimensionCategoriesResponse
 	var pop population.GetPopulationTypeResponse
 	var dimIds, nonAreaDimIds, areaOpts []string
@@ -309,30 +309,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			return nil, 0, fmt.Errorf("failed to get dimension areas")
 		}
 		areaOpts = optsIDs
-		if dim.FilterByParent != "" {
-			count, err := pc.GetParentAreaCount(ctx, population.GetParentAreaCountInput{
-				AuthTokens: population.AuthTokens{
-					UserAuthToken: userAccessToken,
-				},
-				PopulationType:   filterOutput.PopulationType,
-				AreaTypeID:       dim.ID,
-				ParentAreaTypeID: dim.FilterByParent,
-				Areas:            optsIDs,
-				SVarID:           supVar,
-			})
-			if err != nil {
-				log.Error(ctx, "failed to get parent area count", err, log.Data{
-					"dataset_id":                filterOutput.PopulationType,
-					"area_type_id":              dim.ID,
-					"parent_area_type_id":       dim.FilterByParent,
-					"areas":                     optsIDs,
-					"supplementary_variable_id": supVar,
-				})
-				return nil, 0, nil
-			}
-
-			totalCount = count
-		}
 
 		return options, totalCount, nil
 	}
@@ -363,9 +339,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	var fDims []model.FilterDimension
 	for i := len(filterOutput.Dimensions) - 1; i >= 0; i-- {
-		if filterOutput.Dimensions[i].IsAreaType == nil || !*filterOutput.Dimensions[i].IsAreaType {
-			supVar = filterOutput.Dimensions[i].ID
-		}
 		options, count, err := getOptions(filterOutput.Dimensions[i])
 		if err != nil {
 			log.Error(ctx, "failed to get options for dimension", err, log.Data{"dimension_name": filterOutput.Dimensions[i].Name})
