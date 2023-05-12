@@ -433,6 +433,50 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 	})
 }
 
+func TestCreateCensusFilterOutputsQualityNotices(t *testing.T) {
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
+	req := httptest.NewRequest("", "/", nil)
+	pageModel := coreModel.Page{}
+	contacts := getTestContacts()
+	relatedContent := getTestRelatedContent()
+	datasetModel := getTestDatasetDetails(contacts, relatedContent)
+	datasetModel.Type = "multivariate"
+	serviceMessage := getTestServiceMessage()
+	emergencyBanner := getTestEmergencyBanner()
+
+	Convey("given a request for a filter outputs census landing page", t, func() {
+		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
+		filterDims := []sharedModel.FilterDimension{getTestFilterDimension("geography", true, []string{"option 1", "option 2"}, 2), getTestFilterDimension("first", false, []string{}, 2), getTestFilterDimension("second", false, []string{}, 2)}
+		filterOutputs := filter.Model{
+			Downloads: getTestFilterDownloads([]string{"xlsx"}),
+		}
+
+		Convey("when there is a quality notice on the dimension", func() {
+			filterDims[0].QualityStatementText = "This is a quality notice statement"
+			filterDims[0].QualitySummaryURL = "https://quality-notice-1.com"
+			filterDims[1].QualityStatementText = "This is another quality notice statement"
+			filterDims[1].QualitySummaryURL = "https://quality-notice-2.com"
+
+			page := CreateCensusFilterOutputsPage(context.Background(), req, pageModel, datasetModel, version, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, 50, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
+
+			Convey("then the 'quality notice' panel is displayed", func() {
+				mockPanel := []datasetLandingPageCensus.Panel{
+					{
+						Body:       []string{"<p>This is a quality notice statement</p>Read more about this"},
+						CssClasses: []string{"ons-u-mt-no"},
+					},
+					{
+						Body:       []string{"<p>This is another quality notice statement</p>Read more about this"},
+						CssClasses: []string{"ons-u-mt-no", "ons-u-mb-l"},
+					},
+				}
+				So(page.DatasetLandingPage.QualityStatements, ShouldHaveLength, 2)
+				So(page.DatasetLandingPage.QualityStatements, ShouldResemble, mockPanel)
+			})
+		})
+	})
+}
+
 func TestCreateCensusFilterOutputsAnalytics(t *testing.T) {
 	Convey("given we have changed area_type only", t, func() {
 		filterDimensions := []sharedModel.FilterDimension{

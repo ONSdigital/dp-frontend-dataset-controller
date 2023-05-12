@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
@@ -145,4 +146,13 @@ func cleanDimensionLabel(label string) string {
 func getDataLayerJavaScript(analytics map[string]string) template.JS {
 	jsonStr, _ := json.Marshal(analytics)
 	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
+}
+
+// formatPanels is a helper function given an array of panels will format the final panel with the appropriate css class
+func formatPanels(panels []datasetLandingPageCensus.Panel) []datasetLandingPageCensus.Panel {
+	if len(panels) > 0 {
+		panelLen := len(panels)
+		panels[panelLen-1].CssClasses = append(panels[panelLen-1].CssClasses, "ons-u-mb-l")
+	}
+	return panels
 }

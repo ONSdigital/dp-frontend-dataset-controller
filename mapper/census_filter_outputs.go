@@ -69,7 +69,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 	}
 
 	// DIMENSIONS
-	p.DatasetLandingPage.Dimensions = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, p.DatasetLandingPage.IsMultivariate)
+	p.DatasetLandingPage.Dimensions, p.DatasetLandingPage.QualityStatements = mapFilterOutputDims(fDims, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
 	coverage := sharedModel.Dimension{
 		IsCoverage:        true,
 		IsDefaultCoverage: hasNoAreaOptions,
@@ -125,15 +125,17 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 		}
 	}
 
+	// FINAL FORMATTING
+	p.DatasetLandingPage.QualityStatements = formatPanels(p.DatasetLandingPage.QualityStatements)
+
 	return p
 }
 
 // mapFilterOutputDims links dimension options to FilterDimensions and prepares them for display
-func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path string, isMultivariate bool) []sharedModel.Dimension {
+func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path, lang string, isMultivariate bool) (dimensions []sharedModel.Dimension, qs []datasetLandingPageCensus.Panel) {
 	sort.Slice(dims, func(i, j int) bool {
 		return *dims[i].IsAreaType
 	})
-	dimensions := []sharedModel.Dimension{}
 	for _, dim := range dims {
 		var isAreaType bool
 		if helpers.IsBoolPtr(dim.IsAreaType) {
@@ -165,9 +167,15 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 			q.Add(queryStrKey, pDim.ID)
 		}
 		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
+		if dim.QualityStatementText != "" && dim.QualitySummaryURL != "" {
+			qs = append(qs, datasetLandingPageCensus.Panel{
+				Body:       []string{fmt.Sprintf("<p>%s</p>%s", dim.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dim.QualitySummaryURL))},
+				CssClasses: []string{"ons-u-mt-no"},
+			})
+		}
 		dimensions = append(dimensions, pDim)
 	}
-	return dimensions
+	return dimensions, qs
 }
 
 // getFilterAnalytics returns a map to add to the data layer which will be used on file download

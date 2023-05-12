@@ -72,10 +72,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 	p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
 
 	// FINAL FORMATTING
-	if len(p.DatasetLandingPage.QualityStatements) > 0 {
-		qsLen := len(p.DatasetLandingPage.QualityStatements)
-		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
-	}
+	p.DatasetLandingPage.QualityStatements = formatPanels(p.DatasetLandingPage.QualityStatements)
 
 	return p
 }
