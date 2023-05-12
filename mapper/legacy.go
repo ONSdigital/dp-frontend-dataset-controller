@@ -13,7 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )

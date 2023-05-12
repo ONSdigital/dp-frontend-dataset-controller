@@ -21,7 +21,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetEditionsList"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetVersionsList"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
 )

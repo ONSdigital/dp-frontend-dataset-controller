@@ -8,7 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
@@ -140,13 +140,13 @@ func MapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
 					subItems = append(subItems, coreModel.NavigationItem{
-						Uri:   subtopicContent.Uri,
+						Uri:   subtopicContent.URI,
 						Label: subtopicContent.Label,
 					})
 				}
 			}
 			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
-				Uri:      rootContent.Uri,
+				Uri:      rootContent.URI,
 				Label:    rootContent.Label,
 				SubItems: subItems,
 			})

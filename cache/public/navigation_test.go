@@ -43,7 +43,7 @@ var (
 			Links:       testTopicLinks,
 			Name:        "Item name.",
 			Title:       "Item title.",
-			Uri:         "Item URI.",
+			URI:         "Item URI.",
 		},
 	}
 )

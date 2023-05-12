@@ -3,7 +3,7 @@ package datasetLandingPageStatic
 import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains data re-used for each page type a Data struct for data specific to the page type

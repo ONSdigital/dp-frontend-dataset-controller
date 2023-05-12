@@ -3,7 +3,6 @@
     <div class="wrapper">
         <div class="col-wrap">
             <div class="col">
-                {{template "partials/breadcrumb" .}}
                 <h1 class="page-intro__title {{if not .Metadata.Description}}margin-bottom-sm--4 margin-bottom-md--4{{end}}">
                     <span class="page-intro__type">{{localise "DatasetPageTitle" .Language 1 }}</span>
                     {{.Metadata.Title}}
