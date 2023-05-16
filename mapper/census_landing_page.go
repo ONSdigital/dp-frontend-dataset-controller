@@ -18,7 +18,7 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, population population.GetPopulationTypeResponse) census.Page {
+func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, pop population.GetPopulationTypeResponse) census.Page {
 	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
@@ -44,7 +44,7 @@ func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d datas
 		})
 
 		pop := sharedModel.Dimension{
-			Title:            population.PopulationType.Label,
+			Title:            pop.PopulationType.Label,
 			IsPopulationType: true,
 		}
 		coverage := sharedModel.Dimension{

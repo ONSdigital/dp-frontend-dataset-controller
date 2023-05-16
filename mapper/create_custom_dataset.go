@@ -70,12 +70,12 @@ func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populat
 func mapPopulationTypes(populationTypes []population.PopulationType) []custom.PopulationType {
 	mapped := []custom.PopulationType{}
 	for _, pop := range populationTypes {
-		custom := custom.PopulationType{
+		model := custom.PopulationType{
 			Name:        pop.Name,
 			Label:       pop.Label,
 			Description: pop.Description,
 		}
-		mapped = append(mapped, custom)
+		mapped = append(mapped, model)
 	}
 	return mapped
 }

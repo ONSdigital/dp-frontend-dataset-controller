@@ -243,19 +243,19 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 
 	latestVersionNumber := 1
 	for _, ver := range versions {
-		var version sharedModel.Version
-		version.IsLatest = false
-		version.VersionNumber = ver.Version
-		version.Title = d.Title
-		version.Date = ver.ReleaseDate
+		var v sharedModel.Version
+		v.IsLatest = false
+		v.VersionNumber = ver.Version
+		v.Title = d.Title
+		v.Date = ver.ReleaseDate
 		versionURL := helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
-		version.VersionURL = versionURL
-		version.FilterURL = versionURL + "/filter"
+		v.VersionURL = versionURL
+		v.FilterURL = versionURL + "/filter"
 
 		// Not the 'created' first version and more than one stored version
 		if ver.Version > 1 && len(p.Data.Versions) >= 1 {
 			previousVersion := p.Data.Versions[len(p.Data.Versions)-1].VersionNumber
-			version.Superseded = helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(previousVersion))
+			v.Superseded = helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(previousVersion))
 		}
 
 		if ver.Version > latestVersionNumber {
@@ -263,16 +263,16 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 		}
 
 		for ext, download := range ver.Downloads {
-			version.Downloads = append(version.Downloads, sharedModel.Download{
+			v.Downloads = append(v.Downloads, sharedModel.Download{
 				Extension: ext,
 				Size:      download.Size,
 				URI:       download.URL,
 			})
 		}
 
-		mapCorrectionAlert(&ver, &version)
+		mapCorrectionAlert(&ver, &v)
 
-		p.Data.Versions = append(p.Data.Versions, version)
+		p.Data.Versions = append(p.Data.Versions, v)
 	}
 
 	for i, ver := range p.Data.Versions {
@@ -338,11 +338,11 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 	return p
 }
 
-func mapCorrectionAlert(ver *dataset.Version, version *sharedModel.Version) {
+func mapCorrectionAlert(ver *dataset.Version, model *sharedModel.Version) {
 	if ver.Alerts != nil {
 		for _, alert := range *ver.Alerts {
 			if alert.Type == CorrectionAlertType {
-				version.Corrections = append(version.Corrections, sharedModel.Correction{
+				model.Corrections = append(model.Corrections, sharedModel.Correction{
 					Reason: alert.Description,
 					Date:   alert.Date,
 				})

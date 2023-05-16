@@ -26,7 +26,7 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, population population.GetPopulationTypeResponse) census.Page {
+func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pop population.GetPopulationTypeResponse) census.Page {
 	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	p.Type += FilterOutput
@@ -62,9 +62,9 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 		p.DatasetLandingPage.ShowXLSXInfo = true
 	}
 
-	pop := sharedModel.Dimension{
+	popDim := sharedModel.Dimension{
 		IsPopulationType: true,
-		Title:            population.PopulationType.Label,
+		Title:            pop.PopulationType.Label,
 	}
 
 	// DIMENSIONS
@@ -83,7 +83,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 	sort.Slice(displayedDims, func(i, j int) bool {
 		return displayedDims[i].Title < displayedDims[j].Title
 	})
-	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, displayedDims...)
+	p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{popDim, area, coverage}, displayedDims...)
 
 	// CUSTOM TITLE
 	if helpers.IsBoolPtr(filterOutput.Custom) || p.DatasetLandingPage.IsMultivariate {
@@ -94,7 +94,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 		if vTitle != dimensionStr || helpers.IsBoolPtr(filterOutput.Custom) {
 			p.Metadata.Title = strings.ToUpper(dimensionStr[:1]) + strings.ToLower(dimensionStr[1:])
 			p.DatasetLandingPage.Description = []string{
-				helper.Localise("CustomDatasetSummary", lang, 1, strings.ToLower(pop.Title), strings.ToLower(dimensionStr)),
+				helper.Localise("CustomDatasetSummary", lang, 1, strings.ToLower(popDim.Title), strings.ToLower(dimensionStr)),
 			}
 		}
 	}
