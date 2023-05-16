@@ -103,14 +103,14 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 
 	// VERSIONS TABLE
 	if hasOtherVersions {
-		for _, ver := range allVersions {
+		for i, ver := range allVersions {
 			var version sharedModel.Version
 			version.VersionNumber = ver.Version
 			version.ReleaseDate = ver.ReleaseDate
 			versionURL := helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
 			version.VersionURL = versionURL
 			version.IsCurrentPage = versionURL == req.URL.Path
-			mapCorrectionAlert(&ver, &version)
+			mapCorrectionAlert(&allVersions[i], &version)
 
 			p.Versions = append(p.Versions, version)
 		}

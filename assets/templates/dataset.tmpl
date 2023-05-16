@@ -28,11 +28,11 @@
                 {{end}}
                 <span>{{localise "Contact" .Language 1}}</span>
                 <br>
-                <a href="mailto:{{.ContactDetails.Email}}">
-                    {{if .ContactDetails.Name}}
-                        {{.ContactDetails.Name}}
+                <a href="mailto:{{.Details.Email}}">
+                    {{if .Details.Name}}
+                        {{.Details.Name}}
                     {{else}}
-                        {{.ContactDetails.Email}}
+                        {{.Details.Email}}
                     {{end}}
                 </a>
             </p>

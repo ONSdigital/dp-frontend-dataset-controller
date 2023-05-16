@@ -242,7 +242,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	latestVersionNumber := 1
-	for _, ver := range versions {
+	for i, ver := range versions {
 		var v sharedModel.Version
 		v.IsLatest = false
 		v.VersionNumber = ver.Version
@@ -270,7 +270,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 			})
 		}
 
-		mapCorrectionAlert(&ver, &v)
+		mapCorrectionAlert(&versions[i], &v)
 
 		p.Data.Versions = append(p.Data.Versions, v)
 	}
