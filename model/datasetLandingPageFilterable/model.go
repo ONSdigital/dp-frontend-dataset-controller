@@ -33,7 +33,6 @@ type DatasetLandingPage struct {
 	RelatedLinks             []Publication           `json:"related_links"`
 	LatestChanges            []Change                `json:"latest_changes"`
 	Citation                 string                  `json:"citation"`
-	DatasetTitle             string                  `json:"dataset_title"`
 	UnitOfMeasurement        string                  `json:"unit_of_measurement"`
 	Methodologies            []Methodology           `json:"methodology"`
 	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`

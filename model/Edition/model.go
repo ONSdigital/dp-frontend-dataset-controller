@@ -1,4 +1,4 @@
-package Edition
+package edition
 
 import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
@@ -12,7 +12,6 @@ type Page struct {
 	filterable.DatasetLandingPage
 	ContactDetails contact.Details `json:"contact_details"`
 	Editions       []List          `json:"editions"`
-	DatasetTitle   string          `json:"dataset_title"`
 }
 
 // List contains data for a single edition

@@ -188,9 +188,8 @@ func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
 func getReleaseDate(initialDate, alternateDate string) string {
 	if initialDate == "" {
 		return alternateDate
-	} else {
-		return initialDate
 	}
+	return initialDate
 }
 
 func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) census.ShareDetails {

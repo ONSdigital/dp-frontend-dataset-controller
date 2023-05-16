@@ -82,22 +82,23 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 		var pDim sharedModel.Dimension
 
 		for _, dimension := range dims {
-			if dimension.Name == opt.Items[0].DimensionID {
-				pDim.Name = dimension.Name
-				pDim.Description = dimension.Description
-				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+			if dimension.Name != opt.Items[0].DimensionID {
+				continue
+			}
+			pDim.Name = dimension.Name
+			pDim.Description = dimension.Description
+			pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
 
-				categorisationCount := categorisationsMap[dimension.ID]
-				pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
+			categorisationCount := categorisationsMap[dimension.ID]
+			pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
 
-				pDim.Title = cleanDimensionLabel(dimension.Label)
-				pDim.ID = dimension.ID
-				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
-					qs = append(qs, census.Panel{
-						Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
-						CSSClasses: []string{"ons-u-mt-no"},
-					})
-				}
+			pDim.Title = cleanDimensionLabel(dimension.Label)
+			pDim.ID = dimension.ID
+			if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
+				qs = append(qs, census.Panel{
+					Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
+					CSSClasses: []string{"ons-u-mt-no"},
+				})
 			}
 		}
 
