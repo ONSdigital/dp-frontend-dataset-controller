@@ -21,6 +21,11 @@ debug: generate-debug
 	go build -tags 'debug' -o $(BINPATH)/dp-frontend-dataset-controller -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)"
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-dataset-controller
 
+.PHONY: lint 
+lint:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
+	golangci-lint run ./...
+
 .PHONY: run
 run:
 	HUMAN_LOG=1 go run -tags 'production' -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)" -race $(LDFLAGS) main.go
