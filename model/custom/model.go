@@ -1,4 +1,4 @@
-package createCustomDatasetPage
+package custom
 
 import (
 	"github.com/ONSdigital/dp-renderer/v2/model"

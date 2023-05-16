@@ -1,7 +1,7 @@
-package datasetLandingPageStatic
+package static
 
 import (
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -11,7 +11,7 @@ type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage `json:"data"`
 	FilterID           string             `json:"filter_id"`
-	contactDetails.ContactDetails
+	contact.ContactDetails
 }
 
 // DatasetLandingPage represents a frontend dataset landing page
@@ -57,7 +57,7 @@ type Download struct {
 	Extension   string `json:"extension"`
 	Size        string `json:"size"`
 	URI         string `json:"uri"`
-	DownloadUrl string `json:"download_url"`
+	DownloadURL string `json:"download_url"`
 }
 
 // SupplementaryFile is a downloadable file that is associated to an individual dataset
@@ -66,7 +66,7 @@ type SupplementaryFile struct {
 	Extension   string `json:"extension"`
 	Size        string `json:"size"`
 	URI         string `json:"uri"`
-	DownloadUrl string `json:"download_url"`
+	DownloadURL string `json:"download_url"`
 }
 
 // Message has a date and time, used for either correction or notices

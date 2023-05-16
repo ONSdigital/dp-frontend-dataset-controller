@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"context"
 	"net/http/httptest"
 	"testing"
 
@@ -39,7 +38,7 @@ func TestCreateCustomDataset(t *testing.T) {
 		}
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCustomDatasetPage(context.Background(), req, pageModel, populationTypes, "", serviceMessage, emergencyBanner)
+			page := CreateCustomDatasetPage(req, pageModel, populationTypes, "", serviceMessage, emergencyBanner)
 
 			Convey("Then population types should be mapped correctly", func() {
 				So(page.CreateCustomDatasetPage.PopulationTypes[0].Name, ShouldEqual, "Name 1")

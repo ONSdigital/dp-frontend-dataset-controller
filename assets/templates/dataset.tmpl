@@ -90,7 +90,7 @@
                         <h3>{{localise "LatestVersionHeading" .Language 1}}</h3>
                         {{range .DatasetPage.Downloads}}
                             {{$trimmedfFileExt := trimPrefixedPeriod .Extension}}
-                            <a href="{{.DownloadUrl}}"
+                            <a href="{{.DownloadURL}}"
                                 title="Download as {{$trimmedfFileExt}}"
                                 class="btn btn--primary btn--thin btn--narrow btn--small"
                                 data-gtm-type="download-version-{{if eq $trimmedfFileExt "csdb"}}structured-text{{else}}{{$trimmedfFileExt}}{{end}}"
@@ -128,7 +128,7 @@
                                             {{$updateDate := .UpdateDate}}
                                             {{range .Downloads}}
                                                 {{$trimmedfFileExt := trimPrefixedPeriod .Extension}}
-                                                <a href="{{.DownloadUrl}}"
+                                                <a href="{{.DownloadURL}}"
                                                     title="Download as {{$trimmedfFileExt}}"
                                                     class="btn btn--primary btn--thin btn--narrow btn--small clear-left"
                                                     data-gtm-type="download-version-{{if eq $trimmedfFileExt "csdb"}}structured-text{{else}}{{$trimmedfFileExt}}{{end}}"

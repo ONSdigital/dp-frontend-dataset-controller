@@ -411,7 +411,6 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year 2005 contains data for the month January")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All months between May 2007 and June 2007")
-
 	})
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
@@ -449,9 +448,7 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.Dimensions[0].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[0].Values[0], ShouldEqual, "This year contains data for 2016")
 		So(p.DatasetLandingPage.Dimensions[0].Values[1], ShouldEqual, "All years between 2018 and 2020")
-
 	})
-
 }
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper

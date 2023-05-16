@@ -1,4 +1,4 @@
-package contactDetails
+package contact
 
 // ContactDetails represents the data for a single contact detail
 type ContactDetails struct {

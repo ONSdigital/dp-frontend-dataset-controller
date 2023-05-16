@@ -1,22 +1,20 @@
 package mapper
 
 import (
-	"context"
 	"net/http"
 	"path/filepath"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // DatasetPage is a DatasetPage representation
-type DatasetPage datasetPage.Page
+type DatasetPage dataset.Page
 
-func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) DatasetPage {
-
+func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) DatasetPage {
 	dp := DatasetPage{
 		Page: basePage,
 	}
@@ -68,24 +66,24 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 
 		dp.DatasetPage.Downloads = append(
 			dp.DatasetPage.Downloads,
-			datasetPage.Download{
+			dataset.Download{
 				Extension:   filepath.Ext(download.File),
 				Size:        download.Size,
 				URI:         dp.URI + "/" + download.File,
 				File:        download.File,
-				DownloadUrl: determineDownloadUrl(download, dp.URI),
+				DownloadURL: determineDownloadURL(download, dp.URI),
 			})
 	}
 
 	for _, supplementaryFile := range d.SupplementaryFiles {
 		dp.DatasetPage.SupplementaryFiles = append(
 			dp.DatasetPage.SupplementaryFiles,
-			datasetPage.SupplementaryFile{
+			dataset.SupplementaryFile{
 				Title:       supplementaryFile.Title,
 				Extension:   filepath.Ext(supplementaryFile.File),
 				Size:        supplementaryFile.Size,
 				URI:         dp.URI + "/" + supplementaryFile.File,
-				DownloadUrl: determineSupplementaryFileUrl(supplementaryFile, dp.URI),
+				DownloadURL: determineSupplementaryFileURL(supplementaryFile, dp.URI),
 			})
 	}
 
@@ -93,7 +91,7 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	for _, ver := range d.Versions {
 		dp.DatasetPage.Versions = append(
 			dp.DatasetPage.Versions,
-			datasetPage.Version{
+			dataset.Version{
 				URI:              ver.URI,
 				UpdateDate:       ver.ReleaseDate,
 				CorrectionNotice: ver.Notice,
@@ -111,7 +109,7 @@ func CreateDatasetPage(basePage coreModel.Page, ctx context.Context, req *http.R
 	return dp
 }
 
-func determineDownloadUrl(download zebedee.Download, datasetPageUri string) string {
+func determineDownloadURL(download zebedee.Download, datasetPageUri string) string {
 	var downloadUrl string
 	if download.URI != "" {
 		downloadUrl = "/" + staticFilesDownloadEndpoint + download.URI
@@ -121,7 +119,7 @@ func determineDownloadUrl(download zebedee.Download, datasetPageUri string) stri
 	return downloadUrl
 }
 
-func determineSupplementaryFileUrl(supplementaryFile zebedee.SupplementaryFile, datasetPageUri string) string {
+func determineSupplementaryFileURL(supplementaryFile zebedee.SupplementaryFile, datasetPageUri string) string {
 	var downloadUrl string
 	if supplementaryFile.URI != "" {
 		downloadUrl = "/" + staticFilesDownloadEndpoint + supplementaryFile.URI

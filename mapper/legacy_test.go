@@ -121,8 +121,8 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedFilename)
-		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
-		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstDownload.DownloadURL, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadURL, ShouldEqual, expectedSupplementaryDownloadURL)
 		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 
@@ -161,8 +161,8 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedDownloadFilepath)
-		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
-		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstDownload.DownloadURL, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadURL, ShouldEqual, expectedSupplementaryDownloadURL)
 		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 }

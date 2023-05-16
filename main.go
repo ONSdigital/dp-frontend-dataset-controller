@@ -130,7 +130,7 @@ func run(ctx context.Context) error {
 	}
 
 	// Initialise caching
-	cacheList := &cache.CacheList{}
+	cacheList := &cache.List{}
 	cacheList.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": cfg.CacheNavigationUpdateInterval})

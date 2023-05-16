@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
@@ -61,11 +61,11 @@ func coverageItem() coreModel.CollapsibleItem {
 }
 
 // mapOutputCollapsible maps the collapsible on the output page
-func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []coreModel.CollapsibleItem {
+func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims *[]sharedModel.Dimension) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	var areaItem coreModel.CollapsibleItem
 
-	for _, dim := range dims {
+	for _, dim := range *dims {
 		for _, dimDescription := range dimDescriptions.Dimensions {
 			if dim.ID == dimDescription.ID && dim.IsAreaType {
 				areaItem.Subheading = cleanDimensionLabel(dimDescription.Label)
@@ -83,10 +83,10 @@ func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims
 }
 
 // mapLandingCollapsible maps the collapsible on the landing page
-func mapLandingCollapsible(Dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+func mapLandingCollapsible(dimensions *[]dataset.VersionDimension) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	var areaItem coreModel.CollapsibleItem
-	for _, dim := range Dimensions {
+	for _, dim := range *dimensions {
 		if helpers.IsBoolPtr(dim.IsAreaType) && dim.Description != "" {
 			areaItem.Subheading = cleanDimensionLabel(dim.Label)
 			areaItem.Content = strings.Split(dim.Description, "\n")
@@ -113,10 +113,10 @@ func concatenateCollapsibleItems(collapsibleContentItems []coreModel.Collapsible
 }
 
 // getTruncationMidRange returns ints that can be used as the truncation mid range
-func getTruncationMidRange(total int) (int, int) {
+func getTruncationMidRange(total int) (midFloor, midCeiling int) {
 	mid := total / 2
-	midFloor := mid - 2
-	midCeiling := midFloor + 3
+	midFloor = mid - 2
+	midCeiling = midFloor + 3
 	if midFloor < 0 {
 		midFloor = 0
 	}
@@ -137,7 +137,7 @@ func generateTruncatePath(path, dimID string, q url.Values) string {
 
 // cleanDimensionLabel is a helper function that parses dimension labels from cantabular into display text
 func cleanDimensionLabel(label string) string {
-	matcher := regexp.MustCompile(`(\(\d+ ((C|c)ategories|(C|c)ategory)\))`)
+	matcher := regexp.MustCompile(`(\(\d+ (([Cc])ategories|([Cc])ategory)\))`)
 	result := matcher.ReplaceAllString(label, "")
 	return strings.TrimSpace(result)
 }
@@ -145,14 +145,15 @@ func cleanDimensionLabel(label string) string {
 // getDataLayerJavaScript returns a template.JS for page.PreGTMJavaScript that maps a map to the data layer
 func getDataLayerJavaScript(analytics map[string]string) template.JS {
 	jsonStr, _ := json.Marshal(analytics)
+	//nolint:gosec //cannot html escape string as JS is required in output
 	return template.JS(`dataLayer.push(` + string(jsonStr) + `);`)
 }
 
 // formatPanels is a helper function given an array of panels will format the final panel with the appropriate css class
-func formatPanels(panels []datasetLandingPageCensus.Panel) []datasetLandingPageCensus.Panel {
+func formatPanels(panels []census.Panel) []census.Panel {
 	if len(panels) > 0 {
 		panelLen := len(panels)
-		panels[panelLen-1].CssClasses = append(panels[panelLen-1].CssClasses, "ons-u-mb-l")
+		panels[panelLen-1].CSSClasses = append(panels[panelLen-1].CSSClasses, "ons-u-mb-l")
 	}
 	return panels
 }

@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,14 +12,14 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, population population.GetPopulationTypeResponse) datasetLandingPageCensus.Page {
-	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, population population.GetPopulationTypeResponse) census.Page {
+	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
 	for ext, download := range version.Downloads {
@@ -65,7 +64,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
+		CollapsibleItems: mapLandingCollapsible(&version.Dimensions),
 	}
 
 	// ANALYTICS
@@ -78,7 +77,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []datasetLandingPageCensus.Panel) {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 
@@ -94,9 +93,9 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 				pDim.Title = cleanDimensionLabel(dimension.Label)
 				pDim.ID = dimension.ID
 				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
-					qs = append(qs, datasetLandingPageCensus.Panel{
+					qs = append(qs, census.Panel{
 						Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
-						CssClasses: []string{"ons-u-mt-no"},
+						CSSClasses: []string{"ons-u-mt-no"},
 					})
 				}
 			}

@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -16,8 +15,8 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -27,8 +26,8 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, population population.GetPopulationTypeResponse) datasetLandingPageCensus.Page {
-	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, population population.GetPopulationTypeResponse) census.Page {
+	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	p.Type += FilterOutput
 	p.SearchNoIndexEnabled = true
@@ -41,7 +40,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 		p.ShowCensusBranding = true
 		p.DatasetLandingPage.IsCustom = true
 		p.HasContactDetails = true
-		p.ContactDetails = contactDetails.ContactDetails{
+		p.ContactDetails = contact.ContactDetails{
 			Email:     "census.customerservices@ons.gov.uk",
 			Telephone: "+44 1329 444972",
 		}
@@ -106,7 +105,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: mapOutputCollapsible(dimDesc, p.DatasetLandingPage.Dimensions),
+		CollapsibleItems: mapOutputCollapsible(dimDesc, &p.DatasetLandingPage.Dimensions),
 	}
 
 	// ANALYTICS
@@ -117,11 +116,11 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 		switch {
 		case sdc.Blocked > 0: // areas blocked
 			p.DatasetLandingPage.HasSDC = true
-			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, datasetLandingPageCensus.Pending, lang)
+			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, census.Pending, lang)
 			p.DatasetLandingPage.ImproveResults = mapImproveResultsCollapsible(&p.DatasetLandingPage.Dimensions, lang)
 		case sdc.Passed == sdc.Total && sdc.Total > 0: // all areas passing
 			p.DatasetLandingPage.HasSDC = true
-			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, datasetLandingPageCensus.Success, lang)
+			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, census.Success, lang)
 		}
 	}
 
@@ -132,7 +131,7 @@ func CreateCensusFilterOutputsPage(ctx context.Context, req *http.Request, baseP
 }
 
 // mapFilterOutputDims links dimension options to FilterDimensions and prepares them for display
-func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path, lang string, isMultivariate bool) (dimensions []sharedModel.Dimension, qs []datasetLandingPageCensus.Panel) {
+func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []string, path, lang string, isMultivariate bool) (dimensions []sharedModel.Dimension, qs []census.Panel) {
 	sort.Slice(dims, func(i, j int) bool {
 		return *dims[i].IsAreaType
 	})
@@ -168,9 +167,9 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 		}
 		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
 		if dim.QualityStatementText != "" && dim.QualitySummaryURL != "" {
-			qs = append(qs, datasetLandingPageCensus.Panel{
+			qs = append(qs, census.Panel{
 				Body:       []string{fmt.Sprintf("<p>%s</p>%s", dim.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dim.QualitySummaryURL))},
-				CssClasses: []string{"ons-u-mt-no"},
+				CSSClasses: []string{"ons-u-mt-no"},
 			})
 		}
 		dimensions = append(dimensions, pDim)
@@ -213,14 +212,14 @@ func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultC
 }
 
 // mapBlockedAreasPanel is a helper function that maps the blocked areas panel by panel type
-func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType datasetLandingPageCensus.PanelType, lang string) (p []datasetLandingPageCensus.Panel) {
+func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType census.PanelType, lang string) (p []census.Panel) {
 	switch panelType {
-	case datasetLandingPageCensus.Pending:
-		p = []datasetLandingPageCensus.Panel{
+	case census.Pending:
+		p = []census.Panel{
 			{
-				Type:        datasetLandingPageCensus.Pending,
+				Type:        census.Pending,
 				DisplayIcon: false,
-				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
+				CSSClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
 					helper.Localise("SDCAreasAvailable", lang, 1, helper.ThousandsSeparator(sdc.Passed), helper.ThousandsSeparator(sdc.Total)),
 					helper.Localise("SDCRestrictedAreas", lang, sdc.Blocked, helper.ThousandsSeparator(sdc.Blocked)),
@@ -228,12 +227,12 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType d
 				Language: lang,
 			},
 		}
-	case datasetLandingPageCensus.Success:
-		p = []datasetLandingPageCensus.Panel{
+	case census.Success:
+		p = []census.Panel{
 			{
-				Type:        datasetLandingPageCensus.Success,
+				Type:        census.Success,
 				DisplayIcon: false,
-				CssClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
+				CSSClasses:  []string{"ons-u-mt-xl", "ons-u-mb-s"},
 				Body: []string{
 					helper.Localise("SDCAllAreasAvailable", lang, sdc.Total, helper.ThousandsSeparator(sdc.Total)),
 				},

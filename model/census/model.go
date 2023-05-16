@@ -1,8 +1,8 @@
-package datasetLandingPageCensus
+package census
 
 import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -10,14 +10,14 @@ import (
 // Page contains data for the census landing page
 type Page struct {
 	model.Page
-	DatasetLandingPage  DatasetLandingPage            `json:"data"`
-	Version             sharedModel.Version           `json:"version"`
-	Versions            []sharedModel.Version         `json:"versions"`
-	ID                  string                        `json:"id"`
-	ContactDetails      contactDetails.ContactDetails `json:"contact_details"`
-	HasContactDetails   bool                          `json:"has_contact_details"`
-	IsNationalStatistic bool                          `json:"is_national_statistic"`
-	ShowCensusBranding  bool                          `json:"show_census_branding"`
+	DatasetLandingPage  DatasetLandingPage     `json:"data"`
+	Version             sharedModel.Version    `json:"version"`
+	Versions            []sharedModel.Version  `json:"versions"`
+	ID                  string                 `json:"id"`
+	ContactDetails      contact.ContactDetails `json:"contact_details"`
+	HasContactDetails   bool                   `json:"has_contact_details"`
+	IsNationalStatistic bool                   `json:"is_national_statistic"`
+	ShowCensusBranding  bool                   `json:"show_census_branding"`
 }
 
 // DatasetLandingPage contains properties related to the census dataset landing page

@@ -1,4 +1,4 @@
-package datasetLandingPageCensus
+package census
 
 import (
 	"testing"

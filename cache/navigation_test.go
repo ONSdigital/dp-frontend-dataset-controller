@@ -61,7 +61,6 @@ func TestGetNavigationData(t *testing.T) {
 	}
 
 	Convey("Given that navigation data exists in cache", t, func() {
-
 		Convey("When GetNavigationData is called", func() {
 			navigationData, err := mockCacheList.Navigation.GetNavigationData(ctx, "en")
 

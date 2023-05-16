@@ -28,15 +28,14 @@ func TestUnitHelpers(t *testing.T) {
 	})
 }
 
-func TestDatasetVerionURL(t *testing.T) {
+func TestDatasetVersionURL(t *testing.T) {
 	Convey("The dataset version URL is correctly constructed from the provided parameters", t, func() {
-		So(DatasetVersionUrl("myDataset", "myEdition", "myVersion"), ShouldResemble,
+		So(DatasetVersionURL("myDataset", "myEdition", "myVersion"), ShouldResemble,
 			"/datasets/myDataset/editions/myEdition/versions/myVersion")
 	})
 }
 
 func TestGetAPIRouterVersion(t *testing.T) {
-
 	Convey("The api router version is correctly extracted from a valid API Router URL", t, func() {
 		version, err := GetAPIRouterVersion("http://localhost:23200/v1")
 		So(err, ShouldBeNil)
@@ -62,13 +61,13 @@ func TestGetAPIRouterVersion(t *testing.T) {
 
 func TestGetCurrentUrl(t *testing.T) {
 	Convey("The current URL is correctly constructed from the parameters", t, func() {
-		So(GetCurrentUrl("en", "mydomain.com", "/page1/page2"), ShouldResemble, "mydomain.com/page1/page2")
-		So(GetCurrentUrl("en", "mydomain.com", ""), ShouldResemble, "mydomain.com")
-		So(GetCurrentUrl("cy", "mydomain.com", ""), ShouldResemble, "cy.mydomain.com")
-		So(GetCurrentUrl("cy", "mydomain.com", "/page1"), ShouldResemble, "cy.mydomain.com/page1")
-		So(GetCurrentUrl("en", "localhost", "/page1"), ShouldResemble, "ons.gov.uk/page1")
-		So(GetCurrentUrl("cy", "localhost", "/page1"), ShouldResemble, "cy.ons.gov.uk/page1")
-		So(GetCurrentUrl("en", "", "/page1"), ShouldResemble, "ons.gov.uk/page1")
+		So(GetCurrentURL("en", "mydomain.com", "/page1/page2"), ShouldResemble, "mydomain.com/page1/page2")
+		So(GetCurrentURL("en", "mydomain.com", ""), ShouldResemble, "mydomain.com")
+		So(GetCurrentURL("cy", "mydomain.com", ""), ShouldResemble, "cy.mydomain.com")
+		So(GetCurrentURL("cy", "mydomain.com", "/page1"), ShouldResemble, "cy.mydomain.com/page1")
+		So(GetCurrentURL("en", "localhost", "/page1"), ShouldResemble, "ons.gov.uk/page1")
+		So(GetCurrentURL("cy", "localhost", "/page1"), ShouldResemble, "cy.ons.gov.uk/page1")
+		So(GetCurrentURL("en", "", "/page1"), ShouldResemble, "ons.gov.uk/page1")
 	})
 }
 
