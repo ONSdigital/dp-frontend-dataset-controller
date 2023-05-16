@@ -264,7 +264,7 @@ func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 				So(page.ReleaseDate, ShouldBeBlank)
 			})
 			Convey("then the contact details are set", func() {
-				So(page.ContactDetails, ShouldResemble, contact.ContactDetails{
+				So(page.ContactDetails, ShouldResemble, contact.Details{
 					Email:     "census.customerservices@ons.gov.uk",
 					Telephone: "+44 1329 444972",
 				})

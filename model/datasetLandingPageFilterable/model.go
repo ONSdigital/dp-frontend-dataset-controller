@@ -11,8 +11,8 @@ import (
 // Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
-	DatasetLandingPage DatasetLandingPage     `json:"data"`
-	ContactDetails     contact.ContactDetails `json:"contact_details"`
+	DatasetLandingPage DatasetLandingPage `json:"data"`
+	ContactDetails     contact.Details    `json:"contact_details"`
 }
 
 // DatasetLandingPage represents the data on the dataset landing page

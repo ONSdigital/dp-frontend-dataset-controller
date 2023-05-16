@@ -9,11 +9,11 @@ import (
 type Page struct {
 	model.Page
 	DatasetPage DatasetPage `json:"data"`
-	contact.ContactDetails
+	contact.Details
 }
 
 // DatasetPage has the file and title information for an individual dataset
-type DatasetPage struct {
+type DatasetPage struct { //nolint:revive //renaming to page would mix types and have unintended consequences
 	Versions            []Version           `json:"versions"`
 	SupplementaryFiles  []SupplementaryFile `json:"supplementary_files"`
 	Downloads           []Download          `json:"downloads"`

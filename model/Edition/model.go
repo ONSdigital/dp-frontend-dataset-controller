@@ -10,9 +10,9 @@ import (
 type Page struct {
 	model.Page
 	filterable.DatasetLandingPage
-	ContactDetails contact.ContactDetails `json:"contact_details"`
-	Editions       []List                 `json:"editions"`
-	DatasetTitle   string                 `json:"dataset_title"`
+	ContactDetails contact.Details `json:"contact_details"`
+	Editions       []List          `json:"editions"`
+	DatasetTitle   string          `json:"dataset_title"`
 }
 
 // List contains data for a single edition

@@ -166,8 +166,8 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	return p
 }
 
-func getContactDetails(d dataset.DatasetDetails) (contact.ContactDetails, bool) {
-	details := contact.ContactDetails{}
+func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
+	details := contact.Details{}
 	hasContactDetails := false
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {

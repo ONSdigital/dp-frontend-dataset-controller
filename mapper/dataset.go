@@ -54,16 +54,15 @@ func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dat
 	dp.DatasetPage.NextRelease = dlp.Description.NextRelease
 	dp.DatasetPage.DatasetID = dlp.Description.DatasetID
 
-	dp.ContactDetails.Email = strings.TrimSpace(dlp.Description.Contact.Email)
-	dp.ContactDetails.Name = dlp.Description.Contact.Name
-	dp.ContactDetails.Telephone = dlp.Description.Contact.Telephone
+	dp.Details.Email = strings.TrimSpace(dlp.Description.Contact.Email)
+	dp.Details.Name = dlp.Description.Contact.Name
+	dp.Details.Telephone = dlp.Description.Contact.Telephone
 
 	if navigationContent != nil {
 		dp.NavigationContent = MapNavigationContent(*navigationContent)
 	}
 
 	for _, download := range d.Downloads {
-
 		dp.DatasetPage.Downloads = append(
 			dp.DatasetPage.Downloads,
 			dataset.Download{
@@ -109,24 +108,24 @@ func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dat
 	return dp
 }
 
-func determineDownloadURL(download zebedee.Download, datasetPageUri string) string {
-	var downloadUrl string
+func determineDownloadURL(download zebedee.Download, datasetPageURI string) string {
+	var downloadURL string
 	if download.URI != "" {
-		downloadUrl = "/" + staticFilesDownloadEndpoint + download.URI
+		downloadURL = "/" + staticFilesDownloadEndpoint + download.URI
 	} else {
-		downloadUrl = "/file?uri=" + datasetPageUri + "/" + download.File
+		downloadURL = "/file?uri=" + datasetPageURI + "/" + download.File
 	}
-	return downloadUrl
+	return downloadURL
 }
 
-func determineSupplementaryFileURL(supplementaryFile zebedee.SupplementaryFile, datasetPageUri string) string {
-	var downloadUrl string
+func determineSupplementaryFileURL(supplementaryFile zebedee.SupplementaryFile, datasetPageURI string) string {
+	var downloadURL string
 	if supplementaryFile.URI != "" {
-		downloadUrl = "/" + staticFilesDownloadEndpoint + supplementaryFile.URI
+		downloadURL = "/" + staticFilesDownloadEndpoint + supplementaryFile.URI
 	} else {
-		downloadUrl = "/file?uri=" + datasetPageUri + "/" + supplementaryFile.File
+		downloadURL = "/file?uri=" + datasetPageURI + "/" + supplementaryFile.File
 	}
-	return downloadUrl
+	return downloadURL
 }
 
 // mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar

@@ -11,7 +11,7 @@ type Page struct {
 	model.Page
 	DatasetLandingPage DatasetLandingPage `json:"data"`
 	FilterID           string             `json:"filter_id"`
-	contact.ContactDetails
+	contact.Details
 }
 
 // DatasetLandingPage represents a frontend dataset landing page

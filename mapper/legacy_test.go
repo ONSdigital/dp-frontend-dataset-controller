@@ -55,9 +55,9 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].Title, ShouldEqual, dlp.RelatedMethodology[0].Title)
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].URI, ShouldEqual, dlp.RelatedMethodology[0].URI)
 
-		So(sdlp.ContactDetails.Email, ShouldEqual, dlp.Description.Contact.Email)
-		So(sdlp.ContactDetails.Name, ShouldEqual, dlp.Description.Contact.Name)
-		So(sdlp.ContactDetails.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
+		So(sdlp.Details.Email, ShouldEqual, dlp.Description.Contact.Email)
+		So(sdlp.Details.Name, ShouldEqual, dlp.Description.Contact.Name)
+		So(sdlp.Details.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
 
 		So(sdlp.DatasetLandingPage.IsNationalStatistic, ShouldEqual, dlp.Description.NationalStatistic)
 		So(sdlp.DatasetLandingPage.Survey, ShouldEqual, dlp.Description.Survey)

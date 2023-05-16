@@ -282,9 +282,9 @@ func TestCreateDatasetPage(t *testing.T) {
 		So(dp.DatasetPage.IsNationalStatistic, ShouldEqual, dummyLandingPage.Description.NationalStatistic)
 		So(dp.DatasetPage.NextRelease, ShouldEqual, dummyLandingPage.Description.NextRelease)
 		So(dp.DatasetPage.DatasetID, ShouldEqual, dummyLandingPage.Description.DatasetID)
-		So(dp.ContactDetails.Email, ShouldEqual, "tester001@ons.gov.uk")
-		So(dp.ContactDetails.Telephone, ShouldEqual, dummyLandingPage.Description.Contact.Telephone)
-		So(dp.ContactDetails.Name, ShouldEqual, dummyLandingPage.Description.Contact.Name)
+		So(dp.Details.Email, ShouldEqual, "tester001@ons.gov.uk")
+		So(dp.Details.Telephone, ShouldEqual, dummyLandingPage.Description.Contact.Telephone)
+		So(dp.Details.Name, ShouldEqual, dummyLandingPage.Description.Contact.Name)
 
 		So(dp.DatasetPage.Downloads[0].Size, ShouldEqual, "400")
 		So(dp.DatasetPage.Downloads[0].Extension, ShouldEqual, ".xls")
@@ -340,7 +340,6 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
-
 			// get cached navigation data
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)

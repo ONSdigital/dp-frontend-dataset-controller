@@ -40,7 +40,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 		p.ShowCensusBranding = true
 		p.DatasetLandingPage.IsCustom = true
 		p.HasContactDetails = true
-		p.ContactDetails = contact.ContactDetails{
+		p.ContactDetails = contact.Details{
 			Email:     "census.customerservices@ons.gov.uk",
 			Telephone: "+44 1329 444972",
 		}
