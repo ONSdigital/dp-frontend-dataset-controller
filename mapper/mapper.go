@@ -14,6 +14,8 @@ import (
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/edition"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -64,7 +66,9 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 }
 
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
-func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) filterable.Page {
+//
+//nolint:gocyclo //complexity 21
+func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) filterable.Page {
 	p := filterable.Page{
 		Page: basePage,
 	}
@@ -145,7 +149,7 @@ func CreateFilterableLandingPage(basePage coreModel.Page, ctx context.Context, r
 	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
 	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
-	p.DatasetLandingPage.ReleaseFrequency = strings.Title(d.ReleaseFrequency)
+	p.DatasetLandingPage.ReleaseFrequency = cases.Title(language.English).String(d.ReleaseFrequency)
 	p.DatasetLandingPage.Citation = d.License
 
 	if d.Type == "nomis" {
@@ -356,12 +360,11 @@ func mapCorrectionAlert(ver *dataset.Version, model *sharedModel.Version) {
 func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dataset.VersionDimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
-
 		var pDim sharedModel.Dimension
 
 		var title string
 		if len(opt.Items) > 0 {
-			title = strings.Title(opt.Items[0].DimensionID)
+			title = cases.Title(language.English).String(opt.Items[0].DimensionID)
 		}
 
 		if datasetType != "nomis" {

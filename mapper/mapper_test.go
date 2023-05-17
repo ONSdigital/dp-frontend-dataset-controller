@@ -137,7 +137,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
-		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -257,7 +257,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
 
-		p := CreateFilterableLandingPage(mdl, ctx, req, nomisD, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, req, nomisD, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -367,7 +367,7 @@ func TestUnitMapper(t *testing.T) {
 			},
 		}
 
-		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, opts, dims, false, []zebedee.Breadcrumb{},
+		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, opts, dims, false, []zebedee.Breadcrumb{},
 			1, "", "en", "/v1", 50, serviceMessage, emergencyBanner)
 
 		So(p.DatasetLandingPage.Dimensions, ShouldResemble, []sharedModel.Dimension{
@@ -382,7 +382,7 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -413,7 +413,7 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(mdl, ctx, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{

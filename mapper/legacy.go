@@ -24,8 +24,9 @@ const staticFilesDownloadEndpoint = "downloads-new"
 type StaticDatasetLandingPage static.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
-
+//
+//nolint:gocyclo //complexity 21
+func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
 	sdlp := StaticDatasetLandingPage{
 		Page: basePage,
 	}
@@ -164,7 +165,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	for _, value := range dlp.Alerts {
 		switch value.Type {
 		default:
-			log.Error(ctx, "Unrecognised alert type", errors.New("Unrecognised alert type"), log.Data{"alert": value})
+			log.Error(ctx, "unrecognised alert type", errors.New("unrecognised alert type"), log.Data{"alert": value})
 			fallthrough
 		case "alert":
 			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, static.Message{

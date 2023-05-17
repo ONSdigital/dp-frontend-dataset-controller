@@ -141,7 +141,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateFilterableLandingPage(basePage, ctx, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateFilterableLandingPage(ctx, basePage, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {

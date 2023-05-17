@@ -87,7 +87,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	}
 
 	basePage := lp.RenderClient.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
+	m := mapper.CreateLegacyDatasetLanding(ctx, basePage, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	lp.RenderClient.BuildPage(w, m, "static")
 }

@@ -38,7 +38,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, "legacy_dataset")
@@ -112,7 +112,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedFilename
@@ -152,7 +152,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/downloads-new/" + expectedDownloadFilepath
