@@ -87,9 +87,9 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 
 	// CUSTOM TITLE
 	if helpers.IsBoolPtr(filterOutput.Custom) || p.DatasetLandingPage.IsMultivariate {
-		nonGeoDims := getNonGeographyDims(&p.DatasetLandingPage.Dimensions)
+		nonGeoDims := getNonGeographyDims(p.DatasetLandingPage.Dimensions)
 		dimensionStr := buildConjoinedList(nonGeoDims, true)
-		vDims := getNonGeographyVersionDims(&version.Dimensions)
+		vDims := getNonGeographyVersionDims(version.Dimensions)
 		vTitle := buildConjoinedList(vDims, true)
 		if vTitle != dimensionStr || helpers.IsBoolPtr(filterOutput.Custom) {
 			p.Metadata.Title = strings.ToUpper(dimensionStr[:1]) + strings.ToLower(dimensionStr[1:])
@@ -105,7 +105,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: mapOutputCollapsible(dimDesc, &p.DatasetLandingPage.Dimensions),
+		CollapsibleItems: mapOutputCollapsible(dimDesc, p.DatasetLandingPage.Dimensions),
 	}
 
 	// ANALYTICS
@@ -117,7 +117,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 		case sdc.Blocked > 0: // areas blocked
 			p.DatasetLandingPage.HasSDC = true
 			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, census.Pending, lang)
-			p.DatasetLandingPage.ImproveResults = mapImproveResultsCollapsible(&p.DatasetLandingPage.Dimensions, lang)
+			p.DatasetLandingPage.ImproveResults = mapImproveResultsCollapsible(p.DatasetLandingPage.Dimensions, lang)
 		case sdc.Passed == sdc.Total && sdc.Total > 0: // all areas passing
 			p.DatasetLandingPage.HasSDC = true
 			p.DatasetLandingPage.SDC = mapBlockedAreasPanel(&sdc, census.Success, lang)
@@ -135,28 +135,28 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 	sort.Slice(dims, func(i, j int) bool {
 		return *dims[i].IsAreaType
 	})
-	for _, dim := range dims {
+	for i := range dims {
 		var isAreaType bool
-		if helpers.IsBoolPtr(dim.IsAreaType) {
+		if helpers.IsBoolPtr(dims[i].IsAreaType) {
 			isAreaType = true
 		}
 		pDim := sharedModel.Dimension{}
-		pDim.Title = cleanDimensionLabel(dim.Label)
-		pDim.ID = dim.ID
-		pDim.Name = dim.Name
+		pDim.Title = cleanDimensionLabel(dims[i].Label)
+		pDim.ID = dims[i].ID
+		pDim.Name = dims[i].Name
 		pDim.IsAreaType = isAreaType
-		pDim.ShowChange = isAreaType || (isMultivariate && dim.CategorisationCount > 1)
-		pDim.TotalItems = dim.OptionsCount
+		pDim.ShowChange = isAreaType || (isMultivariate && dims[i].CategorisationCount > 1)
+		pDim.TotalItems = dims[i].OptionsCount
 		midFloor, midCeiling := getTruncationMidRange(pDim.TotalItems)
 
 		var displayedOptions []string
 		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) && !pDim.IsAreaType {
-			displayedOptions = dim.Options[:3]
-			displayedOptions = append(displayedOptions, dim.Options[midFloor:midCeiling]...)
-			displayedOptions = append(displayedOptions, dim.Options[len(dim.Options)-3:]...)
+			displayedOptions = dims[i].Options[:3]
+			displayedOptions = append(displayedOptions, dims[i].Options[midFloor:midCeiling]...)
+			displayedOptions = append(displayedOptions, dims[i].Options[len(dims[i].Options)-3:]...)
 			pDim.IsTruncated = true
 		} else {
-			displayedOptions = dim.Options
+			displayedOptions = dims[i].Options
 		}
 
 		pDim.Values = append(pDim.Values, displayedOptions...)
@@ -166,9 +166,9 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 			q.Add(queryStrKey, pDim.ID)
 		}
 		pDim.TruncateLink = generateTruncatePath(path, pDim.ID, q)
-		if dim.QualityStatementText != "" && dim.QualitySummaryURL != "" {
+		if dims[i].QualityStatementText != "" && dims[i].QualitySummaryURL != "" {
 			qs = append(qs, census.Panel{
-				Body:       []string{fmt.Sprintf("<p>%s</p>%s", dim.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dim.QualitySummaryURL))},
+				Body:       []string{fmt.Sprintf("<p>%s</p>%s", dims[i].QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dims[i].QualitySummaryURL))},
 				CSSClasses: []string{"ons-u-mt-no"},
 			})
 		}
@@ -181,8 +181,8 @@ func mapFilterOutputDims(dims []sharedModel.FilterDimension, queryStrValues []st
 func getFilterAnalytics(filterDimensions []sharedModel.FilterDimension, defaultCoverage bool) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
-	for _, filterDimension := range filterDimensions {
-		dimension := filterDimension.ModelDimension
+	for i := range filterDimensions {
+		dimension := filterDimensions[i].ModelDimension
 		if dimension.IsAreaType != nil && *dimension.IsAreaType {
 			analytics["areaType"] = dimension.ID
 
@@ -243,7 +243,7 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType c
 	return p
 }
 
-func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) coreModel.Collapsible {
+func mapImproveResultsCollapsible(dims []sharedModel.Dimension, lang string) coreModel.Collapsible {
 	dimsList := getNonGeographyDims(dims)
 	stringList := buildConjoinedList(dimsList, false)
 
@@ -264,20 +264,20 @@ func mapImproveResultsCollapsible(dims *[]sharedModel.Dimension, lang string) co
 }
 
 // getNonGeographyDims returns all dimensions that are non-geography (not area type, coverage or population type)
-func getNonGeographyDims(dims *[]sharedModel.Dimension) (dimsList []string) {
-	for _, dim := range *dims {
-		if !dim.IsAreaType && !dim.IsCoverage && !dim.IsPopulationType {
-			dimsList = append(dimsList, dim.Title)
+func getNonGeographyDims(dims []sharedModel.Dimension) (dimsList []string) {
+	for i := range dims {
+		if !dims[i].IsAreaType && !dims[i].IsCoverage && !dims[i].IsPopulationType {
+			dimsList = append(dimsList, dims[i].Title)
 		}
 	}
 	return dimsList
 }
 
 // getNonGeographyVersionDims returns all version dimensions that is not an area type
-func getNonGeographyVersionDims(dims *[]dataset.VersionDimension) (dimsList []string) {
-	for _, dim := range *dims {
-		if !helpers.IsBoolPtr(dim.IsAreaType) {
-			dimsList = append(dimsList, cleanDimensionLabel(dim.Label))
+func getNonGeographyVersionDims(dims []dataset.VersionDimension) (dimsList []string) {
+	for i := range dims {
+		if !helpers.IsBoolPtr(dims[i].IsAreaType) {
+			dimsList = append(dimsList, cleanDimensionLabel(dims[i].Label))
 		}
 	}
 	sort.Strings(dimsList)

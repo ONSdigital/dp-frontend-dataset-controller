@@ -64,7 +64,7 @@ func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d datas
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
-		CollapsibleItems: mapLandingCollapsible(&version.Dimensions),
+		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
 	}
 
 	// ANALYTICS
@@ -81,22 +81,22 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 
-		for _, dimension := range dims {
-			if dimension.Name != opt.Items[0].DimensionID {
+		for i := range dims {
+			if dims[i].Name != opt.Items[0].DimensionID {
 				continue
 			}
-			pDim.Name = dimension.Name
-			pDim.Description = dimension.Description
-			pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+			pDim.Name = dims[i].Name
+			pDim.Description = dims[i].Description
+			pDim.IsAreaType = helpers.IsBoolPtr(dims[i].IsAreaType)
 
-			categorisationCount := categorisationsMap[dimension.ID]
+			categorisationCount := categorisationsMap[dims[i].ID]
 			pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
 
-			pDim.Title = cleanDimensionLabel(dimension.Label)
-			pDim.ID = dimension.ID
-			if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
+			pDim.Title = cleanDimensionLabel(dims[i].Label)
+			pDim.ID = dims[i].ID
+			if dims[i].QualityStatementText != "" && dims[i].QualityStatementURL != "" {
 				qs = append(qs, census.Panel{
-					Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
+					Body:       []string{fmt.Sprintf("<p>%s</p>%s", dims[i].QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dims[i].QualityStatementURL))},
 					CSSClasses: []string{"ons-u-mt-no"},
 				})
 			}
@@ -115,8 +115,8 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 			displayedOptions = opt.Items
 		}
 
-		for _, opt := range displayedOptions {
-			pDim.Values = append(pDim.Values, opt.Label)
+		for i := range displayedOptions {
+			pDim.Values = append(pDim.Values, displayedOptions[i].Label)
 		}
 
 		q := url.Values{}
@@ -138,12 +138,12 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 func getAnalytics(dimensions []sharedModel.Dimension) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
-	for _, dimension := range dimensions {
-		if dimension.IsAreaType {
-			analytics["areaType"] = dimension.ID
+	for i := range dimensions {
+		if dimensions[i].IsAreaType {
+			analytics["areaType"] = dimensions[i].ID
 			analytics["coverageCount"] = "0"
-		} else if !dimension.IsCoverage {
-			dimensionIDs = append(dimensionIDs, dimension.ID)
+		} else if !dimensions[i].IsCoverage {
+			dimensionIDs = append(dimensionIDs, dimensions[i].ID)
 		}
 	}
 	analytics["dimensions"] = strings.Join(dimensionIDs, ",")

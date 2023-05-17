@@ -746,7 +746,7 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 	Convey("Given a list", t, func() {
 		Convey("When the mapImproveResultsCollapsible function is called", func() {
 			Convey("Then the given dimensions returns the expected collapsible", func() {
-				So(mapImproveResultsCollapsible(&mockDims, "en"), ShouldResemble, mockCollapsible)
+				So(mapImproveResultsCollapsible(mockDims, "en"), ShouldResemble, mockCollapsible)
 			})
 		})
 	})

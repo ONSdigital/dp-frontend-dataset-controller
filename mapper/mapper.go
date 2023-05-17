@@ -243,27 +243,27 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	latestVersionNumber := 1
-	for i, ver := range versions {
+	for i := range versions {
 		var v sharedModel.Version
 		v.IsLatest = false
-		v.VersionNumber = ver.Version
+		v.VersionNumber = versions[i].Version
 		v.Title = d.Title
-		v.Date = ver.ReleaseDate
-		versionURL := helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(ver.Version))
+		v.Date = versions[i].ReleaseDate
+		versionURL := helpers.DatasetVersionURL(versions[i].Links.Dataset.ID, versions[i].Edition, strconv.Itoa(versions[i].Version))
 		v.VersionURL = versionURL
 		v.FilterURL = versionURL + "/filter"
 
 		// Not the 'created' first version and more than one stored version
-		if ver.Version > 1 && len(p.Data.Versions) >= 1 {
+		if versions[i].Version > 1 && len(p.Data.Versions) >= 1 {
 			previousVersion := p.Data.Versions[len(p.Data.Versions)-1].VersionNumber
-			v.Superseded = helpers.DatasetVersionURL(ver.Links.Dataset.ID, ver.Edition, strconv.Itoa(previousVersion))
+			v.Superseded = helpers.DatasetVersionURL(versions[i].Links.Dataset.ID, versions[i].Edition, strconv.Itoa(previousVersion))
 		}
 
-		if ver.Version > latestVersionNumber {
-			latestVersionNumber = ver.Version
+		if versions[i].Version > latestVersionNumber {
+			latestVersionNumber = versions[i].Version
 		}
 
-		for ext, download := range ver.Downloads {
+		for ext, download := range versions[i].Downloads {
 			v.Downloads = append(v.Downloads, sharedModel.Download{
 				Extension: ext,
 				Size:      download.Size,
@@ -276,8 +276,8 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 		p.Data.Versions = append(p.Data.Versions, v)
 	}
 
-	for i, ver := range p.Data.Versions {
-		if ver.VersionNumber == latestVersionNumber {
+	for i := range p.Data.Versions {
+		if p.Data.Versions[i].VersionNumber == latestVersionNumber {
 			p.Data.Versions[i].IsLatest = true
 			break
 		}
@@ -328,10 +328,10 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 	p.DatasetLandingPage.DatasetID = datasetID
 
 	if len(editions) > 0 {
-		for _, ed := range editions {
+		for i := range editions {
 			var el edition.List
-			el.Title = ed.Edition
-			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, ed.Edition, ed.Links.LatestVersion.ID)
+			el.Title = editions[i].Edition
+			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editions[i].Edition, editions[i].Links.LatestVersion.ID)
 			p.Editions = append(p.Editions, el)
 		}
 	}
@@ -520,9 +520,9 @@ func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) coreModel.EmergencyB
 }
 
 func FindVersion(versionList []zebedee.Dataset, versionURI string) zebedee.Dataset {
-	for _, ver := range versionList {
-		if versionURI == ver.URI {
-			return ver
+	for i := range versionList {
+		if versionURI == versionList[i].URI {
+			return versionList[i]
 		}
 	}
 	return zebedee.Dataset{}

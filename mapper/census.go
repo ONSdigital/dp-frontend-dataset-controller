@@ -61,16 +61,16 @@ func coverageItem() coreModel.CollapsibleItem {
 }
 
 // mapOutputCollapsible maps the collapsible on the output page
-func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims *[]sharedModel.Dimension) []coreModel.CollapsibleItem {
+func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	var areaItem coreModel.CollapsibleItem
 
-	for _, dim := range *dims {
+	for i := range dims {
 		for _, dimDescription := range dimDescriptions.Dimensions {
-			if dim.ID == dimDescription.ID && dim.IsAreaType {
+			if dims[i].ID == dimDescription.ID && dims[i].IsAreaType {
 				areaItem.Subheading = cleanDimensionLabel(dimDescription.Label)
 				areaItem.Content = strings.Split(dimDescription.Description, "\n")
-			} else if dim.ID == dimDescription.ID && !dim.IsAreaType {
+			} else if dims[i].ID == dimDescription.ID && !dims[i].IsAreaType {
 				collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
 					Subheading: cleanDimensionLabel(dimDescription.Label),
 					Content:    strings.Split(dimDescription.Description, "\n"),
@@ -83,17 +83,17 @@ func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims
 }
 
 // mapLandingCollapsible maps the collapsible on the landing page
-func mapLandingCollapsible(dimensions *[]dataset.VersionDimension) []coreModel.CollapsibleItem {
+func mapLandingCollapsible(dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	var areaItem coreModel.CollapsibleItem
-	for _, dim := range *dimensions {
-		if helpers.IsBoolPtr(dim.IsAreaType) && dim.Description != "" {
-			areaItem.Subheading = cleanDimensionLabel(dim.Label)
-			areaItem.Content = strings.Split(dim.Description, "\n")
-		} else if dim.Description != "" {
+	for i := range dimensions {
+		if helpers.IsBoolPtr(dimensions[i].IsAreaType) && dimensions[i].Description != "" {
+			areaItem.Subheading = cleanDimensionLabel(dimensions[i].Label)
+			areaItem.Content = strings.Split(dimensions[i].Description, "\n")
+		} else if dimensions[i].Description != "" {
 			collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
-				Subheading: cleanDimensionLabel(dim.Label),
-				Content:    strings.Split(dim.Description, "\n"),
+				Subheading: cleanDimensionLabel(dimensions[i].Label),
+				Content:    strings.Split(dimensions[i].Description, "\n"),
 			})
 		}
 	}

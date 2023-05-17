@@ -108,12 +108,12 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 		sdlp.DatasetLandingPage.ParentPath = sdlp.Page.Breadcrumb[len(sdlp.Page.Breadcrumb)-1].Title
 	}
 
-	for i, d := range ds {
+	for i := range ds {
 		var dataset static.Dataset
-		dataset.URI = d.URI
-		dataset.VersionLabel = d.Description.VersionLabel
+		dataset.URI = ds[i].URI
+		dataset.VersionLabel = ds[i].Description.VersionLabel
 
-		for _, download := range d.Downloads {
+		for _, download := range ds[i].Downloads {
 			if download.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(download.URI, "/")
 				dataset.Downloads = append(dataset.Downloads, static.Download{
@@ -131,7 +131,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 				})
 			}
 		}
-		for _, supplementaryFile := range d.SupplementaryFiles {
+		for _, supplementaryFile := range ds[i].SupplementaryFiles {
 			if supplementaryFile.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(supplementaryFile.URI, "/")
 				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, static.SupplementaryFile{
@@ -152,9 +152,9 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 			}
 		}
 
-		dataset.Title = d.Description.Edition
+		dataset.Title = ds[i].Description.Edition
 
-		if len(d.Versions) > 0 {
+		if len(ds[i].Versions) > 0 {
 			dataset.HasVersions = true
 		}
 		dataset.IsLast = i+1 == len(ds)
