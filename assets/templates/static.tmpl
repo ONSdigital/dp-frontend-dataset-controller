@@ -91,10 +91,10 @@
                 {{ end }}
                 <div class="meta__term">{{ localise "Contact" .Language 1  }}</div>
                 <div>
-                    {{ if .ContactDetails.Email}}
-                        <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Name }}</a>
+                    {{ if .Details.Email}}
+                        <a href="mailto:{{ .Details.Email}}">{{ .Details.Name }}</a>
                     {{ else }}
-                        {{ .ContactDetails.Name }}
+                        {{ .Details.Name }}
                     {{ end }}
                 </div>
             </li>
@@ -242,16 +242,16 @@
                     <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "DatasetContactDetails" $Language 1 }}</h3>
                     <div class="tiles__content tiles__content--nav">
                         <address>
-                            {{ if .ContactDetails.Name}}
-                                {{ .ContactDetails.Name }}
+                            {{ if .Details.Name}}
+                                {{ .Details.Name }}
                             {{ end }}
-                            {{ if .ContactDetails.Email}}
+                            {{ if .Details.Email}}
                                 <br>
-                                <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
+                                <a href="mailto:{{ .Details.Email}}">{{ .Details.Email }}</a>
                             {{ end }}
-                            {{ if .ContactDetails.Telephone }}
+                            {{ if .Details.Telephone }}
                                 <br>
-                                {{ .ContactDetails.Telephone }}
+                                {{ .Details.Telephone }}
                             {{ end }}
                         </address>
                     </div>

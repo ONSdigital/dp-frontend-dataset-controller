@@ -13,7 +13,7 @@ import (
 
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
-	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/edition"
+	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/editions"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 

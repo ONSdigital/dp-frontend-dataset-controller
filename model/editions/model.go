@@ -1,4 +1,4 @@
-package edition
+package editions
 
 import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
