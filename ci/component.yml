@@ -1,0 +1,15 @@
+---
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.20.4
+
+inputs:
+  - name: dp-frontend-dataset-controller
+
+run:
+  path:  dp-frontend-dataset-controller/ci/scripts/component.sh

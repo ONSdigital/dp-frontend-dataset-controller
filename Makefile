@@ -38,6 +38,10 @@ test: generate-prod
 convey:
 	goconvey ./...
 
+.PHONY: test-component
+test-component:
+	exit
+
 .PHONY: all build debug audit
 
 .PHONY: fetch-renderer-lib
