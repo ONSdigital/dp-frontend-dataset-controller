@@ -3,7 +3,6 @@
     <div class="wrapper">
         <div class="col-wrap">
             <div class="col">
-                {{ template "partials/breadcrumb" . }}
                 <h1 class="page-intro__title margin-bottom--4">
                     <span class="page-intro__type">{{ localise "Dataset" .Language 1  }}</span>
                     {{ .Metadata.Title }}
@@ -92,10 +91,10 @@
                 {{ end }}
                 <div class="meta__term">{{ localise "Contact" .Language 1  }}</div>
                 <div>
-                    {{ if .ContactDetails.Email}}
-                        <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Name }}</a>
+                    {{ if .Details.Email}}
+                        <a href="mailto:{{ .Details.Email}}">{{ .Details.Name }}</a>
                     {{ else }}
-                        {{ .ContactDetails.Name }}
+                        {{ .Details.Name }}
                     {{ end }}
                 </div>
             </li>
@@ -190,7 +189,7 @@
                                     <div class="margin-bottom--2">
                                         {{ range .Downloads }}
                                             <div class="inline-block--md margin-bottom-sm--1">
-                                                <a href="{{ .DownloadUrl }}" class="btn btn--primary btn--thick" aria-label="{{ localise "DownloadInFormatWithFullTitle" $Language 1  $.Metadata.Title $dataset.Title .Extension }}">
+                                                <a href="{{ .DownloadURL }}" class="btn btn--primary btn--thick" aria-label="{{ localise "DownloadInFormatWithFullTitle" $Language 1  $.Metadata.Title $dataset.Title .Extension }}">
                                                     {{ if eq .Extension "csdb" }}
                                                         {{ localise "StructuredText" $Language 1 }} ({{ humanSize .Size }})
                                                     {{ else }}
@@ -211,7 +210,7 @@
                                         <ul class="list--neutral margin-top--0">
                                             {{ range .SupplementaryFiles }}
                                                 <li class="margin-top--0 margin-bottom--0">
-                                                    <a href="{{ .DownloadUrl }}">{{ .Title }}</a>
+                                                    <a href="{{ .DownloadURL }}">{{ .Title }}</a>
                                                     <span class="uppercase">({{ .Extension }}, {{ humanSize .Size }})</span>
                                                 </li>
                                             {{ end }}
@@ -243,16 +242,16 @@
                     <h3 class="tiles__title-h3 tiles__title-h3--nav">{{ localise "DatasetContactDetails" $Language 1 }}</h3>
                     <div class="tiles__content tiles__content--nav">
                         <address>
-                            {{ if .ContactDetails.Name}}
-                                {{ .ContactDetails.Name }}
+                            {{ if .Details.Name}}
+                                {{ .Details.Name }}
                             {{ end }}
-                            {{ if .ContactDetails.Email}}
+                            {{ if .Details.Email}}
                                 <br>
-                                <a href="mailto:{{ .ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
+                                <a href="mailto:{{ .Details.Email}}">{{ .Details.Email }}</a>
                             {{ end }}
-                            {{ if .ContactDetails.Telephone }}
+                            {{ if .Details.Telephone }}
                                 <br>
-                                {{ .ContactDetails.Telephone }}
+                                {{ .Details.Telephone }}
                             {{ end }}
                         </address>
                     </div>

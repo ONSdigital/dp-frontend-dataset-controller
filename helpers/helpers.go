@@ -17,8 +17,8 @@ func ExtractDatasetInfoFromPath(path string) (datasetID, edition, version string
 	return subs[1], subs[2], subs[3], nil
 }
 
-// DatasetVersionUrl constructs a dataset version URL from the provided datasetID, edition and version values
-func DatasetVersionUrl(datasetID string, edition string, version string) string {
+// DatasetVersionURL constructs a dataset version URL from the provided datasetID, edition and version values
+func DatasetVersionURL(datasetID, edition, version string) string {
 	return fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version)
 }
 
@@ -31,8 +31,8 @@ func GetAPIRouterVersion(rawurl string) (string, error) {
 	return apiRouterURL.Path, nil
 }
 
-// GetCurrentUrl returns a string of the current URL from language, site domain and url path parameters
-func GetCurrentUrl(lang string, siteDomain string, urlPath string) string {
+// GetCurrentURL returns a string of the current URL from language, site domain and url path parameters
+func GetCurrentURL(lang, siteDomain, urlPath string) string {
 	var welshPrepend string
 	if lang == "cy" {
 		welshPrepend = "cy."
@@ -46,16 +46,16 @@ func GetCurrentUrl(lang string, siteDomain string, urlPath string) string {
 }
 
 // GenerateSharingLink returns a sharing link for different types of social media
-func GenerateSharingLink(socialType string, currentUrl string, title string) string {
+func GenerateSharingLink(socialType, currentURL, title string) string {
 	switch socialType {
 	case "facebook":
-		return fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", currentUrl)
+		return fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", currentURL)
 	case "twitter":
-		return fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, currentUrl)
+		return fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, currentURL)
 	case "linkedin":
-		return fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", currentUrl)
+		return fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", currentURL)
 	case "email":
-		return fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, currentUrl)
+		return fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, currentURL)
 	default:
 		return ""
 	}

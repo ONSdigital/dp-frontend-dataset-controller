@@ -10,10 +10,9 @@ image_resource:
 
 inputs:
   - name: dp-frontend-dataset-controller
-    path: dp-frontend-dataset-controller
-
-outputs:
-  - name: build
+    
+caches:
+  - path: go/
 
 run:
-  path: dp-frontend-dataset-controller/ci/scripts/build.sh
+  path: dp-frontend-dataset-controller/ci/scripts/lint.sh

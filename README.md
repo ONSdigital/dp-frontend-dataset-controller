@@ -6,22 +6,23 @@ An HTTP service for the controlling of data and rendering templates relevant to 
 
 ## Configuration
 
-| Environment variable         | Default                   | Description                                                                                                                                           |
-| ---------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BIND_ADDR                    | :20200                    | The host and port to bind to.                                                                                                                         |
-| DEBUG                        | false                     | Enable debug mode                                                                                                                                     |
-| ENABLE_MULTIVARIATE          | false                     | Enable 2021 [multivariate datasets](https://github.com/ONSdigital/dp-dataset-api/blob/5f9f4218b65aae4803809f4a876e9f72b9bf5305/models/dataset.go#L43) |
-| API_ROUTER_URL               | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                                                           |
-| SITE_DOMAIN                  | localhost                 |
-| PATTERN_LIBRARY_ASSETS_PATH  | ""                        | Pattern library location                                                                                                                              |
-| SUPPORTED_LANGUAGES          | []string{"en", "cy"}      | Supported languages                                                                                                                                   |
-| DOWNLOAD_SERVICE_URL         | http://localhost:23600    | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).                                                              |
-| GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                        | The graceful shutdown timeout in seconds                                                                                                              |
-| HEALTHCHECK_INTERVAL         | 30s                       | The time between calling healthcheck endpoints for check subsystems                                                                                   |
-| HEALTHCHECK_CRITICAL_TIMEOUT | 90s                       | The time taken for the health changes from warning state to critical due to subsystem check failures                                                  |
-| ENABLE_PROFILER              | false                     | Flag to enable go profiler                                                                                                                            |
-| PPROF_TOKEN                  | ""                        | The profiling token to access service profiling                                                                                                       |
-| ENABLE_NEW_NAV_BAR           | false                     | Enable new nav bar                                                                                                                                    |
+| Environment variable             | Default                   | Description                                                                                                                                           |
+| -------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API_ROUTER_URL                   | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                                                           |
+| BIND_ADDR                        | :20200                    | The host and port to bind to.                                                                                                                         |
+| CACHE_NAVIGATION_UPDATE_INTERVAL | 10s                       | How often the navigation cache is updated                                                                                                             |
+| DEBUG                            | false                     | Enable debug mode                                                                                                                                     |
+| DOWNLOAD_SERVICE_URL             | http://localhost:23600    | The URL of [dp-download-service](https://www.github.com/ONSdigital/dp-download-service).                                                              |
+| ENABLE_MULTIVARIATE              | false                     | Enable 2021 [multivariate datasets](https://github.com/ONSdigital/dp-dataset-api/blob/5f9f4218b65aae4803809f4a876e9f72b9bf5305/models/dataset.go#L43) |
+| ENABLE_NEW_NAV_BAR               | false                     | Enable new nav bar                                                                                                                                    |
+| ENABLE_PROFILER                  | false                     | Flag to enable go profiler                                                                                                                            |
+| GRACEFUL_SHUTDOWN_TIMEOUT        | 5s                        | The graceful shutdown timeout in seconds                                                                                                              |
+| HEALTHCHECK_CRITICAL_TIMEOUT     | 90s                       | The time taken for the health changes from warning state to critical due to subsystem check failures                                                  |
+| HEALTHCHECK_INTERVAL             | 30s                       | The time between calling healthcheck endpoints for check subsystems                                                                                   |
+| PATTERN_LIBRARY_ASSETS_PATH      | ""                        | Pattern library location                                                                                                                              |
+| PPROF_TOKEN                      | ""                        | The profiling token to access service profiling                                                                                                       |
+| SITE_DOMAIN                      | localhost                 |                                                                                                                                                       |
+| SUPPORTED_LANGUAGES              | []string{"en", "cy"}      | Supported languages                                                                                                                                   |
 
 ## Profiling
 
@@ -45,6 +46,6 @@ b) `go tool pprof heap.out`, -o flag to see various options
 
 ## Licence
 
-Copyright ©‎ 2022, Office for National Statistics (https://www.ons.gov.uk)
+Copyright © 2023, Office for National Statistics (https://www.ons.gov.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.

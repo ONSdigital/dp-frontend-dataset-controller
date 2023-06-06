@@ -1,19 +1,19 @@
-package datasetPage
+package dataset
 
 import (
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
 	DatasetPage DatasetPage `json:"data"`
-	contactDetails.ContactDetails
+	contact.Details
 }
 
 // DatasetPage has the file and title information for an individual dataset
-type DatasetPage struct {
+type DatasetPage struct { //nolint:revive //renaming to page would mix types and have unintended consequences
 	Versions            []Version           `json:"versions"`
 	SupplementaryFiles  []SupplementaryFile `json:"supplementary_files"`
 	Downloads           []Download          `json:"downloads"`
@@ -33,7 +33,7 @@ type Download struct {
 	Size        string `json:"size"`
 	URI         string `json:"uri"`
 	File        string `json:"file"`
-	DownloadUrl string `json:"download_url,omitempty"`
+	DownloadURL string `json:"download_url,omitempty"`
 }
 
 // SupplementaryFile is a downloadable file that is associated to an individual dataset
@@ -42,7 +42,7 @@ type SupplementaryFile struct {
 	Extension   string `json:"extension"`
 	Size        string `json:"size"`
 	URI         string `json:"uri"`
-	DownloadUrl string `json:"download_url,omitempty"`
+	DownloadURL string `json:"download_url,omitempty"`
 }
 
 // Version has the details for a previous version of the dataset

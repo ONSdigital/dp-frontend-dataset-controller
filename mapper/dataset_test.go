@@ -10,9 +10,9 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	"github.com/ONSdigital/dp-net/request"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
+	"github.com/ONSdigital/dp-net/v2/request"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -259,7 +259,7 @@ func TestCreateDatasetPage(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		dp := CreateDatasetPage(mdl, ctx, req, dummyModelData, dummyLandingPage,
+		dp := CreateDatasetPage(mdl, req, dummyModelData, dummyLandingPage,
 			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
 			dummyVersions, "en", serviceMessage, emergencyBanner, navigationCache)
 
@@ -282,9 +282,9 @@ func TestCreateDatasetPage(t *testing.T) {
 		So(dp.DatasetPage.IsNationalStatistic, ShouldEqual, dummyLandingPage.Description.NationalStatistic)
 		So(dp.DatasetPage.NextRelease, ShouldEqual, dummyLandingPage.Description.NextRelease)
 		So(dp.DatasetPage.DatasetID, ShouldEqual, dummyLandingPage.Description.DatasetID)
-		So(dp.ContactDetails.Email, ShouldEqual, "tester001@ons.gov.uk")
-		So(dp.ContactDetails.Telephone, ShouldEqual, dummyLandingPage.Description.Contact.Telephone)
-		So(dp.ContactDetails.Name, ShouldEqual, dummyLandingPage.Description.Contact.Name)
+		So(dp.Details.Email, ShouldEqual, "tester001@ons.gov.uk")
+		So(dp.Details.Telephone, ShouldEqual, dummyLandingPage.Description.Contact.Telephone)
+		So(dp.Details.Name, ShouldEqual, dummyLandingPage.Description.Contact.Name)
 
 		So(dp.DatasetPage.Downloads[0].Size, ShouldEqual, "400")
 		So(dp.DatasetPage.Downloads[0].Extension, ShouldEqual, ".xls")
@@ -340,7 +340,6 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
-
 			// get cached navigation data
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -350,16 +349,16 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 			So(err, ShouldBeNil)
 
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner, navigationCache)
+			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /file?uri=", func() {
-				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
+				downloadUrl := result.DatasetPage.Downloads[0].DownloadURL
 				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
 				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
 			})
 
 			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadUrl
+				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadURL
 				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
 				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
 			})
@@ -394,22 +393,22 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 			So(err, ShouldBeNil)
 
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
+			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.Downloads[0].DownloadUrl
+				downloadUrl := result.DatasetPage.Downloads[0].DownloadURL
 				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
 				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
 			})
 
 			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadUrl
+				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadURL
 				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
 				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
 			})
 
 			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.Versions[0].Downloads[0].DownloadUrl
+				downloadUrl := result.DatasetPage.Versions[0].Downloads[0].DownloadURL
 				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
 				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
 			})
@@ -459,7 +458,7 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 			So(err, ShouldBeNil)
 
-			result := CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
+			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
 				latestDownloads := findVersionedDownload(result.DatasetPage.Versions, latestVersionUri)
@@ -470,20 +469,20 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 				expectedFilesAPIDownloadUrlPreviousVersion := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, previousFilepath)
 				expectedZebedeeDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", oldVersionUri, filename)
 
-				So(latestDownloads[0].DownloadUrl, ShouldEqual, expectedFilesAPIDownloadUrl)
-				So(previousDownloads[0].DownloadUrl, ShouldEqual, expectedFilesAPIDownloadUrlPreviousVersion)
-				So(oldDownloads[0].DownloadUrl, ShouldEqual, expectedZebedeeDownloadUrl)
+				So(latestDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadUrl)
+				So(previousDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadUrlPreviousVersion)
+				So(oldDownloads[0].DownloadURL, ShouldEqual, expectedZebedeeDownloadUrl)
 			})
 		})
 	})
 }
 
-func findVersionedDownload(versions []datasetPage.Version, uri string) []datasetPage.Download {
+func findVersionedDownload(versions []dataset.Version, uri string) []dataset.Download {
 	for _, version := range versions {
 		if version.URI == uri {
 			return version.Downloads
 		}
 	}
 
-	return []datasetPage.Download{}
+	return []dataset.Download{}
 }

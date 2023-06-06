@@ -24,11 +24,11 @@ type legacyLandingPage struct {
 	Language        string
 	CollectionID    string
 	UserAccessToken string
-	CacheList       *cache.CacheList
+	CacheList       *cache.List
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.CacheList) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		lp := legacyLandingPage{
 			ZebedeeClient:   zc,
@@ -87,7 +87,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	}
 
 	basePage := lp.RenderClient.NewBasePageModel()
-	m := mapper.CreateLegacyDatasetLanding(basePage, ctx, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
+	m := mapper.CreateLegacyDatasetLanding(ctx, basePage, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	lp.RenderClient.BuildPage(w, m, "static")
 }

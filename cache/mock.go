@@ -7,14 +7,13 @@ import (
 )
 
 // GetMockCacheList returns a mocked list of cache which contains the census topic cache and navigation cache
-func GetMockCacheList(ctx context.Context, langs []string) (*CacheList, error) {
-
+func GetMockCacheList(ctx context.Context, langs []string) (*List, error) {
 	testNavigationCache, err := getMockNavigationCache(ctx, langs)
 	if err != nil {
 		return nil, err
 	}
 
-	cacheList := CacheList{
+	cacheList := List{
 		Navigation: testNavigationCache,
 	}
 

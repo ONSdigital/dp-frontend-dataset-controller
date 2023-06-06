@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string, cacheList *cache.CacheList) {
+func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string, cacheList *cache.List) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -77,13 +77,13 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDatasetPage(basePage, ctx, req, ds, dlp, bc, versions, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
+	m := mapper.CreateDatasetPage(basePage, req, ds, dlp, bc, versions, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	rend.BuildPage(w, m, "dataset")
 }
 
 // DatasetPage will load a legacy dataset page
-func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, cacheList *cache.CacheList) http.HandlerFunc {
+func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, cacheList *cache.List) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken, cacheList)
 	})

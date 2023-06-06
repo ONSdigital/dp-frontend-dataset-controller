@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -21,11 +21,12 @@ import (
 const staticFilesDownloadEndpoint = "downloads-new"
 
 // StaticDatasetLandingPage is a StaticDatasetLandingPage representation
-type StaticDatasetLandingPage datasetLandingPageStatic.Page
+type StaticDatasetLandingPage static.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
-func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
-
+//
+//nolint:gocyclo //complexity 21
+func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
 	sdlp := StaticDatasetLandingPage{
 		Page: basePage,
 	}
@@ -79,7 +80,7 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	sdlp.DatasetLandingPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	sdlp.DatasetLandingPage.IsTimeseries = dlp.Timeseries
 	sdlp.DatasetLandingPage.Survey = dlp.Description.Survey
-	sdlp.ContactDetails = contactDetails.ContactDetails(dlp.Description.Contact)
+	sdlp.Details = contact.Details(dlp.Description.Contact)
 
 	// HACK FIX TODO REMOVE WHEN TIME IS SAVED CORRECTLY (GMT/UTC Issue)
 	if strings.Contains(dlp.Description.ReleaseDate, "T23:00:00") {
@@ -108,53 +109,53 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 		sdlp.DatasetLandingPage.ParentPath = sdlp.Page.Breadcrumb[len(sdlp.Page.Breadcrumb)-1].Title
 	}
 
-	for i, d := range ds {
-		var dataset datasetLandingPageStatic.Dataset
-		dataset.URI = d.URI
-		dataset.VersionLabel = d.Description.VersionLabel
+	for i := range ds {
+		var dataset static.Dataset
+		dataset.URI = ds[i].URI
+		dataset.VersionLabel = ds[i].Description.VersionLabel
 
-		for _, download := range d.Downloads {
+		for _, download := range ds[i].Downloads {
 			if download.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(download.URI, "/")
-				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+				dataset.Downloads = append(dataset.Downloads, static.Download{
 					URI:         download.URI,
-					DownloadUrl: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
+					DownloadURL: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
 					Extension:   strings.TrimPrefix(filepath.Ext(download.URI), "."),
 					Size:        download.Size,
 				})
 			} else { // old legacy Zebedee-source files
-				dataset.Downloads = append(dataset.Downloads, datasetLandingPageStatic.Download{
+				dataset.Downloads = append(dataset.Downloads, static.Download{
 					URI:         download.File,
-					DownloadUrl: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, download.File),
+					DownloadURL: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, download.File),
 					Extension:   strings.TrimPrefix(filepath.Ext(download.File), "."),
 					Size:        download.Size,
 				})
 			}
 		}
-		for _, supplementaryFile := range d.SupplementaryFiles {
+		for _, supplementaryFile := range ds[i].SupplementaryFiles {
 			if supplementaryFile.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(supplementaryFile.URI, "/")
-				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, static.SupplementaryFile{
 					Title:       supplementaryFile.Title,
 					URI:         supplementaryFile.URI,
-					DownloadUrl: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
+					DownloadURL: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
 					Extension:   strings.TrimPrefix(filepath.Ext(supplementaryFile.URI), "."),
 					Size:        supplementaryFile.Size,
 				})
 			} else { // old legacy Zebedee-source files
-				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, datasetLandingPageStatic.SupplementaryFile{
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, static.SupplementaryFile{
 					Title:       supplementaryFile.Title,
 					URI:         supplementaryFile.File,
-					DownloadUrl: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, supplementaryFile.File),
+					DownloadURL: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, supplementaryFile.File),
 					Extension:   strings.TrimPrefix(filepath.Ext(supplementaryFile.File), "."),
 					Size:        supplementaryFile.Size,
 				})
 			}
 		}
 
-		dataset.Title = d.Description.Edition
+		dataset.Title = ds[i].Description.Edition
 
-		if len(d.Versions) > 0 {
+		if len(ds[i].Versions) > 0 {
 			dataset.HasVersions = true
 		}
 		dataset.IsLast = i+1 == len(ds)
@@ -164,15 +165,15 @@ func CreateLegacyDatasetLanding(basePage coreModel.Page, ctx context.Context, re
 	for _, value := range dlp.Alerts {
 		switch value.Type {
 		default:
-			log.Error(ctx, "Unrecognised alert type", errors.New("Unrecognised alert type"), log.Data{"alert": value})
+			log.Error(ctx, "unrecognised alert type", errors.New("unrecognised alert type"), log.Data{"alert": value})
 			fallthrough
 		case "alert":
-			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, datasetLandingPageStatic.Message{
+			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, static.Message{
 				Date:     value.Date,
 				Markdown: value.Markdown,
 			})
 		case "correction":
-			sdlp.DatasetLandingPage.Corrections = append(sdlp.DatasetLandingPage.Corrections, datasetLandingPageStatic.Message{
+			sdlp.DatasetLandingPage.Corrections = append(sdlp.DatasetLandingPage.Corrections, static.Message{
 				Date:     value.Date,
 				Markdown: value.Markdown,
 			})

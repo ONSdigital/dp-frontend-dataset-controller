@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 // EditionsList will load a list of editions for a filterable dataset
@@ -50,12 +51,12 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 
 	numberOfEditions := len(datasetEditions)
 	if numberOfEditions == 1 {
-		latestVersionPath := helpers.DatasetVersionUrl(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
+		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
 		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateEditionsList(basePage, ctx, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateEditionsList(ctx, basePage, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "edition-list")
 }

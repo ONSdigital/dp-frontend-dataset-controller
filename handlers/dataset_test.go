@@ -17,9 +17,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
-	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetPage"
-	render "github.com/ONSdigital/dp-renderer"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
+	render "github.com/ONSdigital/dp-renderer/v2"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
@@ -404,7 +404,7 @@ func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, dow
 		Size:        size,
 		URI:         uri,
 		File:        downloadFilename,
-		DownloadUrl: downloadUrl,
+		DownloadURL: downloadUrl,
 	}
 
 	return mapper.DatasetPage{
@@ -417,7 +417,7 @@ func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, dow
 			Versions: []dsp.Version{
 				{
 					URI:       latestVersionUri,
-					Downloads: []dsp.Download{{URI: versionFilename, DownloadUrl: versionUrl, Extension: extension}},
+					Downloads: []dsp.Download{{URI: versionFilename, DownloadURL: versionUrl, Extension: extension}},
 				},
 			},
 		},

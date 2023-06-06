@@ -209,7 +209,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		}
 	}
 
-	latestVersionURL := helpers.DatasetVersionUrl(datasetID, edition, strconv.Itoa(latestVersionNumber))
+	latestVersionURL := helpers.DatasetVersionURL(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		dimensionCategory := dimensionCategoriesMap[dim.ID]
@@ -431,7 +431,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusFilterOutputsPage(ctx, req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, numOptsSummary, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pop)
+	m := mapper.CreateCensusFilterOutputsPage(req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pop)
 	rend.BuildPage(w, m, "census-landing")
 }
 

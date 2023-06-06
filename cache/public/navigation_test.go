@@ -43,7 +43,7 @@ var (
 			Links:       testTopicLinks,
 			Name:        "Item name.",
 			Title:       "Item title.",
-			Uri:         "Item URI.",
+			URI:         "Item URI.",
 		},
 	}
 )
@@ -68,7 +68,6 @@ func TestUpdateNavigationData(t *testing.T) {
 	}
 
 	Convey("Given navigation data is being served by the topic API", t, func() {
-
 		Convey("When UpdateNavigationData is called", func() {
 			respNavigationCache := UpdateNavigationData(ctx, cfg, "en", mockedNavigationClient)()
 

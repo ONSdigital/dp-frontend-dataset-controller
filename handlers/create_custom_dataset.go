@@ -41,6 +41,6 @@ func createCustomDataset(w http.ResponseWriter, req *http.Request, pc Population
 	}
 
 	basePage := rend.NewBasePageModel()
-	page := mapper.CreateCustomDatasetPage(ctx, req, basePage, populationTypes.Items, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	page := mapper.CreateCustomDatasetPage(req, basePage, populationTypes.Items, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, page, "create-custom-dataset")
 }

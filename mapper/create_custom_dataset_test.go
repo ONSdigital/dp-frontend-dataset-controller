@@ -1,14 +1,13 @@
 package mapper
 
 import (
-	"context"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
-	"github.com/ONSdigital/dp-renderer/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-renderer/v2/helper"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -39,7 +38,7 @@ func TestCreateCustomDataset(t *testing.T) {
 		}
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCustomDatasetPage(context.Background(), req, pageModel, populationTypes, "", serviceMessage, emergencyBanner)
+			page := CreateCustomDatasetPage(req, pageModel, populationTypes, "", serviceMessage, emergencyBanner)
 
 			Convey("Then population types should be mapped correctly", func() {
 				So(page.CreateCustomDatasetPage.PopulationTypes[0].Name, ShouldEqual, "Name 1")

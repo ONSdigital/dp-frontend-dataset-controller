@@ -3,7 +3,7 @@ BINPATH ?= build
 BUILD_TIME=$(shell date +%s)
 GIT_COMMIT=$(shell git rev-parse HEAD)
 VERSION ?= $(shell git tag --points-at HEAD | grep ^v | head -n 1)
-LOCAL_DP_RENDERER_IN_USE = $(shell grep -c "\"github.com/ONSdigital/dp-renderer\" =" go.mod)
+LOCAL_DP_RENDERER_IN_USE = $(shell grep -c "\"github.com/ONSdigital/dp-renderer/v2\" =" go.mod)
 
 .PHONY: all
 all: audit test build
@@ -21,6 +21,11 @@ debug: generate-debug
 	go build -tags 'debug' -o $(BINPATH)/dp-frontend-dataset-controller -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)"
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-dataset-controller
 
+.PHONY: lint 
+lint:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
+	golangci-lint run ./...
+
 .PHONY: run
 run:
 	HUMAN_LOG=1 go run -tags 'production' -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)" -race $(LDFLAGS) main.go
@@ -33,15 +38,19 @@ test: generate-prod
 convey:
 	goconvey ./...
 
+.PHONY: test-component
+test-component:
+	exit
+
 .PHONY: all build debug audit
 
 .PHONY: fetch-renderer-lib
 fetch-renderer-lib:
 ifeq ($(LOCAL_DP_RENDERER_IN_USE), 1)
- $(eval CORE_ASSETS_PATH = $(shell cat go.mod | grep -v "replace" | grep -w "github.com/ONSdigital/dp-renderer" | awk '{print $2}' | tr -d '"'))
+ $(eval CORE_ASSETS_PATH = $(shell cat go.mod | grep -v "replace" | grep -w "github.com/ONSdigital/dp-renderer/v2" | awk '{print $2}' | tr -d '"'))
 else
- $(eval APP_RENDERER_VERSION=$(shell cat go.mod | grep -v "replace" | grep "github.com/ONSdigital/dp-renderer"  | cut -d ' ' -f2 ))
- $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer))
+ $(eval APP_RENDERER_VERSION=$(shell cat go.mod | grep -v "replace" | grep "github.com/ONSdigital/dp-renderer/v2"  | cut -d ' ' -f2 ))
+ $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer/v2@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer/v2))
 endif
 
 .PHONY: generate-debug

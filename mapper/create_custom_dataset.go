@@ -1,19 +1,18 @@
 package mapper
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/createCustomDatasetPage"
-	"github.com/ONSdigital/dp-renderer/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/custom"
+	"github.com/ONSdigital/dp-renderer/v2/helper"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // CreateCustomDatasetPage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCustomDatasetPage(ctx context.Context, req *http.Request, basePage coreModel.Page, populationTypes []population.PopulationType, lang string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) createCustomDatasetPage.Page {
-	p := createCustomDatasetPage.Page{
+func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populationTypes []population.PopulationType, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) custom.Page {
+	p := custom.Page{
 		Page: basePage,
 	}
 
@@ -68,15 +67,15 @@ func CreateCustomDatasetPage(ctx context.Context, req *http.Request, basePage co
 }
 
 // mapPopulationTypes maps population.PopulationType to createCensusDatasetPage.PopulationType
-func mapPopulationTypes(populationTypes []population.PopulationType) []createCustomDatasetPage.PopulationType {
-	mapped := []createCustomDatasetPage.PopulationType{}
+func mapPopulationTypes(populationTypes []population.PopulationType) []custom.PopulationType {
+	mapped := []custom.PopulationType{}
 	for _, pop := range populationTypes {
-		custom := createCustomDatasetPage.PopulationType{
+		model := custom.PopulationType{
 			Name:        pop.Name,
 			Label:       pop.Label,
 			Description: pop.Description,
 		}
-		mapped = append(mapped, custom)
+		mapped = append(mapped, model)
 	}
 	return mapped
 }

@@ -1,8 +1,8 @@
-package datasetVersionsList
+package version
 
 import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains the data re-used on each page as well as the data for the current page

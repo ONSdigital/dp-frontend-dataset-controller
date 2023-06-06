@@ -1,23 +1,23 @@
-package datasetLandingPageFilterable
+package filterable
 
 import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contactDetails"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageStatic"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
-	DatasetLandingPage DatasetLandingPage            `json:"data"`
-	ContactDetails     contactDetails.ContactDetails `json:"contact_details"`
+	DatasetLandingPage DatasetLandingPage `json:"data"`
+	ContactDetails     contact.Details    `json:"contact_details"`
 }
 
 // DatasetLandingPage represents the data on the dataset landing page
 type DatasetLandingPage struct {
-	datasetLandingPageStatic.DatasetLandingPage
+	static.DatasetLandingPage
 	Dimensions               []sharedModel.Dimension `json:"dimensions"`
 	Version                  sharedModel.Version     `json:"version"`
 	HasOlderVersions         bool                    `json:"has_older_versions"`
@@ -33,7 +33,6 @@ type DatasetLandingPage struct {
 	RelatedLinks             []Publication           `json:"related_links"`
 	LatestChanges            []Change                `json:"latest_changes"`
 	Citation                 string                  `json:"citation"`
-	DatasetTitle             string                  `json:"dataset_title"`
 	UnitOfMeasurement        string                  `json:"unit_of_measurement"`
 	Methodologies            []Methodology           `json:"methodology"`
 	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`

@@ -23,7 +23,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
-	render "github.com/ONSdigital/dp-renderer"
+	render "github.com/ONSdigital/dp-renderer/v2"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
@@ -130,7 +130,7 @@ func run(ctx context.Context) error {
 	}
 
 	// Initialise caching
-	cacheList := &cache.CacheList{}
+	cacheList := &cache.List{}
 	cacheList.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": cfg.CacheNavigationUpdateInterval})

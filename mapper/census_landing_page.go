@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,14 +12,14 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageCensus"
-	"github.com/ONSdigital/dp-renderer/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
+	"github.com/ONSdigital/dp-renderer/v2/helper"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, maxNumberOfOptions int, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, population population.GetPopulationTypeResponse) datasetLandingPageCensus.Page {
-	p := CreateCensusBasePage(ctx, req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+func CreateCensusLandingPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, opts []dataset.Options, categorisationsMap map[string]int, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, pop population.GetPopulationTypeResponse) census.Page {
+	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
 	for ext, download := range version.Downloads {
@@ -45,7 +44,7 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 		})
 
 		pop := sharedModel.Dimension{
-			Title:            population.PopulationType.Label,
+			Title:            pop.PopulationType.Label,
 			IsPopulationType: true,
 		}
 		coverage := sharedModel.Dimension{
@@ -72,36 +71,34 @@ func CreateCensusLandingPage(ctx context.Context, req *http.Request, basePage co
 	p.PreGTMJavaScript = append(p.PreGTMJavaScript, getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)))
 
 	// FINAL FORMATTING
-	if len(p.DatasetLandingPage.QualityStatements) > 0 {
-		qsLen := len(p.DatasetLandingPage.QualityStatements)
-		p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses = append(p.DatasetLandingPage.QualityStatements[qsLen-1].CssClasses, "ons-u-mb-l")
-	}
+	p.DatasetLandingPage.QualityStatements = formatPanels(p.DatasetLandingPage.QualityStatements)
 
 	return p
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []datasetLandingPageCensus.Panel) {
+func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 
-		for _, dimension := range dims {
-			if dimension.Name == opt.Items[0].DimensionID {
-				pDim.Name = dimension.Name
-				pDim.Description = dimension.Description
-				pDim.IsAreaType = helpers.IsBoolPtr(dimension.IsAreaType)
+		for i := range dims {
+			if dims[i].Name != opt.Items[0].DimensionID {
+				continue
+			}
+			pDim.Name = dims[i].Name
+			pDim.Description = dims[i].Description
+			pDim.IsAreaType = helpers.IsBoolPtr(dims[i].IsAreaType)
 
-				categorisationCount := categorisationsMap[dimension.ID]
-				pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
+			categorisationCount := categorisationsMap[dims[i].ID]
+			pDim.ShowChange = pDim.IsAreaType || (isMultivariate && categorisationCount > 1)
 
-				pDim.Title = cleanDimensionLabel(dimension.Label)
-				pDim.ID = dimension.ID
-				if dimension.QualityStatementText != "" && dimension.QualityStatementURL != "" {
-					qs = append(qs, datasetLandingPageCensus.Panel{
-						Body:       []string{fmt.Sprintf("<p>%s</p>%s", dimension.QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dimension.QualityStatementURL))},
-						CssClasses: []string{"ons-u-mt-no"},
-					})
-				}
+			pDim.Title = cleanDimensionLabel(dims[i].Label)
+			pDim.ID = dims[i].ID
+			if dims[i].QualityStatementText != "" && dims[i].QualityStatementURL != "" {
+				qs = append(qs, census.Panel{
+					Body:       []string{fmt.Sprintf("<p>%s</p>%s", dims[i].QualityStatementText, helper.Localise("QualityNoticeReadMore", lang, 1, dims[i].QualityStatementURL))},
+					CSSClasses: []string{"ons-u-mt-no"},
+				})
 			}
 		}
 
@@ -118,8 +115,8 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 			displayedOptions = opt.Items
 		}
 
-		for _, opt := range displayedOptions {
-			pDim.Values = append(pDim.Values, opt.Label)
+		for i := range displayedOptions {
+			pDim.Values = append(pDim.Values, displayedOptions[i].Label)
 		}
 
 		q := url.Values{}
@@ -141,12 +138,12 @@ func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []datase
 func getAnalytics(dimensions []sharedModel.Dimension) map[string]string {
 	analytics := make(map[string]string, 5)
 	var dimensionIDs []string
-	for _, dimension := range dimensions {
-		if dimension.IsAreaType {
-			analytics["areaType"] = dimension.ID
+	for i := range dimensions {
+		if dimensions[i].IsAreaType {
+			analytics["areaType"] = dimensions[i].ID
 			analytics["coverageCount"] = "0"
-		} else if !dimension.IsCoverage {
-			dimensionIDs = append(dimensionIDs, dimension.ID)
+		} else if !dimensions[i].IsCoverage {
+			dimensionIDs = append(dimensionIDs, dimensions[i].ID)
 		}
 	}
 	analytics["dimensions"] = strings.Join(dimensionIDs, ",")

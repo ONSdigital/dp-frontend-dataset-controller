@@ -1,6 +1,5 @@
 <div class="ons-page__container ons-container">
     <div class="ons-grid ons-js-toc-container ons-u-ml-no">
-        {{ template "partials/breadcrumb" . }}
         {{ if .Page.Error.Title }}
             {{ template "partials/error-summary" .Page.Error }}
         {{ end }}

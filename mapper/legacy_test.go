@@ -10,8 +10,8 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/ONSdigital/dp-net/request"
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-net/v2/request"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -38,7 +38,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 		So(sdlp, ShouldNotBeEmpty)
 
 		So(sdlp.Type, ShouldEqual, "legacy_dataset")
@@ -55,9 +55,9 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].Title, ShouldEqual, dlp.RelatedMethodology[0].Title)
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].URI, ShouldEqual, dlp.RelatedMethodology[0].URI)
 
-		So(sdlp.ContactDetails.Email, ShouldEqual, dlp.Description.Contact.Email)
-		So(sdlp.ContactDetails.Name, ShouldEqual, dlp.Description.Contact.Name)
-		So(sdlp.ContactDetails.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
+		So(sdlp.Details.Email, ShouldEqual, dlp.Description.Contact.Email)
+		So(sdlp.Details.Name, ShouldEqual, dlp.Description.Contact.Name)
+		So(sdlp.Details.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
 
 		So(sdlp.DatasetLandingPage.IsNationalStatistic, ShouldEqual, dlp.Description.NationalStatistic)
 		So(sdlp.DatasetLandingPage.Survey, ShouldEqual, dlp.Description.Survey)
@@ -112,7 +112,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/file?uri=" + expectedDatasetURI + "/" + expectedFilename
@@ -121,8 +121,8 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedFilename)
-		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
-		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstDownload.DownloadURL, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadURL, ShouldEqual, expectedSupplementaryDownloadURL)
 		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 
@@ -152,7 +152,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		navigationCache, err := mockCacheList.Navigation.GetNavigationData(ctx, locale)
 		So(err, ShouldBeNil)
 
-		sdlp := CreateLegacyDatasetLanding(mdl, ctx, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
+		sdlp := CreateLegacyDatasetLanding(ctx, mdl, req, dlp, bcs, ds, lang, serviceMessage, emergencyBanner, navigationCache)
 
 		firstDownload := sdlp.DatasetLandingPage.Datasets[0].Downloads[0]
 		expectedDownloadURL := "/downloads-new/" + expectedDownloadFilepath
@@ -161,8 +161,8 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		So(sdlp, ShouldNotBeEmpty)
 		So(firstDownload.URI, ShouldEqual, expectedDownloadFilepath)
-		So(firstDownload.DownloadUrl, ShouldEqual, expectedDownloadURL)
-		So(firstSupplementaryDownload.DownloadUrl, ShouldEqual, expectedSupplementaryDownloadURL)
+		So(firstDownload.DownloadURL, ShouldEqual, expectedDownloadURL)
+		So(firstSupplementaryDownload.DownloadURL, ShouldEqual, expectedSupplementaryDownloadURL)
 		So(firstSupplementaryDownload.Title, ShouldEqual, expectedSupplementaryTitle)
 	})
 }

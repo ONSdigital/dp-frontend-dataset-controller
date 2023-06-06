@@ -1,7 +1,7 @@
-package createCustomDatasetPage
+package custom
 
 import (
-	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains data for the census landing page
