@@ -404,4 +404,4 @@ one = "We group Census 2021 data together based on who or what the information i
 
 [CustomDatasetSummary]
 description = "Summary for BYO and customised multivariate datasets {{.populationLabel}} {{.nonGeoDims}}"
-one = "This dataset provides 2021 Census estimates that classify {{.arg0}} in England and Wales by {{.arg1}}. The estimates are as at census day, 27 March 2021."
+one = "This dataset provides 2021 Census estimates that classify {{.arg0}} in England and Wales by {{.arg1}}. The estimates are as at census day, 21 March 2021."
