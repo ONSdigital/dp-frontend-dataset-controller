@@ -133,6 +133,8 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 			dim.IsAreaType = verDim.IsAreaType
 			dim.Options = verDim.Options
 			dim.FilterByParent = verDim.FilterByParent
+			dim.QualityStatementText = verDim.QualityStatementText
+			dim.QualitySummaryURL = verDim.QualitySummaryURL
 			dims = append(dims, dim)
 		}
 
