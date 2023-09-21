@@ -3,12 +3,12 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 go 1.20
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.254.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.254.1
 	github.com/ONSdigital/dp-cache v0.3.0
 	github.com/ONSdigital/dp-cookies v0.4.0
 	github.com/ONSdigital/dp-healthcheck v1.6.1
 	github.com/ONSdigital/dp-net/v2 v2.11.0
-	github.com/ONSdigital/dp-renderer/v2 v2.3.0
+	github.com/ONSdigital/dp-renderer/v2 v2.4.0
 	github.com/ONSdigital/log.go/v2 v2.4.1
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/golang/mock v1.6.0
@@ -22,7 +22,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.3.2 // indirect
-	github.com/ONSdigital/dp-topic-api v0.17.1
+	github.com/ONSdigital/dp-topic-api v0.20.0
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b // indirect
 	github.com/fatih/color v1.15.0 // indirect
@@ -40,7 +40,7 @@ require (
 	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466 // indirect
 	github.com/smarty/assertions v1.15.1 // indirect
 	github.com/unrolled/render v1.6.0 // indirect
-	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/text v0.12.0
+	golang.org/x/net v0.15.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/text v0.13.0
 )
