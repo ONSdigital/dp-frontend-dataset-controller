@@ -14,6 +14,8 @@ github.com/ONSdigital/dp-net/v2 v2.11.0 h1:XXst84GpXhBiyKoqLuohR7CvzrCBfSkq6Ysve
 github.com/ONSdigital/dp-net/v2 v2.11.0/go.mod h1:4T3GgoonNt2nZZJJer9cx7j/3XGJ1UhTp16flx+uDeA=
 github.com/ONSdigital/dp-renderer/v2 v2.4.0 h1:FKZdsu0+smrWHSGiDaCP77kqKVRJh3FDGyeLMctyLPU=
 github.com/ONSdigital/dp-renderer/v2 v2.4.0/go.mod h1:HezPp8MwD+w+iRcBYLpAy5HgzOIeTc8sVShjYyvVn9E=
+github.com/ONSdigital/dp-renderer/v2 v2.5.0 h1:PBsoTUVIej6xJy0wvy5vLCKaXhW2Y85vwBxWW/26dSg=
+github.com/ONSdigital/dp-renderer/v2 v2.5.0/go.mod h1:ZwG/qCwZhAubggp2c5tHBQK8tjuV0AE4ng3ZQGAXMXY=
 github.com/ONSdigital/dp-topic-api v0.20.0 h1:fPrBjdcMryIeyWOfGfuAxEiuR0R6/1aUasDz6I8O24w=
 github.com/ONSdigital/dp-topic-api v0.20.0/go.mod h1:Rshqccx7iHZ/5PNnEtO7C3rJnpK14ndFHcVqVYex5L8=
 github.com/ONSdigital/log.go/v2 v2.4.1 h1:QAHQqtXgXx43OUTSebNAocVfN21RwrHzagN6zDAzwdo=
