@@ -18,7 +18,7 @@ require (
 	github.com/kevinburke/go-bindata v3.24.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.8.1
-	golang.org/x/sync v0.3.0
+	golang.org/x/sync v0.4.0
 )
 
 require (
@@ -40,7 +40,7 @@ require (
 	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466 // indirect
 	github.com/smarty/assertions v1.15.1 // indirect
 	github.com/unrolled/render v1.6.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0
 )
