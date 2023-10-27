@@ -10,10 +10,10 @@ github.com/ONSdigital/dp-cookies v0.4.0/go.mod h1:1xf96apIPNeV0WJs0UtKyM09laewXV
 github.com/ONSdigital/dp-healthcheck v1.6.1 h1:YDAnxE2fI3G2hhGC42mKI/fRhAhIYmFZGQwQ/8M65M0=
 github.com/ONSdigital/dp-healthcheck v1.6.1/go.mod h1:FURB2RUJHw3lssamKtsGsrbu31ar9yhMSDYzG9vgSIo=
 github.com/ONSdigital/dp-mocking v0.10.1 h1:yEEglJ458kUztHlnGxhMiKhIr13gMYWYOBKFbCbp89M=
-github.com/ONSdigital/dp-net/v2 v2.11.0 h1:XXst84GpXhBiyKoqLuohR7CvzrCBfSkq6YsveTarlt4=
-github.com/ONSdigital/dp-net/v2 v2.11.0/go.mod h1:4T3GgoonNt2nZZJJer9cx7j/3XGJ1UhTp16flx+uDeA=
-github.com/ONSdigital/dp-renderer/v2 v2.5.0 h1:PBsoTUVIej6xJy0wvy5vLCKaXhW2Y85vwBxWW/26dSg=
-github.com/ONSdigital/dp-renderer/v2 v2.5.0/go.mod h1:ZwG/qCwZhAubggp2c5tHBQK8tjuV0AE4ng3ZQGAXMXY=
+github.com/ONSdigital/dp-net/v2 v2.11.1 h1:9/G1MnofoqHaFtugOd6DJVsKfQumsYeDkMHnz66gOig=
+github.com/ONSdigital/dp-net/v2 v2.11.1/go.mod h1:DMWNEpS/HE42rZMDOMNBZF/iNuEMk/y4Ohejq8DHkNM=
+github.com/ONSdigital/dp-renderer/v2 v2.5.1 h1:HI+zdT0iiZTo5kJ5ilUlzk61Vr4iCGVGJ1dJA+jNiyk=
+github.com/ONSdigital/dp-renderer/v2 v2.5.1/go.mod h1:X2mTrvuy849s9ZTe16jSb0+N3euqoDa+Uycs/wmstR4=
 github.com/ONSdigital/dp-topic-api v0.20.0 h1:fPrBjdcMryIeyWOfGfuAxEiuR0R6/1aUasDz6I8O24w=
 github.com/ONSdigital/dp-topic-api v0.20.0/go.mod h1:Rshqccx7iHZ/5PNnEtO7C3rJnpK14ndFHcVqVYex5L8=
 github.com/ONSdigital/log.go/v2 v2.4.1 h1:QAHQqtXgXx43OUTSebNAocVfN21RwrHzagN6zDAzwdo=
