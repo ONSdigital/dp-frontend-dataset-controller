@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	goErrors "errors"
 	"fmt"
 	"net/http"
 	"net/smtp"
@@ -13,6 +14,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	cachePublic "github.com/ONSdigital/dp-frontend-dataset-controller/cache/public"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
@@ -32,6 +35,7 @@ import (
 
 	dpnethandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	dpnethttp "github.com/ONSdigital/dp-net/v2/http"
+	dpotelgo "github.com/ONSdigital/dp-otel-go"
 
 	_ "net/http/pprof"
 )
@@ -81,6 +85,21 @@ func run(ctx context.Context) error {
 
 	log.Info(ctx, "got service configuration", log.Data{"config": cfg})
 
+	otelConfig := dpotelgo.Config{
+		OtelServiceName:          cfg.OTServiceName,
+		OtelExporterOtlpEndpoint: cfg.OTExporterOTLPEndpoint,
+	}
+
+	otelShutdown, oErr := dpotelgo.SetupOTelSDK(ctx, otelConfig)
+	if oErr != nil {
+		log.Fatal(ctx, "error setting up OpenTelemetry - hint: ensure OTEL_EXPORTER_OTLP_ENDPOINT is set", oErr)
+		return oErr
+	}
+	// Handle shutdown properly so nothing leaks.
+	defer func() {
+		err = goErrors.Join(err, otelShutdown(context.Background()))
+	}()
+
 	// Get API version from its URL
 	apiRouterVersion, err := helpers.GetAPIRouterVersion(cfg.APIRouterURL)
 	if err != nil {
@@ -99,6 +118,7 @@ func run(ctx context.Context) error {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(otelmux.Middleware(cfg.OTServiceName))
 
 	apiRouterCli := apihealthcheck.NewClient("api-router", cfg.APIRouterURL)
 
@@ -178,7 +198,8 @@ func run(ctx context.Context) error {
 	accessTokenMiddleware := dpnethandlers.CheckCookie(dpnethandlers.UserAccess)
 	localeMiddleware := dpnethandlers.CheckHeader(dpnethandlers.Locale)
 	renderrorMiddleware := renderror.Handler(rend)
-	middlewareChain := alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware, renderrorMiddleware).Then(router)
+	otelMiddleware := otelhttp.NewMiddleware(cfg.OTServiceName)
+	middlewareChain := alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware, renderrorMiddleware, otelMiddleware).Then(router)
 
 	s := dpnethttp.NewServer(cfg.BindAddr, middlewareChain)
 	s.HandleOSSignals = false
