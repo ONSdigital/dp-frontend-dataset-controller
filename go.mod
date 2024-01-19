@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-frontend-dataset-controller
 
-go 1.20
+go 1.21
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.254.1
