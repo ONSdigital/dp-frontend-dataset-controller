@@ -24,6 +24,7 @@ type Config struct {
 	OTBatchTimeout                time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
 	OTServiceName                 string        `envconfig:"OTEL_SERVICE_NAME"`
 	OTExporterOTLPEndpoint        string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	OtelEnabled                   bool          `envconfig:"OTEL_ENABLED"`
 	PatternLibraryAssetsPath      string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
 	PprofToken                    string        `envconfig:"PPROF_TOKEN" json:"-"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
@@ -67,6 +68,7 @@ func get() (*Config, error) {
 		OTBatchTimeout:                5 * time.Second,
 		OTExporterOTLPEndpoint:        "localhost:4317",
 		OTServiceName:                 "dp-frontend-dataset-controller",
+		OtelEnabled:                   false,
 		SiteDomain:                    "localhost",
 		SupportedLanguages:            []string{"en", "cy"},
 	}

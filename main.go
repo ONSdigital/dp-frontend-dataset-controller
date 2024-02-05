@@ -85,21 +85,24 @@ func run(ctx context.Context) error {
 
 	log.Info(ctx, "got service configuration", log.Data{"config": cfg})
 
-	otelConfig := dpotelgo.Config{
-		OtelServiceName:          cfg.OTServiceName,
-		OtelExporterOtlpEndpoint: cfg.OTExporterOTLPEndpoint,
-		OtelBatchTimeout:         cfg.OTBatchTimeout,
-	}
+	if cfg.OtelEnabled {
 
-	otelShutdown, oErr := dpotelgo.SetupOTelSDK(ctx, otelConfig)
-	if oErr != nil {
-		log.Fatal(ctx, "error setting up OpenTelemetry - hint: ensure OTEL_EXPORTER_OTLP_ENDPOINT is set", oErr)
-		return oErr
+		otelConfig := dpotelgo.Config{
+			OtelServiceName:          cfg.OTServiceName,
+			OtelExporterOtlpEndpoint: cfg.OTExporterOTLPEndpoint,
+			OtelBatchTimeout:         cfg.OTBatchTimeout,
+		}
+
+		otelShutdown, oErr := dpotelgo.SetupOTelSDK(ctx, otelConfig)
+		if oErr != nil {
+			log.Fatal(ctx, "error setting up OpenTelemetry - hint: ensure OTEL_EXPORTER_OTLP_ENDPOINT is set", oErr)
+			return oErr
+		}
+		// Handle shutdown properly so nothing leaks.
+		defer func() {
+			err = goErrors.Join(err, otelShutdown(context.Background()))
+		}()
 	}
-	// Handle shutdown properly so nothing leaks.
-	defer func() {
-		err = goErrors.Join(err, otelShutdown(context.Background()))
-	}()
 
 	// Get API version from its URL
 	apiRouterVersion, err := helpers.GetAPIRouterVersion(cfg.APIRouterURL)
@@ -119,7 +122,10 @@ func run(ctx context.Context) error {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
-	router.Use(otelmux.Middleware(cfg.OTServiceName))
+
+	if cfg.OtelEnabled {
+		router.Use(otelmux.Middleware(cfg.OTServiceName))
+	}
 
 	apiRouterCli := apihealthcheck.NewClient("api-router", cfg.APIRouterURL)
 
@@ -199,8 +205,14 @@ func run(ctx context.Context) error {
 	accessTokenMiddleware := dpnethandlers.CheckCookie(dpnethandlers.UserAccess)
 	localeMiddleware := dpnethandlers.CheckHeader(dpnethandlers.Locale)
 	renderrorMiddleware := renderror.Handler(rend)
-	otelMiddleware := otelhttp.NewMiddleware(cfg.OTServiceName)
-	middlewareChain := alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware, renderrorMiddleware, otelMiddleware).Then(router)
+
+	var middlewareChain http.Handler
+	if cfg.OtelEnabled {
+		otelMiddleware := otelhttp.NewMiddleware(cfg.OTServiceName)
+		middlewareChain = alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware, renderrorMiddleware, otelMiddleware).Then(router)
+	} else {
+		middlewareChain = alice.New(collectionIDMiddleware, accessTokenMiddleware, localeMiddleware, renderrorMiddleware).Then(router)
+	}
 
 	s := dpnethttp.NewServer(cfg.BindAddr, middlewareChain)
 	s.HandleOSSignals = false
