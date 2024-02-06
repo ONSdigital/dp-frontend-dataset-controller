@@ -22,6 +22,7 @@ An HTTP service for the controlling of data and rendering templates relevant to 
 | OTEL_BATCH_TIMEOUT               | 5s                               | Interval between pushes to OT Collector                                                                                                               |
 | OTEL_EXPORTER_OTLP_ENDPOINT      | http://localhost:4317            | URL for OpenTelemetry endpoint                                                                                                                        |
 | OTEL_SERVICE_NAME                | "dp-frontend-dataset-controller" | Service name to report to telemetry tools                                                                                                             |
+| OTEL_ENABLED                     | false                            | Feature flag to enable OpenTelemetry
 | PATTERN_LIBRARY_ASSETS_PATH      | ""                               | Pattern library location                                                                                                                              |
 | PPROF_TOKEN                      | ""                               | The profiling token to access service profiling                                                                                                       |
 | SITE_DOMAIN                      | localhost                        |                                                                                                                                                       |
