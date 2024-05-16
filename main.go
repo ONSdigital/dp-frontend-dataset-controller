@@ -191,7 +191,7 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
-	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, cacheList))
+	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, cacheList, *cfg))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})
 

@@ -30,6 +30,7 @@ type DatasetLandingPage struct {
 	Corrections         []Message `json:"corrections"`
 	Notices             []Message `json:"notices"`
 	ParentPath          string    `json:"parent_path"`
+	OfficialStatisticsLogo string `json:"official_statistics_logo"`
 }
 
 // Related content (split by type) to this page

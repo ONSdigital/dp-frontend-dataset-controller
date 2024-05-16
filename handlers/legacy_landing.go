@@ -9,6 +9,8 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -25,10 +27,11 @@ type legacyLandingPage struct {
 	CollectionID    string
 	UserAccessToken string
 	CacheList       *cache.List
+	Config config.Config
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		lp := legacyLandingPage{
 			ZebedeeClient:   zc,
@@ -39,6 +42,7 @@ func LegacyLanding(zc ZebedeeClient, dc DatasetClient, fc FilesAPIClient, rend R
 			CollectionID:    collectionID,
 			UserAccessToken: userAccessToken,
 			CacheList:       cacheList,
+			Config: cfg,
 		}
 		lp.Build(w, req)
 	})
@@ -88,6 +92,8 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 
 	basePage := lp.RenderClient.NewBasePageModel()
 	m := mapper.CreateLegacyDatasetLanding(ctx, basePage, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
+
+	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(lp.Config.EnableOfficialStatisticsLogo, m.Language, false)
 
 	lp.RenderClient.BuildPage(w, m, "static")
 }
