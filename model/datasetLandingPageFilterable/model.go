@@ -18,27 +18,27 @@ type Page struct {
 // DatasetLandingPage represents the data on the dataset landing page
 type DatasetLandingPage struct {
 	static.DatasetLandingPage
-	Dimensions               []sharedModel.Dimension `json:"dimensions"`
-	Version                  sharedModel.Version     `json:"version"`
-	HasOlderVersions         bool                    `json:"has_older_versions"`
-	ShowEditionName          bool                    `json:"show_edition_name"`
-	Edition                  string                  `json:"edition"`
-	ReleaseFrequency         string                  `json:"release_frequency"`
-	IsLatest                 bool                    `json:"is_latest"`
-	LatestVersionURL         string                  `json:"latest_version_url"`
-	IsLatestVersionOfEdition bool                    `json:"is_latest_version_of_edition_url"`
-	QMIURL                   string                  `json:"qmi_url"`
-	IsNationalStatistic      bool                    `json:"is_national_statistic"`
-	Publications             []Publication           `json:"publications"`
-	RelatedLinks             []Publication           `json:"related_links"`
-	LatestChanges            []Change                `json:"latest_changes"`
-	Citation                 string                  `json:"citation"`
-	UnitOfMeasurement        string                  `json:"unit_of_measurement"`
-	Methodologies            []Methodology           `json:"methodology"`
-	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`
-	UsageNotes               []UsageNote             `json:"UsageNotes"`
-	EnableOfficialStatisticsLogo bool `json:"enable_official_statistics_logo"`
-	OfficialStatisticsLogo string `json:official_statistics_logo"`
+	Dimensions                   []sharedModel.Dimension `json:"dimensions"`
+	Version                      sharedModel.Version     `json:"version"`
+	HasOlderVersions             bool                    `json:"has_older_versions"`
+	ShowEditionName              bool                    `json:"show_edition_name"`
+	Edition                      string                  `json:"edition"`
+	ReleaseFrequency             string                  `json:"release_frequency"`
+	IsLatest                     bool                    `json:"is_latest"`
+	LatestVersionURL             string                  `json:"latest_version_url"`
+	IsLatestVersionOfEdition     bool                    `json:"is_latest_version_of_edition_url"`
+	QMIURL                       string                  `json:"qmi_url"`
+	IsNationalStatistic          bool                    `json:"is_national_statistic"`
+	Publications                 []Publication           `json:"publications"`
+	RelatedLinks                 []Publication           `json:"related_links"`
+	LatestChanges                []Change                `json:"latest_changes"`
+	Citation                     string                  `json:"citation"`
+	UnitOfMeasurement            string                  `json:"unit_of_measurement"`
+	Methodologies                []Methodology           `json:"methodology"`
+	NomisReferenceURL            string                  `json:"nomis_reference_url,omitempty"`
+	UsageNotes                   []UsageNote             `json:"UsageNotes"`
+	EnableOfficialStatisticsLogo bool                    `json:"enable_official_statistics_logo"`
+	OfficialStatisticsLogo       string                  `json:"official_statistics_logo"`
 }
 
 // UsageNote represents data for a single usage note

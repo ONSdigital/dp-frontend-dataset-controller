@@ -22,24 +22,24 @@ type Page struct {
 
 // DatasetLandingPage contains properties related to the census dataset landing page
 type DatasetLandingPage struct {
-	HasOtherVersions    bool                    `json:"has_other_versions"`
-	HasDownloads        bool                    `json:"has_downloads"`
-	LatestVersionURL    string                  `json:"latest_version_url"`
-	Dimensions          []sharedModel.Dimension `json:"dimensions"`
-	ShareDetails        ShareDetails
-	Description         []string             `json:"description"`
-	IsCustom            bool                 `json:"is_custom"`
-	IsFlexibleForm      bool                 `json:"is_flexible_form"`
-	DatasetURL          string               `json:"dataset_url"`
-	Panels              []Panel              `json:"panels"`
-	QualityStatements   []Panel              `json:"quality_statements"`
-	SDC                 []Panel              `json:"sdc"`
-	HasSDC              bool                 `json:"has_sdc"`
-	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
-	IsMultivariate      bool                 `json:"is_multivariate"`
-	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
-	ImproveResults      model.Collapsible
-	OfficialStatisticsLogo string `json:official_statistics_logo"`
+	HasOtherVersions       bool                    `json:"has_other_versions"`
+	HasDownloads           bool                    `json:"has_downloads"`
+	LatestVersionURL       string                  `json:"latest_version_url"`
+	Dimensions             []sharedModel.Dimension `json:"dimensions"`
+	ShareDetails           ShareDetails
+	Description            []string             `json:"description"`
+	IsCustom               bool                 `json:"is_custom"`
+	IsFlexibleForm         bool                 `json:"is_flexible_form"`
+	DatasetURL             string               `json:"dataset_url"`
+	Panels                 []Panel              `json:"panels"`
+	QualityStatements      []Panel              `json:"quality_statements"`
+	SDC                    []Panel              `json:"sdc"`
+	HasSDC                 bool                 `json:"has_sdc"`
+	RelatedContentItems    []RelatedContentItem `json:"related_content_items"`
+	IsMultivariate         bool                 `json:"is_multivariate"`
+	ShowXLSXInfo           bool                 `json:"show_xlsx_info"`
+	ImproveResults         model.Collapsible
+	OfficialStatisticsLogo string `json:"official_statistics_logo"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
