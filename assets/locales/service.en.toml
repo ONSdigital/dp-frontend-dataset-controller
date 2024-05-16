@@ -344,6 +344,14 @@ one = "<p>Census 2021 statistics are published for the whole of England and Wale
 description = "UK Statistics Authority Kitemark"
 one = "UK Statistics Authority Kitemark"
 
+[AboutUKStatisticsAuthority]
+description = "Certified by the UK Statistics Authority"
+one = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
+
+[AboutAccreditedOfficialStatistics]
+description = "Accredited official statistics"
+one = "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics."
+
 [QualityNoticeReadMore]
 description = "<p>Read more about this <a href=\"{{.QualityStatementURL}}\">quality notice</a>.</p>"
 one = "<p class=\"ons-u-mb-no\">Read more about this <a href=\"{{.arg0}}\">quality notice</a>.</p>"
