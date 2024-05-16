@@ -16,21 +16,21 @@ type Page struct {
 
 // DatasetLandingPage represents a frontend dataset landing page
 type DatasetLandingPage struct {
-	DatasetID           string    `json:"dataset_id"`
-	FilterID            string    `json:"filter_id"`
-	Related             Related   `json:"related"`
-	Datasets            []Dataset `json:"datasets"`
-	Notes               string    `json:"markdown"`
-	MetaDescription     string    `json:"meta_description"`
-	IsNationalStatistic bool      `json:"national_statistic"`
-	Survey              string    `json:"survey"`
-	ReleaseDate         string    `json:"release_date"`
-	NextRelease         string    `json:"next_release"`
-	IsTimeseries        bool      `json:"is_timeseries"`
-	Corrections         []Message `json:"corrections"`
-	Notices             []Message `json:"notices"`
-	ParentPath          string    `json:"parent_path"`
-	OfficialStatisticsLogo string `json:"official_statistics_logo"`
+	DatasetID              string    `json:"dataset_id"`
+	FilterID               string    `json:"filter_id"`
+	Related                Related   `json:"related"`
+	Datasets               []Dataset `json:"datasets"`
+	Notes                  string    `json:"markdown"`
+	MetaDescription        string    `json:"meta_description"`
+	IsNationalStatistic    bool      `json:"national_statistic"`
+	Survey                 string    `json:"survey"`
+	ReleaseDate            string    `json:"release_date"`
+	NextRelease            string    `json:"next_release"`
+	IsTimeseries           bool      `json:"is_timeseries"`
+	Corrections            []Message `json:"corrections"`
+	Notices                []Message `json:"notices"`
+	ParentPath             string    `json:"parent_path"`
+	OfficialStatisticsLogo string    `json:"official_statistics_logo"`
 }
 
 // Related content (split by type) to this page

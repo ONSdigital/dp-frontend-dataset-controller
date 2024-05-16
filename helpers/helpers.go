@@ -96,18 +96,18 @@ func ToBoolPtr(val bool) *bool {
 
 // GetOfficialStatisticsLogo returns the official statistics logo based on the enableOfficialStatisticsLogo and language
 func GetOfficialStatisticsLogo(enableOfficialStatisticsLogo bool, language string, useSvg bool) string {
-    extension := ".png"
-    if useSvg {
-        extension = ".svg"
-    }
+	extension := ".png"
+	if useSvg {
+		extension = ".svg"
+	}
 
-    if enableOfficialStatisticsLogo {
-        return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-" + language + extension
-    }
+	if enableOfficialStatisticsLogo {
+		return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-" + language + extension
+	}
 
-    if useSvg {
-        return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
-    }
+	if useSvg {
+		return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
+	}
 
-    return "/img/national-statistics.png"
+	return "/img/national-statistics.png"
 }
