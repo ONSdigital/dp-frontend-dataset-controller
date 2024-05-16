@@ -17,6 +17,7 @@ type Config struct {
 	DownloadServiceURL            string        `envconfig:"DOWNLOAD_SERVICE_URL"`
 	EnableMultivariate            bool          `envconfig:"ENABLE_MULTIVARIATE"`
 	EnableNewNavBar               bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
+	EnableOfficialStatisticsLogo  bool          `envconfig:"ENABLE_OFFICIAL_STATISTICS_LOGO"`
 	EnableProfiler                bool          `envconfig:"ENABLE_PROFILER"`
 	GracefulShutdownTimeout       time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout    time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
@@ -61,6 +62,7 @@ func get() (*Config, error) {
 		DownloadServiceURL:            "http://localhost:23600",
 		EnableMultivariate:            false,
 		EnableNewNavBar:               false,
+		EnableOfficialStatisticsLogo:  false,
 		EnableProfiler:                false,
 		GracefulShutdownTimeout:       5 * time.Second,
 		HealthCheckCriticalTimeout:    90 * time.Second,
