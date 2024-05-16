@@ -94,7 +94,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	if strings.Contains(datasetModel.Type, "cantabular") {
-		censusLanding(cfg.EnableMultivariate, ctx, w, req, dc, pc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+		censusLanding(cfg, ctx, w, req, dc, pc, datasetModel, rend, edition, ver, displayOtherVersionsLink, allVers.Items, latestVersionNumber, latestVersionURL, collectionID, lang, userAccessToken, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 		return
 	}
 
@@ -165,6 +165,9 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		Size:      strconv.Itoa(len(textBytes)),
 		URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 	})
+	
+	m.DatasetLandingPage.EnableOfficialStatisticsLogo = cfg.EnableOfficialStatisticsLogo
+	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, m.Language, false)
 
 	templateName := "filterable"
 	if datasetModel.Type == "nomis" {
@@ -174,7 +177,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	rend.BuildPage(w, m, templateName)
 }
 
-func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
+func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
 	const numOptsSummary = 1000
 	var initialVersion dataset.Version
 	var initialVersionReleaseDate string
@@ -228,7 +231,9 @@ func censusLanding(isEnableMultivariate bool, ctx context.Context, w http.Respon
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusLandingPage(req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate, pop)
+	m := mapper.CreateCensusLandingPage(req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, serviceMessage, emergencyBannerContent, cfg.EnableMultivariate, pop)
+	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, m.Language, true)
+
 	rend.BuildPage(w, m, "census-landing")
 }
 

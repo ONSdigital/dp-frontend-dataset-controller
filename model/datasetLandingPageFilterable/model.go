@@ -37,6 +37,8 @@ type DatasetLandingPage struct {
 	Methodologies            []Methodology           `json:"methodology"`
 	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`
 	UsageNotes               []UsageNote             `json:"UsageNotes"`
+	EnableOfficialStatisticsLogo bool `json:"enable_official_statistics_logo"`
+	OfficialStatisticsLogo string `json:official_statistics_logo"`
 }
 
 // UsageNote represents data for a single usage note

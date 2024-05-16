@@ -39,6 +39,7 @@ type DatasetLandingPage struct {
 	IsMultivariate      bool                 `json:"is_multivariate"`
 	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
 	ImproveResults      model.Collapsible
+	OfficialStatisticsLogo string `json:official_statistics_logo"`
 }
 
 // ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
