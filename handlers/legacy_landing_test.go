@@ -44,7 +44,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList)(w, req)
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList, cfg)(w, req)
 
 			So(w.Body.String(), ShouldEqual, `{"some_json":true}`)
 		})
@@ -71,7 +71,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList).ServeHTTP(w, req)
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
 		})
@@ -87,7 +87,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList, cfg).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
@@ -105,7 +105,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
 
-			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList).ServeHTTP(w, req)
+			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, nil, mockCacheList, cfg).ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
@@ -171,7 +171,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg)
 			handler(w, req)
 
 			actualDownloadSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
@@ -220,7 +220,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
 			So(err, ShouldBeNil)
-			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList)
+			handler := LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg)
 			handler(w, req)
 
 			actualDownloadFileSize := actualPageModel.DatasetLandingPage.Datasets[0].Downloads[0].Size
