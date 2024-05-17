@@ -95,7 +95,7 @@ func ToBoolPtr(val bool) *bool {
 }
 
 // GetOfficialStatisticsLogo returns the official statistics logo based on the enableOfficialStatisticsLogo and language
-func GetOfficialStatisticsLogo(enableOfficialStatisticsLogo bool, language string, useSvg bool) string {
+func GetOfficialStatisticsLogo(enableOfficialStatisticsLogo, useSvg bool, language string) string {
 	extension := ".png"
 	if useSvg {
 		extension = ".svg"

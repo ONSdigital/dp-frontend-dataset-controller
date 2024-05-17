@@ -167,7 +167,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	})
 	
 	m.DatasetLandingPage.EnableOfficialStatisticsLogo = cfg.EnableOfficialStatisticsLogo
-	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, m.Language, false)
+	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, false, m.Language)
 
 	templateName := "filterable"
 	if datasetModel.Type == "nomis" {
@@ -232,7 +232,7 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateCensusLandingPage(req, basePage, datasetModel, version, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, serviceMessage, emergencyBannerContent, cfg.EnableMultivariate, pop)
-	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, m.Language, true)
+	m.DatasetLandingPage.OfficialStatisticsLogo = helpers.GetOfficialStatisticsLogo(cfg.EnableOfficialStatisticsLogo, true, m.Language)
 
 	rend.BuildPage(w, m, "census-landing")
 }
