@@ -161,23 +161,23 @@ func TestToBoolPtr(t *testing.T) {
 }
 
 func TestGetOfficialStatisticsLogo(t *testing.T) {
-    Convey("Given enableOfficialStatisticsLogo is true and useSvg is true", t, func() {
-        result := GetOfficialStatisticsLogo(true, true, "en")
-        So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg")
-    })
+	Convey("Given enableOfficialStatisticsLogo is true and useSvg is true", t, func() {
+		result := GetOfficialStatisticsLogo(true, true, "en")
+		So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg")
+	})
 
-    Convey("Given enableOfficialStatisticsLogo is true and useSvg is false", t, func() {
-        result := GetOfficialStatisticsLogo(true, false, "en")
-        So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png")
-    })
+	Convey("Given enableOfficialStatisticsLogo is true and useSvg is false", t, func() {
+		result := GetOfficialStatisticsLogo(true, false, "en")
+		So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png")
+	})
 
-    Convey("Given enableOfficialStatisticsLogo is false and useSvg is true", t, func() {
-        result := GetOfficialStatisticsLogo(false, true, "en")
-        So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg")
-    })
+	Convey("Given enableOfficialStatisticsLogo is false and useSvg is true", t, func() {
+		result := GetOfficialStatisticsLogo(false, true, "en")
+		So(result, ShouldEqual, "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg")
+	})
 
-    Convey("Given enableOfficialStatisticsLogo is false and useSvg is false", t, func() {
-        result := GetOfficialStatisticsLogo(false, false, "en")
-        So(result, ShouldEqual, "/img/national-statistics.png")
-    })
+	Convey("Given enableOfficialStatisticsLogo is false and useSvg is false", t, func() {
+		result := GetOfficialStatisticsLogo(false, false, "en")
+		So(result, ShouldEqual, "/img/national-statistics.png")
+	})
 }
