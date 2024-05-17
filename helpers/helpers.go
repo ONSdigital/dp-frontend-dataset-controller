@@ -102,7 +102,7 @@ func GetOfficialStatisticsLogo(enableOfficialStatisticsLogo, useSvg bool, langua
 	}
 
 	if enableOfficialStatisticsLogo {
-		return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-" + language + extension
+		return fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension)
 	}
 
 	if useSvg {
