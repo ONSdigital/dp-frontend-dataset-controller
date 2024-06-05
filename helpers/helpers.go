@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 )
 
 // ExtractDatasetInfoFromPath gets the datasetID, edition and version from a given path
@@ -94,20 +96,41 @@ func ToBoolPtr(val bool) *bool {
 	return &val
 }
 
-// GetOfficialStatisticsLogo returns the official statistics logo based on the enableOfficialStatisticsLogo and language
-func GetOfficialStatisticsLogo(enableOfficialStatisticsLogo, useSvg bool, language string) string {
+// GetOSRLogoDetails returns the official statistics logo details based on the enableOfficialStatisticsLogo and language
+func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language string) osrlogo.OSRLogo {
 	extension := ".png"
+	altText := "Official Statistics Logo"
+	title := "Accredited Official Statistic"
+	about := "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics."
+
 	if useSvg {
 		extension = ".svg"
 	}
 
 	if enableOfficialStatisticsLogo {
-		return fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension)
+		return osrlogo.OSRLogo{
+			URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension),
+			AltText: altText,
+			Title:   title,
+			About:   about,
+			Enabled: true,
+		}
 	}
+
+	altText = "National Statistics Logo"
+	title = "National Statistics"
+	about = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
+	url := "/img/national-statistics.png"
 
 	if useSvg {
-		return "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
+		url = "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
 	}
 
-	return "/img/national-statistics.png"
+	return osrlogo.OSRLogo{
+		URL:     url,
+		AltText: altText,
+		Title:   title,
+		About:   about,
+		Enabled: false,
+	}
 }

@@ -4,6 +4,7 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -37,8 +38,7 @@ type DatasetLandingPage struct {
 	Methodologies            []Methodology           `json:"methodology"`
 	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`
 	UsageNotes               []UsageNote             `json:"UsageNotes"`
-	EnableOSRLogo            bool                    `json:"enable_osr_logo"`
-	OSRLogoURL               string                  `json:"osr_logo_url"`
+	OSRLogo                  osrlogo.OSRLogo         `json:"osr_logo"`
 }
 
 // UsageNote represents data for a single usage note

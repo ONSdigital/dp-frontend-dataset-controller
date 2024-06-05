@@ -3,6 +3,7 @@ package census
 import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -38,7 +39,7 @@ type DatasetLandingPage struct {
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
 	IsMultivariate      bool                 `json:"is_multivariate"`
 	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
-	OSRLogoURL          string               `json:"osr_logo_url"`
+	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
 	ImproveResults      model.Collapsible
 }
 

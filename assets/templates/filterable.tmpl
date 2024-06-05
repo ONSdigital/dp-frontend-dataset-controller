@@ -243,14 +243,13 @@
          {{ end }}
          {{ if .DatasetLandingPage.IsNationalStatistic }}
          <div class="tiles__item tiles__item--nav-type margin-left--0 margin-right--0">
-            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav"><img class="meta__image" src={{ .DatasetLandingPage.OSRLogoURL }} alt="National Statistics logo"><div class="padding-top--1 padding-bottom--1">National Statistic</div></h3>
+            <h3 class="font-size--24 line-height--32 font-weight-700 tiles__title-h3 tiles__title-h3--nav">
+               <img class="meta__image" src={{ .DatasetLandingPage.OSRLogo.URL }} alt={{ .DatasetLandingPage.OSRLogo.AltText }}>
+               <div class="padding-top--1 padding-bottom--1">{{ .DatasetLandingPage.OSRLogo.Title }}</div>
+            </h3>
             <div class="tiles__content tiles__content--nav">
                <p class="margin-bottom--0">
-                  {{ if .DatasetLandingPage.EnableOSRLogo}}
-                     {{ localise "AboutAccreditedOfficialStatistics" $.Language 1}}
-                  {{ else }}
-                     {{ localise "AboutUKStatisticsAuthority" $.Language 1}}
-                  {{ end }}
+                  {{ .DatasetLandingPage.OSRLogo.About }}
                   <a class="block underline-link" href="https://uksa.statisticsauthority.gov.uk/about-the-authority/uk-statistical-system/types-of-official-statistics/">Learn more</a>
                </p>
             </div>
