@@ -118,7 +118,7 @@ func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language strin
 	}
 
 	altText = "National Statistics Logo"
-	title = "National Statistics"
+	title = "National Statistic"
 	about = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
 	url := "/img/national-statistics.png"
 

@@ -167,7 +167,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg",
 			AltText: "Official Statistics Logo",
-			Title:   "Accredited official statistics",
+			Title:   "Accredited Official Statistic",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -178,7 +178,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png",
 			AltText: "Official Statistics Logo",
-			Title:   "Accredited official statistics",
+			Title:   "Accredited Official Statistic",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -189,7 +189,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg",
 			AltText: "National Statistics Logo",
-			Title:   "National Statistics",
+			Title:   "National Statistic",
 			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
 			Enabled: false,
 		})
@@ -200,7 +200,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "/img/national-statistics.png",
 			AltText: "National Statistics Logo",
-			Title:   "National Statistics",
+			Title:   "National Statistic",
 			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
 			Enabled: false,
 		})
@@ -211,7 +211,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.svg",
 			AltText: "Official Statistics Logo",
-			Title:   "Accredited official statistics",
+			Title:   "Accredited Official Statistic",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -222,7 +222,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.png",
 			AltText: "Official Statistics Logo",
-			Title:   "Accredited official statistics",
+			Title:   "Accredited Official Statistic",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
