@@ -99,8 +99,8 @@ func ToBoolPtr(val bool) *bool {
 // GetOSRLogoDetails returns the official statistics logo details based on the enableOfficialStatisticsLogo and language
 func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language string) osrlogo.OSRLogo {
 	extension := ".png"
-	altText := "Official Statistics Logo"
-	title := "Accredited Official Statistic"
+	altText := "Official Statistics logo"
+	title := "Accredited official statistics"
 	about := "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics."
 
 	if useSvg {

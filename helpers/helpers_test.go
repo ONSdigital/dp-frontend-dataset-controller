@@ -166,8 +166,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		result := GetOSRLogoDetails(true, true, "en")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg",
-			AltText: "Official Statistics Logo",
-			Title:   "Accredited Official Statistic",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -177,8 +177,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		result := GetOSRLogoDetails(true, false, "en")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png",
-			AltText: "Official Statistics Logo",
-			Title:   "Accredited Official Statistic",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -210,8 +210,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		result := GetOSRLogoDetails(true, true, "cy")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.svg",
-			AltText: "Official Statistics Logo",
-			Title:   "Accredited Official Statistic",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
@@ -221,8 +221,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		result := GetOSRLogoDetails(true, false, "cy")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.png",
-			AltText: "Official Statistics Logo",
-			Title:   "Accredited Official Statistic",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 			Enabled: true,
 		})
