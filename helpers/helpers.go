@@ -120,14 +120,14 @@ func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language strin
 	altText = "National Statistics Logo"
 	title = "National Statistic"
 	about = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
-	url := "/img/national-statistics.png"
+	urlStr := "/img/national-statistics.png"
 
 	if useSvg {
-		url = "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
+		urlStr = "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
 	}
 
 	return osrlogo.OSRLogo{
-		URL:     url,
+		URL:     urlStr,
 		AltText: altText,
 		Title:   title,
 		About:   about,
