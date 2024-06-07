@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 )
 
 // ExtractDatasetInfoFromPath gets the datasetID, edition and version from a given path
@@ -92,4 +94,43 @@ func PersistExistingParams(values []string, key, ignoreValue string, q url.Value
 // ToBoolPtr converts a boolean to a pointer
 func ToBoolPtr(val bool) *bool {
 	return &val
+}
+
+// GetOSRLogoDetails returns the official statistics logo details based on the enableOfficialStatisticsLogo and language
+func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language string) osrlogo.OSRLogo {
+	extension := ".png"
+	altText := "Official Statistics logo"
+	title := "Accredited official statistics"
+	about := "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics."
+
+	if useSvg {
+		extension = ".svg"
+	}
+
+	if enableOfficialStatisticsLogo {
+		return osrlogo.OSRLogo{
+			URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension),
+			AltText: altText,
+			Title:   title,
+			About:   about,
+			Enabled: true,
+		}
+	}
+
+	altText = "National Statistics Logo"
+	title = "National Statistic"
+	about = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
+	urlStr := "/img/national-statistics.png"
+
+	if useSvg {
+		urlStr = "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
+	}
+
+	return osrlogo.OSRLogo{
+		URL:     urlStr,
+		AltText: altText,
+		Title:   title,
+		About:   about,
+		Enabled: false,
+	}
 }

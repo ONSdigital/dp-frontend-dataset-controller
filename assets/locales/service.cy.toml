@@ -359,10 +359,6 @@ one = "<p>Census 2021 statistics are published for a number of different geograp
 description = "Coverage variable information"
 one = "<p>Census 2021 statistics are published for the whole of England and Wales. However, you can choose to filter areas by:</p><ul class=\"ons-list\"><li class=\"ons-list__item\">country - for example, Wales</li><li class=\"ons-list__item\">region - for example, London</li><li class=\"ons-list__item\">local authority - for example, Cornwall</li><li class=\"ons-list__item\">health area – for example, Clinical Commissioning Group</li><li class=\"ons-list__item\">statistical area - for example, MSOA or LSOA</li></ul>"
 
-[UKStatisticsAuthorityKitemark]
-description = "UK Statistics Authority Kitemark"
-one = "UK Statistics Authority Kitemark"
-
 [QualityNoticeReadMore]
 description = "<p>Read more about this <a href=\"{{.QualityStatementURL}}\">quality notice</a>.</p>"
 one = "<p class=\"ons-u-mb-no\">Read more about this <a href=\"{{.arg0}}\">quality notice</a>.</p>"

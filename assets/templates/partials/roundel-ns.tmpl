@@ -1,10 +1,12 @@
-<a
-    href="https://uksa.statisticsauthority.gov.uk/about-the-authority/uk-statistical-system/types-of-official-statistics/"
-    class="national-statistics__link ons-u-fs-xxxl"
->
-    <img
-    src="//cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
-    alt="{{localise "UKStatisticsAuthorityKitemark" .Language 1}}"
-    class="national-statistics__logo"
-    >
-</a>
+<div class="release">
+    <a
+        href="https://uksa.statisticsauthority.gov.uk/about-the-authority/uk-statistical-system/types-of-official-statistics/"
+        class="national-statistics__link ons-u-fs-xxxl font-size--h1"
+    > 
+        <img
+            src={{ .DatasetLandingPage.OSRLogo.URL }}
+            alt={{ .DatasetLandingPage.OSRLogo.AltText }}
+            class="osr__logo"
+        >
+    </a>
+</div>

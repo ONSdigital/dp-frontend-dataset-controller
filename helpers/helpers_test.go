@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -157,5 +158,73 @@ func TestToBoolPtr(t *testing.T) {
 		So(ToBoolPtr(false), ShouldNotBeNil)
 		truePtr := func(b bool) *bool { return &b }(true)
 		So(ToBoolPtr(true), ShouldResemble, truePtr)
+	})
+}
+
+func TestGetOSRLogoDetails(t *testing.T) {
+	Convey("Given enableOfficialStatisticsLogo is true and useSvg is true", t, func() {
+		result := GetOSRLogoDetails(true, true, "en")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
+			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
+			Enabled: true,
+		})
+	})
+
+	Convey("Given enableOfficialStatisticsLogo is true and useSvg is false", t, func() {
+		result := GetOSRLogoDetails(true, false, "en")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
+			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
+			Enabled: true,
+		})
+	})
+
+	Convey("Given enableOfficialStatisticsLogo is false and useSvg is true", t, func() {
+		result := GetOSRLogoDetails(false, true, "en")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg",
+			AltText: "National Statistics Logo",
+			Title:   "National Statistic",
+			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
+			Enabled: false,
+		})
+	})
+
+	Convey("Given enableOfficialStatisticsLogo is false and useSvg is false", t, func() {
+		result := GetOSRLogoDetails(false, false, "en")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "/img/national-statistics.png",
+			AltText: "National Statistics Logo",
+			Title:   "National Statistic",
+			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
+			Enabled: false,
+		})
+	})
+
+	Convey("Given enableOfficialStatisticsLogo is true, useSvg is true, and language is 'cy'", t, func() {
+		result := GetOSRLogoDetails(true, true, "cy")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.svg",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
+			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
+			Enabled: true,
+		})
+	})
+
+	Convey("Given enableOfficialStatisticsLogo is true, useSvg is false, and language is 'cy'", t, func() {
+		result := GetOSRLogoDetails(true, false, "cy")
+		So(result, ShouldResemble, osrlogo.OSRLogo{
+			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.png",
+			AltText: "Official Statistics logo",
+			Title:   "Accredited official statistics",
+			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
+			Enabled: true,
+		})
 	})
 }
