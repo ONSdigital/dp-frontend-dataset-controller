@@ -93,7 +93,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	basePage := lp.RenderClient.NewBasePageModel()
 	m := mapper.CreateLegacyDatasetLanding(ctx, basePage, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
-	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lp.Config.EnableOfficialStatisticsLogo, false, m.Language)
+	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(false, m.Language)
 
 	lp.RenderClient.BuildPage(w, m, "static")
 }

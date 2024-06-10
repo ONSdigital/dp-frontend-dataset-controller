@@ -162,8 +162,8 @@ func TestToBoolPtr(t *testing.T) {
 }
 
 func TestGetOSRLogoDetails(t *testing.T) {
-	Convey("Given enableOfficialStatisticsLogo is true and useSvg is true", t, func() {
-		result := GetOSRLogoDetails(true, true, "en")
+	Convey("Given useSvg is true", t, func() {
+		result := GetOSRLogoDetails(true, "en")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg",
 			AltText: "Official Statistics logo",
@@ -173,8 +173,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		})
 	})
 
-	Convey("Given enableOfficialStatisticsLogo is true and useSvg is false", t, func() {
-		result := GetOSRLogoDetails(true, false, "en")
+	Convey("Given useSvg is false", t, func() {
+		result := GetOSRLogoDetails(false, "en")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png",
 			AltText: "Official Statistics logo",
@@ -184,30 +184,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		})
 	})
 
-	Convey("Given enableOfficialStatisticsLogo is false and useSvg is true", t, func() {
-		result := GetOSRLogoDetails(false, true, "en")
-		So(result, ShouldResemble, osrlogo.OSRLogo{
-			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg",
-			AltText: "National Statistics Logo",
-			Title:   "National Statistic",
-			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
-			Enabled: false,
-		})
-	})
-
-	Convey("Given enableOfficialStatisticsLogo is false and useSvg is false", t, func() {
-		result := GetOSRLogoDetails(false, false, "en")
-		So(result, ShouldResemble, osrlogo.OSRLogo{
-			URL:     "/img/national-statistics.png",
-			AltText: "National Statistics Logo",
-			Title:   "National Statistic",
-			About:   "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics.",
-			Enabled: false,
-		})
-	})
-
-	Convey("Given enableOfficialStatisticsLogo is true, useSvg is true, and language is 'cy'", t, func() {
-		result := GetOSRLogoDetails(true, true, "cy")
+	Convey("Given useSvg is true, and language is 'cy'", t, func() {
+		result := GetOSRLogoDetails(true, "cy")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.svg",
 			AltText: "Official Statistics logo",
@@ -217,8 +195,8 @@ func TestGetOSRLogoDetails(t *testing.T) {
 		})
 	})
 
-	Convey("Given enableOfficialStatisticsLogo is true, useSvg is false, and language is 'cy'", t, func() {
-		result := GetOSRLogoDetails(true, false, "cy")
+	Convey("Given useSvg is false, and language is 'cy'", t, func() {
+		result := GetOSRLogoDetails(false, "cy")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.png",
 			AltText: "Official Statistics logo",

@@ -96,8 +96,8 @@ func ToBoolPtr(val bool) *bool {
 	return &val
 }
 
-// GetOSRLogoDetails returns the official statistics logo details based on the enableOfficialStatisticsLogo and language
-func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language string) osrlogo.OSRLogo {
+// GetOSRLogoDetails returns the official statistics logo details based on the language
+func GetOSRLogoDetails(useSvg bool, language string) osrlogo.OSRLogo {
 	extension := ".png"
 	altText := "Official Statistics logo"
 	title := "Accredited official statistics"
@@ -107,30 +107,11 @@ func GetOSRLogoDetails(enableOfficialStatisticsLogo, useSvg bool, language strin
 		extension = ".svg"
 	}
 
-	if enableOfficialStatisticsLogo {
-		return osrlogo.OSRLogo{
-			URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension),
-			AltText: altText,
-			Title:   title,
-			About:   about,
-			Enabled: true,
-		}
-	}
-
-	altText = "National Statistics Logo"
-	title = "National Statistic"
-	about = "Certified by the UK Statistics Authority as compliant with the Code of Practice for Official Statistics."
-	urlStr := "/img/national-statistics.png"
-
-	if useSvg {
-		urlStr = "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/uksa-kitemark.svg"
-	}
-
 	return osrlogo.OSRLogo{
-		URL:     urlStr,
+		URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension),
 		AltText: altText,
 		Title:   title,
 		About:   about,
-		Enabled: false,
+		Enabled: true,
 	}
 }
