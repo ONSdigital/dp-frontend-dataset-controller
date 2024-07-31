@@ -169,7 +169,6 @@ func TestGetOSRLogoDetails(t *testing.T) {
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 
@@ -180,7 +179,6 @@ func TestGetOSRLogoDetails(t *testing.T) {
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 
@@ -191,7 +189,6 @@ func TestGetOSRLogoDetails(t *testing.T) {
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 
@@ -202,7 +199,6 @@ func TestGetOSRLogoDetails(t *testing.T) {
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 }

@@ -6,5 +6,4 @@ type OSRLogo struct {
 	AltText string `json:"alt_text"`
 	Title   string `json:"title"`
 	About   string `json:"about"`
-	Enabled bool   `json:"enabled"`
 }

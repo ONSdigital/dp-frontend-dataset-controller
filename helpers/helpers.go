@@ -112,6 +112,5 @@ func GetOSRLogoDetails(useSvg bool, language string) osrlogo.OSRLogo {
 		AltText: altText,
 		Title:   title,
 		About:   about,
-		Enabled: true,
 	}
 }
