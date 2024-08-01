@@ -97,18 +97,13 @@ func ToBoolPtr(val bool) *bool {
 }
 
 // GetOSRLogoDetails returns the official statistics logo details based on the language
-func GetOSRLogoDetails(useSvg bool, language string) osrlogo.OSRLogo {
-	extension := ".png"
+func GetOSRLogoDetails(language string) osrlogo.OSRLogo {
 	altText := "Official Statistics logo"
 	title := "Accredited official statistics"
 	about := "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics."
 
-	if useSvg {
-		extension = ".svg"
-	}
-
 	return osrlogo.OSRLogo{
-		URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, extension),
+		URL:     fmt.Sprintf("https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-%s%s", language, ".svg"),
 		AltText: altText,
 		Title:   title,
 		About:   about,
