@@ -162,47 +162,23 @@ func TestToBoolPtr(t *testing.T) {
 }
 
 func TestGetOSRLogoDetails(t *testing.T) {
-	Convey("Given useSvg is true", t, func() {
-		result := GetOSRLogoDetails(true, "en")
+	Convey("Given language is 'en'", t, func() {
+		result := GetOSRLogoDetails("en")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.svg",
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 
-	Convey("Given useSvg is false", t, func() {
-		result := GetOSRLogoDetails(false, "en")
-		So(result, ShouldResemble, osrlogo.OSRLogo{
-			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-en.png",
-			AltText: "Official Statistics logo",
-			Title:   "Accredited official statistics",
-			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
-		})
-	})
-
-	Convey("Given useSvg is true, and language is 'cy'", t, func() {
-		result := GetOSRLogoDetails(true, "cy")
+	Convey("Given language is 'cy'", t, func() {
+		result := GetOSRLogoDetails("cy")
 		So(result, ShouldResemble, osrlogo.OSRLogo{
 			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.svg",
 			AltText: "Official Statistics logo",
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
-		})
-	})
-
-	Convey("Given useSvg is false, and language is 'cy'", t, func() {
-		result := GetOSRLogoDetails(false, "cy")
-		So(result, ShouldResemble, osrlogo.OSRLogo{
-			URL:     "https://cdn.ons.gov.uk/assets/images/ons-logo/kitemark/v2/uksa-kitemark-cy.png",
-			AltText: "Official Statistics logo",
-			Title:   "Accredited official statistics",
-			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
-			Enabled: true,
 		})
 	})
 }
