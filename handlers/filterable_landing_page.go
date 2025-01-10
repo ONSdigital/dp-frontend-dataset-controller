@@ -31,14 +31,10 @@ func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient,
 func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 
-	fmt.Println("--------- filterableLanding vars:", vars)
-
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	ctx := req.Context()
-
-	fmt.Println("--------- filterableLanding len(edition):", len(edition))
 
 	// Fetch the dataset
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
@@ -47,14 +43,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	// log.Info(ctx, fmt.Sprintf("datasetModel.Type: %s", datasetModel.Type))
-	fmt.Println("datasetModel.Type: ", datasetModel.Type)
-
-	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
-	if err != nil {
-		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
-	}
-
+	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
@@ -86,6 +75,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
+	}
+
+	// Fetch homepage content
+	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
 	if strings.Contains(datasetModel.Type, "cantabular") {
@@ -135,6 +130,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
+	// Build page context and render
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateFilterableLandingPage(ctx, basePage, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
@@ -163,12 +159,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
-	templateName := "filterable"
-	if datasetModel.Type == "nomis" {
-		templateName = "nomis"
-	}
-
-	rend.BuildPage(w, m, templateName)
+	rend.BuildPage(w, m, datasetModel.Type)
 }
 
 func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
@@ -230,10 +221,6 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 
 	rend.BuildPage(w, m, "census-landing")
 }
-
-// func discoverableDatasetsLanding() {
-// 	const templateName = "discoverable-datasets-landing"
-// }
 
 func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
 	for ext, download := range downloads {
