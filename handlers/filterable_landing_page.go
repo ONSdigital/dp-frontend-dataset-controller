@@ -30,34 +30,29 @@ func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient,
 
 func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
+
+	fmt.Println("--------- filterableLanding vars:", vars)
+
 	datasetID := vars["datasetID"]
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	ctx := req.Context()
 
+	fmt.Println("--------- filterableLanding len(edition):", len(edition))
+
+	// Fetch the dataset
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
 	}
 
+	// log.Info(ctx, fmt.Sprintf("datasetModel.Type: %s", datasetModel.Type))
+	fmt.Println("datasetModel.Type: ", datasetModel.Type)
+
 	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
-	}
-
-	if len(edition) == 0 {
-		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
-		if err != nil {
-			setStatusCode(ctx, w, err)
-			return
-		}
-
-		_, edition, version, err = helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
-		if err != nil {
-			setStatusCode(ctx, w, err)
-			return
-		}
 	}
 
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
@@ -235,6 +230,10 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 
 	rend.BuildPage(w, m, "census-landing")
 }
+
+// func discoverableDatasetsLanding() {
+// 	const templateName = "discoverable-datasets-landing"
+// }
 
 func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
 	for ext, download := range downloads {
