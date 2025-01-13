@@ -95,7 +95,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
-	lp.RenderClient.BuildPage(w, m, "static")
+	lp.RenderClient.BuildPage(w, m, "static-legacy")
 }
 
 func (lp legacyLandingPage) getDatasets(ctx context.Context, dlp zebedee.DatasetLandingPage, logData log.Data) ([]zebedee.Dataset, error) {

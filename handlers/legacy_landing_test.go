@@ -62,7 +62,7 @@ func TestLegacyLanding(t *testing.T) {
 
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static")
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static-legacy")
 
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
@@ -160,7 +160,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 
 			var actualPageModel mapper.StaticDatasetLandingPage
 
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static").Do(func(w io.Writer, pageModel interface{}, templateName string) {
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static-legacy").Do(func(w io.Writer, pageModel interface{}, templateName string) {
 				actualPageModel = pageModel.(mapper.StaticDatasetLandingPage)
 			})
 
@@ -209,7 +209,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 
 			var actualPageModel mapper.StaticDatasetLandingPage
 
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static").Do(func(w io.Writer, pageModel interface{}, templateName string) {
+			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static-legacy").Do(func(w io.Writer, pageModel interface{}, templateName string) {
 				actualPageModel = pageModel.(mapper.StaticDatasetLandingPage)
 			})
 
