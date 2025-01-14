@@ -43,6 +43,20 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
+	if len(edition) == 0 {
+		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
+		if err != nil {
+			setStatusCode(ctx, w, err)
+			return
+		}
+
+		_, edition, version, err = helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
+		if err != nil {
+			setStatusCode(ctx, w, err)
+			return
+		}
+	}
+
 	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
@@ -130,7 +144,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		}
 	}
 
-	// Build page context and render
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateFilterableLandingPage(ctx, basePage, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
@@ -221,6 +234,10 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 
 	rend.BuildPage(w, m, "census-landing")
 }
+
+// func discoverableDatasetsLanding() {
+// 	const templateName = "discoverable-datasets-landing"
+// }
 
 func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
 	for ext, download := range downloads {
