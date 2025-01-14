@@ -235,10 +235,6 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 	rend.BuildPage(w, m, "census-landing")
 }
 
-// func discoverableDatasetsLanding() {
-// 	const templateName = "discoverable-datasets-landing"
-// }
-
 func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
 	for ext, download := range downloads {
 		if strings.EqualFold(ext, format) {
