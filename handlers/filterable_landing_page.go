@@ -62,7 +62,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
-		fmt.Println("__________ Exited at GetVersionS", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
@@ -89,7 +88,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	latestVersionURL := helpers.DatasetVersionURL(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	if version == "" {
-		fmt.Println("__________ Exited at No Version Redirect", err)
 		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
 		http.Redirect(w, req, latestVersionURL, http.StatusFound)
 		return
@@ -97,7 +95,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
-		fmt.Println("__________ Exited at GetVersion", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
@@ -127,14 +124,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
 	if err != nil {
-		fmt.Println("__________ Exited at Options Summary", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
-		fmt.Println("__________ Exited at Version MetaData", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
@@ -143,7 +138,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req)
 	if err != nil {
 		if err != errTooManyOptions {
-			fmt.Println("__________ Exited at getText", err)
 			setStatusCode(ctx, w, err)
 			return
 		}
@@ -195,7 +189,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		if len(cfg.DownloadServiceURL) > 0 {
 			downloadURL, err := url.Parse(d.URI)
 			if err != nil {
-				fmt.Println("__________ Exited at len(cfg.DownloadServiceURL) > 0", err)
 				setStatusCode(ctx, w, err)
 				return
 			}
