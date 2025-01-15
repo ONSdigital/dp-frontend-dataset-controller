@@ -1,23 +1,25 @@
 {{ range . }}
-    <div class="ons-panel ons-panel--{{.FuncGetPanelType}} ons-panel--no-title{{ if .CSSClasses}}{{ range .CSSClasses }} {{ . }}{{ end }}{{ end }}">
-        {{ if .DisplayIcon }}
-            <div class="ons-panel--warn ons-u-bg--tr">
-                <div class="ons-panel__icon" aria-hidden="true">
-                    !
-                </div>
-            {{ end }}
-            <span class="ons-panel__assistive-text ons-u-vh">
-                {{- localise "ImportantInformation" .Language 1 -}}
-            </span>
-            <div class="ons-panel__body">
-                <div class="ons-u-fs-r default-line-height">
-                    {{ range .Body }}
-                        {{- . | safeHTML -}}
-                    {{ end }}
-                </div>
-            </div>
-            {{ if .DisplayIcon }}
-            </div>
+<div
+  class="ons-panel ons-panel--{{.FuncGetPanelType}} ons-panel--no-title{{ if .CSSClasses}}{{
+    range.CSSClasses
+  }} {{ . }}{{ end }}{{ end }}"
+>
+  {{ if .DisplayIcon }}
+  <div class="ons-panel--warn ons-u-bg--tr">
+    <div class="ons-panel__icon" aria-hidden="true">!</div>
+    {{ end }}
+    <span class="ons-panel__assistive-text ons-u-vh">
+      {{- localise "ImportantInformation" .Language 1 -}}
+    </span>
+    <div class="ons-panel__body">
+      <div class="ons-u-fs-r default-line-height">
+        {{ range.Body }}
+        {{- . | safeHTML -}}
         {{ end }}
+      </div>
     </div>
+    {{ if .DisplayIcon }}
+  </div>
+  {{ end }}
+</div>
 {{ end }}

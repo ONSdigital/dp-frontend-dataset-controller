@@ -35,6 +35,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	ctx := req.Context()
+	collectionID = "hard-coded-colection-ID"
 
 	// Fetch the dataset
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
@@ -47,10 +48,16 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
 	if err != nil {
-		fmt.Println("__________ Exited at GetVersionS", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
+
+	//TODO: this is a refactor. Also, these can be used throughout this function
+	hasOtherVersions := false
+	if len(allVers.Items) > 1 {
+		hasOtherVersions = true
+	}
+	allVersions := allVers.Items
 
 	var displayOtherVersionsLink bool
 	if len(allVers.Items) > 1 {
@@ -67,7 +74,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	latestVersionURL := helpers.DatasetVersionURL(datasetID, edition, strconv.Itoa(latestVersionNumber))
 
 	if version == "" {
-		fmt.Println("__________ Exited at No Version Redirect", err)
 		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
 		http.Redirect(w, req, latestVersionURL, http.StatusFound)
 		return
@@ -75,7 +81,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 	if err != nil {
-		fmt.Println("__________ Exited at GetVersion", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
@@ -91,13 +96,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
+
 	dims := dataset.VersionDimensions{Items: nil}
 	// TODO: check if dimensions necessary for static
 	if !( datasetModel.Type == "nomis" || datasetModel.Type == "static"){
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
-			// TODO: convert these to meaningful logs
-			fmt.Println("__________ Exited at Version Dimensions", err)
+			// TODO: add meaningful logs
 			setStatusCode(ctx, w, err)
 			return
 		}
@@ -105,14 +110,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, edition, version, dims, numOptsSummary)
 	if err != nil {
-		fmt.Println("__________ Exited at Options Summary", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
-		fmt.Println("__________ Exited at Version MetaData", err)
 		setStatusCode(ctx, w, err)
 		return
 	}
@@ -121,7 +124,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	textBytes, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dims, req)
 	if err != nil {
 		if err != errTooManyOptions {
-			fmt.Println("__________ Exited at getText", err)
 			setStatusCode(ctx, w, err)
 			return
 		}
@@ -141,15 +143,38 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	// Build page context and render
-	basePage := rend.NewBasePageModel()
-	m := mapper.CreateFilterableLandingPage(ctx, basePage, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 
-	fmt.Println("___________Data landing page:", m.DatasetLandingPage)
+	basePage := rend.NewBasePageModel()
+	// For static
+	categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, "", ver.Dimensions)
+	initialVersionReleaseDate := ""
+	if ver.Version != 1 { //determine if this is necessry
+		ver, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1") // TODO use IsBasedOn.id
+		initialVersionReleaseDate = ver.ReleaseDate
+	}
+	var form = req.URL.Query().Get("f")
+	var format = req.URL.Query().Get("format")
+	isValidationError := false 
+	if form == "get-data" && format == "" {
+		isValidationError = true
+	}
+	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
+		PopulationType: "1",
+		AuthTokens: population.AuthTokens{
+			UserAuthToken: userAccessToken,
+		},
+	})
+	showAll := req.URL.Query()[queryStrKey]
+    
+	m := mapper.CreateFilterableLandingPage(ctx, basePage, req, datasetModel, ver, datasetID, opts, dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, lang, apiRouterVersion, numOptsSummary, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	
+	// TODO: from census
+	m_static := mapper.CreateCensusLandingPage(req, basePage, datasetModel, ver, opts, categorisationsMap, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, pop)
+	
 	for i, d := range m.DatasetLandingPage.Version.Downloads {
 		if len(cfg.DownloadServiceURL) > 0 {
 			downloadURL, err := url.Parse(d.URI)
 			if err != nil {
-				fmt.Println("__________ Exited at len(cfg.DownloadServiceURL) > 0", err)
 				setStatusCode(ctx, w, err)
 				return
 			}
@@ -172,7 +197,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
 	// TODO: change this back later
-	rend.BuildPage(w, m, "filterable")
+	if datasetModel.Type == "static"{
+		fmt.Print("__________________ rendering page now.... ")
+		rend.BuildPage(w, m_static, "static")
+	} else {
+		rend.BuildPage(w, m, datasetModel.Type)
+	}
+	
 }
 
 func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
