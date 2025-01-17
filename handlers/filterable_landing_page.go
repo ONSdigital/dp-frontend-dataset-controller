@@ -295,8 +295,16 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 		return
 	}
 
+	// TODO: for static this value hardcoded to avoid a go panic, since version.IsBasedOn.ID doesn't exist.
+	var idOfVersionBasedOn string
+	if datasetModel.Type == "static"{
+		idOfVersionBasedOn = "1"
+	} else {
+		idOfVersionBasedOn = version.IsBasedOn.ID
+	}
+
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
-		PopulationType: version.IsBasedOn.ID,
+		PopulationType: idOfVersionBasedOn,
 		AuthTokens: population.AuthTokens{
 			UserAuthToken: userAccessToken,
 		},
