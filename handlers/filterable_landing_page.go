@@ -105,7 +105,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	if strings.Contains(datasetModel.Type, "cantabular") || strings.Contains(datasetModel.Type, "static") {
+	if strings.Contains(datasetModel.Type, "cantabular") || strings.Contains(datasetModel.Type, "//static") {
 		censusLanding(
 			cfg, 
 			ctx, 
