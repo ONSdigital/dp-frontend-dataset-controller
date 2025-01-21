@@ -66,7 +66,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		return
 	}
 
-	//TODO: this is a refactor. Also, these can be used throughout this function
 	hasOtherVersions := false
 	if len(allVers.Items) > 1 {
 		hasOtherVersions = true
@@ -105,7 +104,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	if strings.Contains(datasetModel.Type, "cantabular") || strings.Contains(datasetModel.Type, "//static") {
+	if strings.Contains(datasetModel.Type, "cantabular") {
 		censusLanding(
 			cfg, 
 			ctx, 
@@ -133,11 +132,9 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 
 	dims := dataset.VersionDimensions{Items: nil}
-	// TODO: check if dimensions necessary for static
 	if !( datasetModel.Type == "nomis" || datasetModel.Type == "static"){
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
-			// TODO: add meaningful logs
 			setStatusCode(ctx, w, err)
 			return
 		}
@@ -169,7 +166,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	var bc []zebedee.Breadcrumb
-	// TODO: check if breadcrumb necessary for static
 	if !(datasetModel.Type == "nomis" || datasetModel.Type == "static") {
 		bc, err = zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetModel.Links.Taxonomy.URL)
 		if err != nil {
@@ -178,23 +174,32 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	// Build page context and render
-
 	basePage := rend.NewBasePageModel()
-	// For static
+
+	// When the data type is 'static' additional data must be fetched for use within the mapper
 	categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, "", ver.Dimensions)
 	initialVersionReleaseDate := ""
-	if ver.Version != 1 { //determine if this is necessry
-		ver, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1") // TODO use IsBasedOn.id
+	idOfVersionBasedOn := "1"
+
+	if ver.Version != 1 {
+		ver, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, idOfVersionBasedOn) 
 		initialVersionReleaseDate = ver.ReleaseDate
 	}
+	if err != nil {
+		log.Error(ctx, "failed to get version", err)
+		setStatusCode(ctx, w, err)
+		return
+	}
+
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	isValidationError := false 
+
 	if form == "get-data" && format == "" {
 		isValidationError = true
 	}
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
-		PopulationType: "1",
+		PopulationType: idOfVersionBasedOn,
 		AuthTokens: population.AuthTokens{
 			UserAuthToken: userAccessToken,
 		},
@@ -221,7 +226,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		homepageContent.EmergencyBanner,
 	)
 	
-	// TODO: from census
+	// It is reccomended in the future to refactor, such that existing code within 'censusLanding' is shared
 	m_static := mapper.CreateCensusLandingPage(
 		req, 
 		basePage, 
@@ -267,14 +272,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
-	// TODO: change this back later
+	// 'Static' type builds page using census landing page mapper
 	if datasetModel.Type == "static"{
-		fmt.Print("__________________ rendering page now.... ")
 		rend.BuildPage(w, m_static, "static")
 	} else {
 		rend.BuildPage(w, m, datasetModel.Type)
 	}
-	
+
 }
 
 func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
@@ -285,6 +289,7 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
+	idOfVersionBasedOn := version.IsBasedOn.ID
 
 	if version.Version != 1 {
 		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
@@ -293,14 +298,6 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
-	}
-
-	// TODO: for static this value hardcoded to avoid a go panic, since version.IsBasedOn.ID doesn't exist.
-	var idOfVersionBasedOn string
-	if datasetModel.Type == "static"{
-		idOfVersionBasedOn = "1"
-	} else {
-		idOfVersionBasedOn = version.IsBasedOn.ID
 	}
 
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
