@@ -35,7 +35,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	ctx := req.Context()
-	collectionID = "hard-coded-colection-ID"
 
 	// Fetch the dataset
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
