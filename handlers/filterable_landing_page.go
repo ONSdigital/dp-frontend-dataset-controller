@@ -272,8 +272,13 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		})
 	
 		m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
+		
+		templateName := "filterable"
+		if datasetModel.Type == "nomis" {
+			templateName = "nomis"
+		}
 	
-		rend.BuildPage(w, m, datasetModel.Type)
+		rend.BuildPage(w, m, templateName)
 	}
 }
 
