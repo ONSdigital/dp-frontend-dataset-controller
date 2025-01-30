@@ -15,9 +15,11 @@ type Config struct {
 	CacheNavigationUpdateInterval time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
 	Debug                         bool          `envconfig:"DEBUG"`
 	DownloadServiceURL            string        `envconfig:"DOWNLOAD_SERVICE_URL"`
+	EnableFeedbackAPI             bool          `envconfig:"ENABLE_FEEDBACK_API"`
 	EnableMultivariate            bool          `envconfig:"ENABLE_MULTIVARIATE"`
 	EnableNewNavBar               bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
 	EnableProfiler                bool          `envconfig:"ENABLE_PROFILER"`
+	FeedbackAPIURL                string        `envconfig:"FEEDBACK_API_URL"`
 	GracefulShutdownTimeout       time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout    time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval           time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -59,9 +61,11 @@ func get() (*Config, error) {
 		CacheNavigationUpdateInterval: 10 * time.Second,
 		Debug:                         false,
 		DownloadServiceURL:            "http://localhost:23600",
+		EnableFeedbackAPI:             false,
 		EnableMultivariate:            false,
 		EnableNewNavBar:               false,
 		EnableProfiler:                false,
+		FeedbackAPIURL:                "http://localhost:23200/v1/feedback",
 		GracefulShutdownTimeout:       5 * time.Second,
 		HealthCheckCriticalTimeout:    90 * time.Second,
 		HealthCheckInterval:           30 * time.Second,
