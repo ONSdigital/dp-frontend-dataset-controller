@@ -35,6 +35,9 @@ func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dat
 	dp.ServiceMessage = serviceMessage
 	dp.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
+	dp.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	dp.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
+
 	for _, breadcrumb := range bc {
 		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,

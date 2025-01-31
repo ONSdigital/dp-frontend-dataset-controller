@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/editions"
@@ -38,6 +39,10 @@ const (
 	DimensionAge       = "age"
 	DimensionGeography = "geography"
 	SixteensVersion    = "fa4e02c"
+)
+
+var (
+	cfg, _ = config.Get()
 )
 
 func (p TimeSlice) Len() int {
@@ -86,6 +91,9 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, r
 
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+
+	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
@@ -246,6 +254,9 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
+	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
+
 	latestVersionNumber := 1
 	for i := range versions {
 		var v sharedModel.Version
@@ -308,6 +319,9 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+
+	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{

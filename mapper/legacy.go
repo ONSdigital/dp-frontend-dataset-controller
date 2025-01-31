@@ -50,6 +50,9 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 	sdlp.ServiceMessage = serviceMessage
 	sdlp.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
+	sdlp.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	sdlp.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
+
 	if navigationContent != nil {
 		sdlp.NavigationContent = MapNavigationContent(*navigationContent)
 	}
