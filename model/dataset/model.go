@@ -25,6 +25,8 @@ type DatasetPage struct { //nolint:revive //renaming to page would mix types and
 	Edition             string              `json:"edition"`
 	Markdown            string              `json:"markdown"`
 	ParentPath          string              `json:"parent_path"`
+	EnableFeedbackAPI   bool                `json:"enable_feedback_api"`
+	FeedbackAPIURL      string              `json:"feedback_api_url"`
 }
 
 // Download has the details for an individual dataset's downloadable files
