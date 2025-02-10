@@ -48,6 +48,17 @@ Then you can us the profiler as follows:
 a) `go tool pprof -http=:8080 heap.out`
 b) `go tool pprof heap.out`, -o flag to see various options
 
+## Routes
+This is a list of routes and a description of their function
+| Route | Description |
+| ----- | ----------- |
+| /datasets/{datasetID} | Lists the editions associated with a dataset. If only one edition is available, redirects to the latest version of that edition |
+| /datasets/{datasetID}/editions | Lists the editions associated with a dataset. If only one edition is available, redirects to the latest version of that edition |
+| /datasets/{datasetID}/editions/{editionID} | Redirects to show the latest version associated with the edition |
+| /datasets/{datasetID}/editions/{edition}/versions | Lists the versions associated with an edition |
+| /datasets/{datasetID}/editions/{editionID}/versions/{versionID} | Shows the requested version |
+
+
 ## Licence
 
 Copyright © 2025, Office for National Statistics (<https://www.ons.gov.uk>)

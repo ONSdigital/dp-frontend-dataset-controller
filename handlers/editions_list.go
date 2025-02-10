@@ -18,6 +18,8 @@ func EditionsList(dc DatasetClient, zc ZebedeeClient, rend RenderClient, cfg con
 	})
 }
 
+// Renders a page listing editions associated with a dataset. If only a single edition exists,
+// redirects to the latest version of that edition
 func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
