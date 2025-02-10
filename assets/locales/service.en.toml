@@ -98,9 +98,17 @@ one = "View all data related to"
 description = "Contact us"
 one = "Contact us"
 
+[ContactDetails]
+description = "Contact details for this dataset"
+one = "Contact details for this dataset"
+
 [DatasetContactDetails]
 description = "Contact details for this dataset"
 one = "Contact details for this dataset"
+
+[Name]
+description = "Name"
+one = "Name"
 
 [Email]
 description = "Email"

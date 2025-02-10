@@ -179,6 +179,12 @@ func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
 
 	if d.Contacts != nil && len(*d.Contacts) > 0 {
 		contacts := *d.Contacts
+		if d.Type == "static" {
+			if contacts[0].Name != "" {
+				details.Name = contacts[0].Name
+				hasContactDetails = true
+			}
+		}
 		if contacts[0].Telephone != "" {
 			details.Telephone = contacts[0].Telephone
 			hasContactDetails = true
