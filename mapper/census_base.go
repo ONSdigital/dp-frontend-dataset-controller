@@ -29,7 +29,6 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	}
 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-
 	// PAGE META-DATA
 	p.Type = d.Type
 	p.Metadata.Title = d.Title

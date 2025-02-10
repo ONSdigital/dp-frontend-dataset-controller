@@ -60,6 +60,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -92,6 +93,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
+
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -178,11 +180,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, "", ver.Dimensions)
 		initialVersionReleaseDate := ""
 		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work 
-	
-		if ver.Version != 1 {
-			ver, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, idOfVersionBasedOn) 
-			initialVersionReleaseDate = ver.ReleaseDate
-		}
+				
 		if err != nil {
 			log.Error(ctx, "failed to get version", err)
 			setStatusCode(ctx, w, err)
@@ -206,6 +204,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 		// 'Static' type builds page using census landing page mapper
 		// It is reccomended in the future to refactor, such that existing code within 'censusLanding' is shared
+
 		m := mapper.CreateCensusLandingPage(
 			req, 
 			basePage, 
