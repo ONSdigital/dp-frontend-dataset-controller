@@ -225,6 +225,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			cfg.EnableMultivariate, 
 			pop,
 		)
+		m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 		rend.BuildPage(w, m, "static")
 	} else{
 		m := mapper.CreateFilterableLandingPage(
@@ -351,7 +352,8 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 	}
 
 	showAll := req.URL.Query()[queryStrKey]
-	basePage := rend.NewBasePageModel()
+	basePage := rend.NewBasePageModel() 
+
 	m := mapper.CreateCensusLandingPage(
 		req, 
 		basePage, 
