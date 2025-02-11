@@ -234,6 +234,18 @@ one = "Last updated"
 description = "See version history"
 one = "See version history"
 
+[PublisherName]
+description = "Publisher Name"
+one = "Publisher Name"
+
+[PublisherType]
+description = "Publisher Type"
+one = "Publisher Type"
+
+[PublisherURL]
+description = "Publisher URL"
+one = "Publisher URL"
+
 [VersionHistory]
 description = "Version history"
 one = "Version history"

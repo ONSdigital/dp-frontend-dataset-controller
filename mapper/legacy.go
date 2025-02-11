@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/staticlegacy"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -21,7 +21,7 @@ import (
 const staticFilesDownloadEndpoint = "downloads-new"
 
 // StaticDatasetLandingPage is a StaticDatasetLandingPage representation
-type StaticDatasetLandingPage static.Page
+type StaticDatasetLandingPage staticlegacy.Page
 
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
 //
@@ -113,21 +113,21 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 	}
 
 	for i := range ds {
-		var dataset static.Dataset
+		var dataset staticlegacy.Dataset
 		dataset.URI = ds[i].URI
 		dataset.VersionLabel = ds[i].Description.VersionLabel
 
 		for _, download := range ds[i].Downloads {
 			if download.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(download.URI, "/")
-				dataset.Downloads = append(dataset.Downloads, static.Download{
+				dataset.Downloads = append(dataset.Downloads, staticlegacy.Download{
 					URI:         download.URI,
 					DownloadURL: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
 					Extension:   strings.TrimPrefix(filepath.Ext(download.URI), "."),
 					Size:        download.Size,
 				})
 			} else { // old legacy Zebedee-source files
-				dataset.Downloads = append(dataset.Downloads, static.Download{
+				dataset.Downloads = append(dataset.Downloads, staticlegacy.Download{
 					URI:         download.File,
 					DownloadURL: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, download.File),
 					Extension:   strings.TrimPrefix(filepath.Ext(download.File), "."),
@@ -138,7 +138,7 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 		for _, supplementaryFile := range ds[i].SupplementaryFiles {
 			if supplementaryFile.URI != "" { // i.e. new static files sourced files
 				filePath := strings.TrimPrefix(supplementaryFile.URI, "/")
-				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, static.SupplementaryFile{
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, staticlegacy.SupplementaryFile{
 					Title:       supplementaryFile.Title,
 					URI:         supplementaryFile.URI,
 					DownloadURL: fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, filePath),
@@ -146,7 +146,7 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 					Size:        supplementaryFile.Size,
 				})
 			} else { // old legacy Zebedee-source files
-				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, static.SupplementaryFile{
+				dataset.SupplementaryFiles = append(dataset.SupplementaryFiles, staticlegacy.SupplementaryFile{
 					Title:       supplementaryFile.Title,
 					URI:         supplementaryFile.File,
 					DownloadURL: fmt.Sprintf("/file?uri=%s/%s", dataset.URI, supplementaryFile.File),
@@ -171,12 +171,12 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 			log.Error(ctx, "unrecognised alert type", errors.New("unrecognised alert type"), log.Data{"alert": value})
 			fallthrough
 		case "alert":
-			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, static.Message{
+			sdlp.DatasetLandingPage.Notices = append(sdlp.DatasetLandingPage.Notices, staticlegacy.Message{
 				Date:     value.Date,
 				Markdown: value.Markdown,
 			})
 		case "correction":
-			sdlp.DatasetLandingPage.Corrections = append(sdlp.DatasetLandingPage.Corrections, static.Message{
+			sdlp.DatasetLandingPage.Corrections = append(sdlp.DatasetLandingPage.Corrections, staticlegacy.Message{
 				Date:     value.Date,
 				Markdown: value.Markdown,
 			})

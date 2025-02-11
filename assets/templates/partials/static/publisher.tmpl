@@ -1,0 +1,23 @@
+{{/*  TODO: the layout of these details needs to be confirmed */}}
+<div class="ons-grid__col ons-col-12@m">
+  {{ if .Publisher.Name}}
+  <dt class="ons-metadata__term ons-u-mr-xs">
+    {{ localise "PublisherName" .Language 1 }}
+  </dt>
+  <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.Name}}</dd>
+  {{ end }}
+
+  {{ if .Publisher.URL}}
+  <dt class="ons-metadata__term ons-u-mr-xs">
+    {{ localise "PublisherURL" .Language 1 }}
+  </dt>
+  <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.URL}}</dd>
+  {{ end }}
+
+  {{ if .Publisher.Type}}
+  <dt class="ons-metadata__term ons-u-mr-xs">
+    {{ localise "PublisherType" .Language 1 }}
+  </dt>
+  <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.Type}}</dd>
+  {{ end }}
+</div>
