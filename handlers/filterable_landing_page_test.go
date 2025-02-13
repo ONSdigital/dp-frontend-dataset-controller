@@ -15,7 +15,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestFilterableLandingPage(t *testing.T) {
+func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockPc := NewMockPopulationClient(mockCtrl)
 
@@ -147,6 +147,15 @@ func TestFilterableLandingPage(t *testing.T) {
 		})
 
 	})
+}
+
+func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockPc := NewMockPopulationClient(mockCtrl)
+
+	defer mockCtrl.Finish()
+	ctx := gomock.Any()
+	cfg := initialiseMockConfig()
 
 	Convey("test census landing page", t, func() {
 		mockOpts := []dataset.Options{
