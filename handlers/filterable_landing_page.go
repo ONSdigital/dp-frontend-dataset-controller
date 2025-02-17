@@ -193,6 +193,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		if form == "get-data" && format == "" {
 			isValidationError = true
 		}
+
+		if form == "get-data" && format != "" {
+			getDownloadFile(ver.Downloads, format, w, req)
+		}
+
 		pop, _ := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
 			PopulationType: idOfVersionBasedOn,
 			AuthTokens: population.AuthTokens{
@@ -224,6 +229,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			cfg.EnableMultivariate,
 			pop,
 		)
+
 
 		rend.BuildPage(w, m, "static")
 	} else {
