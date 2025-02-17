@@ -98,9 +98,17 @@ one = "View all data related to"
 description = "Contact us"
 one = "Contact us"
 
+[ContactDetails]
+description = "Contact details for this dataset"
+one = "Contact details for this dataset"
+
 [DatasetContactDetails]
 description = "Contact details for this dataset"
 one = "Contact details for this dataset"
+
+[Name]
+description = "Name"
+one = "Name"
 
 [Email]
 description = "Email"
@@ -214,6 +222,18 @@ one = "Last updated"
 [SeeVersionHistory]
 description = "See version history"
 one = "See version history"
+
+[PublisherName]
+description = "Publisher Name"
+one = "Publisher Name"
+
+[PublisherType]
+description = "Publisher Type"
+one = "Publisher Type"
+
+[PublisherURL]
+description = "Publisher URL"
+one = "Publisher URL"
 
 [VersionHistory]
 description = "Version history"

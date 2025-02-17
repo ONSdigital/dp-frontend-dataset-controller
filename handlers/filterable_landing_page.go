@@ -60,6 +60,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
 	q := dataset.QueryParams{Offset: 0, Limit: 1000}
 	allVers, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -92,6 +93,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	}
 
 	ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
+
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -105,36 +107,35 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 	if strings.Contains(datasetModel.Type, "cantabular") {
 		censusLanding(
-			cfg, 
-			ctx, 
-			w, 
-			req, 
-			dc, 
-			pc, 
-			datasetModel, 
-			rend, 
-			edition, 
-			ver, 
-			displayOtherVersionsLink, 
-			allVers.Items, 
-			latestVersionNumber, 
-			latestVersionURL, 
-			collectionID, 
-			lang, 
-			userAccessToken, 
-			homepageContent.ServiceMessage, 
+			cfg,
+			ctx,
+			w,
+			req,
+			dc,
+			pc,
+			datasetModel,
+			rend,
+			edition,
+			ver,
+			displayOtherVersionsLink,
+			allVers.Items,
+			latestVersionNumber,
+			latestVersionURL,
+			collectionID,
+			lang,
+			userAccessToken,
+			homepageContent.ServiceMessage,
 			homepageContent.EmergencyBanner,
 		)
 		return
 
 	}
 
-
 	dims := dataset.VersionDimensions{Items: nil}
 	var bc []zebedee.Breadcrumb
 
 	// Unless type is nomis or static, update values of bc and dims
-	if !( datasetModel.Type == "nomis" || datasetModel.Type == "static"){
+	if !(datasetModel.Type == "nomis" || datasetModel.Type == "static") {
 		dims, err = dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)
@@ -174,25 +175,21 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	// Build page context and render
 	basePage := rend.NewBasePageModel()
 
-	if datasetModel.Type == "static"{
+	if datasetModel.Type == "static" {
 		categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, "", ver.Dimensions)
 		initialVersionReleaseDate := ""
-		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work 
-	
-		if ver.Version != 1 {
-			ver, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, idOfVersionBasedOn) 
-			initialVersionReleaseDate = ver.ReleaseDate
-		}
+		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work
+
 		if err != nil {
 			log.Error(ctx, "failed to get version", err)
 			setStatusCode(ctx, w, err)
 			return
 		}
-	
+
 		var form = req.URL.Query().Get("f")
 		var format = req.URL.Query().Get("format")
-		isValidationError := false 
-	
+		isValidationError := false
+
 		if form == "get-data" && format == "" {
 			isValidationError = true
 		}
@@ -206,48 +203,50 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 
 		// 'Static' type builds page using census landing page mapper
 		// It is reccomended in the future to refactor, such that existing code within 'censusLanding' is shared
-		m := mapper.CreateCensusLandingPage(
-			req, 
-			basePage, 
-			datasetModel, 
-			ver, 
-			opts, 
-			categorisationsMap, 
-			initialVersionReleaseDate, 
-			hasOtherVersions, 
-			allVersions, 
-			latestVersionNumber, 
-			latestVersionURL, 
-			lang, 
-			showAll, 
-			isValidationError, 
-			homepageContent.ServiceMessage, 
-			homepageContent.EmergencyBanner, 
-			cfg.EnableMultivariate, 
+
+		m := mapper.CreateStaticOverviewPage(
+			req,
+			basePage,
+			datasetModel,
+			ver,
+			opts,
+			categorisationsMap,
+			initialVersionReleaseDate,
+			hasOtherVersions,
+			allVersions,
+			latestVersionNumber,
+			latestVersionURL,
+			lang,
+			showAll,
+			isValidationError,
+			homepageContent.ServiceMessage,
+			homepageContent.EmergencyBanner,
+			cfg.EnableMultivariate,
 			pop,
 		)
+
 		rend.BuildPage(w, m, "static")
-	} else{
+	} else {
 		m := mapper.CreateFilterableLandingPage(
-			ctx, 
-			basePage, 
-			req, 
-			datasetModel, 
-			ver, 
-			datasetID, 
-			opts, 
-			dims, 
-			displayOtherVersionsLink, 
-			bc, 
-			latestVersionNumber, 
-			latestVersionURL, 
-			lang, 
-			apiRouterVersion, 
-			numOptsSummary, 
-			homepageContent.ServiceMessage, 
+			ctx,
+			basePage,
+			req,
+			datasetModel,
+			ver,
+			datasetID,
+			opts,
+			dims,
+			displayOtherVersionsLink,
+			bc,
+			latestVersionNumber,
+			latestVersionURL,
+			lang,
+			apiRouterVersion,
+			numOptsSummary,
+			homepageContent.ServiceMessage,
 			homepageContent.EmergencyBanner,
 		)
-		
+
 		for i, d := range m.DatasetLandingPage.Version.Downloads {
 			if len(cfg.DownloadServiceURL) > 0 {
 				downloadURL, err := url.Parse(d.URI)
@@ -255,12 +254,12 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 					setStatusCode(ctx, w, err)
 					return
 				}
-	
+
 				d.URI = cfg.DownloadServiceURL + downloadURL.Path
 				m.DatasetLandingPage.Version.Downloads[i] = d
 			}
 		}
-	
+
 		// This needs to be after the for-loop to add the download files,
 		// because the loop adds the download services domain to the URLs
 		// which this text file doesn't need because it's created on-the-fly
@@ -270,14 +269,14 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			Size:      strconv.Itoa(len(textBytes)),
 			URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, edition, version),
 		})
-	
+
 		m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
-		
+
 		templateName := "filterable"
 		if datasetModel.Type == "nomis" {
 			templateName = "nomis"
 		}
-	
+
 		rend.BuildPage(w, m, templateName)
 	}
 }
@@ -315,22 +314,22 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 
 	dims := dataset.VersionDimensions{Items: version.Dimensions}
 	categorisationsMap := getDimensionCategorisationCountMap(
-		ctx, 
-		pc, 
-		userAccessToken, 
-		idOfVersionBasedOn, 
+		ctx,
+		pc,
+		userAccessToken,
+		idOfVersionBasedOn,
 		version.Dimensions,
 	)
 
 	opts, err := getOptionsSummary(
-		ctx, 
-		dc, 
-		userAccessToken, 
-		collectionID, 
-		datasetModel.ID, 
-		edition, 
-		fmt.Sprint(version.Version), 
-		dims, 
+		ctx,
+		dc,
+		userAccessToken,
+		collectionID,
+		datasetModel.ID,
+		edition,
+		fmt.Sprint(version.Version),
+		dims,
 		numOptsSummary,
 	)
 	if err != nil {
@@ -353,29 +352,30 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
+
 	m := mapper.CreateCensusLandingPage(
-		req, 
-		basePage, 
-		datasetModel, 
-		version, 
-		opts, 
-		categorisationsMap, 
-		initialVersionReleaseDate, 
-		hasOtherVersions, 
-		allVersions, 
-		latestVersionNumber, 
-		latestVersionURL, 
-		lang, 
-		showAll, 
-		isValidationError, 
-		serviceMessage, 
-		emergencyBannerContent, 
-		cfg.EnableMultivariate, 
+		req,
+		basePage,
+		datasetModel,
+		version,
+		opts,
+		categorisationsMap,
+		initialVersionReleaseDate,
+		hasOtherVersions,
+		allVersions,
+		latestVersionNumber,
+		latestVersionURL,
+		lang,
+		showAll,
+		isValidationError,
+		serviceMessage,
+		emergencyBannerContent,
+		cfg.EnableMultivariate,
 		pop,
 	)
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
-	if datasetModel.Type == "static"{
+	if datasetModel.Type == "static" {
 		rend.BuildPage(w, m, "static")
 	} else {
 		rend.BuildPage(w, m, "census-landing")

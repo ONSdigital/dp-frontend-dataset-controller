@@ -10,21 +10,30 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/publisher"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
-// Constants...
-const (
-	AlertType           = "alert"
-	CorrectionAlertType = "correction"
-)
-
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) census.Page {
-	p := census.Page{
+func CreateStaticBasePage(
+	req *http.Request,
+	basePage coreModel.Page,
+	d dataset.DatasetDetails,
+	version dataset.Version,
+	initialVersionReleaseDate string,
+	hasOtherVersions bool,
+	allVersions []dataset.Version,
+	latestVersionNumber int,
+	latestVersionURL,
+	lang string,
+	isValidationError bool,
+	serviceMessage string,
+	emergencyBannerContent zebedee.EmergencyBanner,
+	isEnableMultivariate bool,
+) static.Page {
+	p := static.Page{
 		Page: basePage,
 	}
 
@@ -47,6 +56,10 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 
 	p.DatasetLandingPage.IsMultivariate = strings.Contains(d.Type, "multivariate") && isEnableMultivariate
 	p.DatasetLandingPage.IsFlexibleForm = p.DatasetLandingPage.IsMultivariate || strings.Contains(d.Type, "flexible")
+
+	p.Publisher = getPublisherDetails(d)
+
+	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
 
 	// SITE-WIDE BANNERS
 	p.BetaBannerEnabled = true
@@ -86,13 +99,13 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 		for _, alert := range *version.Alerts {
 			switch alert.Type {
 			case CorrectionAlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 					DisplayIcon: true,
 					Body:        []string{helper.Localise("HasCorrectionNotice", lang, 1)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			case AlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 					DisplayIcon: true,
 					Body:        []string{helper.Localise("HasAlert", lang, 1, alert.Description)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
@@ -102,7 +115,7 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	}
 
 	// TABLE OF CONTENTS
-	p.TableOfContents = buildTableOfContents(p, d, hasOtherVersions)
+	p.TableOfContents = buildStaticTableOfContents(p, d, hasOtherVersions)
 
 	// VERSIONS TABLE
 	if hasOtherVersions {
@@ -128,7 +141,7 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 
 	// LATEST VERSIONS PANEL
 	if latestVersionNumber != version.Version && hasOtherVersions {
-		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 			DisplayIcon: true,
 			Body:        []string{helper.Localise("HasNewVersion", lang, 1, latestVersionURL)},
 			CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
@@ -138,13 +151,13 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	// SHARING LINKS
 	currentURL := helpers.GetCurrentURL(lang, p.SiteDomain, req.URL.Path)
 	p.DatasetLandingPage.DatasetURL = currentURL
-	p.DatasetLandingPage.ShareDetails = buildSharingDetails(d, lang, currentURL)
+	p.DatasetLandingPage.ShareDetails = buildStaticSharingDetails(d, lang, currentURL)
 
 	// RELATED CONTENT
-	p.DatasetLandingPage.RelatedContentItems = []census.RelatedContentItem{}
+	p.DatasetLandingPage.RelatedContentItems = []static.RelatedContentItem{}
 	if d.RelatedContent != nil {
 		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, census.RelatedContentItem{
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, static.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
 				Text:  content.Description,
@@ -172,42 +185,10 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	return p
 }
 
-func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
-	details := contact.Details{}
-	hasContactDetails := false
-
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
-		if d.Type == "static" {
-			if contacts[0].Name != "" {
-				details.Name = contacts[0].Name
-				hasContactDetails = true
-			}
-		}
-		if contacts[0].Telephone != "" {
-			details.Telephone = contacts[0].Telephone
-			hasContactDetails = true
-		}
-		if contacts[0].Email != "" {
-			details.Email = contacts[0].Email
-			hasContactDetails = true
-		}
-	}
-
-	return details, hasContactDetails
-}
-
-func getReleaseDate(initialDate, alternateDate string) string {
-	if initialDate == "" {
-		return alternateDate
-	}
-	return initialDate
-}
-
-func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) census.ShareDetails {
-	shareDetails := census.ShareDetails{}
+func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) static.ShareDetails {
+	shareDetails := static.ShareDetails{}
 	shareDetails.Language = lang
-	shareDetails.ShareLocations = []census.Share{
+	shareDetails.ShareLocations = []static.Share{
 		{
 			Title: "Facebook",
 			Link:  helpers.GenerateSharingLink("facebook", currentURL, d.Title),
@@ -232,7 +213,7 @@ func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) cens
 	return shareDetails
 }
 
-func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersions bool) coreModel.TableOfContents {
+func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOtherVersions bool) coreModel.TableOfContents {
 	sections := make(map[string]coreModel.ContentSection)
 	displayOrder := make([]string, 0)
 
@@ -313,4 +294,31 @@ func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersi
 	tableOfContents.DisplayOrder = displayOrder
 
 	return tableOfContents
+}
+
+func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
+	publisherInstance := publisher.Publisher{}
+
+	// TODO: this code should be refactored to be uncoupled from predefined variables
+	// Currennt available variables:
+	// 		URL  string `json:"href"`
+	// 		Name string `json:"name"`
+	// 		Type string `json:"type"`
+
+	if d.Publisher != nil {
+		incomingPublisherDataset := *d.Publisher
+
+		if incomingPublisherDataset.URL != "" {
+			publisherInstance.URL = incomingPublisherDataset.URL
+		}
+
+		if incomingPublisherDataset.Name != "" {
+			publisherInstance.Name = incomingPublisherDataset.Name
+		}
+		if incomingPublisherDataset.Type != "" {
+			publisherInstance.Type = incomingPublisherDataset.Type
+		}
+	}
+
+	return publisherInstance
 }

@@ -1,80 +1,72 @@
 package static
 
 import (
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/publisher"
+
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
-// Page contains data re-used for each page type a Data struct for data specific to the page type
+// Page contains data for the census landing page
 type Page struct {
 	model.Page
-	DatasetLandingPage DatasetLandingPage `json:"data"`
-	FilterID           string             `json:"filter_id"`
-	contact.Details
+	DatasetLandingPage  DatasetLandingPage    `json:"data"`
+	Version             sharedModel.Version   `json:"version"`
+	Versions            []sharedModel.Version `json:"versions"`
+	ID                  string                `json:"id"`
+	ContactDetails      contact.Details       `json:"contact_details"`
+	HasContactDetails   bool                  `json:"has_contact_details"`
+	IsNationalStatistic bool                  `json:"is_national_statistic"`
+	ShowCensusBranding  bool                  `json:"show_census_branding"`
+	Publisher           publisher.Publisher   `json:"publisher,omitempty"`
 }
 
-// DatasetLandingPage represents a frontend dataset landing page
+// StaticOverviewPage contains properties related to the static dataset
 type DatasetLandingPage struct {
-	DatasetID           string          `json:"dataset_id"`
-	FilterID            string          `json:"filter_id"`
-	Related             Related         `json:"related"`
-	Datasets            []Dataset       `json:"datasets"`
-	Notes               string          `json:"markdown"`
-	MetaDescription     string          `json:"meta_description"`
-	IsNationalStatistic bool            `json:"national_statistic"`
-	Survey              string          `json:"survey"`
-	ReleaseDate         string          `json:"release_date"`
-	NextRelease         string          `json:"next_release"`
-	IsTimeseries        bool            `json:"is_timeseries"`
-	Corrections         []Message       `json:"corrections"`
-	Notices             []Message       `json:"notices"`
-	ParentPath          string          `json:"parent_path"`
-	OSRLogo             osrlogo.OSRLogo `json:"osr_logo"`
-	EnableFeedbackAPI   bool            `json:"enable_feedback_api"`
-	FeedbackAPIURL      string          `json:"feedback_api_url"`
+	HasOtherVersions    bool                    `json:"has_other_versions"`
+	HasDownloads        bool                    `json:"has_downloads"`
+	LatestVersionURL    string                  `json:"latest_version_url"`
+	Dimensions          []sharedModel.Dimension `json:"dimensions"`
+	ShareDetails        ShareDetails
+	Description         []string             `json:"description"`
+	IsCustom            bool                 `json:"is_custom"`
+	IsFlexibleForm      bool                 `json:"is_flexible_form"`
+	DatasetURL          string               `json:"dataset_url"`
+	Panels              []Panel              `json:"panels"`
+	QualityStatements   []Panel              `json:"quality_statements"`
+	SDC                 []Panel              `json:"sdc"`
+	HasSDC              bool                 `json:"has_sdc"`
+	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
+	IsMultivariate      bool                 `json:"is_multivariate"`
+	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
+	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
+	EnableFeedbackAPI   bool                 `json:"enable_feedback_api"`
+	FeedbackAPIURL      string               `json:"feedback_api_url"`
+	ImproveResults      model.Collapsible
 }
 
-// Related content (split by type) to this page
-type Related struct {
-	Publications       []related.Related `json:"related_publications"`
-	FilterableDatasets []related.Related `json:"related_filterable_datasets"`
-	Datasets           []related.Related `json:"related_datasets"`
-	Methodology        []related.Related `json:"related_methodology"`
-	Links              []related.Related `json:"related_links"`
+// ShareDetails contains the locations the page can be shared to, as well as the language attribute for localisation
+type ShareDetails struct {
+	ShareLocations []Share `json:"share_locations"`
+	Language       string  `json:"language"`
 }
 
-// Dataset has the file and title information for an individual dataset
-type Dataset struct {
-	Title              string              `json:"title"`
-	Downloads          []Download          `json:"downloads"`
-	URI                string              `json:"uri"`
-	HasVersions        bool                `json:"has_versions"`
-	SupplementaryFiles []SupplementaryFile `json:"supplementary_files"`
-	VersionLabel       string              `json:"version_label"`
-	IsLast             bool                `json:"is_last"`
+/*
+Share includes details for a specific place the dataset can be shared
+Included icons: 'facebook', 'twitter', 'email', 'linkedin'
+*/
+type Share struct {
+	Title string `json:"title"`
+	Link  string `json:"link"`
+	Icon  string `json:"icon"`
 }
 
-// Download has the details for the an individual dataset's downloadable files
-type Download struct {
-	Extension   string `json:"extension"`
-	Size        string `json:"size"`
-	URI         string `json:"uri"`
-	DownloadURL string `json:"download_url"`
-}
-
-// SupplementaryFile is a downloadable file that is associated to an individual dataset
-type SupplementaryFile struct {
-	Title       string `json:"title"`
-	Extension   string `json:"extension"`
-	Size        string `json:"size"`
-	URI         string `json:"uri"`
-	DownloadURL string `json:"download_url"`
-}
-
-// Message has a date and time, used for either correction or notices
-type Message struct {
-	Date     string `json:"date"`
-	Markdown string `json:"markdown"`
+/* RelatedContentItem contains details for a section of related content
+ */
+type RelatedContentItem struct {
+	Title string `json:"title"`
+	Link  string `json:"link"`
+	Text  string `json:"text"`
 }
