@@ -534,24 +534,9 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				mockGetVersionsResponse.Items[0], nil,
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
-			mockDatasetClient.EXPECT().GetOptions(
-				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId, "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary},
-			).Return(
-				datasetOptions(0, numOptsSummary), nil,
-			)
 			mockDatasetClient.EXPECT().GetVersionMetadata(
 				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId,
 			)
-			mockDatasetClient.EXPECT().GetOptions(
-				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId, "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions},
-			).Return(
-				datasetOptions(0, maxMetadataOptions), nil,
-			)
-
-			mockZebedeeClient.EXPECT().GetBreadcrumb(mockContext, userAuthToken, collectionID, locale, "")
-
 			mockPopulationClient.EXPECT().GetPopulationType(gomock.Any(), gomock.Any()).Return(
 				population.GetPopulationTypeResponse{}, nil,
 			).AnyTimes()
