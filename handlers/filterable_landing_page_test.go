@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,70 +16,178 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+// Tests for `FilterableLanding` for any dataset type
 func TestFilterableLandingPage(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	mockPc := NewMockPopulationClient(mockCtrl)
+	// Mocks
+	mockConfig := initialiseMockConfig()
+	mockContext := gomock.Any()
+	mockController := gomock.NewController(t)
+	mockDatasetClient := NewMockDatasetClient(mockController)
+	mockPopulationClient := NewMockPopulationClient(mockController)
+	mockRenderClient := NewMockRenderClient(mockController)
+	mockZebedeeClient := NewMockZebedeeClient(mockController)
 
-	defer mockCtrl.Finish()
-	ctx := gomock.Any()
-	cfg := initialiseMockConfig()
+	// Default test values
+	apiRouterVersion := "/v1"
+	datasetId := "12345"
+	downloadServiceAuthToken := ""
+	editionId := "67890"
+	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
+	mockGetResponse := dataset.DatasetDetails{}
+	mockGetVersionsResponse := dataset.VersionsList{}
+
+	Convey("Test filterable landing page", t, func() {
+		Convey("Test filterableLanding returns 500 error if dataset is not found", func() {
+			// Dataset client `Get()` will return an error if dataset is not found
+			mockDatasetClient.EXPECT().Get(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId,
+			).Return(
+				mockGetResponse, errors.New("sorry"),
+			)
+
+			mockRequestWriter := httptest.NewRecorder()
+			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s", datasetId), nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, apiRouterVersion))
+
+			router.ServeHTTP(mockRequestWriter, mockRequest)
+
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+
+		Convey("Test filterableLanding returns 500 if dataset versions are not found", func() {
+			// Dataset client `Get()` will return valid response if dataset found
+			mockDatasetClient.EXPECT().Get(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId,
+			).Return(
+				mockGetResponse, nil,
+			)
+			// Dataset client `GetVersions()` will return an error if dataset versions are not found
+			mockDatasetClient.EXPECT().GetVersions(
+				mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &getVersionsQueryParams,
+			).Return(
+				mockGetVersionsResponse, errors.New("sorry"),
+			)
+
+			mockRequestWriter := httptest.NewRecorder()
+			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s", datasetId, editionId), nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, apiRouterVersion))
+
+			router.ServeHTTP(mockRequestWriter, mockRequest)
+
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+}
+
+func TestFilterableLandingPageFilterableDataType(t *testing.T) {
+	// Mocks
+	mockConfig := initialiseMockConfig()
+	mockContext := gomock.Any()
+	mockController := gomock.NewController(t)
+	mockDatasetClient := NewMockDatasetClient(mockController)
+	mockPopulationClient := NewMockPopulationClient(mockController)
+	mockRenderClient := NewMockRenderClient(mockController)
+	mockZebedeeClient := NewMockZebedeeClient(mockController)
+
+	datasetId := "12345"
+	datasetType := "filterable"
+	downloadServiceAuthToken := ""
+	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
+	editionId := "5678"
+	versionId := "2017"
+	mockGetResponse := dataset.DatasetDetails{
+		Contacts: &[]dataset.Contact{
+			{Name: "Matt"}},
+		URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		Links: dataset.Links{
+			LatestVersion: dataset.Link{
+				URL: "/datasets/1234/editions/5678/versions/2017",
+			},
+		},
+		Type: datasetType,
+		ID:   datasetId,
+	}
+	mockGetVersionsResponse := dataset.VersionsList{
+		Items: []dataset.Version{
+			{
+				Links:       dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}},
+				ReleaseDate: "02-01-2005",
+			},
+		},
+	}
+	mockGetVersionDimsResponse := dataset.VersionDimensions{
+		Items: []dataset.VersionDimension{
+			{
+				Name: "aggregate",
+			},
+		},
+	}
 
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
-			datasetID := "12345"
-			datasetType := "filterable"
 
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID).Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}, Type: datasetType, ID: datasetID}, nil)
-			versions := dataset.VersionsList{
-				Items: []dataset.Version{
-					{
-						Links:       dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}},
-						ReleaseDate: "02-01-2005",
-					},
-				},
-			}
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", datasetID, "5678", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", datasetID, "5678", "2017").Return(versions.Items[0], nil)
-			dims := dataset.VersionDimensions{
-				Items: []dataset.VersionDimension{
-					{
-						Name: "aggregate",
-					},
-				},
-			}
-			mockClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, "5678", "2017").Return(dims, nil)
-			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, "5678", "2017", "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary}).Return(datasetOptions(0, numOptsSummary), nil)
-			mockClient.EXPECT().GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, "5678", "2017")
-			mockClient.EXPECT().GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, "5678", "2017", "aggregate",
-				&dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}).Return(datasetOptions(0, maxMetadataOptions), nil)
-			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, "")
-			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
+			mockDatasetClient.EXPECT().Get(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId,
+			).Return(
+				mockGetResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetVersions(
+				mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &getVersionsQueryParams,
+			).Return(
+				mockGetVersionsResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetVersion(
+				mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, versionId,
+			).Return(
+				mockGetVersionsResponse.Items[0], nil,
+			)
+			mockDatasetClient.EXPECT().GetVersionDimensions(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId,
+			).Return(
+				mockGetVersionDimsResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetOptions(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId, "aggregate",
+				&dataset.QueryParams{Offset: 0, Limit: numOptsSummary},
+			).Return(
+				datasetOptions(0, numOptsSummary), nil,
+			)
+			mockDatasetClient.EXPECT().GetVersionMetadata(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId,
+			)
+			mockDatasetClient.EXPECT().GetOptions(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId, "aggregate",
+				&dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions},
+			).Return(
+				datasetOptions(0, maxMetadataOptions), nil,
+			)
+			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 
-			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockZebedeeClient.EXPECT().GetBreadcrumb(mockContext, userAuthToken, collectionID, locale, "")
+			mockRenderClient.EXPECT().NewBasePageModel().Return(
+				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
-			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
+			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
 
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			mockRequestWriter := httptest.NewRecorder()
+			mockRequest := httptest.NewRequest("GET", "/datasets/12345", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
 
-			router.ServeHTTP(w, req)
+			router.ServeHTTP(mockRequestWriter, mockRequest)
 
-			So(w.Code, ShouldEqual, http.StatusOK)
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
+			mockZebedeeClient := NewMockZebedeeClient(mockController)
+			mockDatasetClient.EXPECT().Get(mockContext, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
 			versions := dataset.VersionsList{
 				Items: []dataset.Version{
 					{
@@ -87,66 +196,29 @@ func TestFilterableLandingPage(t *testing.T) {
 					},
 				},
 			}
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-
-			mockRend := NewMockRenderClient(mockCtrl)
+			mockDatasetClient.EXPECT().GetVersions(mockContext, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
 
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusFound)
 			So(w.Body.String(), ShouldEqual, "<a href=\"/datasets/12345/editions/5678/versions/1\">Found</a>.\n\n")
 		})
-
-		Convey("test filterableLanding returns 500 if client Get() returns an error", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("sorry"))
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, nil, mockZebedeeClient, mockConfig, "/v1"))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-
-		Convey("test filterableLanding returns 500 if client GetVersions() returns error", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-			mockClient := NewMockDatasetClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			versions := dataset.VersionsList{
-				Items: []dataset.Version{
-					{
-						Links:       dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}},
-						ReleaseDate: "02-01-2005",
-					},
-				},
-			}
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, errors.New("sorry"))
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockClient, mockPc, nil, mockZebedeeClient, mockConfig, "/v1"))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-
 	})
+}
+
+func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockPc := NewMockPopulationClient(mockCtrl)
+
+	defer mockCtrl.Finish()
+	ctx := gomock.Any()
+	cfg := initialiseMockConfig()
 
 	Convey("test census landing page", t, func() {
 		mockOpts := []dataset.Options{
@@ -401,6 +473,105 @@ func TestFilterableLandingPage(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+	})
+}
+
+func TestFilterableLandingPageStaticDataType(t *testing.T) {
+	// Mocks
+	mockConfig := initialiseMockConfig()
+	mockContext := gomock.Any()
+	mockController := gomock.NewController(t)
+	mockDatasetClient := NewMockDatasetClient(mockController)
+	mockPopulationClient := NewMockPopulationClient(mockController)
+	mockRenderClient := NewMockRenderClient(mockController)
+	mockZebedeeClient := NewMockZebedeeClient(mockController)
+
+	datasetId := "12345"
+	datasetType := "static"
+	downloadServiceAuthToken := ""
+	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
+	editionId := "5678"
+	versionId := "1"
+	mockGetResponse := dataset.DatasetDetails{
+		Contacts: &[]dataset.Contact{
+			{Name: "Matt"}},
+		URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		Links: dataset.Links{
+			LatestVersion: dataset.Link{
+				URL: "/datasets/1234/editions/5678/versions/2017",
+			},
+		},
+		Type: datasetType,
+		ID:   datasetId,
+	}
+	mockGetVersionsResponse := dataset.VersionsList{
+		Items: []dataset.Version{
+			{
+				Links:       dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}},
+				ReleaseDate: "02-01-2005",
+				Version:     1,
+			},
+		},
+	}
+
+	Convey("test filterable landing page", t, func() {
+		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
+
+			mockDatasetClient.EXPECT().Get(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId,
+			).Return(
+				mockGetResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetVersions(
+				mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &getVersionsQueryParams,
+			).Return(
+				mockGetVersionsResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetVersion(
+				mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, versionId,
+			).Return(
+				mockGetVersionsResponse.Items[0], nil,
+			)
+			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
+			mockDatasetClient.EXPECT().GetVersionMetadata(
+				mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId, editionId, versionId,
+			)
+			mockPopulationClient.EXPECT().GetPopulationType(gomock.Any(), gomock.Any()).Return(
+				population.GetPopulationTypeResponse{}, nil,
+			).AnyTimes()
+
+			mockRenderClient.EXPECT().NewBasePageModel().Return(
+				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+			)
+			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
+			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
+
+			mockRequestWriter := httptest.NewRecorder()
+			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetId, editionId, versionId), nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
+
+			router.ServeHTTP(mockRequestWriter, mockRequest)
+
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
+			mockDatasetClient.EXPECT().Get(mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId).Return(mockGetResponse, nil)
+			mockDatasetClient.EXPECT().GetVersions(mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &getVersionsQueryParams).Return(mockGetVersionsResponse, nil)
+
+			mockRequestWriter := httptest.NewRecorder()
+			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s", datasetId, editionId), nil)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
+
+			router.ServeHTTP(mockRequestWriter, mockRequest)
+
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusFound)
+			So(mockRequestWriter.Body.String(), ShouldEqual, "<a href=\"/datasets/12345/editions/5678/versions/1\">Found</a>.\n\n")
 		})
 	})
 }
