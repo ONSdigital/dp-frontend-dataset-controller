@@ -1,0 +1,9 @@
+<li>
+    <div id="id-license" class="section__content--markdown margin-right--0">
+        <h2 class="font-size--32 line-height--40 font-weight-700 padding-top--0 padding-left-sm--2 padding-left-md--3">Usage information</h2>
+            {{ range .UsageNotes }}
+                <h3 class="font-size--24 line-height--32 font-weight-700">{{.Title}}</h2>
+                <p>{{.Note | markdown}}</p>
+            {{ end }}
+    </div>
+</li>

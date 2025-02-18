@@ -21,7 +21,8 @@ type Page struct {
 	IsNationalStatistic bool                  `json:"is_national_statistic"`
 	ShowCensusBranding  bool                  `json:"show_census_branding"`
 	Publisher           publisher.Publisher   `json:"publisher,omitempty"`
-}
+	UsageNotes          []UsageNote           `json:"usage_notes"`
+} 
 
 // StaticOverviewPage contains properties related to the static dataset
 type DatasetLandingPage struct {
@@ -46,7 +47,6 @@ type DatasetLandingPage struct {
 	FeedbackAPIURL      string                   `json:"feedback_api_url"`
 	ImproveResults      model.Collapsible    
 	Version             sharedModel.Version      `json:"version"`
-	UsageNotes          []UsageNote              `json:"UsageNotes"`
 }
 
 // UsageNote represents data for a single usage note
