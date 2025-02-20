@@ -22,31 +22,31 @@ type Page struct {
 	ShowCensusBranding  bool                  `json:"show_census_branding"`
 	Publisher           publisher.Publisher   `json:"publisher,omitempty"`
 	UsageNotes          []UsageNote           `json:"usage_notes"`
-} 
+}
 
 // StaticOverviewPage contains properties related to the static dataset
 type DatasetLandingPage struct {
-	HasOtherVersions    bool                     `json:"has_other_versions"`
-	HasDownloads        bool                     `json:"has_downloads"`
-	LatestVersionURL    string                   `json:"latest_version_url"`
-	Dimensions          []sharedModel.Dimension  `json:"dimensions"`
-	ShareDetails        ShareDetails 
-	Description         []string                 `json:"description"`
-	IsCustom            bool                     `json:"is_custom"`
-	IsFlexibleForm      bool                     `json:"is_flexible_form"`
-	DatasetURL          string                   `json:"dataset_url"`
-	Panels              []Panel                  `json:"panels"`
-	QualityStatements   []Panel                  `json:"quality_statements"`
-	SDC                 []Panel                  `json:"sdc"`
-	HasSDC              bool                     `json:"has_sdc"`
-	RelatedContentItems []RelatedContentItem     `json:"related_content_items"`
-	IsMultivariate      bool                     `json:"is_multivariate"`
-	ShowXLSXInfo        bool                     `json:"show_xlsx_info"`
-	OSRLogo             osrlogo.OSRLogo          `json:"osr_logo"`
-	EnableFeedbackAPI   bool                     `json:"enable_feedback_api"`
-	FeedbackAPIURL      string                   `json:"feedback_api_url"`
-	ImproveResults      model.Collapsible    
-	Version             sharedModel.Version      `json:"version"`
+	HasOtherVersions    bool                    `json:"has_other_versions"`
+	HasDownloads        bool                    `json:"has_downloads"`
+	LatestVersionURL    string                  `json:"latest_version_url"`
+	Dimensions          []sharedModel.Dimension `json:"dimensions"`
+	ShareDetails        ShareDetails
+	Description         []string             `json:"description"`
+	IsCustom            bool                 `json:"is_custom"`
+	IsFlexibleForm      bool                 `json:"is_flexible_form"`
+	DatasetURL          string               `json:"dataset_url"`
+	Panels              []Panel              `json:"panels"`
+	QualityStatements   []Panel              `json:"quality_statements"`
+	SDC                 []Panel              `json:"sdc"`
+	HasSDC              bool                 `json:"has_sdc"`
+	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
+	IsMultivariate      bool                 `json:"is_multivariate"`
+	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
+	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
+	EnableFeedbackAPI   bool                 `json:"enable_feedback_api"`
+	FeedbackAPIURL      string               `json:"feedback_api_url"`
+	ImproveResults      model.Collapsible
+	Version             sharedModel.Version `json:"version"`
 }
 
 // UsageNote represents data for a single usage note

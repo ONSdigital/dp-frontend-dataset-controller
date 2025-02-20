@@ -230,7 +230,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			pop,
 		)
 
-
 		rend.BuildPage(w, m, "static")
 	} else {
 		m := mapper.CreateFilterableLandingPage(
