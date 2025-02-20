@@ -235,16 +235,16 @@ description = "See version history"
 one = "See version history"
 
 [PublisherName]
-description = "Publisher Name"
-one = "Publisher Name"
+description = "Publisher Name:"
+one = "Publisher Name:"
 
 [PublisherType]
-description = "Publisher Type"
-one = "Publisher Type"
+description = "Publisher Type:"
+one = "Publisher Type:"
 
 [PublisherURL]
-description = "Publisher URL"
-one = "Publisher URL"
+description = "Publisher URL:"
+one = "Publisher URL:"
 
 [VersionHistory]
 description = "Version history"

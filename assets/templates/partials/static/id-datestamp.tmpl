@@ -5,6 +5,9 @@
             <dd class="ons-metadata__value ons-u-f-no">{{ .DatasetId }}</dd>
         </div>
     {{ end }}
+    {{ if .Publisher}}
+        {{ template "partials/static/publisher" . }}
+    {{ end }}
     {{ if .DatasetLandingPage.HasOtherVersions }}
         <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
             <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
@@ -12,9 +15,6 @@
                 <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
             </dd>
         </div>
-        {{ if .Publisher}}
-            {{ template "partials/static/publisher" . }}
-        {{ end }}
         <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
             <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
             <dd class="ons-metadata__value ons-u-f-no">
@@ -30,8 +30,5 @@
                 <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
             </dd>
         </div>
-        {{ if .Publisher}}
-            {{ template "partials/static/publisher" . }}
-        {{ end }}
     {{ end }}
 </dl>
