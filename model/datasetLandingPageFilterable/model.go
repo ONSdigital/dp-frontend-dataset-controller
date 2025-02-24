@@ -5,7 +5,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/staticlegacy"
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
@@ -18,7 +18,7 @@ type Page struct {
 
 // DatasetLandingPage represents the data on the dataset landing page
 type DatasetLandingPage struct {
-	static.DatasetLandingPage
+	staticlegacy.DatasetLandingPage
 	Dimensions               []sharedModel.Dimension `json:"dimensions"`
 	Version                  sharedModel.Version     `json:"version"`
 	HasOlderVersions         bool                    `json:"has_older_versions"`

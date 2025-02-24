@@ -1,56 +1,89 @@
 <div class="ons-page__container ons-container">
-    <div class="ons-grid ons-js-toc-container ons-u-ml-no">
-        {{ if .Page.Error.Title }}
-            {{ template "partials/error-summary" .Page.Error }}
+  <div class="ons-grid ons-js-toc-container ons-u-ml-no">
+    {{ if .Page.Error.Title }}
+    {{ template "partials/error-summary" .Page.Error }}
+    {{ end }}
+    <section
+      class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{
+        end
+      }}"
+    >
+      {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
+      <div class="ons-grid">
+        <div
+          class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{
+            end
+          }}"
+        >
+          <h1
+            class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no"
+          >
+            {{- .Metadata.Title -}}
+          </h1>
+        </div>
+        {{ if .IsNationalStatistic }}
+        <div class="ons-grid__col ons-col-2@m">
+          <div
+            class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m"
+          >
+            {{ template "partials/roundel-ns" . }}
+          </div>
+        </div>
         {{ end }}
-        <section class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{ end }}">
-            {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
-            <div class="ons-grid">
-                <div class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{ end }}">
-                    <h1 class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no">
-                        {{- .Metadata.Title -}}
-                    </h1>
-                </div>
-                {{ if .IsNationalStatistic }}
-                    <div class="ons-grid__col ons-col-2@m">
-                        <div class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m">
-                            {{ template "partials/roundel-ns" . }}
-                        </div>
-                    </div>
-                {{ end }}
-            </div>
-            {{ if .ShowCensusBranding }}
-                <div class="ons-grid ons-u-mb-m">
-                    <div class="ons-grid__col">
-                        {{ if eq .Language "en" }}
-                            <img src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-census-2021-purple-landscape.svg" title="Census 2021" class="header__svg-logo margin-right--1" xmlns="http://www.w3.org/2000/svg" focusable="false" width="167" height="32" viewBox="0 0 242 44"/>
-                        {{ else }}
-                            <img src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-cyfrifiad-2021-purple-landscape.svg" title="Cyfrifiad 2021" class="header__svg-logo margin-right--1" xmlns="http://www.w3.org/2000/svg" focusable="false" width="167" height="32" viewBox="0 0 242 44"/>
-                        {{ end }}
-                    </div>
-                </div>
-            {{ end }}
-            {{ template "partials/census/id-datestamp" . }}
-        </section>
-        <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
-            {{ template "partials/table-of-contents" . }}
+      </div>
+      {{ if .ShowCensusBranding }}
+      <div class="ons-grid ons-u-mb-m">
+        <div class="ons-grid__col">
+          {{ if eq .Language "en" }}
+          <img
+            src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-census-2021-purple-landscape.svg"
+            title="Census 2021"
+            class="header__svg-logo margin-right--1"
+            xmlns="http://www.w3.org/2000/svg"
+            focusable="false"
+            width="167"
+            height="32"
+            viewBox="0 0 242 44"
+          />
+          {{ else }}
+          <img
+            src="https://cdn.ons.gov.uk/assets/images/census-logo/logo-cyfrifiad-2021-purple-landscape.svg"
+            title="Cyfrifiad 2021"
+            class="header__svg-logo margin-right--1"
+            xmlns="http://www.w3.org/2000/svg"
+            focusable="false"
+            width="167"
+            height="32"
+            viewBox="0 0 242 44"
+          />
+          {{ end }}
         </div>
-        <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
-            {{ template "partials/census/panel" .DatasetLandingPage.QualityStatements }}
-            {{ template "partials/census/summary" . }}
-            {{ template "partials/census/variables-table" . }}
-            {{ template "partials/census/get-data" . }}
-            {{ if .HasContactDetails }}
-                {{ template "partials/census/contact-details" . }}
-            {{ end }}
-            {{ template "partials/census/protecting-personal-data" . }}
-            {{ if .DatasetLandingPage.HasOtherVersions }}
-                {{ template "partials/census/version-history" . }}
-            {{ end }}
-            {{ if .DatasetLandingPage.RelatedContentItems }}
-                {{ template "partials/census/related-content" . }}
-            {{ end }}
-        </div>
+      </div>
+      {{ end }}
+      {{ template "partials/census/id-datestamp" . }}
+    </section>
+    <div
+      class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m"
+      id="toc"
+    >
+      {{ template "partials/table-of-contents" . }}
     </div>
-    {{ template "partials/share-dataset/share-section" . }}
+    <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
+      {{ template "partials/census/panel" .DatasetLandingPage.QualityStatements }}
+      {{ template "partials/census/summary" . }}
+      {{ template "partials/census/variables-table" . }}
+      {{ template "partials/census/get-data" . }}
+      {{ if .HasContactDetails }}
+      {{ template "partials/census/contact-details" . }}
+      {{ end }}
+      {{ template "partials/census/protecting-personal-data" . }}
+      {{ if .DatasetLandingPage.HasOtherVersions }}
+      {{ template "partials/census/version-history" . }}
+      {{ end }}
+      {{ if .DatasetLandingPage.RelatedContentItems }}
+      {{ template "partials/census/related-content" . }}
+      {{ end }}
+    </div>
+  </div>
+  {{ template "partials/share-dataset/share-section" . }}
 </div>

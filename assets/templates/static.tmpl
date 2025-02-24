@@ -60,7 +60,7 @@
         </div>
       </div>
       {{ end }}
-      {{ template "partials/census/id-datestamp" . }}
+      {{ template "partials/static/id-datestamp" . }}
     </section>
     <div
       class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m"
@@ -74,7 +74,10 @@
       {{ template "partials/census/variables-table" . }}
       {{ template "partials/census/get-data" . }}
       {{ if .HasContactDetails }}
-      {{ template "partials/census/contact-details" . }}
+      {{ template "partials/static/contact-details" . }}
+      {{ end }}
+      {{ if .UsageNotes}}
+      {{ template "partials/static/usage-notes" . }}
       {{ end }}
       {{ template "partials/census/protecting-personal-data" . }}
       {{ if .DatasetLandingPage.HasOtherVersions }}
