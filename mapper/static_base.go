@@ -195,9 +195,10 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 			Icon:  "facebook",
 		},
 		{
-			Title: "Twitter",
-			Link:  helpers.GenerateSharingLink("twitter", currentURL, d.Title),
-			Icon:  "twitter",
+			Title: "X",
+			Link:  helpers.GenerateSharingLink("x", currentURL, d.Title),
+			// Icon name is still twitter in `dp-renderer`
+			Icon: "twitter",
 		},
 		{
 			Title: "LinkedIn",
