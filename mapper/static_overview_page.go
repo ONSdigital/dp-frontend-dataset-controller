@@ -50,7 +50,8 @@ func CreateStaticOverviewPage(
 	}
 	p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
-	if len(version.Downloads) >= 3 {
+	// HasDownloads is the flag used to render the template
+	if len(version.Downloads) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 

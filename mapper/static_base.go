@@ -59,6 +59,8 @@ func CreateStaticBasePage(
 
 	p.Publisher = getPublisherDetails(d)
 
+	p.UsageNotes = getUsageDetails(version)
+
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
 
 	// SITE-WIDE BANNERS
@@ -298,7 +300,7 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 }
 
 func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
-	publisherInstance := publisher.Publisher{}
+	publisherObject := publisher.Publisher{}
 
 	// TODO: this code should be refactored to be uncoupled from predefined variables
 	// Currennt available variables:
@@ -310,16 +312,31 @@ func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
 		incomingPublisherDataset := *d.Publisher
 
 		if incomingPublisherDataset.URL != "" {
-			publisherInstance.URL = incomingPublisherDataset.URL
+			publisherObject.URL = incomingPublisherDataset.URL
 		}
 
 		if incomingPublisherDataset.Name != "" {
-			publisherInstance.Name = incomingPublisherDataset.Name
+			publisherObject.Name = incomingPublisherDataset.Name
 		}
 		if incomingPublisherDataset.Type != "" {
-			publisherInstance.Type = incomingPublisherDataset.Type
+			publisherObject.Type = incomingPublisherDataset.Type
 		}
 	}
 
-	return publisherInstance
+	return publisherObject
+}
+
+// grab the usage notes
+func getUsageDetails(v dataset.Version) []static.UsageNote {
+	usageNotesList := []static.UsageNote{}
+
+	if v.UsageNotes != nil {
+		for _, usageNote := range *v.UsageNotes {
+			usageNotesList = append(usageNotesList, static.UsageNote{
+				Title: usageNote.Title,
+				Note:  usageNote.Note,
+			})
+		}
+	}
+	return usageNotesList
 }
