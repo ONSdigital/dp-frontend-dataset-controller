@@ -50,14 +50,14 @@ func GetCurrentURL(lang, siteDomain, urlPath string) string {
 // GenerateSharingLink returns a sharing link for different types of social media
 func GenerateSharingLink(socialType, currentURL, title string) string {
 	switch socialType {
-	case "facebook":
-		return fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", currentURL)
-	case "twitter":
-		return fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, currentURL)
-	case "linkedin":
-		return fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", currentURL)
 	case "email":
 		return fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, currentURL)
+	case "facebook":
+		return fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", currentURL)
+	case "linkedin":
+		return fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", currentURL)
+	case "twitter", "x":
+		return fmt.Sprintf("https://%s.com/intent/tweet?original_referer&text=%s&url=%s", socialType, title, currentURL)
 	default:
 		return ""
 	}

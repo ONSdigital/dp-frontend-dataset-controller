@@ -81,6 +81,7 @@ func TestGenerateSharingLink(t *testing.T) {
 		So(GenerateSharingLink("twitter", url, title), ShouldResemble, fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, url))
 		So(GenerateSharingLink("linkedin", url, title), ShouldResemble, fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", url))
 		So(GenerateSharingLink("email", url, title), ShouldResemble, fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, url))
+		So(GenerateSharingLink("x", url, title), ShouldResemble, fmt.Sprintf("https://x.com/intent/tweet?original_referer&text=%s&url=%s", title, url))
 	})
 }
 

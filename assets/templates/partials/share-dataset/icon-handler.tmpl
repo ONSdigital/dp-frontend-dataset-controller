@@ -1,11 +1,13 @@
 {{ $icon := . }}
-{{ if eq $icon "facebook" }}
+{{ if eq $icon "email" }}
+    {{ template "icons/email" }}
+{{ else if eq $icon "facebook" }}
     {{ template "icons/facebook" }}
-{{ else if eq $icon "twitter" }}
-    {{ template "icons/twitter" }}
 {{ else if eq $icon "linkedin" }}
     {{ template "icons/linkedin" }}
-{{ else if eq $icon "email" }}
-    {{ template "icons/email" }}
+{{ else if eq $icon "twitter" }}
+    {{ template "icons/twitter" }}    
+{{ else if eq $icon "x" }}
+    {{ template "icons/x" }}
 {{ end }}
 
