@@ -238,14 +238,6 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 	}
 	displayOrder = append(displayOrder, "summary")
 
-	sections["variables"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "Variables",
-			Plural:    4,
-		},
-	}
-	displayOrder = append(displayOrder, "variables")
-
 	sections["get-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
 			LocaleKey: "GetData",
@@ -262,6 +254,16 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 			},
 		}
 		displayOrder = append(displayOrder, "contact")
+	}
+
+	if len(p.UsageNotes) > 0 {
+		sections["usage-notes"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "UsageNotes",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "usage-notes")
 	}
 
 	sections["protecting-personal-data"] = coreModel.ContentSection{
