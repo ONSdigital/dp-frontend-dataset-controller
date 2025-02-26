@@ -86,15 +86,6 @@ func CreateStaticOverviewPage(
 		p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, dims...)
 	}
 
-	// COLLAPSIBLE
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
-			LocaleKey: "VariablesExplanation",
-			Plural:    4,
-		},
-		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
-	}
-
 	// ANALYTICS
 	p.PreGTMJavaScript = append(
 		p.PreGTMJavaScript,
