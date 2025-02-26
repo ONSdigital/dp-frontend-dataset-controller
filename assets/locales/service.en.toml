@@ -90,6 +90,10 @@ one = "Supporting files you may find useful"
 description = "Important notes and usage information"
 one = "Important notes and usage information"
 
+[UsageNotes]
+description = "Usage notes"
+one = "Usage notes"
+
 [ViewAllData]
 description = "View all data related to"
 one = "View all data related to"
