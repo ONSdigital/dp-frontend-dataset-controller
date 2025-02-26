@@ -266,14 +266,6 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 		displayOrder = append(displayOrder, "usage-notes")
 	}
 
-	sections["protecting-personal-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "ProtectingPersonalDataTitle",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "protecting-personal-data")
-
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
