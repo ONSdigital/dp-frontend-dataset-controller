@@ -192,14 +192,14 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 	shareDetails.Language = lang
 	shareDetails.ShareLocations = []static.Share{
 		{
+			Title: "Email",
+			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),
+			Icon:  "email",
+		},
+		{
 			Title: "Facebook",
 			Link:  helpers.GenerateSharingLink("facebook", currentURL, d.Title),
 			Icon:  "facebook",
-		},
-		{
-			Title: "Twitter",
-			Link:  helpers.GenerateSharingLink("twitter", currentURL, d.Title),
-			Icon:  "twitter",
 		},
 		{
 			Title: "LinkedIn",
@@ -207,9 +207,9 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 			Icon:  "linkedin",
 		},
 		{
-			Title: "Email",
-			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),
-			Icon:  "email",
+			Title: "X",
+			Link:  helpers.GenerateSharingLink("x", currentURL, d.Title),
+			Icon:  "x",
 		},
 	}
 	return shareDetails
