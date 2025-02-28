@@ -1,46 +1,41 @@
-<dl class="ons-metadata metadata__list ons-grid ons-grid--gutterless ons-u-cf ons-u-mb-m" title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
-    {{/*  First row */}}
+<dl class="ons-metadata ons-metadata__items ons-grid ons-grid--gutterless ons-u-cf ons-u-mb-m" 
+    title="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}" 
+    aria-label="{{ localise "CensusDatasetLandingPageMetadataLabel" .Language 1 }}">
     <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
-        <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
-        <dd class="ons-metadata__value ons-u-f-no">
-            <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
-        </dd>
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">
+                <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
+            </dd>
+        </div>
+        {{ if .DatasetLandingPage.HasOtherVersions }}
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ dateFormat .Version.ReleaseDate }}</dd>
+        </div>
+        <div class="ons-metadata__item">
+            <dd class="ons-metadata__value ons-u-f-no">
+                <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a>
+            </dd>
+        </div>
+        {{ end }}
     </div>
     <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
-        <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "DatasetID" .Language 1 }}</dt>
-        <dd class="ons-metadata__value ons-u-f-no">{{ .DatasetId }}</dd>
-    </div>
-    {{/*  Second row */}}
-    <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
-    {{ if .DatasetLandingPage.HasOtherVersions }}
-        <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
-        <dd class="ons-metadata__value ons-u-f-no">
-            <time datetime="{{ .Version.ReleaseDate }}">{{ dateFormat .Version.ReleaseDate }}</time>
-        </dd>
-    {{ end }}
-    </div>
-    <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
-    {{ if .Publisher.Name}}
-        <dt class="ons-metadata__term ons-u-mr-xs">
-            {{ localise "PublisherName" .Language 1 }}
-        </dt>
-        <dd class="ons-metadata__value ons-u-f-no">
-            <a href={{ .Publisher.URL }}>{{ .Publisher.Name }}</a>
-        </dd>
-    {{ end }}
-    </div>
-    {{/*  Third row */}}    
-    <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
-    {{ if .DatasetLandingPage.HasOtherVersions }}
-        <a href="#version-history">{{ localise "SeeVersionHistory" .Language 1 }}</a>
-    {{ end }}
-    </div>
-    <div class="ons-grid__col ons-col-8@m ons-u-mt-xs">
-    {{ if .Publisher.Type}}
-        <dt class="ons-metadata__term ons-u-mr-xs">
-            {{ localise "PublisherType" .Language 1 }}
-        </dt>
-        <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.Type}}</dd>
-    {{ end }}
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "DatasetID" .Language 1 }}</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ .DatasetId }}</dd>
+        </div>
+        {{ if .Publisher.Name}}        
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "PublisherName" .Language 1 }}</dt>
+            <dd class="ons-metadata__value ons-u-f-no"><a href={{ .Publisher.URL }}>{{ .Publisher.Name }}</a></dd>
+        </div>
+        {{ end }}
+        {{ if .Publisher.Type}}
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "PublisherType" .Language 1 }}</dt>
+            <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.Type}}</dd>
+        </div>
+        {{ end }}
     </div>
 </dl>
