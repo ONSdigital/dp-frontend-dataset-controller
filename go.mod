@@ -1,12 +1,16 @@
 module github.com/ONSdigital/dp-frontend-dataset-controller
 
-go 1.23
+go 1.23.0
 
-// Need replace statement here as `golang.org/x/net v0.35.0` is latest version but has a dependency
-// on `golang.org/x/crypto@v0.33.0` which raises vulnerability [CVE-2025-22869] CWE-770: Allocation
-// of Resources Without Limits or Throttling
-// Can be removed when an update of `golang.org/x/net` is made available
-replace golang.org/x/crypto v0.33.0 => golang.org/x/crypto v0.35.0
+toolchain go1.23.4
+
+exclude (
+	// Vulnerability in dependency of github.com/ONSdigital/dp-topic-api v0.26.0
+	golang.org/x/crypto v0.32.0
+	// Vulnerability in dependency of golang.org/x/net v0.35.0
+	golang.org/x/crypto v0.33.0
+
+)
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
@@ -33,7 +37,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
-	github.com/ONSdigital/dp-topic-api v0.22.0
+	github.com/ONSdigital/dp-topic-api v0.26.0
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -76,5 +80,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20241202173237-19429a94021a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
 	google.golang.org/grpc v1.70.0 // indirect
-	google.golang.org/protobuf v1.35.2 // indirect
+	google.golang.org/protobuf v1.36.3 // indirect
 )
