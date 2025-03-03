@@ -18,6 +18,7 @@ require (
 	github.com/ONSdigital/dp-renderer/v2 v2.17.0
 	github.com/ONSdigital/log.go/v2 v2.4.3
 	github.com/PuerkitoBio/goquery v1.9.1
+	github.com/golang/glog v1.2.4
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/justinas/alice v1.2.0
@@ -31,11 +32,6 @@ require (
 )
 
 require (
-	github.com/golang/glog v1.2.4
-	github.com/google/uuid v1.6.0 // indirect
-)
-
-require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/ONSdigital/dp-topic-api v0.22.0
 	github.com/andybalholm/cascadia v1.3.2 // indirect
@@ -46,6 +42,7 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gosimple/slug v1.15.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
