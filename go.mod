@@ -67,7 +67,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241202173237-19429a94021a // indirect
