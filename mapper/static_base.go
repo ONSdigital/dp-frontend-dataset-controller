@@ -69,7 +69,7 @@ func CreateStaticBasePage(
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	// CENSUS BRANDING
-	p.ShowCensusBranding = d.Survey == "census"
+	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -78,8 +78,8 @@ func CreateStaticBasePage(
 			URI:   "/",
 		},
 		{
-			Title: "Census",
-			URI:   "/census",
+			Title: "Overview page",
+			URI:   "#",
 		},
 	}
 
