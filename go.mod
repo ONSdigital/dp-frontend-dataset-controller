@@ -2,6 +2,12 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 
 go 1.23
 
+// Need replace statement here as `golang.org/x/net v0.35.0` is latest version but has a dependency
+// on `golang.org/x/crypto@v0.33.0` which raises vulnerability [CVE-2025-22869] CWE-770: Allocation
+// of Resources Without Limits or Throttling
+// Can be removed when an update of `golang.org/x/net` is made available
+replace golang.org/x/crypto v0.33.0 => golang.org/x/crypto v0.35.0
+
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
 	github.com/ONSdigital/dp-cache v0.4.0
