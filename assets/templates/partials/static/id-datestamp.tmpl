@@ -31,11 +31,5 @@
             <dd class="ons-metadata__value ons-u-f-no"><a href={{ .Publisher.URL }}>{{ .Publisher.Name }}</a></dd>
         </div>
         {{ end }}
-        {{ if .Publisher.Type}}
-        <div class="ons-metadata__item">
-            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "PublisherType" .Language 1 }}</dt>
-            <dd class="ons-metadata__value ons-u-f-no">{{ .Publisher.Type}}</dd>
-        </div>
-        {{ end }}
     </div>
 </dl>

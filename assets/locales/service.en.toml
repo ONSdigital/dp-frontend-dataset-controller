@@ -227,10 +227,6 @@ one = "See version history"
 description = "Publisher name:"
 one = "Publisher name:"
 
-[PublisherType]
-description = "Publisher type:"
-one = "Publisher type:"
-
 [PublisherURL]
 description = "Publisher URL:"
 one = "Publisher URL:"
