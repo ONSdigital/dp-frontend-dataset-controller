@@ -106,6 +106,10 @@ one = "Supporting files you may find useful"
 description = "Important notes and usage information"
 one = "Nodiadau pwysig a gwybodaeth ynghylch defnyddio"
 
+[UsageNotes]
+description = "Usage notes"
+one = "Usage notes"
+
 [ViewAllData]
 description = "View all data related to"
 one = "View all data related to"
@@ -235,16 +239,12 @@ description = "See version history"
 one = "See version history"
 
 [PublisherName]
-description = "Publisher Name"
-one = "Publisher Name"
-
-[PublisherType]
-description = "Publisher Type"
-one = "Publisher Type"
+description = "Publisher name:"
+one = "Publisher name:"
 
 [PublisherURL]
-description = "Publisher URL"
-one = "Publisher URL"
+description = "Publisher URL:"
+one = "Publisher URL:"
 
 [VersionHistory]
 description = "Version history"

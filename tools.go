@@ -8,4 +8,5 @@ package main
 import (
 	_ "github.com/golang/glog"
 	_ "github.com/kevinburke/go-bindata"
+	_ "golang.org/x/crypto/hkdf"
 )

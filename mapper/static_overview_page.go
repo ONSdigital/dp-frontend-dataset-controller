@@ -50,7 +50,8 @@ func CreateStaticOverviewPage(
 	}
 	p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
-	if len(version.Downloads) >= 3 {
+	// HasDownloads is the flag used to render the template
+	if len(version.Downloads) > 0 {
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
@@ -83,15 +84,6 @@ func CreateStaticOverviewPage(
 			ID:                strings.ToLower(Coverage),
 		}
 		p.DatasetLandingPage.Dimensions = append([]sharedModel.Dimension{pop, area, coverage}, dims...)
-	}
-
-	// COLLAPSIBLE
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
-			LocaleKey: "VariablesExplanation",
-			Plural:    4,
-		},
-		CollapsibleItems: mapLandingCollapsible(version.Dimensions),
 	}
 
 	// ANALYTICS

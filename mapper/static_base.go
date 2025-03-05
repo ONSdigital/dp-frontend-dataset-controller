@@ -59,6 +59,8 @@ func CreateStaticBasePage(
 
 	p.Publisher = getPublisherDetails(d)
 
+	p.UsageNotes = getUsageDetails(version)
+
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
 
 	// SITE-WIDE BANNERS
@@ -67,7 +69,7 @@ func CreateStaticBasePage(
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
 	// CENSUS BRANDING
-	p.ShowCensusBranding = d.Survey == "census"
+	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
 	p.Breadcrumb = []coreModel.TaxonomyNode{
@@ -76,8 +78,8 @@ func CreateStaticBasePage(
 			URI:   "/",
 		},
 		{
-			Title: "Census",
-			URI:   "/census",
+			Title: "Overview page",
+			URI:   "#",
 		},
 	}
 
@@ -190,14 +192,14 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 	shareDetails.Language = lang
 	shareDetails.ShareLocations = []static.Share{
 		{
+			Title: "Email",
+			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),
+			Icon:  "email",
+		},
+		{
 			Title: "Facebook",
 			Link:  helpers.GenerateSharingLink("facebook", currentURL, d.Title),
 			Icon:  "facebook",
-		},
-		{
-			Title: "Twitter",
-			Link:  helpers.GenerateSharingLink("twitter", currentURL, d.Title),
-			Icon:  "twitter",
 		},
 		{
 			Title: "LinkedIn",
@@ -205,9 +207,9 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 			Icon:  "linkedin",
 		},
 		{
-			Title: "Email",
-			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),
-			Icon:  "email",
+			Title: "X",
+			Link:  helpers.GenerateSharingLink("x", currentURL, d.Title),
+			Icon:  "x",
 		},
 	}
 	return shareDetails
@@ -236,14 +238,6 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 	}
 	displayOrder = append(displayOrder, "summary")
 
-	sections["variables"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "Variables",
-			Plural:    4,
-		},
-	}
-	displayOrder = append(displayOrder, "variables")
-
 	sections["get-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
 			LocaleKey: "GetData",
@@ -262,13 +256,15 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 		displayOrder = append(displayOrder, "contact")
 	}
 
-	sections["protecting-personal-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "ProtectingPersonalDataTitle",
-			Plural:    1,
-		},
+	if len(p.UsageNotes) > 0 {
+		sections["usage-notes"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "UsageNotes",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "usage-notes")
 	}
-	displayOrder = append(displayOrder, "protecting-personal-data")
 
 	if hasOtherVersions {
 		sections["version-history"] = coreModel.ContentSection{
@@ -297,7 +293,7 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 }
 
 func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
-	publisherInstance := publisher.Publisher{}
+	publisherObject := publisher.Publisher{}
 
 	// TODO: this code should be refactored to be uncoupled from predefined variables
 	// Currennt available variables:
@@ -309,16 +305,31 @@ func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
 		incomingPublisherDataset := *d.Publisher
 
 		if incomingPublisherDataset.URL != "" {
-			publisherInstance.URL = incomingPublisherDataset.URL
+			publisherObject.URL = incomingPublisherDataset.URL
 		}
 
 		if incomingPublisherDataset.Name != "" {
-			publisherInstance.Name = incomingPublisherDataset.Name
+			publisherObject.Name = incomingPublisherDataset.Name
 		}
 		if incomingPublisherDataset.Type != "" {
-			publisherInstance.Type = incomingPublisherDataset.Type
+			publisherObject.Type = incomingPublisherDataset.Type
 		}
 	}
 
-	return publisherInstance
+	return publisherObject
+}
+
+// grab the usage notes
+func getUsageDetails(v dataset.Version) []static.UsageNote {
+	usageNotesList := []static.UsageNote{}
+
+	if v.UsageNotes != nil {
+		for _, usageNote := range *v.UsageNotes {
+			usageNotesList = append(usageNotesList, static.UsageNote{
+				Title: usageNote.Title,
+				Note:  usageNote.Note,
+			})
+		}
+	}
+	return usageNotesList
 }
