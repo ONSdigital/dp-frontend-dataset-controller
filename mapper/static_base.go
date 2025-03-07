@@ -230,16 +230,6 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 		},
 	}
 
-	// Design for overview page provided doesn't display summary within the section shortcuts 
-
-	// sections["summary"] = coreModel.ContentSection{
-	// 	Title: coreModel.Localisation{
-	// 		LocaleKey: "Summary",
-	// 		Plural:    1,
-	// 	},
-	// }
-	// displayOrder = append(displayOrder, "summary")
-
 	sections["get-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
 			LocaleKey: "GetData",
