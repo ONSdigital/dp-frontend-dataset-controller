@@ -25,7 +25,6 @@ func CreateCensusLandingPage(
 	version dataset.Version,
 	opts []dataset.Options,
 	categorisationsMap map[string]int,
-	initialVersionReleaseDate string,
 	hasOtherVersions bool,
 	allVersions []dataset.Version,
 	latestVersionNumber int,
@@ -38,7 +37,7 @@ func CreateCensusLandingPage(
 	isEnableMultivariate bool,
 	pop population.GetPopulationTypeResponse,
 ) census.Page {
-	p := CreateCensusBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+	p := CreateCensusBasePage(req, basePage, d, version, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
 
 	// DOWNLOADS
 	for ext, download := range version.Downloads {

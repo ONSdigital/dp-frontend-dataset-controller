@@ -33,7 +33,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	collectionId, lang, apiRouterVersion, userAccessToken string) {
 
 	downloadServiceAuthToken := ""
-	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
 	serviceAuthToken := ""
 
 	ctx := request.Context()
@@ -50,22 +49,10 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
-	if len(editionId) == 0 {
-		latestVersionURL, err := url.Parse(datasetDetails.Links.LatestVersion.URL)
-		if err != nil {
-			setStatusCode(ctx, responseWriter, err)
-			return
-		}
-
-		_, editionId, versionId, err = helpers.ExtractDatasetInfoFromPath(latestVersionURL.Path)
-		if err != nil {
-			setStatusCode(ctx, responseWriter, err)
-			return
-		}
-	}
-
-	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
-	allVers, err := datasetClient.GetVersions(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken, collectionId, datasetId, editionId, &getVersionsQueryParams)
+	// Fetch versions associated with dataset
+	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
+	versionsList, err := datasetClient.GetVersions(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken,
+		collectionId, datasetId, editionId, &getVersionsQueryParams)
 
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
@@ -73,18 +60,18 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	hasOtherVersions := false
-	if len(allVers.Items) > 1 {
+	if len(versionsList.Items) > 1 {
 		hasOtherVersions = true
 	}
-	allVersions := allVers.Items
+	allVersions := versionsList.Items
 
 	var displayOtherVersionsLink bool
-	if len(allVers.Items) > 1 {
+	if len(versionsList.Items) > 1 {
 		displayOtherVersionsLink = true
 	}
 
 	latestVersionNumber := 1
-	for _, singleVersion := range allVers.Items {
+	for _, singleVersion := range versionsList.Items {
 		if singleVersion.Version > latestVersionNumber {
 			latestVersionNumber = singleVersion.Version
 		}
@@ -92,13 +79,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 	latestVersionURL := helpers.DatasetVersionURL(datasetId, editionId, strconv.Itoa(latestVersionNumber))
 
-	if versionId == "" {
-		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
-		http.Redirect(responseWriter, request, latestVersionURL, http.StatusFound)
-		return
-	}
-
-	ver, err := datasetClient.GetVersion(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken, collectionId, datasetId, editionId, versionId)
+	version, err := datasetClient.GetVersion(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken, collectionId, datasetId, editionId, versionId)
 
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
@@ -122,9 +103,9 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			datasetDetails,
 			renderClient,
 			editionId,
-			ver,
+			version,
 			displayOtherVersionsLink,
-			allVers.Items,
+			versionsList.Items,
 			latestVersionNumber,
 			latestVersionURL,
 			collectionId,
@@ -174,15 +155,15 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		}
 	}
 
-	if ver.Downloads == nil {
-		ver.Downloads = make(map[string]dataset.Download)
+	if version.Downloads == nil {
+		version.Downloads = make(map[string]dataset.Download)
 	}
 
 	// Build page context and render
 	basePage := renderClient.NewBasePageModel()
 
 	if datasetDetails.Type == "static" {
-		categorisationsMap := getDimensionCategorisationCountMap(ctx, populationClient, userAccessToken, "", ver.Dimensions)
+		categorisationsMap := getDimensionCategorisationCountMap(ctx, populationClient, userAccessToken, "", version.Dimensions)
 		initialVersionReleaseDate := ""
 		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work
 
@@ -201,7 +182,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		}
 
 		if form == "get-data" && format != "" {
-			getDownloadFile(ver.Downloads, format, responseWriter, request)
+			getDownloadFile(version.Downloads, format, responseWriter, request)
 		}
 
 		pop, _ := populationClient.GetPopulationType(ctx, population.GetPopulationTypeInput{
@@ -219,7 +200,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			request,
 			basePage,
 			datasetDetails,
-			ver,
+			version,
 			opts,
 			categorisationsMap,
 			initialVersionReleaseDate,
@@ -243,7 +224,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			basePage,
 			request,
 			datasetDetails,
-			ver,
+			version,
 			datasetId,
 			opts,
 			dims,
@@ -294,22 +275,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
 	const numOptsSummary = 1000
-	var initialVersion dataset.Version
-	var initialVersionReleaseDate string
 	var err error
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
 	idOfVersionBasedOn := version.IsBasedOn.ID
-
-	if version.Version != 1 {
-		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
-		initialVersionReleaseDate = initialVersion.ReleaseDate
-	}
-	if err != nil {
-		setStatusCode(ctx, w, err)
-		return
-	}
 
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
 		PopulationType: idOfVersionBasedOn,
@@ -371,7 +341,6 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 		version,
 		opts,
 		categorisationsMap,
-		initialVersionReleaseDate,
 		hasOtherVersions,
 		allVersions,
 		latestVersionNumber,

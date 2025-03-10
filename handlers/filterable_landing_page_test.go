@@ -175,39 +175,15 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
 
 			mockRequestWriter := httptest.NewRecorder()
-			mockRequest := httptest.NewRequest("GET", "/datasets/12345", nil)
+			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}",
+				FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
 			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
-		})
-
-		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockController)
-			mockDatasetClient.EXPECT().Get(mockContext, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
-			versions := dataset.VersionsList{
-				Items: []dataset.Version{
-					{
-						Links:       dataset.Links{Self: dataset.Link{URL: "/datasets/12345/editions/2016/versions/1"}},
-						ReleaseDate: "02-01-2005",
-					},
-				},
-			}
-			mockDatasetClient.EXPECT().GetVersions(mockContext, userAuthToken, serviceAuthToken, collectionID, "", "12345", "5678", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusFound)
-			So(w.Body.String(), ShouldEqual, "<a href=\"/datasets/12345/editions/5678/versions/1\">Found</a>.\n\n")
 		})
 	})
 }
@@ -219,6 +195,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
+
+	downloadServiceAuthToken := ""
+	datasetId := "12345"
+	editionId := "2021"
 
 	Convey("test census landing page", t, func() {
 		mockOpts := []dataset.Options{
@@ -238,8 +218,9 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 		mockRend := NewMockRenderClient(mockCtrl)
 		Convey("filterable landing handler returns census landing template for cantabular types", func() {
+			versionId := "1"
 			mockConfig := config.Config{}
-			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetId).Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
 				Items: []dataset.Version{
 					{
@@ -264,9 +245,9 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 					},
 				},
 			}
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
-			mockClient.EXPECT().GetOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), "12345", "2021", "1", versions.Items[0].Dimensions[0].Name,
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
+			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, versionId).Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), datasetId, editionId, versionId, versions.Items[0].Dimensions[0].Name,
 				&dataset.QueryParams{Offset: 0, Limit: 1000}).Return(mockOpts[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -282,10 +263,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -293,6 +274,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page correctly fetches version 1 data for initial release date field, when loading a later version", func() {
+			versionId := "2"
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/2"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
@@ -303,15 +285,16 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			}
 			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "2").Return(versions.Items[1], nil)
-			mockClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
+			// mockClient.EXPECT().GetOptions(ctx, gomock.Any(), gomock.Any(), gomock.Any(), datasetId, editionId, versionId, versions.Items[0].Dimensions[0].Name,
+			// 	&dataset.QueryParams{Offset: 0, Limit: 1000}).Return(mockOpts[0], nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -319,6 +302,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page returns 200 when no downloadable files provided", func() {
+			versionId := "1"
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
@@ -343,10 +327,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -354,6 +338,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page returns 302 when valid download option chosen", func() {
+			versionId := "1"
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
@@ -387,10 +372,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=csv", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s?f=get-data&format=csv", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -398,6 +383,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page returns 200 when invalid download option chosen", func() {
+			versionId := "1"
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
@@ -426,10 +412,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=aFormat", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s?f=get-data&format=aFormat", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -437,6 +423,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page returns 200 when unknown get query request made", func() {
+			versionId := "1"
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
 			versions := dataset.VersionsList{
@@ -465,10 +452,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345?f=blah-blah&format=bob", nil)
+			req := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s?f=blah-blah&format=bob", datasetId, editionId, versionId), nil)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockConfig, "/v1"))
 
 			router.ServeHTTP(w, req)
 
@@ -556,22 +543,6 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
 			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
-		})
-
-		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockDatasetClient.EXPECT().Get(mockContext, userAuthToken, serviceAuthToken, collectionID, datasetId).Return(mockGetResponse, nil)
-			mockDatasetClient.EXPECT().GetVersions(mockContext, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetId, editionId, &getVersionsQueryParams).Return(mockGetVersionsResponse, nil)
-
-			mockRequestWriter := httptest.NewRecorder()
-			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s", datasetId, editionId), nil)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockConfig, ""))
-
-			router.ServeHTTP(mockRequestWriter, mockRequest)
-
-			So(mockRequestWriter.Code, ShouldEqual, http.StatusFound)
-			So(mockRequestWriter.Body.String(), ShouldEqual, "<a href=\"/datasets/12345/editions/5678/versions/1\">Found</a>.\n\n")
 		})
 	})
 }
