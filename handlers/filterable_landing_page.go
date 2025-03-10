@@ -104,10 +104,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			renderClient,
 			editionId,
 			version,
-			displayOtherVersionsLink,
 			versionsList.Items,
-			latestVersionNumber,
-			latestVersionURL,
 			collectionId,
 			lang,
 			userAccessToken,
@@ -273,7 +270,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 }
 
-func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
+func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, allVersions []dataset.Version, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
 	const numOptsSummary = 1000
 	var err error
 	var form = req.URL.Query().Get("f")
@@ -341,10 +338,7 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 		version,
 		opts,
 		categorisationsMap,
-		hasOtherVersions,
 		allVersions,
-		latestVersionNumber,
-		latestVersionURL,
 		lang,
 		showAll,
 		isValidationError,

@@ -23,21 +23,33 @@ const (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) census.Page {
+func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, allVersions []dataset.Version, lang string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) census.Page {
 	p := census.Page{
 		Page: basePage,
 	}
 
-	// If requested version isn't initial version, loop through versions to find the intial version
-	// release date
+	hasOtherVersions := false
 	initialVersionReleaseDate := ""
-	if version.Version != 1 {
-		for _, singleVersion := range allVersions {
-			if singleVersion.Version == 1 {
-				initialVersionReleaseDate = singleVersion.ReleaseDate
-			}
+	latestVersionNumber := 1
+
+	// Loop through versions to find info
+	for _, singleVersion := range allVersions {
+		// Find the initial version release data
+		if singleVersion.Version == 1 {
+			initialVersionReleaseDate = singleVersion.ReleaseDate
+		}
+		// Find the latest version number
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
 		}
 	}
+
+	// Set `hasOtherVersions` based on length of input `allVersions`
+	if len(allVersions) > 1 {
+		hasOtherVersions = true
+	}
+
+	latestVersionURL := helpers.DatasetVersionURL(d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// PAGE META-DATA
