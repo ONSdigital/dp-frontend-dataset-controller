@@ -2,14 +2,12 @@ package mapper
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"sort"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -19,22 +17,17 @@ import (
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
 func CreateCensusLandingPage(
-	req *http.Request,
 	basePage coreModel.Page,
 	d dataset.DatasetDetails,
 	version dataset.Version,
 	opts []dataset.Options,
 	categorisationsMap map[string]int,
 	allVersions []dataset.Version,
-	lang string,
 	queryStrValues []string,
-	isValidationError bool,
-	serviceMessage string,
-	emergencyBannerContent zebedee.EmergencyBanner,
 	isEnableMultivariate bool,
 	pop population.GetPopulationTypeResponse,
 ) census.Page {
-	p := CreateCensusBasePage(req, basePage, d, version, allVersions, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+	p := CreateCensusBasePage(basePage, d, version, allVersions, isEnableMultivariate)
 
 	// DOWNLOADS
 	for ext, download := range version.Downloads {
@@ -52,7 +45,7 @@ func CreateCensusLandingPage(
 
 	// DIMENSIONS
 	if len(opts) > 0 {
-		area, dims, qs := mapCensusOptionsToDimensions(version.Dimensions, opts, categorisationsMap, queryStrValues, req.URL.Path, lang, p.DatasetLandingPage.IsMultivariate)
+		area, dims, qs := mapCensusOptionsToDimensions(version.Dimensions, opts, categorisationsMap, queryStrValues, basePage.URI, basePage.Language, p.DatasetLandingPage.IsMultivariate)
 		p.DatasetLandingPage.QualityStatements = qs
 		sort.Slice(dims, func(i, j int) bool {
 			return dims[i].Name < dims[j].Name
@@ -87,10 +80,6 @@ func CreateCensusLandingPage(
 
 	// FINAL FORMATTING
 	p.DatasetLandingPage.QualityStatements = formatPanels(p.DatasetLandingPage.QualityStatements)
-
-	// FEEDBACK API
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	return p
 }

@@ -17,6 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -42,6 +43,10 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	editionId := vars["editionID"]
 	versionId := vars["versionID"]
 
+	form := request.URL.Query().Get("f")
+	format := request.URL.Query().Get("format")
+	isValidationError := false
+
 	// Fetch the dataset
 	datasetDetails, err := datasetClient.Get(ctx, userAccessToken, serviceAuthToken, collectionId, datasetId)
 	if err != nil {
@@ -57,11 +62,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return
-	}
-
-	hasOtherVersions := false
-	if len(versionsList.Items) > 1 {
-		hasOtherVersions = true
 	}
 	allVersions := versionsList.Items
 
@@ -86,155 +86,68 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
+	// Check if this is a download request and redirect to get file if so
+	if form == "get-data" {
+		if format == "" {
+			// Format not valid so raise error
+			isValidationError = true
+		} else {
+			getDownloadFile(version.Downloads, format, responseWriter, request)
+		}
+	}
+
 	// Fetch homepage content
 	homepageContent, err := zebedeeClient.GetHomepageContent(ctx, userAccessToken, collectionId, lang, homepagePath)
 	if err != nil {
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
+	// Build page context
+	basePage := renderClient.NewBasePageModel()
+	// Update basePage common parameters
+	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, isValidationError, lang, request)
+
 	if strings.Contains(datasetDetails.Type, "cantabular") {
-		censusLanding(
-			cfg,
-			ctx,
-			responseWriter,
-			request,
-			datasetClient,
-			populationClient,
-			datasetDetails,
-			renderClient,
-			editionId,
-			version,
-			versionsList.Items,
-			collectionId,
-			lang,
-			userAccessToken,
-			homepageContent.ServiceMessage,
-			homepageContent.EmergencyBanner,
-		)
+		censusLanding(basePage, cfg, ctx, responseWriter, request, datasetClient, populationClient, datasetDetails,
+			renderClient, editionId, version, allVersions, collectionId, userAccessToken)
 		return
 
-	}
-
-	dims := dataset.VersionDimensions{Items: nil}
-	var bc []zebedee.Breadcrumb
-
-	// Unless type is nomis or static, update values of bc and dims
-	if !(datasetDetails.Type == "nomis" || datasetDetails.Type == "static") {
-		dims, err = datasetClient.GetVersionDimensions(ctx, userAccessToken, serviceAuthToken, collectionId, datasetId, editionId, versionId)
-		if err != nil {
-			setStatusCode(ctx, responseWriter, err)
-			return
-		}
-		bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionId, lang, datasetDetails.Links.Taxonomy.URL)
-		if err != nil {
-			log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.URL})
-		}
-	}
-
-	opts, err := getOptionsSummary(ctx, datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, dims, numOptsSummary)
-	if err != nil {
-		setStatusCode(ctx, responseWriter, err)
-		return
-	}
-
-	metadata, err := datasetClient.GetVersionMetadata(ctx, userAccessToken, serviceAuthToken, collectionId, datasetId, editionId, versionId)
-	if err != nil {
-		setStatusCode(ctx, responseWriter, err)
-		return
-	}
-
-	// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
-	textBytes, err := getText(datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, metadata, dims, request)
-	if err != nil {
-		if err != errTooManyOptions {
-			setStatusCode(ctx, responseWriter, err)
-			return
-		}
 	}
 
 	if version.Downloads == nil {
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
-	// Build page context and render
-	basePage := renderClient.NewBasePageModel()
-
 	if datasetDetails.Type == "static" {
-		categorisationsMap := getDimensionCategorisationCountMap(ctx, populationClient, userAccessToken, "", version.Dimensions)
-		initialVersionReleaseDate := ""
-		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work
+		m := mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate)
 
+		renderClient.BuildPage(responseWriter, m, "static")
+	} else {
+		dims := dataset.VersionDimensions{Items: nil}
+		var bc []zebedee.Breadcrumb
+
+		// Unless type is nomis, update values of bc and dims
+		if !(datasetDetails.Type == "nomis") {
+			dims, err = datasetClient.GetVersionDimensions(ctx, userAccessToken, serviceAuthToken, collectionId, datasetId, editionId, versionId)
+			if err != nil {
+				setStatusCode(ctx, responseWriter, err)
+				return
+			}
+			bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionId, lang, datasetDetails.Links.Taxonomy.URL)
+			if err != nil {
+				log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.URL})
+			}
+		}
+
+		opts, err := getOptionsSummary(ctx, datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, dims, numOptsSummary)
 		if err != nil {
-			log.Error(ctx, "failed to get version", err)
 			setStatusCode(ctx, responseWriter, err)
 			return
 		}
 
-		var form = request.URL.Query().Get("f")
-		var format = request.URL.Query().Get("format")
-		isValidationError := false
-
-		if form == "get-data" && format == "" {
-			isValidationError = true
-		}
-
-		if form == "get-data" && format != "" {
-			getDownloadFile(version.Downloads, format, responseWriter, request)
-		}
-
-		pop, _ := populationClient.GetPopulationType(ctx, population.GetPopulationTypeInput{
-			PopulationType: idOfVersionBasedOn,
-			AuthTokens: population.AuthTokens{
-				UserAuthToken: userAccessToken,
-			},
-		})
-		showAll := request.URL.Query()[queryStrKey]
-
-		// 'Static' type builds page using census landing page mapper
-		// It is reccomended in the future to refactor, such that existing code within 'censusLanding' is shared
-
-		m := mapper.CreateStaticOverviewPage(
-			request,
-			basePage,
-			datasetDetails,
-			version,
-			opts,
-			categorisationsMap,
-			initialVersionReleaseDate,
-			hasOtherVersions,
-			allVersions,
-			latestVersionNumber,
-			latestVersionURL,
-			lang,
-			showAll,
-			isValidationError,
-			homepageContent.ServiceMessage,
-			homepageContent.EmergencyBanner,
-			cfg.EnableMultivariate,
-			pop,
-		)
-
-		renderClient.BuildPage(responseWriter, m, "static")
-	} else {
-		m := mapper.CreateFilterableLandingPage(
-			ctx,
-			basePage,
-			request,
-			datasetDetails,
-			version,
-			datasetId,
-			opts,
-			dims,
-			displayOtherVersionsLink,
-			bc,
-			latestVersionNumber,
-			latestVersionURL,
-			lang,
-			apiRouterVersion,
-			numOptsSummary,
-			homepageContent.ServiceMessage,
-			homepageContent.EmergencyBanner,
-		)
+		m := mapper.CreateFilterableLandingPage(ctx, basePage, datasetDetails, version, datasetId, opts,
+			dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, apiRouterVersion,
+			numOptsSummary)
 
 		for i, d := range m.DatasetLandingPage.Version.Downloads {
 			if len(cfg.DownloadServiceURL) > 0 {
@@ -246,6 +159,21 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 				d.URI = cfg.DownloadServiceURL + downloadURL.Path
 				m.DatasetLandingPage.Version.Downloads[i] = d
+			}
+		}
+
+		metadata, err := datasetClient.GetVersionMetadata(ctx, userAccessToken, serviceAuthToken, collectionId, datasetId, editionId, versionId)
+		if err != nil {
+			setStatusCode(ctx, responseWriter, err)
+			return
+		}
+
+		// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+		textBytes, err := getText(datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, metadata, dims, request)
+		if err != nil {
+			if err != errTooManyOptions {
+				setStatusCode(ctx, responseWriter, err)
+				return
 			}
 		}
 
@@ -270,12 +198,9 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 }
 
-func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, allVersions []dataset.Version, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
+func censusLanding(basePage dpRendererModel.Page, cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, allVersions []dataset.Version, collectionID, userAccessToken string) {
 	const numOptsSummary = 1000
 	var err error
-	var form = req.URL.Query().Get("f")
-	var format = req.URL.Query().Get("format")
-	var isValidationError bool
 	idOfVersionBasedOn := version.IsBasedOn.ID
 
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
@@ -321,32 +246,10 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
-	if form == "get-data" && format == "" {
-		isValidationError = true
-	}
-	if form == "get-data" && format != "" {
-		getDownloadFile(version.Downloads, format, w, req)
-	}
-
 	showAll := req.URL.Query()[queryStrKey]
-	basePage := rend.NewBasePageModel()
 
-	m := mapper.CreateCensusLandingPage(
-		req,
-		basePage,
-		datasetModel,
-		version,
-		opts,
-		categorisationsMap,
-		allVersions,
-		lang,
-		showAll,
-		isValidationError,
-		serviceMessage,
-		emergencyBannerContent,
-		cfg.EnableMultivariate,
-		pop,
-	)
+	m := mapper.CreateCensusLandingPage(basePage, datasetModel, version, opts, categorisationsMap,
+		allVersions, showAll, cfg.EnableMultivariate, pop)
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
 	if datasetModel.Type == "static" {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
@@ -36,6 +37,11 @@ func TestCreateCensusBasePage(t *testing.T) {
 	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("Census base maps correctly as version 1", t, func() {
+		homepageContent := zebedee.HomepageContent{
+			EmergencyBanner: emergencyBanner,
+			ServiceMessage:  serviceMessage,
+		}
+		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(req, pageModel, datasetModel, versionOneDetails, []dataset.Version{versionOneDetails}, "", false, serviceMessage, emergencyBanner, true)
 		So(page.Type, ShouldEqual, datasetModel.Type)
 		So(page.DatasetId, ShouldEqual, datasetModel.ID)
