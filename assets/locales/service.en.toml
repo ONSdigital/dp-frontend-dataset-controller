@@ -91,8 +91,8 @@ description = "Important notes and usage information"
 one = "Important notes and usage information"
 
 [UsageNotes]
-description = "Usage notes"
-one = "Usage notes"
+description = "Important notes and usage information"
+one = "Important notes and usage information"
 
 [ViewAllData]
 description = "View all data related to"
