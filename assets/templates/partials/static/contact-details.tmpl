@@ -1,6 +1,6 @@
 <section id="contact" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
     <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "DatasetContactDetailsStatic" .Language 1 }}</h2>
-        <div class="ons-text-indent">
+        <div class="ons-text-indent-static">
         {{ if .ContactDetails.Name }}
             <p class="contact-details__line">{{ .ContactDetails.Name }}</p>
         {{ end }}
@@ -13,6 +13,7 @@
             <p class="contact-details__line">
                 {{ localise "Telephone" .Language 1 }}: <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
             </p>
-        {{ end }}                
+        {{ end }}
+        </div>                
     {{ template "partials/census/back-to-contents" . }}
 </section>
