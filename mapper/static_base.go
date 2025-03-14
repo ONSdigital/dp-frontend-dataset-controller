@@ -230,13 +230,15 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 		},
 	}
 
-	sections["summary"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "Summary",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "summary")
+	// Design for overview page provided doesn't display summary within the section shortcuts 
+
+	// sections["summary"] = coreModel.ContentSection{
+	// 	Title: coreModel.Localisation{
+	// 		LocaleKey: "Summary",
+	// 		Plural:    1,
+	// 	},
+	// }
+	// displayOrder = append(displayOrder, "summary")
 
 	sections["get-data"] = coreModel.ContentSection{
 		Title: coreModel.Localisation{
@@ -246,16 +248,6 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 	}
 	displayOrder = append(displayOrder, "get-data")
 
-	if p.HasContactDetails {
-		sections["contact"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "ContactUs",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "contact")
-	}
-
 	if len(p.UsageNotes) > 0 {
 		sections["usage-notes"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
@@ -264,6 +256,16 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 			},
 		}
 		displayOrder = append(displayOrder, "usage-notes")
+	}
+
+	if d.RelatedContent != nil {
+		sections["related-content"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "RelatedContentTitle",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "related-content")
 	}
 
 	if hasOtherVersions {
@@ -276,14 +278,14 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 		displayOrder = append(displayOrder, "version-history")
 	}
 
-	if d.RelatedContent != nil {
-		sections["related-content"] = coreModel.ContentSection{
+	if p.HasContactDetails {
+		sections["contact"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
-				LocaleKey: "RelatedContentTitle",
+				LocaleKey: "ContactUs",
 				Plural:    1,
 			},
 		}
-		displayOrder = append(displayOrder, "related-content")
+		displayOrder = append(displayOrder, "contact")
 	}
 
 	tableOfContents.Sections = sections
