@@ -249,7 +249,7 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 	if p.HasContactDetails {
 		sections["contact"] = coreModel.ContentSection{
 			Title: coreModel.Localisation{
-				LocaleKey: "ContactUs",
+				LocaleKey: "DatasetContactDetailsStatic",
 				Plural:    1,
 			},
 		}
