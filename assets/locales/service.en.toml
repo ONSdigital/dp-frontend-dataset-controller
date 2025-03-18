@@ -106,6 +106,10 @@ one = "Contact us"
 description = "Contact details for this dataset"
 one = "Contact details for this dataset"
 
+[DatasetContactDetailsStatic]
+description = "Contact details"
+one = "Contact details"
+
 [Name]
 description = "Name"
 one = "Name"
@@ -117,6 +121,10 @@ one = "Email"
 [Phone]
 description = "Phone"
 one = "Phone"
+
+[Telephone]
+description = "Telephone"
+one = "Telephone"
 
 [UsedInPublication]
 description = "Publications that use this data"
