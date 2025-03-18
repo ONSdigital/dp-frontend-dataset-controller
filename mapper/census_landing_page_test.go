@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -17,14 +16,11 @@ import (
 
 func TestCreateCensusLandingPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
 	datasetOptions := getTestOptionsList()
-	serviceMessage := getTestServiceMessage()
-	emergencyBanner := getTestEmergencyBanner()
 	population := population.GetPopulationTypeResponse{
 		PopulationType: population.PopulationType{
 			Name:        "UR",
@@ -37,7 +33,8 @@ func TestCreateCensusLandingPage(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population)
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population)
 
 			Convey("Then downloads map correctly", func() {
 				So(page.Version.Downloads[0].Size, ShouldEqual, "438290")
@@ -75,13 +72,10 @@ func TestCreateCensusLandingPage(t *testing.T) {
 
 func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	serviceMessage := getTestServiceMessage()
-	emergencyBanner := getTestEmergencyBanner()
 
 	dimensions := []dataset.VersionDimension{
 		getTestDimension("geography", true),
@@ -97,7 +91,8 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 
 	Convey("Given data for cantabular_flexible_table census landing page", t, func() {
 		Convey("When we build a Census Landing Page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("Then the geography dimension has a change button", func() {
 				So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
@@ -118,7 +113,8 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 		}
 
 		Convey("When we build a Census Landing Page with enableMultivariate false", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, categorisationsMap, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, false, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, categorisationsMap,
+				[]dataset.Version{version}, []string{}, false, population.GetPopulationTypeResponse{})
 
 			Convey("Then the geography dimension only has a change button", func() {
 				So(page.DatasetLandingPage.Dimensions[0].ShowChange, ShouldBeFalse)
@@ -129,7 +125,8 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 		})
 
 		Convey("When we build a Census Landing Page with enableMultivariate true", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, categorisationsMap, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, categorisationsMap,
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("Then the geography dimension only has a change button", func() {
 				So(page.DatasetLandingPage.Dimensions[1].ShowChange, ShouldBeTrue)
@@ -148,13 +145,10 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 
 func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	serviceMessage := getTestServiceMessage()
-	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("Given there are quality notices on dimensions", t, func() {
 		dim1 := getTestDimension("1", true)
@@ -177,7 +171,8 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 		}
 
 		Convey("When we build a census landing page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			mockPanel := []census.Panel{
 				{
@@ -199,13 +194,10 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 
 func TestCreateCensusLandingPageDownloads(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	serviceMessage := getTestServiceMessage()
-	emergencyBanner := getTestEmergencyBanner()
 	datasetOptions := getTestOptionsList()
 
 	Convey("given download data where all four file types exist", t, func() {
@@ -213,7 +205,8 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -237,7 +230,8 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to true when downloads are greater than three or more", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeTrue)
@@ -260,7 +254,8 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 		version := getTestVersionDetails(1, getTestDefaultDimensions(), downloads, nil)
 
 		Convey("when we build a census landing page", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("then HasDownloads set to false", func() {
 				So(page.DatasetLandingPage.HasDownloads, ShouldBeFalse)
@@ -271,13 +266,10 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 
 func TestCreateCensusLandingPagePagination(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	serviceMessage := getTestServiceMessage()
-	emergencyBanner := getTestEmergencyBanner()
 	version := getTestVersionOneDetails()
 
 	Convey("given a dimension to truncate on census dataset landing page", t, func() {
@@ -287,7 +279,8 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 		}
 
 		Convey("when valid parameters are provided", func() {
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
 				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
@@ -304,7 +297,8 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 
 		Convey("when 'showAll' parameter provided", func() {
 			parameters := []string{"1"}
-			page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, []dataset.Version{version}, "", parameters, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+				[]dataset.Version{version}, parameters, true, population.GetPopulationTypeResponse{})
 
 			Convey("then the dimension is no longer truncated", func() {
 				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)

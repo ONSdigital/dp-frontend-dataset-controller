@@ -137,7 +137,7 @@ func TestUnitMapper(t *testing.T) {
 		}
 		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
 
-		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -182,7 +182,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -257,7 +257,7 @@ func TestUnitMapper(t *testing.T) {
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
 
-		p := CreateFilterableLandingPage(ctx, mdl, req, nomisD, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, nomisD, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -302,7 +302,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.Metadata.Title, ShouldEqual, d.Title)
@@ -367,8 +367,8 @@ func TestUnitMapper(t *testing.T) {
 			},
 		}
 
-		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, opts, dims, false, []zebedee.Breadcrumb{},
-			1, "", "en", "/v1", 50, serviceMessage, emergencyBanner)
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, opts, dims, false, []zebedee.Breadcrumb{},
+			1, "", "/v1", 50)
 
 		So(p.DatasetLandingPage.Dimensions, ShouldResemble, []sharedModel.Dimension{
 			{
@@ -382,7 +382,7 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -403,7 +403,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)
@@ -413,7 +413,7 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(ctx, mdl, req, d, v[0], datasetID, []dataset.Options{
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
 			{
 				Items: []dataset.Option{
 					{
@@ -439,7 +439,7 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "en", "/v1", 50, serviceMessage, emergencyBanner)
+			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.DatasetLandingPage.Dimensions[0].Values, ShouldHaveLength, 2)

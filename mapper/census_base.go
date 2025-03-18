@@ -100,7 +100,7 @@ func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.Datase
 	}
 
 	// TABLE OF CONTENTS
-	censusPage.TableOfContents = buildTableOfContents(p, d, hasOtherVersions)
+	censusPage.TableOfContents = buildTableOfContents(censusPage, datasetDetails, hasOtherVersions)
 
 	// VERSIONS TABLE
 	if hasOtherVersions {

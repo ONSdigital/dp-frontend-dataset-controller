@@ -153,10 +153,10 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	return p
 }
 
-func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) static.ShareDetails {
-	shareDetails := static.ShareDetails{}
+func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) sharedModel.ShareDetails {
+	shareDetails := sharedModel.ShareDetails{}
 	shareDetails.Language = lang
-	shareDetails.ShareLocations = []static.Share{
+	shareDetails.ShareLocations = []sharedModel.Share{
 		{
 			Title: "Email",
 			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),
