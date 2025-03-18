@@ -122,6 +122,10 @@ one = "Contact us"
 description = "Contact details for this dataset"
 one = "Manylion cyswllt ar gyfer y set ddata hon"
 
+[DatasetContactDetailsStatic]
+description = "Contact details"
+one = "Contact details"
+
 [Email]
 description = "Email"
 one = "Email"
@@ -129,6 +133,10 @@ one = "Email"
 [Phone]
 description = "Phone"
 one = "Phone"
+
+[Telephone]
+description = "Telephone"
+one = "Telephone"
 
 [UsedInPublication]
 description = "Publications that use this data"
