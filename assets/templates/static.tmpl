@@ -20,6 +20,7 @@
           >
             {{- .Metadata.Title -}}
           </h1>
+          {{ template "partials/static/summary" . }}
         </div>
         {{ if .IsNationalStatistic }}
         <div class="ons-grid__col ons-col-2@m">
@@ -41,21 +42,19 @@
     </div>
     <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
       {{ template "partials/census/panel" .DatasetLandingPage.QualityStatements }}
-      {{ template "partials/census/summary" . }}
-      {{ template "partials/static/get-data" . }}
-      {{ if .HasContactDetails }}
-      {{ template "partials/static/contact-details" . }}
-      {{ end }}
+      {{ template "partials/census/get-data" . }}
       {{ if .UsageNotes}}
       {{ template "partials/static/usage-notes" . }}
-      {{ end }}
-      {{ if .DatasetLandingPage.HasOtherVersions }}
-      {{ template "partials/census/version-history" . }}
       {{ end }}
       {{ if .DatasetLandingPage.RelatedContentItems }}
       {{ template "partials/census/related-content" . }}
       {{ end }}
+      {{ if .DatasetLandingPage.HasOtherVersions }}
+      {{ template "partials/census/version-history" . }}
+      {{ end }}
+      {{ if .HasContactDetails }}
+      {{ template "partials/static/contact-details" . }}
+      {{ end }}
     </div>
   </div>
-  {{ template "partials/share-dataset/share-section" . }}
 </div>
