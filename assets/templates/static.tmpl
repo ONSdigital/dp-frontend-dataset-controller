@@ -1,28 +1,53 @@
 <div class="ons-page__container ons-container">
-<section class="ons-hero ons-grid--gutterless">
-  <div class="ons-hero__container ons-container">
-    <div class="ons-hero__details">
-      <div class="ons-hero__title-container ons-grid">
-        <div class="ons-grid__col ons-col-12@m ons-u-m">
-          <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no">Dataset</p>
+<section class="ons-hero ons-grid">
+  <div class="ons-hero__container--has-details">
+    <div class="ons-hero__pre-title">
+      <div class="ons-grid__col ons-col-12@m">
+        <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no">Dataset</p>
+      </div>
+    </div>
+    <div class="ons-hero__title-container">
+      <div class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{else}}ons-col-12@m{{end}}">
+        <h1 class="ons-u-fs-xxxl">
+          {{- .Metadata.Title -}}
+        </h1>
+      </div>
+      {{ if .IsNationalStatistic }}
+      <div class="ons-grid__col ons-col-2@m">
+        <div class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m">
+          {{ template "partials/roundel-ns" . }}
         </div>
-        <div class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{else}}ons-col-12@m{{end}}">
-          <h1 class="ons-u-fs-xxxl">
-            {{- .Metadata.Title -}}
-          </h1>
+      </div>
+      {{ end }}
+    </div>
+    <div class="ons-hero__content">
+      <div class="ons-grid__col ons-col-12@m">
+        {{ range .DatasetLandingPage.Description }}
+        <p class="ons-hero__text">{{ . }}</p>
+        {{ end }}
+      </div>
+      <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+        <div class="ons-metadata__item">
+          <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+          <dd class="ons-metadata__value ons-u-f-no">
+              <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
+          </dd>
         </div>
-        {{ if .IsNationalStatistic }}
-        <div class="ons-grid__col ons-col-2@m">
-          <div class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m">
-            {{ template "partials/roundel-ns" . }}
-          </div>
+      </div>
+      <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+        <div class="ons-metadata__item">
+          <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Version" .Language 1 }}:</dt>
+          <dd class="ons-metadata__value ons-u-f-no">Latest</dd>
+        </div>
+      </div>
+      <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+        {{ if .Publisher.Name}}        
+        <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "PublisherName" .Language 1 }}</dt>
+            <dd class="ons-metadata__value ons-u-f-no"><a href="{{ .Publisher.URL }}">{{ .Publisher.Name }}</a></dd>
         </div>
         {{ end }}
-        <div class="ons-grid__col ons-col-12@m">
-          {{ range .DatasetLandingPage.Description }}
-          <p class="ons-hero__text">{{ . }}</p>
-          {{ end }}
-        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -35,52 +60,14 @@
     {{ if .Page.Error.Title }}
     {{ template "partials/error-summary" .Page.Error }}
     {{ end }}
-    <section
-      class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{
-        end
-      }}"
-    >
+    {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
+    <section class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{end}}">
       {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
-      <div class="ons-grid">
-        <div
-          class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{
-            end
-          }}"
-        > 
-          <p class="">Dataset</h1>
-        </div>
-        <div
-          class="ons-grid__col{{ if .IsNationalStatistic }} ons-col-10@m{{
-            end
-          }}"
-        >
-          <h1
-            class="ons-u-fs-xxxl ons-u-mt-s ons-u-mb-m ons-u-pb-no ons-u-pt-no"
-          >
-            {{- .Metadata.Title -}}
-          </h1>
-          {{ template "partials/static/summary" . }}
-        </div>
-        {{ if .IsNationalStatistic }}
-        <div class="ons-grid__col ons-col-2@m">
-          <div
-            class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m"
-          >
-            {{ template "partials/roundel-ns" . }}
-          </div>
-        </div>
-        {{ end }}
-      </div>
-      {{ template "partials/static/id-datestamp" . }}
     </section>
-    <div
-      class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m"
-      id="toc"
-    >
+    <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
       {{ template "partials/table-of-contents" . }}
     </div>
     <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
-      {{ template "partials/census/panel" .DatasetLandingPage.QualityStatements }}
       {{ template "partials/static/get-data" . }}
       {{ if .UsageNotes}}
       {{ template "partials/static/usage-notes" . }}

@@ -239,6 +239,14 @@ one = "Publisher name:"
 description = "Publisher URL:"
 one = "Publisher URL:"
 
+[Version]
+description = "Version"
+one = "Version"
+
+[Latest]
+description = "Latest"
+one = "Latest"
+
 [VersionHistory]
 description = "Version history"
 one = "Version history"
