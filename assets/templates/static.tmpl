@@ -3,7 +3,7 @@
   <div class="ons-hero__container--has-details">
     <div class="ons-hero__pre-title">
       <div class="ons-grid__col ons-col-12@m">
-        <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no">Dataset</p>
+        <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no" style="color:#206095">Dataset</p>
       </div>
     </div>
     <div class="ons-hero__title-container">
@@ -36,15 +36,15 @@
       </div>
       <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
         <div class="ons-metadata__item">
-          <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Version" .Language 1 }}:</dt>
-          <dd class="ons-metadata__value ons-u-f-no">Latest</dd>
+          <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
+          <dd class="ons-metadata__value ons-u-f-no">????</dd>
         </div>
       </div>
       <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
         {{ if .Publisher.Name}}        
         <div class="ons-metadata__item">
-            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "PublisherName" .Language 1 }}</dt>
-            <dd class="ons-metadata__value ons-u-f-no"><a href="{{ .Publisher.URL }}">{{ .Publisher.Name }}</a></dd>
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "NextRelease" .Language 1 }}</dt>
+            <dd class="ons-metadata__value ons-u-f-no">????</dd>
         </div>
         {{ end }}
       </div>
