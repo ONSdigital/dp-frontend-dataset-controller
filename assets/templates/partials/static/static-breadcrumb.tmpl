@@ -3,10 +3,10 @@
 {{ $length := len $bc }}
 {{ if not .FeatureFlags.SixteensVersion }}
 <div
-  class="ons-page__container ons-container"
+  class="ons-page__container"
   style="background-color: var(--ons-color-grey-5)"
 >
-  <nav class="ons-breadcrumb print--hide" aria-label="Breadcrumbs">
+  <nav class="ons-breadcrumb print--hide ons-container" aria-label="Breadcrumbs">
     <ol class="ons-breadcrumb__items ons-u-fs-s">
       {{ range $i, $b := $bc }}
       <li class="ons-breadcrumb__item ons-u-p-no">
