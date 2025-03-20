@@ -1,6 +1,5 @@
-<div class="ons-page__container ons-container">
 <section class="ons-hero ons-grid">
-  <div class="ons-hero__container--has-details">
+  <div class="ons-container ons-hero__container--has-details">
     <div class="ons-hero__pre-title">
       <div class="ons-grid__col ons-col-12@m">
         <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no" style="color:#206095">Dataset</p>
@@ -37,25 +36,29 @@
       <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
         <div class="ons-metadata__item">
           <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
-          <dd class="ons-metadata__value ons-u-f-no">????</dd>
+          <dd class="ons-metadata__value ons-u-f-no">
+            <time datetime="{{ .Version.ReleaseDate }}">{{ dateFormat .Version.ReleaseDate }}</time>
+          </dd>
         </div>
       </div>
       <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
         {{ if .Publisher.Name}}        
         <div class="ons-metadata__item">
             <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "NextRelease" .Language 1 }}</dt>
-            <dd class="ons-metadata__value ons-u-f-no">????</dd>
+            <dd class="ons-metadata__value ons-u-f-no">
+            {{ if .DatasetLandingPage.NextRelease }}
+              {{ .DatasetLandingPage.NextRelease }}
+            {{ else }}
+              {{ localise "TBA" .Language 1  }}
+            {{ end }}
+            </dd>
         </div>
         {{ end }}
       </div>
     </div>
   </div>
 </section>
-
-
-
-
-
+<div class="ons-page__container ons-container">
   <div class="ons-grid ons-js-toc-container ons-u-ml-no">
     {{ if .Page.Error.Title }}
     {{ template "partials/error-summary" .Page.Error }}
