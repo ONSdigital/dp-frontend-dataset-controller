@@ -26,26 +26,27 @@ type Page struct {
 
 // StaticOverviewPage contains properties related to the static dataset
 type DatasetLandingPage struct {
-	HasOtherVersions    bool                    `json:"has_other_versions"`
-	HasDownloads        bool                    `json:"has_downloads"`
-	LatestVersionURL    string                  `json:"latest_version_url"`
+	DatasetURL          string                  `json:"dataset_url"`
+	Description         []string                `json:"description"`
 	Dimensions          []sharedModel.Dimension `json:"dimensions"`
-	ShareDetails        ShareDetails
-	Description         []string             `json:"description"`
+	EnableFeedbackAPI   bool                    `json:"enable_feedback_api"`
+	FeedbackAPIURL      string                  `json:"feedback_api_url"`
+	HasDownloads        bool                    `json:"has_downloads"`
+	HasOtherVersions    bool                    `json:"has_other_versions"`
+	HasSDC              bool                    `json:"has_sdc"`
+	ImproveResults      model.Collapsible
 	IsCustom            bool                 `json:"is_custom"`
 	IsFlexibleForm      bool                 `json:"is_flexible_form"`
-	DatasetURL          string               `json:"dataset_url"`
+	IsMultivariate      bool                 `json:"is_multivariate"`
+	LatestVersionURL    string               `json:"latest_version_url"`
+	NextRelease         string               `json:"next_release"`
+	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
 	Panels              []Panel              `json:"panels"`
 	QualityStatements   []Panel              `json:"quality_statements"`
-	SDC                 []Panel              `json:"sdc"`
-	HasSDC              bool                 `json:"has_sdc"`
 	RelatedContentItems []RelatedContentItem `json:"related_content_items"`
-	IsMultivariate      bool                 `json:"is_multivariate"`
-	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
-	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
-	EnableFeedbackAPI   bool                 `json:"enable_feedback_api"`
-	FeedbackAPIURL      string               `json:"feedback_api_url"`
-	ImproveResults      model.Collapsible
+	SDC                 []Panel              `json:"sdc"`
+	ShareDetails        ShareDetails
+	ShowXLSXInfo        bool                `json:"show_xlsx_info"`
 	Version             sharedModel.Version `json:"version"`
 }
 

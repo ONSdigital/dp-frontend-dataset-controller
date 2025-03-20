@@ -62,6 +62,7 @@ func CreateStaticBasePage(
 	p.UsageNotes = getUsageDetails(version)
 
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
+	p.DatasetLandingPage.NextRelease = d.NextRelease
 
 	// SITE-WIDE BANNERS
 	p.BetaBannerEnabled = true
