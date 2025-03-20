@@ -17,23 +17,15 @@
         {{ end }}
         {{ template "icons/chevron-right" }}
       </li>
-      {{
-        end
-      }}
+      {{ end }}
     </ol>
   </nav>
 </div>
 {{ else }}
 <div
-  {{
-  if
-  not
-  .RemoveGalleryBackground
-  }}
+  {{ if not .RemoveGalleryBackground }}
   class="background--gallery"
-  {{
-  end
-  }}
+  {{ end }}
 >
   <div class="wrapper">
     <nav aria-label="breadcrumb" role="navigation">
@@ -43,9 +35,7 @@
           <li class="breadcrumb__item--ellipsis line-height--12">
             <a class="breadcrumb__link" href="/"> Home </a>
           </li>
-          {{
-            end
-          }}
+          {{ end }}
           {{ range $i, $b := $bc }}
           {{ if last $i $bc }}
           <li class="breadcrumb__item line-height--12">
@@ -61,12 +51,8 @@
             {{ $b.Title }}
             {{ end }}
           </li>
-          {{
-            end
-          }}
-          {{
-            end
-          }}
+          {{ end }}
+          {{ end }}
         </ol>
       </div>
     </nav>
