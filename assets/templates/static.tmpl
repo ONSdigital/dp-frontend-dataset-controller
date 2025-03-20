@@ -1,5 +1,5 @@
 <section class="ons-hero ons-grid">
-  <div class="ons-container ons-hero__container--has-details">
+  <div class="ons-container ons-hero__container--has-details ons-u-pb-l">
     <div class="ons-hero__pre-title">
       <div class="ons-grid__col ons-col-12@m">
         <p class="ons-u-fs-xl ons-u-fw-b ons-u-mb-no" style="color:#206095">Dataset</p>
@@ -11,20 +11,21 @@
           {{- .Metadata.Title -}}
         </h1>
       </div>
-      {{ if .IsNationalStatistic }}
       <div class="ons-grid__col ons-col-2@m">
-        <div class="ons-grid--flex ons-grid--between@m ons-u-mt-s@m ons-u-mb-m@xxs ons-u-flex-jc-fe@m">
+        {{ if .IsNationalStatistic }}
+        <div class="ons-u-fr">
           {{ template "partials/roundel-ns" . }}
         </div>
+        {{ end }}    
       </div>
-      {{ end }}
     </div>
     <div class="ons-hero__content">
-      <div class="ons-grid__col ons-col-12@m">
+      <div class="ons-grid__col ons-col-10@m">
         {{ range .DatasetLandingPage.Description }}
         <p class="ons-hero__text">{{ . }}</p>
         {{ end }}
       </div>
+      <div class="ons-grid__col ons-col-2@m"></div>
       <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
         <div class="ons-metadata__item">
           <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
@@ -41,32 +42,20 @@
           </dd>
         </div>
       </div>
-      <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
-        {{ if .Publisher.Name}}        
+      <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">       
         <div class="ons-metadata__item">
             <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "NextRelease" .Language 1 }}</dt>
-            <dd class="ons-metadata__value ons-u-f-no">
-            {{ if .DatasetLandingPage.NextRelease }}
-              {{ .DatasetLandingPage.NextRelease }}
-            {{ else }}
-              {{ localise "TBA" .Language 1  }}
-            {{ end }}
-            </dd>
-        </div>
-        {{ end }}
+            <dd class="ons-metadata__value ons-u-f-no">Next Release</dd>
       </div>
     </div>
   </div>
 </section>
 <div class="ons-page__container ons-container">
+  {{ if .Page.Error.Title }}
+  {{ template "partials/error-summary" .Page.Error }}
+  {{ end }}
+  {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
   <div class="ons-grid ons-js-toc-container ons-u-ml-no">
-    {{ if .Page.Error.Title }}
-    {{ template "partials/error-summary" .Page.Error }}
-    {{ end }}
-    {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
-    <section class="{{ if .DatasetLandingPage.IsCustom }}ons-u-mb-s{{ else }}ons-u-mb-xl{{end}}">
-      {{ template "partials/census/panel" .DatasetLandingPage.Panels }}
-    </section>
     <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
       {{ template "partials/table-of-contents" . }}
     </div>

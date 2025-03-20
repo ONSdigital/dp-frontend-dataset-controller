@@ -1,6 +1,6 @@
 {{ $length := len .Version.Downloads }}
 <section id="get-data" aria-label="{{ localise "GetData" .Language 1 }}">
-    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
+    <h2 class="ons-u-pb-no ons-u-pt-no">{{ localise "GetData" .Language 1 }}</h2>
     {{ if .DatasetLandingPage.HasDownloads }}
         <div data-get-data-form-downloads="ready">
             {{ if .DatasetLandingPage.ShowXLSXInfo }}

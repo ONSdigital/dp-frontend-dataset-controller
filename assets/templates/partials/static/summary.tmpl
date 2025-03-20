@@ -1,9 +1,0 @@
-<section id="summary" aria-label="{{ localise "Summary" .Language 1 }}">
-    {{ range .DatasetLandingPage.Description }}
-        <p>{{ . }}</p>
-    {{ end }}
-    {{ if .Collapsible.CollapsibleItems }}
-        {{ template "partials/collapsible" .Collapsible }}
-    {{ end }}
-    {{ template "partials/census/back-to-contents" . }}
-</section>
