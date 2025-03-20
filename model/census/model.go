@@ -40,7 +40,6 @@ type DatasetLandingPage struct {
 	IsMultivariate      bool                 `json:"is_multivariate"`
 	ShowXLSXInfo        bool                 `json:"show_xlsx_info"`
 	OSRLogo             osrlogo.OSRLogo      `json:"osr_logo"`
-	EnableFeedbackAPI   bool                 `json:"enable_feedback_api"`
 	FeedbackAPIURL      string               `json:"feedback_api_url"`
 	ImproveResults      model.Collapsible
 }

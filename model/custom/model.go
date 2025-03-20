@@ -10,7 +10,6 @@ type Page struct {
 	CreateCustomDatasetPage CreateCustomDatasetPage `json:"data"`
 	IsNationalStatistic     bool                    `json:"is_national_statistic"`
 	ShowCensusBranding      bool                    `json:"show_census_branding"`
-	EnableFeedbackAPI       bool                    `json:"enable_feedback_api"`
 	FeedbackAPIURL          string                  `json:"feedback_api_url"`
 }
 

@@ -29,7 +29,6 @@ type DatasetLandingPage struct {
 	DatasetURL          string                  `json:"dataset_url"`
 	Description         []string                `json:"description"`
 	Dimensions          []sharedModel.Dimension `json:"dimensions"`
-	EnableFeedbackAPI   bool                    `json:"enable_feedback_api"`
 	FeedbackAPIURL      string                  `json:"feedback_api_url"`
 	HasDownloads        bool                    `json:"has_downloads"`
 	HasOtherVersions    bool                    `json:"has_other_versions"`

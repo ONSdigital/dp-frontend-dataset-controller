@@ -92,7 +92,6 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, r
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	if d.Type == "nomis" {
@@ -254,7 +253,6 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	latestVersionNumber := 1
@@ -320,7 +318,6 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 	p.ServiceMessage = serviceMessage
 	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
 
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, bc := range breadcrumbs {
