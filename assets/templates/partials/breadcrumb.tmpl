@@ -1,6 +1,4 @@
-{{ if eq .Type "static" }}
-{{ template "partials/static/static-breadcrumb" . }}
-{{ else }}
+{{ if ne .Type "static" }}
 {{ $bc :=  .Breadcrumb }}
 {{ if $bc }}
 {{ $length := len $bc }}
