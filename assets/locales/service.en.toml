@@ -188,6 +188,10 @@ one = "this link will open in a new tab"
 description = "Contents section heading"
 one = "Page contents"
 
+[StaticTocHeading]
+description = "Contents section heading"
+one = "Contents"
+
 [ContentsAria]
 description = "Pages in this guide"
 one = "Pages in this guide"

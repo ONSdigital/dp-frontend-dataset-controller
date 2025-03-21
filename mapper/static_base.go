@@ -226,7 +226,7 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 			Plural:    1,
 		},
 		Title: coreModel.Localisation{
-			LocaleKey: "Contents",
+			LocaleKey: "StaticTocHeading",
 			Plural:    1,
 		},
 	}
