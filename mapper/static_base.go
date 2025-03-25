@@ -85,7 +85,6 @@ func CreateStaticBasePage(
 	}
 
 	// FEEDBACK API
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	// BACK LINK

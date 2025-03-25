@@ -31,7 +31,6 @@ func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populat
 	p.ShowCensusBranding = true
 
 	// FEEDBACK API
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	// BREADCRUMBS

@@ -69,7 +69,6 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	}
 
 	// FEEDBACK API
-	p.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	// BACK LINK
