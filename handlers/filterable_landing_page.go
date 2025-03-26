@@ -178,7 +178,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	if datasetModel.Type == "static" {
 		categorisationsMap := getDimensionCategorisationCountMap(ctx, pc, userAccessToken, "", ver.Dimensions)
 		initialVersionReleaseDate := ""
-		idOfVersionBasedOn := "1" //This has been hardcoded as it is unclear if it is needed for static types. It simply makes it all work
 
 		if err != nil {
 			log.Error(ctx, "failed to get version", err)
@@ -198,36 +197,11 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			getDownloadFile(ver.Downloads, format, w, req)
 		}
 
-		pop, _ := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
-			PopulationType: idOfVersionBasedOn,
-			AuthTokens: population.AuthTokens{
-				UserAuthToken: userAccessToken,
-			},
-		})
 		showAll := req.URL.Query()[queryStrKey]
 
-		// 'Static' type builds page using census landing page mapper
-		// It is reccomended in the future to refactor, such that existing code within 'censusLanding' is shared
-
-		m := mapper.CreateStaticOverviewPage(
-			req,
-			basePage,
-			datasetModel,
-			ver,
-			opts,
-			categorisationsMap,
-			initialVersionReleaseDate,
-			hasOtherVersions,
-			allVersions,
-			latestVersionNumber,
-			latestVersionURL,
-			lang,
-			showAll,
-			isValidationError,
-			homepageContent.ServiceMessage,
-			homepageContent.EmergencyBanner,
-			cfg.EnableMultivariate,
-			pop,
+		m := mapper.CreateStaticOverviewPage(req, basePage, datasetModel, ver, categorisationsMap, initialVersionReleaseDate,
+			hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError,
+			homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate,
 		)
 
 		rend.BuildPage(w, m, "static")
