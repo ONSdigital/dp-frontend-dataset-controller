@@ -42,9 +42,6 @@ func CreateStaticOverviewPage(req *http.Request, basePage coreModel.Page, d data
 		getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)),
 	)
 
-	// FINAL FORMATTING
-	p.DatasetLandingPage.QualityStatements = formatStaticPanels(p.DatasetLandingPage.QualityStatements)
-
 	// FEEDBACK API
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
