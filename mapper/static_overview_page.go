@@ -21,7 +21,7 @@ func CreateStaticOverviewPage(req *http.Request, basePage coreModel.Page, d data
 		latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent,
 		isEnableMultivariate)
 
-	// DOWNLOADS
+	// DISTRIBUTIONS
 	for ext, download := range version.Downloads {
 		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
 			Extension: strings.ToLower(ext),
