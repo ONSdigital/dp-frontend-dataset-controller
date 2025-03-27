@@ -76,7 +76,7 @@ func CreateStaticBasePage(
 	p.Breadcrumb = []coreModel.TaxonomyNode{
 		{
 			Title: "Home",
-			URI:   "/",
+			URI:   "https://www.ons.gov.uk/",
 		},
 		{
 			Title: "Overview page",
