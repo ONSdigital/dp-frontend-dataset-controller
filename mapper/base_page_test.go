@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -32,7 +33,11 @@ func TestUpdateBasePage(t *testing.T) {
 		// These parameters are set by default and are not dependent on conditional inputs
 		So(basePageModel.BetaBannerEnabled, ShouldEqual, true)
 		So(basePageModel.DatasetId, ShouldEqual, datasetDetails.ID)
-		So(basePageModel.EmergencyBanner, ShouldEqual, mapEmergencyBanner(homepageContent.EmergencyBanner))
+		So(basePageModel.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(basePageModel.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+		So(basePageModel.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+		So(basePageModel.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+		So(basePageModel.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 		So(basePageModel.Language, ShouldEqual, lang)
 		So(basePageModel.Metadata.Description, ShouldEqual, datasetDetails.Description)
 		So(basePageModel.Metadata.Title, ShouldEqual, datasetDetails.Title)
