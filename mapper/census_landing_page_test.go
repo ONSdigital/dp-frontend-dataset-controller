@@ -266,7 +266,10 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 
 func TestCreateCensusLandingPagePagination(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	pageModel := coreModel.Page{}
+	// Setting `URI` here as this done by `UpdateBasePage` mapper when called in the handler
+	pageModel := coreModel.Page{
+		URI: "/",
+	}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)

@@ -22,7 +22,10 @@ import (
 func TestCreateCensusFilterOutputsPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
-	pageModel := coreModel.Page{}
+	// Setting `Type` here as this done by `UpdateBasePage` mapper when called in the handler
+	pageModel := coreModel.Page{
+		Type: "cantabular_flexible_table",
+	}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -180,7 +183,12 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", nil)
-	pageModel := coreModel.Page{}
+	// Setting `Metadata.Title` here as this done by `UpdateBasePage` mapper when called in the handler
+	pageModel := coreModel.Page{
+		Metadata: coreModel.Metadata{
+			Title: "Test title",
+		},
+	}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
