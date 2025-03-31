@@ -17,6 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -125,13 +126,9 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, isValidationError, lang, request)
 
 	if strings.Contains(datasetDetails.Type, "cantabular") {
-		censusLanding(cfg, ctx, responseWriter, request, datasetClient, populationClient, datasetDetails,
-			renderClient, editionId, version, displayOtherVersionsLink, allVersions, latestVersionNumber,
-			latestVersionURL, collectionId, lang, userAccessToken, homepageContent.ServiceMessage,
-			homepageContent.EmergencyBanner,
-		)
+		censusLanding(basePage, cfg, ctx, responseWriter, request, datasetClient, populationClient, datasetDetails,
+			renderClient, editionId, version, allVersions, collectionId, userAccessToken)
 		return
-
 	}
 
 	if version.Downloads == nil {
@@ -140,7 +137,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 	if datasetDetails.Type == "static" {
 		m := mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate)
-
 		renderClient.BuildPage(responseWriter, m, "static")
 	} else {
 		dims := dataset.VersionDimensions{Items: nil}
@@ -219,24 +215,12 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 }
 
-func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, collectionID, lang, userAccessToken string, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) {
+func censusLanding(basePage dpRendererModel.Page, cfg config.Config, ctx context.Context, w http.ResponseWriter, req *http.Request,
+	dc DatasetClient, pc PopulationClient, datasetModel dataset.DatasetDetails, rend RenderClient, edition string,
+	version dataset.Version, allVersions []dataset.Version, collectionID, userAccessToken string) {
 	const numOptsSummary = 1000
-	var initialVersion dataset.Version
-	var initialVersionReleaseDate string
 	var err error
-	var form = req.URL.Query().Get("f")
-	var format = req.URL.Query().Get("format")
-	var isValidationError bool
 	idOfVersionBasedOn := version.IsBasedOn.ID
-
-	if version.Version != 1 {
-		initialVersion, err = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetModel.ID, edition, "1")
-		initialVersionReleaseDate = initialVersion.ReleaseDate
-	}
-	if err != nil {
-		setStatusCode(ctx, w, err)
-		return
-	}
 
 	pop, err := pc.GetPopulationType(ctx, population.GetPopulationTypeInput{
 		PopulationType: idOfVersionBasedOn,
@@ -281,43 +265,12 @@ func censusLanding(cfg config.Config, ctx context.Context, w http.ResponseWriter
 		version.Downloads = make(map[string]dataset.Download)
 	}
 
-	if form == "get-data" && format == "" {
-		isValidationError = true
-	}
-	if form == "get-data" && format != "" {
-		getDownloadFile(version.Downloads, format, w, req)
-	}
-
 	showAll := req.URL.Query()[queryStrKey]
-	basePage := rend.NewBasePageModel()
 
-	m := mapper.CreateCensusLandingPage(
-		req,
-		basePage,
-		datasetModel,
-		version,
-		opts,
-		categorisationsMap,
-		initialVersionReleaseDate,
-		hasOtherVersions,
-		allVersions,
-		latestVersionNumber,
-		latestVersionURL,
-		lang,
-		showAll,
-		isValidationError,
-		serviceMessage,
-		emergencyBannerContent,
-		cfg.EnableMultivariate,
-		pop,
-	)
+	m := mapper.CreateCensusLandingPage(basePage, datasetModel, version, opts, categorisationsMap, allVersions, showAll, cfg.EnableMultivariate, pop)
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
-	if datasetModel.Type == "static" {
-		rend.BuildPage(w, m, "static")
-	} else {
-		rend.BuildPage(w, m, "census-landing")
-	}
+	rend.BuildPage(w, m, "census-landing")
 }
 
 func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {

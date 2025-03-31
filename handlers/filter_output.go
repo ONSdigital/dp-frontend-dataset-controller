@@ -31,8 +31,6 @@ func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc Dat
 
 func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	const numOptsSummary = 1000
-	var initialVersion dataset.Version
-	var initialVersionReleaseDate string
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
@@ -96,10 +94,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	go func() {
 		defer wg.Done()
 		ver, verErr = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
-		if ver.Version != 1 {
-			initialVersion, verErr = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, "1")
-			initialVersionReleaseDate = initialVersion.ReleaseDate
-		}
 	}()
 
 	wg.Wait()
@@ -431,7 +425,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 
 	showAll := req.URL.Query()[queryStrKey]
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateCensusFilterOutputsPage(req, basePage, datasetModel, ver, initialVersionReleaseDate, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL, lang, showAll, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, cfg.EnableMultivariate, dimDescriptions, *sdc, pop)
+	m := mapper.CreateCensusFilterOutputsPage(req, basePage, datasetModel, ver, hasOtherVersions, allVers.Items, latestVersionNumber, latestVersionURL,
+		lang, showAll, isValidationError, hasNoAreaOptions, filterOutput, fDims, homepageContent.ServiceMessage, homepageContent.EmergencyBanner,
+		cfg.EnableMultivariate, dimDescriptions, *sdc, pop)
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
 
 	rend.BuildPage(w, m, "census-landing")

@@ -44,7 +44,6 @@ func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dataset.Datas
 		}
 	}
 
-	basePage.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
 	basePage.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 	basePage.Language = lang
 	basePage.Metadata.Description = datasetDetails.Description
