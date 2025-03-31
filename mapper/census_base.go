@@ -1,14 +1,13 @@
 package mapper
 
 import (
-	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
@@ -23,41 +22,53 @@ const (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, initialVersionReleaseDate string, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, isValidationError bool, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool) census.Page {
-	p := census.Page{
+func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails, version dataset.Version,
+	allVersions []dataset.Version, isEnableMultivariate bool,
+) census.Page {
+	censusPage := census.Page{
 		Page: basePage,
 	}
 
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-	// PAGE META-DATA
-	p.Type = d.Type
-	p.Metadata.Title = d.Title
-	p.Language = lang
-	p.URI = req.URL.Path
-	p.Metadata.Description = d.Description
-	p.IsNationalStatistic = d.NationalStatistic
-	p.DatasetId = d.ID
-	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
+	hasOtherVersions := false
+	initialVersionReleaseDate := ""
+	latestVersionNumber := 1
 
-	p.Version.ReleaseDate = version.ReleaseDate
-	p.ReleaseDate = getReleaseDate(initialVersionReleaseDate, p.Version.ReleaseDate)
+	// Loop through versions to find info
+	for _, singleVersion := range allVersions {
+		// Find the initial version release data
+		if singleVersion.Version == 1 {
+			initialVersionReleaseDate = singleVersion.ReleaseDate
+		}
+		// Find the latest version number
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
+		}
+	}
 
-	p.DatasetLandingPage.Description = strings.Split(d.Description, "\n")
-	p.DatasetLandingPage.HasOtherVersions = hasOtherVersions
+	// Set `hasOtherVersions` based on length of input `allVersions`
+	if len(allVersions) > 1 {
+		hasOtherVersions = true
+	}
 
-	p.DatasetLandingPage.IsMultivariate = strings.Contains(d.Type, "multivariate") && isEnableMultivariate
-	p.DatasetLandingPage.IsFlexibleForm = p.DatasetLandingPage.IsMultivariate || strings.Contains(d.Type, "flexible")
+	latestVersionURL := helpers.DatasetVersionURL(datasetDetails.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
-	// SITE-WIDE BANNERS
-	p.BetaBannerEnabled = true
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+	censusPage.IsNationalStatistic = datasetDetails.NationalStatistic
+	censusPage.ContactDetails, censusPage.HasContactDetails = getContactDetails(datasetDetails)
+
+	censusPage.Version.ReleaseDate = version.ReleaseDate
+	censusPage.ReleaseDate = getReleaseDate(initialVersionReleaseDate, censusPage.Version.ReleaseDate)
+
+	censusPage.DatasetLandingPage.Description = strings.Split(datasetDetails.Description, "\n")
+	censusPage.DatasetLandingPage.HasOtherVersions = hasOtherVersions
+
+	censusPage.DatasetLandingPage.IsMultivariate = strings.Contains(datasetDetails.Type, "multivariate") && isEnableMultivariate
+	censusPage.DatasetLandingPage.IsFlexibleForm = censusPage.DatasetLandingPage.IsMultivariate || strings.Contains(datasetDetails.Type, "flexible")
 
 	// CENSUS BRANDING
-	p.ShowCensusBranding = d.Survey == "census"
+	censusPage.ShowCensusBranding = datasetDetails.Survey == "census"
 
 	// BREADCRUMBS
-	p.Breadcrumb = []coreModel.TaxonomyNode{
+	censusPage.Breadcrumb = []coreModel.TaxonomyNode{
 		{
 			Title: "Home",
 			URI:   "/",
@@ -68,32 +79,20 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 		},
 	}
 
-	// FEEDBACK API
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
-
-	// BACK LINK
-	p.BackTo = coreModel.BackTo{
-		Text: coreModel.Localisation{
-			LocaleKey: "BackToContents",
-			Plural:    4,
-		},
-		AnchorFragment: "toc",
-	}
-
 	// ALERTS
 	if version.Alerts != nil {
 		for _, alert := range *version.Alerts {
 			switch alert.Type {
 			case CorrectionAlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+				censusPage.DatasetLandingPage.Panels = append(censusPage.DatasetLandingPage.Panels, census.Panel{
 					DisplayIcon: true,
-					Body:        []string{helper.Localise("HasCorrectionNotice", lang, 1)},
+					Body:        []string{helper.Localise("HasCorrectionNotice", censusPage.Language, 1)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			case AlertType:
-				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+				censusPage.DatasetLandingPage.Panels = append(censusPage.DatasetLandingPage.Panels, census.Panel{
 					DisplayIcon: true,
-					Body:        []string{helper.Localise("HasAlert", lang, 1, alert.Description)},
+					Body:        []string{helper.Localise("HasAlert", censusPage.Language, 1, alert.Description)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			}
@@ -101,7 +100,7 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 	}
 
 	// TABLE OF CONTENTS
-	p.TableOfContents = buildTableOfContents(p, d, hasOtherVersions)
+	censusPage.TableOfContents = buildTableOfContents(censusPage, datasetDetails, hasOtherVersions)
 
 	// VERSIONS TABLE
 	if hasOtherVersions {
@@ -114,36 +113,38 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 				allVersions[i].Edition,
 				strconv.Itoa(allVersions[i].Version))
 			version.VersionURL = versionURL
-			version.IsCurrentPage = versionURL == req.URL.Path
+			version.IsCurrentPage = versionURL == censusPage.URI
 			mapCorrectionAlert(&allVersions[i], &version)
 
-			p.Versions = append(p.Versions, version)
+			censusPage.Versions = append(censusPage.Versions, version)
 		}
 
-		sort.Slice(p.Versions, func(i, j int) bool { return p.Versions[i].VersionNumber > p.Versions[j].VersionNumber })
+		sort.Slice(censusPage.Versions, func(i, j int) bool {
+			return censusPage.Versions[i].VersionNumber > censusPage.Versions[j].VersionNumber
+		})
 
-		p.DatasetLandingPage.LatestVersionURL = latestVersionURL
+		censusPage.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	}
 
 	// LATEST VERSIONS PANEL
 	if latestVersionNumber != version.Version && hasOtherVersions {
-		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, census.Panel{
+		censusPage.DatasetLandingPage.Panels = append(censusPage.DatasetLandingPage.Panels, census.Panel{
 			DisplayIcon: true,
-			Body:        []string{helper.Localise("HasNewVersion", lang, 1, latestVersionURL)},
+			Body:        []string{helper.Localise("HasNewVersion", censusPage.Language, 1, latestVersionURL)},
 			CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 		})
 	}
 
 	// SHARING LINKS
-	currentURL := helpers.GetCurrentURL(lang, p.SiteDomain, req.URL.Path)
-	p.DatasetLandingPage.DatasetURL = currentURL
-	p.DatasetLandingPage.ShareDetails = buildSharingDetails(d, lang, currentURL)
+	currentURL := helpers.GetCurrentURL(censusPage.Language, censusPage.SiteDomain, censusPage.URI)
+	censusPage.DatasetLandingPage.DatasetURL = currentURL
+	censusPage.DatasetLandingPage.ShareDetails = buildSharingDetails(datasetDetails, censusPage.Language, currentURL)
 
 	// RELATED CONTENT
-	p.DatasetLandingPage.RelatedContentItems = []census.RelatedContentItem{}
-	if d.RelatedContent != nil {
-		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, census.RelatedContentItem{
+	censusPage.DatasetLandingPage.RelatedContentItems = []model.RelatedContentItem{}
+	if datasetDetails.RelatedContent != nil {
+		for _, content := range *datasetDetails.RelatedContent {
+			censusPage.DatasetLandingPage.RelatedContentItems = append(censusPage.DatasetLandingPage.RelatedContentItems, model.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
 				Text:  content.Description,
@@ -151,24 +152,7 @@ func CreateCensusBasePage(req *http.Request, basePage coreModel.Page, d dataset.
 		}
 	}
 
-	// ERRORS
-	if isValidationError {
-		p.Error = coreModel.Error{
-			Title: p.Metadata.Title,
-			ErrorItems: []coreModel.ErrorItem{
-				{
-					Description: coreModel.Localisation{
-						LocaleKey: "GetDataValidationError",
-						Plural:    1,
-					},
-					URL: "#select-format-error",
-				},
-			},
-			Language: lang,
-		}
-	}
-
-	return p
+	return censusPage
 }
 
 func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
@@ -203,10 +187,10 @@ func getReleaseDate(initialDate, alternateDate string) string {
 	return initialDate
 }
 
-func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) census.ShareDetails {
-	shareDetails := census.ShareDetails{}
+func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) model.ShareDetails {
+	shareDetails := model.ShareDetails{}
 	shareDetails.Language = lang
-	shareDetails.ShareLocations = []census.Share{
+	shareDetails.ShareLocations = []model.Share{
 		{
 			Title: "Facebook",
 			Link:  helpers.GenerateSharingLink("facebook", currentURL, d.Title),

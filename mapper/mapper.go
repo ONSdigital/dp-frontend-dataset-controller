@@ -73,26 +73,14 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, lang, apiRouterVersion string, maxNumOpts int, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	p := filterable.Page{
 		Page: basePage,
 	}
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	p.Type = "dataset_landing_page"
-	p.Metadata.Title = d.Title
-	p.Language = lang
-	p.URI = req.URL.Path
 	p.DatasetLandingPage.UnitOfMeasurement = d.UnitOfMeasure
-	p.Metadata.Description = d.Description
-	p.DatasetId = datasetID
 	p.ReleaseDate = ver.ReleaseDate
-	p.BetaBannerEnabled = true
 	p.FeatureFlags.SixteensVersion = SixteensVersion
-
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
-
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL

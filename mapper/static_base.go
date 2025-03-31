@@ -1,14 +1,13 @@
 package mapper
 
 import (
-	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/publisher"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
@@ -17,35 +16,37 @@ import (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateStaticBasePage(
-	req *http.Request,
-	basePage coreModel.Page,
-	d dataset.DatasetDetails,
-	version dataset.Version,
-	initialVersionReleaseDate string,
-	hasOtherVersions bool,
-	allVersions []dataset.Version,
-	latestVersionNumber int,
-	latestVersionURL,
-	lang string,
-	isValidationError bool,
-	serviceMessage string,
-	emergencyBannerContent zebedee.EmergencyBanner,
-	isEnableMultivariate bool,
+func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version,
+	allVersions []dataset.Version, isEnableMultivariate bool,
 ) static.Page {
 	p := static.Page{
 		Page: basePage,
 	}
 
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-	// PAGE META-DATA
-	p.Type = d.Type
-	p.Metadata.Title = d.Title
-	p.Language = lang
-	p.URI = req.URL.Path
-	p.Metadata.Description = d.Description
+	hasOtherVersions := false
+	initialVersionReleaseDate := ""
+	latestVersionNumber := 1
+
+	// Loop through versions to find info
+	for _, singleVersion := range allVersions {
+		// Find the initial version release data
+		if singleVersion.Version == 1 {
+			initialVersionReleaseDate = singleVersion.ReleaseDate
+		}
+		// Find the latest version number
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
+		}
+	}
+
+	// Set `hasOtherVersions` based on length of input `allVersions`
+	if len(allVersions) > 1 {
+		hasOtherVersions = true
+	}
+
+	latestVersionURL := helpers.DatasetVersionURL(d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
+
 	p.IsNationalStatistic = d.NationalStatistic
-	p.DatasetId = d.ID
 	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
@@ -61,13 +62,7 @@ func CreateStaticBasePage(
 
 	p.UsageNotes = getUsageDetails(version)
 
-	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
-	p.DatasetLandingPage.NextRelease = d.NextRelease
-
-	// SITE-WIDE BANNERS
-	p.BetaBannerEnabled = true
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
+	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(basePage.Language)
 
 	// CENSUS BRANDING
 	p.ShowCensusBranding = false
@@ -84,18 +79,6 @@ func CreateStaticBasePage(
 		},
 	}
 
-	// FEEDBACK API
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
-
-	// BACK LINK
-	p.BackTo = coreModel.BackTo{
-		Text: coreModel.Localisation{
-			LocaleKey: "BackToContents",
-			Plural:    4,
-		},
-		AnchorFragment: "toc",
-	}
-
 	// ALERTS
 	if version.Alerts != nil {
 		for _, alert := range *version.Alerts {
@@ -103,13 +86,13 @@ func CreateStaticBasePage(
 			case CorrectionAlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 					DisplayIcon: true,
-					Body:        []string{helper.Localise("HasCorrectionNotice", lang, 1)},
+					Body:        []string{helper.Localise("HasCorrectionNotice", basePage.Language, 1)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			case AlertType:
 				p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 					DisplayIcon: true,
-					Body:        []string{helper.Localise("HasAlert", lang, 1, alert.Description)},
+					Body:        []string{helper.Localise("HasAlert", basePage.Language, 1, alert.Description)},
 					CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 				})
 			}
@@ -130,7 +113,7 @@ func CreateStaticBasePage(
 				allVersions[i].Edition,
 				strconv.Itoa(allVersions[i].Version))
 			version.VersionURL = versionURL
-			version.IsCurrentPage = versionURL == req.URL.Path
+			version.IsCurrentPage = versionURL == basePage.URI
 			mapCorrectionAlert(&allVersions[i], &version)
 
 			p.Versions = append(p.Versions, version)
@@ -145,21 +128,21 @@ func CreateStaticBasePage(
 	if latestVersionNumber != version.Version && hasOtherVersions {
 		p.DatasetLandingPage.Panels = append(p.DatasetLandingPage.Panels, static.Panel{
 			DisplayIcon: true,
-			Body:        []string{helper.Localise("HasNewVersion", lang, 1, latestVersionURL)},
+			Body:        []string{helper.Localise("HasNewVersion", basePage.Language, 1, latestVersionURL)},
 			CSSClasses:  []string{"ons-u-mt-m", "ons-u-mb-l"},
 		})
 	}
 
 	// SHARING LINKS
-	currentURL := helpers.GetCurrentURL(lang, p.SiteDomain, req.URL.Path)
+	currentURL := helpers.GetCurrentURL(basePage.Language, p.SiteDomain, basePage.URI)
 	p.DatasetLandingPage.DatasetURL = currentURL
-	p.DatasetLandingPage.ShareDetails = buildStaticSharingDetails(d, lang, currentURL)
+	p.DatasetLandingPage.ShareDetails = buildStaticSharingDetails(d, basePage.Language, currentURL)
 
 	// RELATED CONTENT
-	p.DatasetLandingPage.RelatedContentItems = []static.RelatedContentItem{}
+	p.DatasetLandingPage.RelatedContentItems = []model.RelatedContentItem{}
 	if d.RelatedContent != nil {
 		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, static.RelatedContentItem{
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, model.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
 				Text:  content.Description,
@@ -167,30 +150,13 @@ func CreateStaticBasePage(
 		}
 	}
 
-	// ERRORS
-	if isValidationError {
-		p.Error = coreModel.Error{
-			Title: p.Metadata.Title,
-			ErrorItems: []coreModel.ErrorItem{
-				{
-					Description: coreModel.Localisation{
-						LocaleKey: "GetDataValidationError",
-						Plural:    1,
-					},
-					URL: "#select-format-error",
-				},
-			},
-			Language: lang,
-		}
-	}
-
 	return p
 }
 
-func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) static.ShareDetails {
-	shareDetails := static.ShareDetails{}
+func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) sharedModel.ShareDetails {
+	shareDetails := sharedModel.ShareDetails{}
 	shareDetails.Language = lang
-	shareDetails.ShareLocations = []static.Share{
+	shareDetails.ShareLocations = []sharedModel.Share{
 		{
 			Title: "Email",
 			Link:  helpers.GenerateSharingLink("email", currentURL, d.Title),

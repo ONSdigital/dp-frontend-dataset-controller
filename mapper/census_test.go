@@ -65,7 +65,8 @@ func TestCleanDimensionsLabel(t *testing.T) {
 			version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
 
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusLandingPage(req, pageModel, datasetModel, version, datasetOptions, map[string]int{}, "", false, []dataset.Version{version}, 1, "/a/version/1", "", []string{}, false, serviceMessage, emergencyBanner, true, population.GetPopulationTypeResponse{})
+				page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
+					[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")
@@ -88,7 +89,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, getTestVersionOneDetails(), "", false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, false, true, filter.Model{Downloads: getTestFilterDownloads([]string{"xlsx"})}, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
+				page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, getTestVersionOneDetails(), false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, false, true, filter.Model{Downloads: getTestFilterDownloads([]string{"xlsx"})}, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Label 1")
@@ -125,7 +126,7 @@ func getTestContacts() []dataset.Contact {
 func getTestDatasetDetails(contacts []dataset.Contact, relatedContent []dataset.GeneralDetails) dataset.DatasetDetails {
 	return dataset.DatasetDetails{
 		Contacts:          &contacts,
-		ID:                "12345",
+		ID:                "cantabular-1",
 		Description:       "An interesting test description \n with a line break",
 		Title:             "Test title",
 		Type:              "cantabular_flexible_table",
