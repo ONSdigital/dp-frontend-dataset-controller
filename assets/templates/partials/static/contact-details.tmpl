@@ -1,26 +1,19 @@
 <section id="contact" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
-    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "DatasetContactDetails" .Language 1 }}</h2>
-    <nav class="ons-related-content__navigation" aria-labelledby="contact-details">
-        <ul class="ons-list ons-list--bare ons-u-fs-r">
-            {{ if .ContactDetails.Name }}
-                <li class="ons-list__item ons-u-mt-s">
-                    <p class="ons-u-mb-no">{{ localise "Name" .Language 1 }}</p>
-                    <p class="ons-u-mb-no">{{ .ContactDetails.Name }}</p>
-                </li>
-            {{ end }}
-            {{ if .ContactDetails.Email }}
-                <li class="ons-list__item ons-u-mt-s">
-                    <p class="ons-u-mb-no">{{ localise "Email" .Language 1 }}</p>
-                    <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
-                </li>
-            {{ end }}
-            {{ if .ContactDetails.Telephone }}
-                <li class="ons-list__item ons-u-mt-s">
-                    <p class="ons-u-mb-no">{{ localise "Phone" .Language 1 }}</p>
-                    <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
-                </li>
-            {{ end }}
-        </ul>
-    </nav>
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "DatasetContactDetailsStatic" .Language 1 }}</h2>
+        <div class="ons-text-indent">
+        {{ if .ContactDetails.Name }}
+            <p class="ons-u-mb-no">{{ .ContactDetails.Name }}</p>
+        {{ end }}
+        {{ if .ContactDetails.Email }}
+            <p class="ons-u-mb-no">
+                <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
+            </p>
+        {{ end }}
+        {{ if .ContactDetails.Telephone }}
+            <p class="ons-u-mb-no">
+                {{ localise "Telephone" .Language 1 }}: <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
+            </p>
+        {{ end }}
+        </div>                
     {{ template "partials/census/back-to-contents" . }}
 </section>

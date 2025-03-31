@@ -32,7 +32,6 @@ type DatasetLandingPage struct {
 	Notices             []Message       `json:"notices"`
 	ParentPath          string          `json:"parent_path"`
 	OSRLogo             osrlogo.OSRLogo `json:"osr_logo"`
-	EnableFeedbackAPI   bool            `json:"enable_feedback_api"`
 	FeedbackAPIURL      string          `json:"feedback_api_url"`
 }
 

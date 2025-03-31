@@ -55,12 +55,12 @@ endif
 
 .PHONY: generate-debug
 generate-debug: fetch-renderer-lib
-	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
+	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/header/header.tmpl -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/footer/footer.tmpl -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/breadcrumb.tmpl locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/... 
 	{ printf "// +build debug\n"; cat assets/data.go; } > assets/debug.go.new
 	mv assets/debug.go.new assets/data.go
 
 .PHONY: generate-prod
 generate-prod: fetch-renderer-lib 
-	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
+	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/header/header.tmpl -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/footer/footer.tmpl -ignore=$(CORE_ASSETS_PATH)/assets/templates/partials/breadcrumb.tmpl locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/... 
 	{ printf "// +build production\n"; cat assets/data.go; } > assets/data.go.new
 	mv assets/data.go.new assets/data.go

@@ -122,6 +122,10 @@ one = "Contact us"
 description = "Contact details for this dataset"
 one = "Manylion cyswllt ar gyfer y set ddata hon"
 
+[DatasetContactDetailsStatic]
+description = "Contact details"
+one = "Contact details"
+
 [Email]
 description = "Email"
 one = "Email"
@@ -129,6 +133,10 @@ one = "Email"
 [Phone]
 description = "Phone"
 one = "Phone"
+
+[Telephone]
+description = "Telephone"
+one = "Telephone"
 
 [UsedInPublication]
 description = "Publications that use this data"
@@ -194,6 +202,10 @@ one = "this link will open in a new tab"
 [Contents]
 description = "Contents section heading"
 one = "Page contents"
+
+[StaticTocHeading]
+description = "Contents section heading"
+one = "Contents"
 
 [ContentsAria]
 description = "Pages in this guide"
@@ -432,3 +444,11 @@ one = "We group Census 2021 data together based on who or what the information i
 [CustomDatasetSummary]
 description = "Summary for BYO and customised multivariate datasets {{.populationLabel}} {{.nonGeoDims}}"
 one = "This dataset provides 2021 Census estimates that classify {{.arg0}} in England and Wales by {{.arg1}}. The estimates are as at census day, 21 March 2021."
+
+[PrivacyAndDataProtection]
+description = "Privacy and data protection"
+one = "Privacy and data protection"
+
+[AccessibilityStatement]
+description = "Accessibility statement"
+one = "Accessibility statement"

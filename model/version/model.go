@@ -13,10 +13,9 @@ type Page struct {
 
 // VersionsList represents the data on the versions list page
 type VersionsList struct {
-	LatestVersionURL  string                `json:"latest_version_url"`
-	Versions          []sharedModel.Version `json:"versions"`
-	EnableFeedbackAPI bool                  `json:"enable_feedback_api"`
-	FeedbackAPIURL    string                `json:"feedback_api_url"`
+	LatestVersionURL string                `json:"latest_version_url"`
+	Versions         []sharedModel.Version `json:"versions"`
+	FeedbackAPIURL   string                `json:"feedback_api_url"`
 }
 
 // Download has the details for the an individual dataset's downloadable files

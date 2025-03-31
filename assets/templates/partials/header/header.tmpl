@@ -1,0 +1,330 @@
+{{ if eq .Type "static" }}
+  {{ template "partials/header/static-header" . }}
+{{ else }}
+  <header>
+    <a class="skiplink" href="#main" tabindex="0">{{ localise "SkipToContent" .Language 1 }}</a>
+    {{ if .EmergencyBanner.Title }}
+        {{ template "partials/banners/emergency" .EmergencyBanner }}
+    {{ end }}
+    {{ if .ServiceMessage }}
+      {{ template "partials/banners/service-message" . }}
+    {{ end }}
+    {{ if and ( .BetaBannerEnabled ) ( not .FeatureFlags.SixteensVersion ) }}
+        {{ template "partials/banners/beta" . }}
+    {{ else if .BetaBannerEnabled }}
+        {{ template "partials/banners/cmd-beta" . }}
+    {{ end }}
+    <div id="pagePath" class="hide">{{.URI}}</div>
+    <div class="wrapper">
+        <div class="header col-wrap">
+            <div class="col col--lg-one-third col--md-one-third">
+                <a id="logo-link" href="/">
+                    <img class="logo" src="https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.svg" alt="{{ localise "ONSLogoAlt" .Language 1 }}">
+                </a>
+            </div>
+            <div class="col col--lg-two-thirds col--md-two-thirds hide--sm print--hide language--js__container">
+                <div class="language">
+                    {{if eq .Language "cy"}}
+                        <a class="language__link icon--hide" lang="en-GB" href="{{ domainSetLang .SiteDomain .URI "en" }}">{{ localise "EnglishToggle" .Language 1 }}</a>
+                        | {{ localise "WelshToggle" .Language 1 }}
+                    {{ else }}
+                        {{ localise "EnglishToggle" .Language 1 }} |
+                        <a class="language__link icon--hide" lang="cy" href="{{ domainSetLang .SiteDomain .URI "cy" }}">{{ localise "WelshToggle" .Language 1 }}</a>
+                    {{end}}
+                </div>
+            </div>
+            <div class="secondary-nav col col--lg-two-thirds col--md-two-thirds print--hide">
+                <ul id="nav-secondary" class="secondary-nav__list js-nav-clone__list">
+                    <li class="secondary-nav__item">
+                        <a class="secondary-nav__link  js-nav-clone__link" href="/releasecalendar">{{ localise "ReleaseCalendar" .Language 1 }}</a>
+                    </li>
+                    <li class="secondary-nav__item">
+                        <a class="secondary-nav__link  js-nav-clone__link" href="/methodology">{{ localise "Methodology" .Language 1 }}</a>
+                    </li>
+                    <li class="secondary-nav__item">
+                        <a class="secondary-nav__link  js-nav-clone__link" href="/news">{{ localise "Media" .Language 1 }}</a>
+                    </li>
+                    <li class="secondary-nav__item">
+                        <a class="secondary-nav__link  js-nav-clone__link" href="/aboutus">{{ localise "About" .Language 1 }}</a>
+                    </li>
+                    <li class="secondary-nav__item">
+                        <a
+                            class="secondary-nav__link icon--hide js-nav-clone__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="https://blog.ons.gov.uk/">{{ localise "Blog" .Language 1 }}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="primary-nav print--hide">
+        {{ if .NavigationContent }}
+            <nav aria-label="Site navigation">
+                <ul class="nav--controls">
+                    <li class="nav--controls__item">
+                        <a
+                            href="#nav-primary"
+                            id="menu-toggle"
+                            aria-controls="nav-primary"
+                            aria-expanded="false"
+                            class="nav--controls__menu {{if .SearchDisabled}} nav--controls__no-search{{end}}">
+                            <span class="nav--controls__text">{{ localise "Menu" .Language 1 }}</span>
+                        </a>
+                    </li>
+                    {{if not .SearchDisabled}}
+                        <li class="nav--controls__item ">
+                            <a href="#nav-search" id="search-toggle" aria-controls="nav-search" aria-expanded="false" class="nav--controls__search">
+                                <span class="nav--controls__text">{{ localise "Search" .Language 1 }}</span>
+                            </a>
+                        </li>
+                    {{end}}
+                </ul>
+                <ul class="wrapper nav-main--hidden primary-nav__list" id="nav-primary" aria-expanded="false">
+                    {{ range $item := .NavigationContent }}
+                        <li class="primary-nav__item js-nav js-expandable ">
+                            <a class="primary-nav__link col col--md-8 col--lg-10" href="{{ $item.Uri }}" aria-expanded="false" aria-label="{{ $item.Label }} {{ localise "SubMenu" $.Language 1 }}">
+                                <span aria-hidden="true" class="expansion-indicator"></span>
+                                <span class="submenu-title">
+                                    {{ $item.Label }}
+                                </span>
+                            </a>
+                            {{ if $item.SubItems }}
+                                <ul
+                                    class="primary-nav__child-list col col--md-16 col--lg-20 js-expandable__content js-nav-hidden jsEnhance"
+                                    aria-expanded="false"
+                                    aria-label="submenu">
+                                        {{ range $subItem := $item.SubItems }}
+                                            <li class="primary-nav__child-item  js-expandable__child">
+                                                <a class="primary-nav__child-link" tabindex="-1" href="{{ $subItem.Uri }}">{{ $subItem.Label }}</a>
+                                            </li>
+                                        {{ end }}
+                                </ul>
+                            {{ end }}
+                        </li>
+                    {{ end }}
+                    <li class="hide--md primary-nav__language">
+                        {{if eq .Language "cy"}}
+                            <a class="language__link icon--hide" href="{{ domainSetLang .SiteDomain .URI "en" }}">{{ localise "EnglishToggle" .Language 1 }}</a>
+                            | {{ localise "WelshToggle" .Language 1 }}
+                        {{ else }}
+                            {{ localise "EnglishToggle" .Language 1 }} |
+                            <a class="language__link icon--hide" href="{{ domainSetLang .SiteDomain .URI "cy" }}">{{ localise "WelshToggle" .Language 1 }}</a>
+                        {{end}}
+                    </li>
+                </ul>
+            </nav>
+        {{ else }}
+            <nav aria-label="Site navigation">
+                <ul class="nav--controls">
+                    <li class="nav--controls__item">
+                        <a
+                            href="#nav-primary"
+                            id="menu-toggle"
+                            aria-controls="nav-primary"
+                            aria-expanded="false"
+                            class="nav--controls__menu {{if .SearchDisabled}} nav--controls__no-search{{end}}">
+                            <span class="nav--controls__text">{{ localise "Menu" .Language 1 }}</span>
+                        </a>
+                    </li>
+                    {{if not .SearchDisabled}}
+                        <li class="nav--controls__item ">
+                            <a href="#nav-search" id="search-toggle" aria-controls="nav-search" aria-expanded="false" class="nav--controls__search">
+                                <span class="nav--controls__text">{{ localise "Search" .Language 1 }}</span>
+                            </a>
+                        </li>
+                    {{end}}
+                </ul>
+                <ul class="wrapper nav-main--hidden primary-nav__list" id="nav-primary" aria-expanded="false">
+                    <li class="primary-nav__item {{if eq .URI " /"}}primary-nav__item--active{{end}} js-nav hide--sm old-ie--display-block">
+                        <a class="primary-nav__link col col--md-7 col--lg-9" href="/">{{ localise "Home" .Language 1 }}</a>
+                    </li>
+                    <li class="primary-nav__item js-nav js-expandable ">
+                        <a class="primary-nav__link col col--md-8 col--lg-10" href="/businessindustryandtrade" aria-expanded="false" aria-label="{{ localise "BusinessIndustryTrade" .Language 1 }} {{ localise "SubMenu" .Language 1 }}">
+                            <span aria-hidden="true" class="expansion-indicator"></span>
+                            <span class="submenu-title">
+                                {{ localise "BusinessIndustryTrade" .Language 1 }}
+                            </span>
+                        </a>
+                        <ul
+                            class="primary-nav__child-list col col--md-16 col--lg-20 js-expandable__content js-nav-hidden jsEnhance"
+                            aria-expanded="false"
+                            aria-label="submenu">
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/business">{{ localise "Business" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/changestobusiness">{{ localise "ChangesToBusiness" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/constructionindustry">{{ localise "ConstructionIndustry" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/itandinternetindustry">{{ localise "ITInternetIndustry" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/internationaltrade">{{ localise "InternationalTrade" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/manufacturingandproductionindustry">{{ localise "ManufacturingProductionIndustry" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/retailindustry">{{ localise "RetailIndustry" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/businessindustryandtrade/tourismindustry">{{ localise "TourismIndustry" .Language 1 }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="primary-nav__item js-nav js-expandable ">
+                        <a class="primary-nav__link col col--md-8 col--lg-10" href="/economy" aria-expanded="false" aria-label="{{ localise "Economy" .Language 1 }} {{ localise "SubMenu" .Language 1 }} toggle">
+                            <span aria-hidden="true" class="expansion-indicator"></span>
+                            <span class="submenu-title">
+                                {{ localise "Economy" .Language 1 }}
+                            </span>
+                        </a>
+                        <ul
+                            class="primary-nav__child-list col col--md-16 col--lg-20 js-expandable__content js-nav-hidden jsEnhance"
+                            aria-expanded="false"
+                            aria-label="submenu">
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/economicoutputandproductivity">{{ localise "EconomicOutputProductivity" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/environmentalaccounts">{{ localise "EnvironmentalAccounts" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/governmentpublicsectorandtaxes">{{ localise "GovernmentPublicSectorTaxes" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/grossdomesticproductgdp">{{ localise "GrossDomesticProduct" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/grossvalueaddedgva">{{ localise "GrossDomesticValue" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/inflationandpriceindices">{{ localise "InflationPriceIndices" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/investmentspensionsandtrusts">{{ localise "InvestmentsPensionsTrusts" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/nationalaccounts">{{ localise "NationalAccounts" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/economy/regionalaccounts">{{ localise "RegionalAccounts" .Language 1 }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="primary-nav__item js-nav js-expandable ">
+                        <a class="primary-nav__link col col--md-8 col--lg-10" href="/employmentandlabourmarket" aria-expanded="false" aria-label="{{ localise "EmploymentLabourMarket" .Language 1 }} {{ localise "SubMenu" .Language 1 }} toggle">
+                            <span aria-hidden="true" class="expansion-indicator"></span>
+                            <span class="submenu-title">
+                                {{ localise "EmploymentLabourMarket" .Language 1 }}
+                            </span>
+                        </a>
+                        <ul
+                            class="primary-nav__child-list col col--md-16 col--lg-20 js-expandable__content js-nav-hidden jsEnhance"
+                            aria-expanded="false"
+                            aria-label="submenu">
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/employmentandlabourmarket/peopleinwork">{{ localise "PeopleInWork" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/employmentandlabourmarket/peoplenotinwork">{{ localise "PeopleNotInWork" .Language 1 }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="primary-nav__item js-nav js-expandable ">
+                        <a class="primary-nav__link col col--md-8 col--lg-10" href="/peoplepopulationandcommunity" aria-expanded="false" aria-label="{{ localise "PeoplePopulationCommunity" .Language 1 }} {{ localise "SubMenu" .Language 1 }} toggle">
+                            <span aria-hidden="true" class="expansion-indicator"></span>
+                            <span class="submenu-title">
+                                {{ localise "PeoplePopulationCommunity" .Language 1 }}
+                            </span>
+                        </a>
+                        <ul
+                            class="primary-nav__child-list col col--md-16 col--lg-20 js-expandable__content js-nav-hidden jsEnhance"
+                            aria-expanded="false"
+                            aria-label="submenu">
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/birthsdeathsandmarriages">{{ localise "BirthsDeathsMarriages" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/crimeandjustice">{{ localise "CrimeJustice" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/culturalidentity">{{ localise "CulturalIdentity" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/educationandchildcare">{{ localise "EducationChildcare" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/elections">{{ localise "Elections" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/healthandsocialcare">{{ localise "HealthSocialCare" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/householdcharacteristics">{{ localise "HouseholdCharacteristics" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/housing">{{ localise "Housing" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/leisureandtourism">{{ localise "LeisureTourism" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/personalandhouseholdfinances">{{ localise "PersonalHouseholdFinances" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/populationandmigration">{{ localise "PopulationMigration" .Language 1 }}</a>
+                            </li>
+                            <li class="primary-nav__child-item  js-expandable__child">
+                                <a class="primary-nav__child-link" tabindex="-1" href="/peoplepopulationandcommunity/wellbeing">{{ localise "Wellbeing" .Language 1 }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="primary-nav__item js-nav">
+                        <a class="primary-nav__link  col col--md-8 col--lg-10" href="/surveys">
+                            {{ localise "SurveyTakingPart" .Language 1 }}
+                        </a>
+                    </li>
+                    <li class="hide--md primary-nav__language">
+                        {{if eq .Language "cy"}}
+                            <a class="language__link icon--hide" href="{{ domainSetLang .SiteDomain .URI "en" }}">{{ localise "EnglishToggle" .Language 1 }}</a>
+                            | {{ localise "WelshToggle" .Language 1 }}
+                        {{ else }}
+                            {{ localise "EnglishToggle" .Language 1 }} |
+                            <a class="language__link icon--hide" href="{{ domainSetLang .SiteDomain .URI "cy" }}">{{ localise "WelshToggle" .Language 1 }}</a>
+                        {{end}}
+                    </li>
+                </ul>
+            </nav>
+        {{ end }}
+    </div>
+    {{if not .SearchDisabled}}
+        <div class="search nav-search--hidden print--hide" id="searchBar">
+            <div class="wrapper" role="search">
+                <form class="col-wrap search__form" action="/search">
+                    <label class="search__label col col--md-23 col--lg-24" for="nav-search">{{ localise "SearchKeywordTimeSeriesID" .Language 1 }}</label>
+                    <input
+                        type="search"
+                        autocomplete="off"
+                        class="search__input col col--md-21 col--lg-32"
+                        id="nav-search"
+                        name="q"
+                        value="">
+                    <button type="submit" class="search__button col--md-3 col--lg-3" id="nav-search-submit">
+                        <span class="visuallyhidden">{{ localise "Search" .Language 1 }}</span>
+                        {{ if .FeatureFlags.SixteensVersion }}
+                            <span class="icon icon-search--light"> </span>
+                        {{ else }}
+                            <span>{{ template "icons/search" . }}</span>
+                        {{ end }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    {{end}}
+  </header>
+{{ end }}

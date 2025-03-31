@@ -1,0 +1,110 @@
+{{ if eq .Type "static" }}
+{{ template "partials/footer/static-footer" . }}
+{{ else }}
+<footer class="print--hide padding-top--13">
+  <section>
+    <!-- TODO: This should be a toggle -->
+    {{ if and (ne .Type "feedback") (ne .Type "")}}
+    {{ template "partials/feedback/feedback" . }}
+    {{ end }}
+    <h2 class="visuallyhidden">{{ localise "FooterLinks" .Language 1 }}</h2>
+    <div class="footer">
+      <div class="wrapper">
+        <nav aria-label="Footer links">
+          <div class="footer-nav col-wrap">
+            <div class="col col--lg-one-third col--md-one-third">
+              <h2 class="footer-nav__heading">
+                {{ localise "Help" .Language 1 }}
+              </h2>
+              <ul class="footer-nav__list">
+                <li class="footer-nav__item">
+                  <a
+                    href="/help/accessibility"
+                    >{{ localise "Accessibility" .Language 1 }}</a
+                  >
+                </li>
+                <li class="footer-nav__item">
+                  <a href="/cookies">{{ localise "Cookies" .Language 4 }}</a>
+                </li>
+                <li class="footer-nav__item">
+                  <a
+                    href="/help/privacynotice"
+                    >{{ localise "Privacy" .Language 1 }}</a
+                  >
+                </li>
+                <li class="footer-nav__item">
+                  <a
+                    href="/help/termsandconditions"
+                    >{{ localise "TermsConditions" .Language 1 }}</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="col col--lg-one-third col--md-one-third">
+              <h2 class="footer-nav__heading">
+                {{ localise "AboutONS" .Language 1 }}
+              </h2>
+              <ul class="footer-nav__list">
+                <li class="footer-nav__item">
+                  <a
+                    href="/aboutus/whatwedo"
+                    >{{ localise "WhatWeDo" .Language 1 }}</a
+                  >
+                </li>
+                <li class="footer-nav__item">
+                  <a
+                    href="https://careers.ons.gov.uk"
+                    >{{ localise "Careers" .Language 1 }}</a
+                  >
+                </li>
+                <li class="footer-nav__item">
+                  <a
+                    href="/aboutus/contactus"
+                    >{{ localise "ContactUs" .Language 1 }}</a
+                  >
+                </li>
+                <li class="footer-nav__item">
+                  <a href="/news">{{ localise "News" .Language 1 }}</a>
+                </li>
+                <li class="footer-nav__item">
+                  <a
+                    href="/aboutus/transparencyandgovernance/freedomofinformationfoi"
+                    >{{ localise "FreedomInformation" .Language 1 }}</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="col col--lg-one-third col--md-one-third">
+              {{ template "partials/footer/connect-with-us" . }}
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="wrapper">
+        {{ if not .FeatureFlags.SixteensVersion }}
+        <hr class="ons-footer__hr" />
+        {{ end }}
+        <div class="footer-license">
+          {{ if .FeatureFlags.SixteensVersion }}
+          <img
+            class="footer-license__img"
+            alt="OGL"
+            width="60"
+            src="https://cdn.ons.gov.uk/assets/images/logo-ogl-footer.svg"
+          />
+          {{ else }}
+          {{ template "icons/ogl" . }}
+          {{ end }}
+          <p class="footer-license__text margin-left-sm--0">
+            {{ if .FeatureFlags.SixteensVersion }}
+            {{ localise "OGLFull" .Language 1 | safeHTML }}
+            {{ else }}
+            {{ localise "OGLFull" .Language 4 | safeHTML }}
+            {{ end }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>
+{{ end }}
