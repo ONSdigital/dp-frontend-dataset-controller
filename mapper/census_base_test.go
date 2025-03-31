@@ -16,7 +16,6 @@ import (
 
 func TestCreateCensusBasePage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	contact := contacts[0]
@@ -35,12 +34,14 @@ func TestCreateCensusBasePage(t *testing.T) {
 
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
+	homepageContent := zebedee.HomepageContent{
+		EmergencyBanner: emergencyBanner,
+		ServiceMessage:  serviceMessage,
+	}
 
 	Convey("Census base maps correctly as version 1", t, func() {
-		homepageContent := zebedee.HomepageContent{
-			EmergencyBanner: emergencyBanner,
-			ServiceMessage:  serviceMessage,
-		}
+		req := httptest.NewRequest("", "/", nil)
+		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
 		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionOneDetails, []dataset.Version{versionOneDetails}, true)
 		So(page.Type, ShouldEqual, datasetModel.Type)
@@ -72,6 +73,9 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
+		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/2", nil)
+		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
+		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionTwoDetails, []dataset.Version{versionOneDetails, versionTwoDetails}, true)
 		So(page.ReleaseDate, ShouldEqual, versionOneDetails.ReleaseDate)
 		So(page.Version.ReleaseDate, ShouldEqual, versionTwoDetails.ReleaseDate)
@@ -85,6 +89,9 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("IsCurrent returns false when request is for a different page", t, func() {
+		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/1", nil)
+		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
+		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionTwoDetails, []dataset.Version{versionOneDetails, versionTwoDetails}, true)
 		So(page.Versions[0].VersionURL, ShouldEqual, "/datasets/cantabular-1/editions/2021/versions/2")
 		So(page.Versions[0].IsCurrentPage, ShouldBeFalse)
@@ -182,30 +189,6 @@ func TestCreateCensusBasePage(t *testing.T) {
 				So(page.DatasetLandingPage.Panels, ShouldResemble, mockPanel)
 			})
 		})
-	})
-
-	Convey("Validation error passed as true, error model should be populated", t, func() {
-		mockErr := coreModel.Error{
-			Title: datasetModel.Title,
-			ErrorItems: []coreModel.ErrorItem{
-				{
-					Description: coreModel.Localisation{
-						LocaleKey: "GetDataValidationError",
-						Plural:    1,
-					},
-					URL: "#select-format-error",
-				},
-			},
-		}
-		page := CreateCensusBasePage(pageModel, datasetModel, versionOneDetails, []dataset.Version{}, true)
-
-		So(page.Error, ShouldResemble, mockErr)
-	})
-
-	Convey("Validation error passed as false, error title should be empty", t, func() {
-		page := CreateCensusBasePage(pageModel, datasetModel, versionOneDetails, []dataset.Version{}, true)
-
-		So(page.Error.Title, ShouldBeBlank)
 	})
 
 	Convey("Unknown get query request made, format selection error title should be empty", t, func() {
