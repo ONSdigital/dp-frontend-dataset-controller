@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
+	"github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 )
 
@@ -108,4 +110,46 @@ func GetOSRLogoDetails(language string) osrlogo.OSRLogo {
 		Title:   title,
 		About:   about,
 	}
+}
+
+// Loops through the input list of distributions to find a distribution with a format that matches the
+// requested format.
+// If a matching distribution is found, the download URL of that distribution is returned.
+// If no matching distribution is found, it returns an empty string.
+func GetDistributionFileUrl(distributionList *[]models.Distribution, requestedFormat string) string {
+	distributions := *distributionList
+	for _, distribution := range distributions {
+		if strings.EqualFold(distribution.Format.String(), requestedFormat) {
+			return distribution.DownloadURL
+		}
+	}
+	return ""
+}
+
+// Loops through a list of download objects to find a download with a format that matches the
+// requested format.
+// If a matching download object is found, it returns the HRef (URL) of that download object.
+// If no matching download object is found, it returns an empty string.
+func GetDownloadFileUrl(downloadList *models.DownloadList, requestedFormat string) string {
+	if downloadList != nil {
+		downloads := *downloadList
+		// We need a way to map `DownloadObject` identifiers to extension strings
+		downloadObjects := map[*models.DownloadObject]string{
+			downloads.XLS:  "xls",
+			downloads.XLSX: "xlsx",
+			downloads.CSV:  "csv",
+			downloads.TXT:  "txt",
+			downloads.CSVW: "csvw",
+		}
+		// Loop through the possible downloadobjects and redirect to the requested one
+		for downloadObject, extension := range downloadObjects {
+			if strings.EqualFold(extension, requestedFormat) {
+				if downloadObject != nil {
+					return downloadObject.HRef
+				}
+			}
+
+		}
+	}
+	return ""
 }

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -181,5 +182,93 @@ func TestGetOSRLogoDetails(t *testing.T) {
 			Title:   "Accredited official statistics",
 			About:   "Confirmed by the Office for Statistics Regulation as compliant with the Code of Practice for Statistics.",
 		})
+	})
+}
+
+// Tests for the `GetDistributionFileUrl` helper function
+func TestGetDistributionFileUrl(t *testing.T) {
+	distributionCsv := models.Distribution{
+		Title:       "CSV file",
+		Format:      models.DistributionFormatCSV,
+		MediaType:   models.DistributionMediaTypeCSV,
+		DownloadURL: "http://localhost:22000/datasets/123/editions/2017/versions/1.csv",
+		ByteSize:    1234,
+	}
+	distributionXls := models.Distribution{
+		Title:       "XLS file",
+		Format:      models.DistributionFormatXLS,
+		MediaType:   models.DistributionMediaTypeXLS,
+		DownloadURL: "http://localhost:22000/datasets/123/editions/2017/versions/1.xls",
+		ByteSize:    1234,
+	}
+
+	Convey("Test function returns empty string if input distributions is empty", t, func() {
+		distributionList := []models.Distribution{}
+		requestedFormat := "xls"
+
+		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		So(result, ShouldEqual, "")
+	})
+	Convey("Test function returns empty string if requested format doesn't match", t, func() {
+
+		distributionList := []models.Distribution{distributionCsv}
+		requestedFormat := "xls"
+
+		// Just confirm requested format doesn't match the distribution format
+		So(requestedFormat, ShouldNotEqual, distributionCsv.Format.String())
+		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		So(result, ShouldEqual, "")
+	})
+	Convey("Test function returns valid url if requested format matches distribution", t, func() {
+		distributionList := []models.Distribution{
+			distributionCsv,
+			distributionXls,
+		}
+		requestedFormat := "csv"
+
+		// Just confirm requested format matches the distribution format
+		So(requestedFormat, ShouldEqual, distributionCsv.Format.String())
+		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		So(result, ShouldEqual, distributionCsv.DownloadURL)
+	})
+}
+
+// Tests for the `GetDownloadFileUrl` helper function
+func TestGetDownloadFileUrl(t *testing.T) {
+	downloadObjectCsv := models.DownloadObject{
+		HRef: "https://www.aws/123.csv",
+		Size: "25",
+	}
+	downloadObjectXls := models.DownloadObject{
+		HRef: "https://www.aws/1234.xls",
+		Size: "25",
+	}
+
+	Convey("Test function returns empty string if input downloads is empty", t, func() {
+		downloadList := models.DownloadList{}
+		requestedFormat := "xls"
+
+		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		So(result, ShouldEqual, "")
+	})
+	Convey("Test function returns empty string if requested format doesn't match", t, func() {
+
+		downloadList := models.DownloadList{
+			CSV: &downloadObjectCsv,
+		}
+		requestedFormat := "xls"
+
+		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		So(result, ShouldEqual, "")
+	})
+	Convey("Test function returns valid url if requested format matches distribution", t, func() {
+		downloadList := models.DownloadList{
+			CSV: &downloadObjectCsv,
+			XLS: &downloadObjectXls,
+		}
+		requestedFormat := "csv"
+
+		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		So(result, ShouldEqual, downloadList.CSV.HRef)
 	})
 }
