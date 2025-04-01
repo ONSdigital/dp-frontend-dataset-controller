@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -106,11 +107,20 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 	// Check if this is a download request and redirect to get file if so
 	if form == "get-data" {
-		if format == "" {
-			// Format not valid so raise error
+		fileDownloadUrl := ""
+		// Try to get the download url based on dataset type. Static will be in distributions, otherwise downloads
+		if datasetDetails.Type == "static" {
+			fileDownloadUrl = helpers.GetDistributionFileUrl(version.Distributions, format)
+		} else {
+			fileDownloadUrl = helpers.GetDownloadFileUrl(version.Downloads, format)
+		}
+
+		if fileDownloadUrl == "" {
+			// If download url is empty string, file not found so error
 			isValidationError = true
 		} else {
-			getDownloadFile(version.Downloads, format, responseWriter, request)
+			// Otherwise redirect to valid file location
+			http.Redirect(responseWriter, request, fileDownloadUrl, http.StatusFound)
 		}
 	}
 
@@ -273,10 +283,34 @@ func censusLanding(basePage dpRendererModel.Page, cfg config.Config, ctx context
 	rend.BuildPage(w, m, "census-landing")
 }
 
-func getDownloadFile(downloads map[string]dataset.Download, format string, w http.ResponseWriter, req *http.Request) {
-	for ext, download := range downloads {
-		if strings.EqualFold(ext, format) {
-			http.Redirect(w, req, download.URL, http.StatusFound)
+func getDistributionFile(distributionList *[]dpDatasetApiModels.Distribution, format string, responseWriter http.ResponseWriter, request *http.Request) {
+	distributions := *distributionList
+	for _, distribution := range distributions {
+		if strings.EqualFold(distribution.Format.String(), format) {
+			http.Redirect(responseWriter, request, distribution.DownloadURL, http.StatusFound)
+		}
+	}
+}
+
+func getDownloadFile(downloadList *dpDatasetApiModels.DownloadList, format string, w http.ResponseWriter, req *http.Request) {
+	if downloadList != nil {
+		downloads := *downloadList
+		// We need a way to map `DownloadObject` identifiers to extension strings
+		downloadObjects := map[*dpDatasetApiModels.DownloadObject]string{
+			downloads.XLS:  "xls",
+			downloads.XLSX: "xlsx",
+			downloads.CSV:  "csv",
+			downloads.TXT:  "txt",
+			downloads.CSVW: "csvw",
+		}
+		// Loop through the possible downloadobjects and redirect to the requested one
+		for downloadObject, extension := range downloadObjects {
+			if strings.EqualFold(extension, format) {
+				if downloadObject != nil {
+					http.Redirect(w, req, downloadObject.HRef, http.StatusFound)
+				}
+			}
+
 		}
 	}
 }

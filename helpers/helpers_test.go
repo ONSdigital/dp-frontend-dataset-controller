@@ -231,6 +231,16 @@ func TestGetDistributionFileUrl(t *testing.T) {
 		result := GetDistributionFileUrl(&distributionList, requestedFormat)
 		So(result, ShouldEqual, distributionCsv.DownloadURL)
 	})
+	Convey("Test function returns empty string if requested format is empty string", t, func() {
+		distributionList := []models.Distribution{
+			distributionCsv,
+			distributionXls,
+		}
+		requestedFormat := ""
+
+		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		So(result, ShouldEqual, "")
+	})
 }
 
 // Tests for the `GetDownloadFileUrl` helper function
@@ -270,5 +280,15 @@ func TestGetDownloadFileUrl(t *testing.T) {
 
 		result := GetDownloadFileUrl(&downloadList, requestedFormat)
 		So(result, ShouldEqual, downloadList.CSV.HRef)
+	})
+	Convey("Test function returns empty string if requested format is empty string", t, func() {
+		downloadList := models.DownloadList{
+			CSV: &downloadObjectCsv,
+			XLS: &downloadObjectXls,
+		}
+		requestedFormat := ""
+
+		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		So(result, ShouldEqual, "")
 	})
 }
