@@ -148,7 +148,7 @@ func getTestVersionDetails(versionNo int, dimensions []dpDatasetApiModels.Dimens
 		Edition:     "2021",
 		Version:     versionNo,
 		Links: &dpDatasetApiModels.VersionLinks{
-			Self: &dpDatasetApiModels.LinkObject{
+			Dataset: &dpDatasetApiModels.LinkObject{
 				HRef: "http://localhost:22000/datasets/cantabular-1",
 				ID:   "cantabular-1",
 			},
