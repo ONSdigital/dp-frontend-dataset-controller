@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/golang/mock/gomock"
@@ -24,18 +25,19 @@ func TestFilterOutputHandler(t *testing.T) {
 	ctx := gomock.Any()
 	cfg := config.Config{}
 	versions := dataset.VersionsList{
-		Items: []dataset.Version{
+		Items: []dpDatasetApiModels.Version{
 			{
-				Downloads: map[string]dataset.Download{
-					"XLS": {
+				Downloads: &dpDatasetApiModels.DownloadList{
+					XLS: &dpDatasetApiModels.DownloadObject{
 						Size: "78600",
-						URL:  "https://www.my-url.com/file.xls",
-					}},
+						HRef: "https://www.my-url.com/file.xls",
+					},
+				},
 				ReleaseDate: "02-01-2005",
 				Version:     1,
-				Links: dataset.Links{
-					Self: dataset.Link{
-						URL: "/datasets/12345/editions/2021/versions/1",
+				Links: &dpDatasetApiModels.VersionLinks{
+					Self: &dpDatasetApiModels.LinkObject{
+						HRef: "/datasets/12345/editions/2021/versions/1",
 					},
 				},
 			},

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -72,10 +73,10 @@ func TestCreateFilterID(t *testing.T) {
 
 	Convey("test CreateFilterFlexID", t, func() {
 		mockVersions := dataset.VersionsList{
-			Items: []dataset.Version{
+			Items: []dpDatasetApiModels.Version{
 				{}, // deliberately empty
 				{
-					Dimensions: []dataset.VersionDimension{
+					Dimensions: []dpDatasetApiModels.Dimension{
 						{
 							Name: "geography",
 						},
