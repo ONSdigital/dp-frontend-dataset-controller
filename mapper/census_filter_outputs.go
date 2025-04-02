@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -26,7 +27,7 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version, hasOtherVersions bool, allVersions []dataset.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pop population.GetPopulationTypeResponse) census.Page {
+func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dataset.DatasetDetails, version dpDatasetApiModels.Version, hasOtherVersions bool, allVersions []dpDatasetApiModels.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pop population.GetPopulationTypeResponse) census.Page {
 	p := CreateCensusBasePage(basePage, d, version, allVersions, isEnableMultivariate)
 
 	p.Type += FilterOutput
@@ -277,7 +278,7 @@ func getNonGeographyDims(dims []sharedModel.Dimension) (dimsList []string) {
 }
 
 // getNonGeographyVersionDims returns all version dimensions that is not an area type
-func getNonGeographyVersionDims(dims []dataset.VersionDimension) (dimsList []string) {
+func getNonGeographyVersionDims(dims []dpDatasetApiModels.Dimension) (dimsList []string) {
 	for i := range dims {
 		if !helpers.IsBoolPtr(dims[i].IsAreaType) {
 			dimsList = append(dimsList, cleanDimensionLabel(dims[i].Label))

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -16,31 +17,20 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(
-	basePage coreModel.Page,
-	d dataset.DatasetDetails,
-	version dataset.Version,
-	opts []dataset.Options,
-	categorisationsMap map[string]int,
-	allVersions []dataset.Version,
-	queryStrValues []string,
-	isEnableMultivariate bool,
-	pop population.GetPopulationTypeResponse,
+func CreateCensusLandingPage(basePage coreModel.Page, d dataset.DatasetDetails, version dpDatasetApiModels.Version,
+	opts []dataset.Options, categorisationsMap map[string]int, allVersions []dpDatasetApiModels.Version, queryStrValues []string,
+	isEnableMultivariate bool, pop population.GetPopulationTypeResponse,
 ) census.Page {
 	p := CreateCensusBasePage(basePage, d, version, allVersions, isEnableMultivariate)
 
 	// DOWNLOADS
-	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-			Extension: strings.ToLower(ext),
-			Size:      download.Size,
-			URI:       download.URL,
-		})
-	}
-	p.Version.Downloads = orderDownloads(p.Version.Downloads)
+	if version.Downloads != nil {
+		helpers.MapVersionDownloads(&p.Version, version.Downloads)
+		p.Version.Downloads = orderDownloads(p.Version.Downloads)
 
-	if len(version.Downloads) >= 3 {
-		p.DatasetLandingPage.HasDownloads = true
+		if len(p.Version.Downloads) >= 3 {
+			p.DatasetLandingPage.HasDownloads = true
+		}
 	}
 
 	// DIMENSIONS
@@ -85,7 +75,7 @@ func CreateCensusLandingPage(
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dataset.VersionDimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
+func mapCensusOptionsToDimensions(dims []dpDatasetApiModels.Dimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
 

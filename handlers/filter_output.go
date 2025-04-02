@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -36,7 +37,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var isValidationError bool
 	var datasetModel dataset.DatasetDetails
 	var allVers dataset.VersionsList
-	var ver dataset.Version
+	var ver dpDatasetApiModels.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
 	var sdc *cantabular.GetBlockedAreaCountResult

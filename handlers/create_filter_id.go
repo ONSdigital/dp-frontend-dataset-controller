@@ -79,7 +79,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient) http.HandlerFunc {
 		for _, verDim := range ver.Dimensions {
 			var dim = filter.ModelDimension{}
 			dim.Name = verDim.Name
-			dim.URI = verDim.URL
+			dim.URI = verDim.HRef
 			dim.IsAreaType = verDim.IsAreaType
 			dims = append(dims, dim)
 		}

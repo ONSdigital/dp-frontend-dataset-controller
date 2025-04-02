@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -22,8 +23,8 @@ const (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails, version dataset.Version,
-	allVersions []dataset.Version, isEnableMultivariate bool,
+func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails, version dpDatasetApiModels.Version,
+	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) census.Page {
 	censusPage := census.Page{
 		Page: basePage,

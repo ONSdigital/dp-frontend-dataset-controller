@@ -1,9 +1,11 @@
 package mapper
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
@@ -11,22 +13,22 @@ import (
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
 func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails,
-	version dataset.Version, allVersions []dataset.Version, isEnableMultivariate bool,
+	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) static.Page {
 	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate)
 
 	// DOWNLOADS
-	for ext, download := range version.Downloads {
-		p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
-			Extension: strings.ToLower(ext),
-			Size:      download.Size,
-			URI:       download.URL,
-		})
-	}
-	p.Version.Downloads = orderDownloads(p.Version.Downloads)
+	if version.Distributions != nil {
+		distributions := *version.Distributions
+		for _, distribution := range distributions {
+			p.Version.Downloads = append(p.Version.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(distribution.Format.String()),
+				Size:      strconv.FormatInt(distribution.ByteSize, 10),
+				URI:       distribution.DownloadURL,
+			})
 
-	// HasDownloads is the flag used to render the template
-	if len(version.Downloads) > 0 {
+		}
+		p.Version.Downloads = orderDownloads(p.Version.Downloads)
 		p.DatasetLandingPage.HasDownloads = true
 	}
 

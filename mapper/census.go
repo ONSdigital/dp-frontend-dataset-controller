@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -83,7 +83,7 @@ func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims
 }
 
 // mapLandingCollapsible maps the collapsible on the landing page
-func mapLandingCollapsible(dimensions []dataset.VersionDimension) []coreModel.CollapsibleItem {
+func mapLandingCollapsible(dimensions []dpDatasetApiModels.Dimension) []coreModel.CollapsibleItem {
 	var collapsibleContentItems []coreModel.CollapsibleItem
 	var areaItem coreModel.CollapsibleItem
 	for i := range dimensions {

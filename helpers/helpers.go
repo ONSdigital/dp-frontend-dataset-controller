@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-dataset-api/models"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 )
 
@@ -132,15 +133,8 @@ func GetDistributionFileUrl(distributionList *[]models.Distribution, requestedFo
 // If no matching download object is found, it returns an empty string.
 func GetDownloadFileUrl(downloadList *models.DownloadList, requestedFormat string) string {
 	if downloadList != nil {
-		downloads := *downloadList
 		// We need a way to map `DownloadObject` identifiers to extension strings
-		downloadObjects := map[*models.DownloadObject]string{
-			downloads.XLS:  "xls",
-			downloads.XLSX: "xlsx",
-			downloads.CSV:  "csv",
-			downloads.TXT:  "txt",
-			downloads.CSVW: "csvw",
-		}
+		downloadObjects := MapDownloadObjectExtensions(downloadList)
 		// Loop through the possible downloadobjects and redirect to the requested one
 		for downloadObject, extension := range downloadObjects {
 			if strings.EqualFold(extension, requestedFormat) {
@@ -148,8 +142,34 @@ func GetDownloadFileUrl(downloadList *models.DownloadList, requestedFormat strin
 					return downloadObject.HRef
 				}
 			}
-
 		}
 	}
 	return ""
+}
+
+// Creates a mapping from download objects to their corresponding file extension strings
+func MapDownloadObjectExtensions(downloadList *models.DownloadList) map[*models.DownloadObject]string {
+	downloads := *downloadList
+	return map[*models.DownloadObject]string{
+		downloads.XLS:  "xls",
+		downloads.XLSX: "xlsx",
+		downloads.CSV:  "csv",
+		downloads.TXT:  "txt",
+		downloads.CSVW: "csvw",
+	}
+}
+
+// Maps download objects from a dp-dataset-api Version to download details, including file extensions, sizes, and URIs
+func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *models.DownloadList) {
+	downloadObjects := MapDownloadObjectExtensions(downloadList)
+	// Loop through the possible downloadobjects and add to downloads if valid
+	for downloadObject, extension := range downloadObjects {
+		if downloadObject != nil {
+			sharedModelVersion.Downloads = append(sharedModelVersion.Downloads, sharedModel.Download{
+				Extension: strings.ToLower(extension),
+				Size:      downloadObject.Size,
+				URI:       downloadObject.HRef,
+			})
+		}
+	}
 }

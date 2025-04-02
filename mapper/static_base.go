@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -16,8 +17,8 @@ import (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, version dataset.Version,
-	allVersions []dataset.Version, isEnableMultivariate bool,
+func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, version dpDatasetApiModels.Version,
+	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) static.Page {
 	p := static.Page{
 		Page: basePage,
@@ -278,7 +279,7 @@ func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
 }
 
 // grab the usage notes
-func getUsageDetails(v dataset.Version) []static.UsageNote {
+func getUsageDetails(v dpDatasetApiModels.Version) []static.UsageNote {
 	usageNotesList := []static.UsageNote{}
 
 	if v.UsageNotes != nil {

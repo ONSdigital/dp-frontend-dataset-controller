@@ -21,6 +21,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
@@ -73,7 +74,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d dataset.DatasetDetails, ver dataset.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d dataset.DatasetDetails, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	p := filterable.Page{
 		Page: basePage,
 	}
@@ -139,7 +140,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 		p.DatasetLandingPage.ShowEditionName = true
 	}
 
-	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.URL
+	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.HRef
 	p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
 	p.DatasetLandingPage.QMIURL = d.QMI.URL
@@ -185,10 +186,10 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 		}
 	}
 
-	for _, changes := range ver.LatestChanges {
+	for _, change := range *ver.LatestChanges {
 		p.DatasetLandingPage.LatestChanges = append(p.DatasetLandingPage.LatestChanges, filterable.Change{
-			Name:        changes.Name,
-			Description: changes.Description,
+			Name:        change.Name,
+			Description: change.Description,
 		})
 	}
 
@@ -200,14 +201,8 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 
 	p.DatasetLandingPage.HasOlderVersions = displayOtherVersionsLink
 
-	for k, download := range ver.Downloads {
-		if len(download.URL) > 0 {
-			v.Downloads = append(v.Downloads, sharedModel.Download{
-				Extension: k,
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
+	if ver.Downloads != nil {
+		helpers.MapVersionDownloads(&v, ver.Downloads)
 	}
 
 	p.DatasetLandingPage.Version = v
@@ -220,7 +215,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}
@@ -264,14 +259,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 			latestVersionNumber = versions[i].Version
 		}
 
-		for ext, download := range versions[i].Downloads {
-			v.Downloads = append(v.Downloads, sharedModel.Download{
-				Extension: ext,
-				Size:      download.Size,
-				URI:       download.URL,
-			})
-		}
-
+		helpers.MapVersionDownloads(&v, versions[i].Downloads)
 		mapCorrectionAlert(&versions[i], &v)
 
 		p.Data.Versions = append(p.Data.Versions, v)
@@ -342,7 +330,7 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 	return p
 }
 
-func mapCorrectionAlert(ver *dataset.Version, model *sharedModel.Version) {
+func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Version) {
 	if ver.Alerts != nil {
 		for _, alert := range *ver.Alerts {
 			if alert.Type == CorrectionAlertType {
