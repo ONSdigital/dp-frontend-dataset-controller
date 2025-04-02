@@ -191,7 +191,13 @@ func buildTestFilterDimension(name string, isAreaType bool, optionCount int) sha
 }
 
 func getTestDownloads(formats []string) *dpDatasetApiModels.DownloadList {
-	downloadList := &dpDatasetApiModels.DownloadList{}
+	downloadList := &dpDatasetApiModels.DownloadList{
+		XLS:  &dpDatasetApiModels.DownloadObject{},
+		XLSX: &dpDatasetApiModels.DownloadObject{},
+		CSV:  &dpDatasetApiModels.DownloadObject{},
+		TXT:  &dpDatasetApiModels.DownloadObject{},
+		CSVW: &dpDatasetApiModels.DownloadObject{},
+	}
 
 	downloadObjects := helpers.MapDownloadObjectExtensions(downloadList)
 	// Loop through the possible downloadobjects and add files to each format if requested
