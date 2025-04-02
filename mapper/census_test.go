@@ -3,12 +3,14 @@ package mapper
 import (
 	"fmt"
 	"net/http/httptest"
+	"slices"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -43,7 +45,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 		emergencyBanner := getTestEmergencyBanner()
 
 		Convey("and dimension labels that include category counts", func() {
-			dimensions := []dataset.VersionDimension{
+			dimensions := []dpDatasetApiModels.Dimension{
 				{
 					Description:          "A description on one line",
 					Name:                 "dim_1",
@@ -66,7 +68,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 
 			Convey("when we build a dataset landing page", func() {
 				page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
-					[]dataset.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
+					[]dpDatasetApiModels.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.Collapsible.CollapsibleItems[1].Subheading, ShouldEqual, "Label 1")
@@ -89,7 +91,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 				},
 			}
 			Convey("when we build a dataset landing page", func() {
-				page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, getTestVersionOneDetails(), false, []dataset.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, false, true, filter.Model{Downloads: getTestFilterDownloads([]string{"xlsx"})}, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
+				page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, getTestVersionOneDetails(), false, []dpDatasetApiModels.Version{getTestVersionOneDetails()}, 1, "/a/version/1", "", []string{}, false, true, filter.Model{Downloads: getTestFilterDownloads([]string{"xlsx"})}, filterDimensions, serviceMessage, emergencyBanner, true, population.GetDimensionsResponse{}, cantabular.GetBlockedAreaCountResult{}, population.GetPopulationTypeResponse{})
 
 				Convey("then labels are formatted without counts", func() {
 					So(page.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Label 1")
@@ -139,16 +141,16 @@ func getTestDatasetDetails(contacts []dataset.Contact, relatedContent []dataset.
 	}
 }
 
-func getTestVersionDetails(versionNo int, dimensions []dataset.VersionDimension, downloads map[string]dataset.Download, alerts *[]dataset.Alert) dataset.Version {
-	return dataset.Version{
+func getTestVersionDetails(versionNo int, dimensions []dpDatasetApiModels.Dimension, downloads *dpDatasetApiModels.DownloadList, alerts *[]dpDatasetApiModels.Alert) dpDatasetApiModels.Version {
+	return dpDatasetApiModels.Version{
 		ReleaseDate: fmt.Sprintf("01-0%d-2021", versionNo),
 		Downloads:   downloads,
 		Edition:     "2021",
 		Version:     versionNo,
-		Links: dataset.Links{
-			Dataset: dataset.Link{
-				URL: "http://localhost:22000/datasets/cantabular-1",
-				ID:  "cantabular-1",
+		Links: &dpDatasetApiModels.VersionLinks{
+			Self: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cantabular-1",
+				ID:   "cantabular-1",
 			},
 		},
 		Dimensions: dimensions,
@@ -156,8 +158,8 @@ func getTestVersionDetails(versionNo int, dimensions []dataset.VersionDimension,
 	}
 }
 
-func getTestDimension(dimensionID string, isAreaType bool) dataset.VersionDimension {
-	return dataset.VersionDimension{
+func getTestDimension(dimensionID string, isAreaType bool) dpDatasetApiModels.Dimension {
+	return dpDatasetApiModels.Dimension{
 		Description: fmt.Sprintf("A description for Dimension %s", dimensionID),
 		Name:        dimensionID,
 		ID:          dimensionID,
@@ -188,15 +190,18 @@ func buildTestFilterDimension(name string, isAreaType bool, optionCount int) sha
 	return getTestFilterDimension(name, isAreaType, options, 2)
 }
 
-func getTestDownloads(formats []string) map[string]dataset.Download {
-	downloads := make(map[string]dataset.Download)
-	for _, format := range formats {
-		downloads[format] = dataset.Download{
-			Size: "438290",
-			URL:  "https://mydomain.com/my-request",
+func getTestDownloads(formats []string) *dpDatasetApiModels.DownloadList {
+	downloadList := &dpDatasetApiModels.DownloadList{}
+
+	downloadObjects := helpers.MapDownloadObjectExtensions(downloadList)
+	// Loop through the possible downloadobjects and add files to each format if requested
+	for downloadObject, extension := range downloadObjects {
+		if slices.Contains(formats, extension) {
+			downloadObject.HRef = "https://mydomain.com/my-request"
+			downloadObject.Size = "438290"
 		}
 	}
-	return downloads
+	return downloadList
 }
 
 func getTestFilterDownloads(formats []string) map[string]filter.Download {
@@ -210,7 +215,7 @@ func getTestFilterDownloads(formats []string) map[string]filter.Download {
 	return downloads
 }
 
-func getTestDefaultDimensions() []dataset.VersionDimension {
+func getTestDefaultDimensions() []dpDatasetApiModels.Dimension {
 	dim1 := getTestDimension("1", true)
 	dim1.QualityStatementText = "This is a quality notice statement"
 	dim1.QualityStatementURL = "#"
@@ -223,7 +228,7 @@ func getTestDefaultDimensions() []dataset.VersionDimension {
 	dim3.Description = ""
 	dim3.Name = "Only a name - I shouldn't map"
 
-	return []dataset.VersionDimension{dim1, dim2, dim3}
+	return []dpDatasetApiModels.Dimension{dim1, dim2, dim3}
 }
 
 func getTestOptions(dimensionID string, count int) dataset.Options {
@@ -248,6 +253,6 @@ func getTestOptionsList() []dataset.Options {
 	}
 }
 
-func getTestVersionOneDetails() dataset.Version {
+func getTestVersionOneDetails() dpDatasetApiModels.Version {
 	return getTestVersionDetails(1, getTestDefaultDimensions(), getTestDownloads([]string{"xlsx"}), nil)
 }
