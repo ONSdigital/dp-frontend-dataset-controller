@@ -10,6 +10,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
@@ -74,19 +75,18 @@ func TestUnitMapper(t *testing.T) {
 		NomisReferenceURL: nomisRefURL,
 	}
 
-	v := []dataset.Version{
+	v := []dpDatasetApiModels.Version{
 		{
 			CollectionID: "abcdefg",
 			Edition:      "2017",
 			ID:           "tehnskofjios-ashbc7",
-			InstanceID:   "31241592",
 			Version:      1,
-			Links: dataset.Links{
-				Self: dataset.Link{
-					URL: "/datasets/83jd98fkflg/editions/124/versions/1",
+			Links: &dpDatasetApiModels.VersionLinks{
+				Self: &dpDatasetApiModels.LinkObject{
+					HRef: "/datasets/83jd98fkflg/editions/124/versions/1",
 				},
 			},
-			Dimensions: []dataset.VersionDimension{
+			Dimensions: []dpDatasetApiModels.Dimension{
 				{
 					ID:    "city",
 					Name:  "geography",
@@ -95,10 +95,10 @@ func TestUnitMapper(t *testing.T) {
 			},
 			ReleaseDate: "11-11-2017",
 			State:       "published",
-			Downloads: map[string]dataset.Download{
-				"XLSX": {
+			Downloads: &dpDatasetApiModels.DownloadList{
+				XLSX: &dpDatasetApiModels.DownloadObject{
 					Size: "438290",
-					URL:  "my-url",
+					HRef: "my-url",
 				},
 			},
 		},
@@ -212,7 +212,7 @@ func TestUnitMapper(t *testing.T) {
 		So(v0.Version, ShouldEqual, strconv.Itoa(v[0].Version))
 		So(p.ReleaseDate, ShouldEqual, v[0].ReleaseDate)
 		So(v0.Downloads[0].Size, ShouldEqual, "438290")
-		So(v0.Downloads[0].Extension, ShouldEqual, "XLSX")
+		So(v0.Downloads[0].Extension, ShouldEqual, "xlsx")
 		So(v0.Downloads[0].URI, ShouldEqual, "my-url")
 	})
 
@@ -446,19 +446,18 @@ func TestCreateVersionsList(t *testing.T) {
 		},
 	}
 	dummyEditionData := dataset.Edition{}
-	dummyVersion1 := dataset.Version{
+	dummyVersion1 := dpDatasetApiModels.Version{
 		Alerts:        nil,
 		CollectionID:  "",
 		Downloads:     nil,
 		Edition:       "time-series",
 		Dimensions:    nil,
 		ID:            "",
-		InstanceID:    "",
 		LatestChanges: nil,
-		Links: dataset.Links{
-			Dataset: dataset.Link{
-				URL: "http://localhost:22000/datasets/cpih01",
-				ID:  "cpih01",
+		Links: &dpDatasetApiModels.VersionLinks{
+			Dataset: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cpih01",
+				ID:   "cpih01",
 			},
 		},
 		ReleaseDate: "2019-08-15T00:00:00.000Z",
@@ -470,7 +469,7 @@ func TestCreateVersionsList(t *testing.T) {
 	dummyVersion2.Version = 2
 	dummyVersion3 := dummyVersion1
 	dummyVersion3.Version = 3
-	dummyVersion3.Alerts = &[]dataset.Alert{
+	dummyVersion3.Alerts = &[]dpDatasetApiModels.Alert{
 		{
 			Date:        "",
 			Description: "This is a correction",
@@ -481,7 +480,7 @@ func TestCreateVersionsList(t *testing.T) {
 	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("test latest version page", t, func() {
-		dummySingleVersionList := []dataset.Version{dummyVersion3}
+		dummySingleVersionList := []dpDatasetApiModels.Version{dummyVersion3}
 
 		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList, serviceMessage, emergencyBanner)
 		Convey("title", func() {
@@ -491,7 +490,7 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions, ShouldHaveLength, 1)
 		})
 
-		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
+		dummyMultipleVersionList := []dpDatasetApiModels.Version{dummyVersion1, dummyVersion2, dummyVersion3}
 		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList, serviceMessage, emergencyBanner)
 
 		Convey("has correct number of versions when multiple should be present", func() {

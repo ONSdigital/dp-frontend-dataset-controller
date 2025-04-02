@@ -299,6 +299,11 @@ func TestMapVersionDownloads(t *testing.T) {
 
 	sharedModelVersion := sharedModel.Version{}
 
+	Convey("Test function doesn't update `sharedModelVersion.Downloads` if input `DownloadList` is nil pointer", t, func() {
+		MapVersionDownloads(&sharedModelVersion, nil)
+		So(sharedModelVersion.Downloads, ShouldBeEmpty)
+	})
+
 	Convey("Test function doesn't update `sharedModelVersion.Downloads` if input `DownloadList` is empty", t, func() {
 		downloadList := models.DownloadList{}
 

@@ -161,17 +161,19 @@ func MapDownloadObjectExtensions(downloadList *models.DownloadList) map[*models.
 
 // Maps download objects from a dp-dataset-api Version to download details, including file extensions, sizes, and URIs
 func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *models.DownloadList) {
-	downloadObjects := MapDownloadObjectExtensions(downloadList)
-	// Loop through the possible downloadobjects and add to downloads if valid
-	for downloadObject, extension := range downloadObjects {
-		if downloadObject != nil {
-			// We need a valid `HRef` at the very least to create a valid download
-			if downloadObject.HRef != "" {
-				sharedModelVersion.Downloads = append(sharedModelVersion.Downloads, sharedModel.Download{
-					Extension: strings.ToLower(extension),
-					Size:      downloadObject.Size,
-					URI:       downloadObject.HRef,
-				})
+	if downloadList != nil {
+		downloadObjects := MapDownloadObjectExtensions(downloadList)
+		// Loop through the possible downloadobjects and add to downloads if valid
+		for downloadObject, extension := range downloadObjects {
+			if downloadObject != nil {
+				// We need a valid `HRef` at the very least to create a valid download
+				if downloadObject.HRef != "" {
+					sharedModelVersion.Downloads = append(sharedModelVersion.Downloads, sharedModel.Download{
+						Extension: strings.ToLower(extension),
+						Size:      downloadObject.Size,
+						URI:       downloadObject.HRef,
+					})
+				}
 			}
 		}
 	}

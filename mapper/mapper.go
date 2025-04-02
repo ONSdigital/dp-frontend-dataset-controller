@@ -104,7 +104,12 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 
 	// breadcrumbs won't contain this page or it's parent page in it's response
 	// from Zebedee, so add it to the slice
-	currentPageBreadcrumbTitle := ver.Links.Edition.ID
+	currentPageBreadcrumbTitle := ""
+	// Update the breadcrumb title if edition link is available
+	if ver.Links.Edition != nil {
+		currentPageBreadcrumbTitle = ver.Links.Edition.ID
+	}
+
 	if currentPageBreadcrumbTitle == "time-series" {
 		currentPageBreadcrumbTitle = "Current"
 	}
@@ -186,11 +191,13 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 		}
 	}
 
-	for _, change := range *ver.LatestChanges {
-		p.DatasetLandingPage.LatestChanges = append(p.DatasetLandingPage.LatestChanges, filterable.Change{
-			Name:        change.Name,
-			Description: change.Description,
-		})
+	if ver.LatestChanges != nil {
+		for _, change := range *ver.LatestChanges {
+			p.DatasetLandingPage.LatestChanges = append(p.DatasetLandingPage.LatestChanges, filterable.Change{
+				Name:        change.Name,
+				Description: change.Description,
+			})
+		}
 	}
 
 	var v sharedModel.Version
