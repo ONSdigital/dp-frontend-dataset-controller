@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-dataset-api/models"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -290,5 +291,54 @@ func TestGetDownloadFileUrl(t *testing.T) {
 
 		result := GetDownloadFileUrl(&downloadList, requestedFormat)
 		So(result, ShouldEqual, "")
+	})
+}
+
+// Tests for the `MapVersionDownloads` helper function
+func TestMapVersionDownloads(t *testing.T) {
+
+	sharedModelVersion := sharedModel.Version{}
+
+	Convey("Test function doesn't update `sharedModelVersion.Downloads` if input `DownloadList` is empty", t, func() {
+		downloadList := models.DownloadList{}
+
+		MapVersionDownloads(&sharedModelVersion, &downloadList)
+		So(sharedModelVersion.Downloads, ShouldBeEmpty)
+	})
+	Convey("Test function doesn't update `sharedModelVersion.Downloads` if input `DownloadList` is initialised with empty `DownloadObjects`", t, func() {
+		downloadList := models.DownloadList{
+			XLS:  &models.DownloadObject{},
+			XLSX: &models.DownloadObject{},
+			CSV:  &models.DownloadObject{},
+			TXT:  &models.DownloadObject{},
+			CSVW: &models.DownloadObject{},
+		}
+
+		MapVersionDownloads(&sharedModelVersion, &downloadList)
+		So(sharedModelVersion.Downloads, ShouldBeEmpty)
+	})
+
+	Convey("Test function updates `sharedModelVersion.Downloads` if input `DownloadList` contains a valid `DownloadObject`", t, func() {
+		xlsHref := "https://www.test.com/my-xls-download.xlx"
+		xlsSize := "1234"
+
+		downloadList := models.DownloadList{
+			XLS: &models.DownloadObject{
+				HRef: xlsHref,
+				Size: xlsSize,
+			},
+			XLSX: &models.DownloadObject{},
+			CSV:  &models.DownloadObject{},
+			TXT:  &models.DownloadObject{},
+			CSVW: &models.DownloadObject{},
+		}
+
+		MapVersionDownloads(&sharedModelVersion, &downloadList)
+		So(sharedModelVersion.Downloads, ShouldNotBeEmpty)
+		// Just check that only one download is returned, xls could have matched to xlsx too
+		So(len(sharedModelVersion.Downloads), ShouldEqual, 1)
+		So(sharedModelVersion.Downloads[0].Extension, ShouldEqual, "xls")
+		So(sharedModelVersion.Downloads[0].Size, ShouldEqual, xlsSize)
+		So(sharedModelVersion.Downloads[0].URI, ShouldEqual, xlsHref)
 	})
 }

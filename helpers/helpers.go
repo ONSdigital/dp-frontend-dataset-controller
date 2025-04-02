@@ -165,11 +165,14 @@ func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *
 	// Loop through the possible downloadobjects and add to downloads if valid
 	for downloadObject, extension := range downloadObjects {
 		if downloadObject != nil {
-			sharedModelVersion.Downloads = append(sharedModelVersion.Downloads, sharedModel.Download{
-				Extension: strings.ToLower(extension),
-				Size:      downloadObject.Size,
-				URI:       downloadObject.HRef,
-			})
+			// We need a valid `HRef` at the very least to create a valid download
+			if downloadObject.HRef != "" {
+				sharedModelVersion.Downloads = append(sharedModelVersion.Downloads, sharedModel.Download{
+					Extension: strings.ToLower(extension),
+					Size:      downloadObject.Size,
+					URI:       downloadObject.HRef,
+				})
+			}
 		}
 	}
 }
