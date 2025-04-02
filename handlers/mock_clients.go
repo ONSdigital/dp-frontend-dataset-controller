@@ -14,6 +14,7 @@ import (
 	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
 	filter "github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	model "github.com/ONSdigital/dp-renderer/v2/model"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -234,10 +235,10 @@ func (mr *MockDatasetClientMockRecorder) GetOptions(ctx, userAuthToken, serviceA
 }
 
 // GetVersion mocks base method.
-func (m *MockDatasetClient) GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error) {
+func (m *MockDatasetClient) GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (dpDatasetApiModels.Version, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersion", ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version)
-	ret0, _ := ret[0].(dataset.Version)
+	ret0, _ := ret[0].(dpDatasetApiModels.Version)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
