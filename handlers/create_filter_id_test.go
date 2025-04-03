@@ -34,7 +34,7 @@ func TestCreateFilterID(t *testing.T) {
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
 			dims := dataset.VersionDimensions{
-				Items: []dataset.VersionDimension{
+				Items: []dpDatasetApiModels.Dimension{
 					{
 						Name: "aggregate",
 					},

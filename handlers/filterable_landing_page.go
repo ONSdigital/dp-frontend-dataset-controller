@@ -33,6 +33,13 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
 	collectionId string, lang string, apiRouterVersion string, userAccessToken string) {
 
+	var bc []zebedee.Breadcrumb
+	var dims dataset.VersionDimensions
+	var displayOtherVersionsLink bool
+	var numOpts int
+	var pageModel interface{}
+	var templateName string
+
 	downloadServiceAuthToken := ""
 	serviceAuthToken := ""
 
@@ -78,7 +85,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 	allVersions := versionsList.Items
 
-	var displayOtherVersionsLink bool
 	if len(allVersions) > 1 {
 		displayOtherVersionsLink = true
 	}
@@ -134,16 +140,14 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	// Update basePage common parameters
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, isValidationError, lang, request)
 
-	var pageModel interface{}
-	var templateName string
-
 	if datasetDetails.Type == "static" {
 		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate)
 		templateName = "static"
 	} else {
-		dims := dataset.VersionDimensions{Items: nil}
-		// Update dimensions if not nomis
-		if !(datasetDetails.Type == "nomis") {
+		// Update dimensions based on dataset type
+		if datasetDetails.Type == "nomis" {
+			dims = dataset.VersionDimensions{Items: nil}
+		} else {
 			dims, err = datasetClient.GetVersionDimensions(ctx, userAccessToken, serviceAuthToken, collectionId,
 				datasetId, editionId, versionId)
 			if err != nil {
@@ -151,8 +155,16 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				return
 			}
 		}
+
 		// options
-		opts, err := getOptionsSummary(ctx, datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, dims, numOptsSummary)
+		// Set number of options to request based on typeUpdate numOptsSummary if cantabular type
+		if strings.Contains(datasetDetails.Type, "cantabular") {
+			numOpts = 1000
+		} else {
+			// Load from constant
+			numOpts = numOptsSummary
+		}
+		opts, err := getOptionsSummary(ctx, datasetClient, userAccessToken, collectionId, datasetId, editionId, versionId, dims, numOpts)
 		if err != nil {
 			setStatusCode(ctx, responseWriter, err)
 			return
@@ -186,7 +198,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			pageModel = m
 			templateName = "census-landing"
 		} else {
-			var bc []zebedee.Breadcrumb
 			// Update breadcrumbs if not nomis
 			if !(datasetDetails.Type == "nomis") {
 				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionId, lang, datasetDetails.Links.Taxonomy.URL)

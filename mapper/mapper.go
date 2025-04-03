@@ -27,6 +27,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -351,7 +352,7 @@ func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Vers
 }
 
 //nolint:all // legacy code with poor test coverage
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dataset.VersionDimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dpDatasetApiModels.Dimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
@@ -536,4 +537,49 @@ func MapDownloads(downloadsList []zebedee.Download, versionURI string) []dataset
 		})
 	}
 	return dl
+}
+
+// Updates input `basePage` to include common dataset overview attributes, homepage content and
+// dataset details across all dataset types
+func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dataset.DatasetDetails,
+	homepageContent zebedee.HomepageContent, isValidationError bool, lang string, request *http.Request) {
+
+	basePage.BackTo = dpRendererModel.BackTo{
+		Text: dpRendererModel.Localisation{
+			LocaleKey: "BackToContents",
+			Plural:    4,
+		},
+		AnchorFragment: "toc",
+	}
+	basePage.BetaBannerEnabled = true
+
+	// Cookies
+	MapCookiePreferences(request, &basePage.CookiesPreferencesSet, &basePage.CookiesPolicy)
+
+	basePage.DatasetId = datasetDetails.ID
+	basePage.EmergencyBanner = mapEmergencyBanner(homepageContent.EmergencyBanner)
+
+	if isValidationError {
+		basePage.Error = dpRendererModel.Error{
+			Title: basePage.Metadata.Title,
+			ErrorItems: []dpRendererModel.ErrorItem{
+				{
+					Description: dpRendererModel.Localisation{
+						LocaleKey: "GetDataValidationError",
+						Plural:    1,
+					},
+					URL: "#select-format-error",
+				},
+			},
+			Language: lang,
+		}
+	}
+
+	basePage.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
+	basePage.Language = lang
+	basePage.Metadata.Description = datasetDetails.Description
+	basePage.Metadata.Title = datasetDetails.Title
+	basePage.ServiceMessage = homepageContent.ServiceMessage
+	basePage.Type = datasetDetails.Type
+	basePage.URI = request.URL.Path
 }
