@@ -44,7 +44,7 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 
 		Convey("When the page is rendered", func() {
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/create", nil)
+			req := httptest.NewRequest("GET", "/datasets/create", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/create", CreateCustomDataset(pc, zc, rend, cfg, ""))
@@ -54,6 +54,5 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 			})
 		})
-
 	})
 }

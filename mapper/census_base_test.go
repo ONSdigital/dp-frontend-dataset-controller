@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -41,7 +42,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	}
 
 	Convey("Census base maps correctly as version 1", t, func() {
-		req := httptest.NewRequest("", "/", nil)
+		req := httptest.NewRequest("", "/", http.NoBody)
 		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
 		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionOneDetails, []dpDatasetApiModels.Version{versionOneDetails}, true)
@@ -74,7 +75,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("Release date and hasOtherVersions is mapped correctly when v2 of Census DLP dataset is loaded", t, func() {
-		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/2", nil)
+		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/2", http.NoBody)
 		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
 		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionTwoDetails, []dpDatasetApiModels.Version{versionOneDetails, versionTwoDetails}, true)
@@ -90,7 +91,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("IsCurrent returns false when request is for a different page", t, func() {
-		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/1", nil)
+		req := httptest.NewRequest("", "/datasets/cantabular-1/editions/2021/versions/1", http.NoBody)
 		// Call to `UpdateBasePage` adds base page metadata from request and dataset model
 		UpdateBasePage(&pageModel, datasetModel, homepageContent, false, "en", req)
 		page := CreateCensusBasePage(pageModel, datasetModel, versionTwoDetails, []dpDatasetApiModels.Version{versionOneDetails, versionTwoDetails}, true)

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -22,13 +21,12 @@ func TestPostCreateCustomDataset(t *testing.T) {
 
 	Convey("test PostCreateCustomDataset", t, func() {
 		Convey("happy path creates a filter id and redirects to filter page", func() {
-
 			// GIVEN - a valid request
 			formData := url.Values{}
 			formData.Add("populationType", "UR")
 			encodedFormData := formData.Encode()
 
-			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/datasets/create"), strings.NewReader(encodedFormData))
+			req := httptest.NewRequest(http.MethodPost, "/datasets/create", strings.NewReader(encodedFormData))
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 
@@ -59,7 +57,7 @@ func TestPostCreateCustomDataset(t *testing.T) {
 			formData := url.Values{}
 			encodedFormData := formData.Encode()
 
-			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/datasets/create"), strings.NewReader(encodedFormData))
+			req := httptest.NewRequest(http.MethodPost, "/datasets/create", strings.NewReader(encodedFormData))
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 
@@ -89,7 +87,7 @@ func TestPostCreateCustomDataset(t *testing.T) {
 			formData.Add("populationType", "UR")
 			encodedFormData := formData.Encode()
 
-			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/datasets/create"), strings.NewReader(encodedFormData))
+			req := httptest.NewRequest(http.MethodPost, "/datasets/create", strings.NewReader(encodedFormData))
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 

@@ -8,7 +8,6 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/publisher"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
@@ -29,7 +28,8 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	latestVersionNumber := 1
 
 	// Loop through versions to find info
-	for _, singleVersion := range allVersions {
+	for i := range allVersions {
+		singleVersion := &allVersions[i]
 		// Find the initial version release data
 		if singleVersion.Version == 1 {
 			initialVersionReleaseDate = singleVersion.ReleaseDate
@@ -140,10 +140,10 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	p.DatasetLandingPage.ShareDetails = buildStaticSharingDetails(d, basePage.Language, currentURL)
 
 	// RELATED CONTENT
-	p.DatasetLandingPage.RelatedContentItems = []model.RelatedContentItem{}
+	p.DatasetLandingPage.RelatedContentItems = []sharedModel.RelatedContentItem{}
 	if d.RelatedContent != nil {
 		for _, content := range *d.RelatedContent {
-			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, model.RelatedContentItem{
+			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, sharedModel.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
 				Text:  content.Description,

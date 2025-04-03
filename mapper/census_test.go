@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"slices"
 	"testing"
@@ -32,7 +33,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 
 	Convey("Given simple page data", t, func() {
 		helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-		req := httptest.NewRequest("", "/", nil)
+		req := httptest.NewRequest("", "/", http.NoBody)
 		pageModel := coreModel.Page{}
 		contact := getTestContacts()
 		relatedContent := getTestRelatedContent()

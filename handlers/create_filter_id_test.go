@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"io/ioutil"
+	io "io"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -370,7 +370,7 @@ func testResponse(code int, body *strings.Reader, url string, fc FilterClient, d
 
 	So(w.Code, ShouldEqual, code)
 
-	b, err := ioutil.ReadAll(w.Body)
+	b, err := io.ReadAll(w.Body)
 	So(err, ShouldBeNil)
 	// Writer body should be empty, we don't write a response
 	So(b, ShouldBeEmpty)

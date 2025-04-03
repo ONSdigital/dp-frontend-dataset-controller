@@ -9,11 +9,10 @@ import (
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Constants...
@@ -23,7 +22,7 @@ const (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails, version dpDatasetApiModels.Version,
+func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dataset.DatasetDetails, version dpDatasetApiModels.Version,
 	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) census.Page {
 	censusPage := census.Page{
@@ -35,7 +34,9 @@ func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.Datase
 	latestVersionNumber := 1
 
 	// Loop through versions to find info
-	for _, singleVersion := range allVersions {
+	for i := range allVersions {
+		singleVersion := &allVersions[i]
+
 		// Find the initial version release data
 		if singleVersion.Version == 1 {
 			initialVersionReleaseDate = singleVersion.ReleaseDate
@@ -69,7 +70,7 @@ func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.Datase
 	censusPage.ShowCensusBranding = datasetDetails.Survey == "census"
 
 	// BREADCRUMBS
-	censusPage.Breadcrumb = []coreModel.TaxonomyNode{
+	censusPage.Breadcrumb = []dpRendererModel.TaxonomyNode{
 		{
 			Title: "Home",
 			URI:   "/",
@@ -106,7 +107,7 @@ func CreateCensusBasePage(basePage coreModel.Page, datasetDetails dataset.Datase
 	// VERSIONS TABLE
 	if hasOtherVersions {
 		for i := range allVersions {
-			var version sharedModel.Version
+			var version model.Version
 			version.VersionNumber = allVersions[i].Version
 			version.ReleaseDate = allVersions[i].ReleaseDate
 			versionURL := helpers.DatasetVersionURL(
@@ -216,39 +217,39 @@ func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) mode
 	return shareDetails
 }
 
-func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersions bool) coreModel.TableOfContents {
-	sections := make(map[string]coreModel.ContentSection)
+func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersions bool) dpRendererModel.TableOfContents {
+	sections := make(map[string]dpRendererModel.ContentSection)
 	displayOrder := make([]string, 0)
 
-	tableOfContents := coreModel.TableOfContents{
-		AriaLabel: coreModel.Localisation{
+	tableOfContents := dpRendererModel.TableOfContents{
+		AriaLabel: dpRendererModel.Localisation{
 			LocaleKey: "ContentsAria",
 			Plural:    1,
 		},
-		Title: coreModel.Localisation{
+		Title: dpRendererModel.Localisation{
 			LocaleKey: "Contents",
 			Plural:    1,
 		},
 	}
 
-	sections["summary"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
+	sections["summary"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
 			LocaleKey: "Summary",
 			Plural:    1,
 		},
 	}
 	displayOrder = append(displayOrder, "summary")
 
-	sections["variables"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
+	sections["variables"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
 			LocaleKey: "Variables",
 			Plural:    4,
 		},
 	}
 	displayOrder = append(displayOrder, "variables")
 
-	sections["get-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
+	sections["get-data"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
 			LocaleKey: "GetData",
 			Plural:    1,
 		},
@@ -256,8 +257,8 @@ func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersi
 	displayOrder = append(displayOrder, "get-data")
 
 	if p.HasContactDetails {
-		sections["contact"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["contact"] = dpRendererModel.ContentSection{
+			Title: dpRendererModel.Localisation{
 				LocaleKey: "ContactUs",
 				Plural:    1,
 			},
@@ -265,8 +266,8 @@ func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersi
 		displayOrder = append(displayOrder, "contact")
 	}
 
-	sections["protecting-personal-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
+	sections["protecting-personal-data"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
 			LocaleKey: "ProtectingPersonalDataTitle",
 			Plural:    1,
 		},
@@ -274,8 +275,8 @@ func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersi
 	displayOrder = append(displayOrder, "protecting-personal-data")
 
 	if hasOtherVersions {
-		sections["version-history"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["version-history"] = dpRendererModel.ContentSection{
+			Title: dpRendererModel.Localisation{
 				LocaleKey: "VersionHistory",
 				Plural:    1,
 			},
@@ -284,8 +285,8 @@ func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersi
 	}
 
 	if d.RelatedContent != nil {
-		sections["related-content"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["related-content"] = dpRendererModel.ContentSection{
+			Title: dpRendererModel.Localisation{
 				LocaleKey: "RelatedContentTitle",
 				Plural:    1,
 			},

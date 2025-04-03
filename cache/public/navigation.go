@@ -10,7 +10,7 @@ import (
 )
 
 func UpdateNavigationData(ctx context.Context, cfg *config.Config, lang string, topicClient topicCli.Clienter) func() *topicModel.Navigation {
-	if cfg.EnableNewNavBar == false {
+	if cfg.EnableNewNavBar == false { //nolint:gosimple // This implementation is clearer
 		return func() *topicModel.Navigation {
 			return &topicModel.Navigation{}
 		}

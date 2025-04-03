@@ -21,11 +21,11 @@ func postCreateCustomDataset(w http.ResponseWriter, req *http.Request, fc Filter
 
 	form, err := parseChangeDimensionForm(req)
 	if err != nil {
-		http.Redirect(w, req, fmt.Sprintf("/datasets/create?error=true"), http.StatusMovedPermanently)
+		http.Redirect(w, req, "/datasets/create?error=true", http.StatusMovedPermanently)
 		return
 	}
 
-	filterId, err := fc.CreateCustomFilter(ctx, userAccessToken, "", form.PopulationType)
+	filterID, err := fc.CreateCustomFilter(ctx, userAccessToken, "", form.PopulationType)
 	if err != nil {
 		log.Error(ctx, "failed to create new custom filter", err, log.Data{
 			"population-type": form.PopulationType,
@@ -34,7 +34,7 @@ func postCreateCustomDataset(w http.ResponseWriter, req *http.Request, fc Filter
 		return
 	}
 
-	http.Redirect(w, req, fmt.Sprintf("/filters/%s/dimensions", filterId), http.StatusMovedPermanently)
+	http.Redirect(w, req, fmt.Sprintf("/filters/%s/dimensions", filterID), http.StatusMovedPermanently)
 }
 
 // createCustomDatasetForm represents form-data for the PostCreateCustomDataset handler.

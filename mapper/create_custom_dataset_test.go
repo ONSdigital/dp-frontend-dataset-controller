@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 
 func TestCreateCustomDataset(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()

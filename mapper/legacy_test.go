@@ -3,6 +3,7 @@ package mapper
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -22,7 +23,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		bcs := getTestBreadcrumbs()
 		ds := getTestDatsets()
 		lang := "cy"
-		req := httptest.NewRequest("GET", "/", nil)
+		req := httptest.NewRequest("GET", "/", http.NoBody)
 		mdl := model.Page{}
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
@@ -89,7 +90,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		dlp := getTestDatasetLandingPage()
 		bcs := getTestBreadcrumbs()
 		lang := "cy"
-		req := httptest.NewRequest("GET", "/", nil)
+		req := httptest.NewRequest("GET", "/", http.NoBody)
 		mdl := model.Page{}
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()
@@ -131,7 +132,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		dlp := getTestDatasetLandingPage()
 		bcs := getTestBreadcrumbs()
 		lang := "cy"
-		req := httptest.NewRequest("GET", "/", nil)
+		req := httptest.NewRequest("GET", "/", http.NoBody)
 		mdl := model.Page{}
 		serviceMessage := getTestServiceMessage()
 		emergencyBanner := getTestEmergencyBanner()

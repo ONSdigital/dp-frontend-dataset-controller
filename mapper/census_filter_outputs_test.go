@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -21,7 +22,7 @@ import (
 
 func TestCreateCensusFilterOutputsPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	// Setting `Type` here as this done by `UpdateBasePage` mapper when called in the handler
 	pageModel := coreModel.Page{
 		Type: "cantabular_flexible_table",
@@ -130,12 +131,12 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 
 func TestSDCOnFilterOutputsPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	datasetModel.Type = "multivariate"
+	datasetModel.Type = "multivariate" //nolint:goconst // not necessary for tests
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
 
@@ -182,7 +183,7 @@ func TestSDCOnFilterOutputsPage(t *testing.T) {
 
 func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	// Setting `Metadata.Title` here as this done by `UpdateBasePage` mapper when called in the handler
 	pageModel := coreModel.Page{
 		Metadata: coreModel.Metadata{
@@ -192,7 +193,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
-	datasetModel.Type = "multivariate"
+	datasetModel.Type = "multivariate" //nolint:goconst //this string doesn't need to be a constant for tests
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
 
@@ -239,7 +240,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 
 func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
@@ -290,7 +291,7 @@ func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 
 func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
@@ -362,7 +363,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 
 func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
@@ -441,7 +442,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 
 func TestCreateCensusFilterOutputsQualityNotices(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := coreModel.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()

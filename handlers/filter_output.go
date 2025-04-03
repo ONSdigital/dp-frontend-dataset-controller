@@ -30,8 +30,8 @@ func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc Dat
 	})
 }
 
+// nolint:gocognit,gocyclo // Legacy code
 func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
-	const numOptsSummary = 1000
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
@@ -60,10 +60,12 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	go func() {
 		defer wg.Done()
 		filterOutput, fErr = fc.GetOutput(ctx, userAccessToken, "", "", collectionID, filterOutputID)
-		for _, dim := range filterOutput.Dimensions {
-			dimIds = append(dimIds, dim.ID)
-			if !helpers.IsBoolPtr(dim.IsAreaType) {
-				nonAreaDimIds = append(nonAreaDimIds, dim.ID)
+		for i := range filterOutput.Dimensions {
+			dimension := &filterOutput.Dimensions[i]
+
+			dimIds = append(dimIds, dimension.ID)
+			if !helpers.IsBoolPtr(dimension.IsAreaType) {
+				nonAreaDimIds = append(nonAreaDimIds, dimension.ID)
 			}
 		}
 	}()
@@ -198,7 +200,9 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	}
 
 	latestVersionNumber := 1
-	for _, singleVersion := range allVers.Items {
+
+	for i := range allVers.Items {
+		singleVersion := &allVers.Items[i]
 		if singleVersion.Version > latestVersionNumber {
 			latestVersionNumber = singleVersion.Version
 		}
@@ -284,7 +288,6 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 				}
 
 				options = append(options, area.Area.Label)
-
 			}(opt, i)
 		}
 		wg.Wait()

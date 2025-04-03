@@ -37,7 +37,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockZebedeeClient.EXPECT().Get(ctx, "12345", zebedeePath).Return([]byte(`{"some_json":true}`), nil)
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, path+"/data", nil)
+			req, _ := http.NewRequest(http.MethodGet, path+"/data", http.NoBody)
 			req.AddCookie(&http.Cookie{Name: "access_token", Value: "12345"})
 
 			ctxOther := context.Background()
@@ -65,7 +65,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static-legacy")
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", http.NoBody)
 
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -81,7 +81,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, errors.New("something went wrong :("))
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", http.NoBody)
 
 			ctxOther := context.Background()
 			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
@@ -98,7 +98,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI).Return(nil, errors.New("something went wrong"))
 
 			w := httptest.NewRecorder()
-			req, err := http.NewRequest("GET", "/somelegacypage", nil)
+			req, err := http.NewRequest("GET", "/somelegacypage", http.NoBody)
 			So(err, ShouldBeNil)
 
 			ctxOther := context.Background()
@@ -165,7 +165,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			})
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", legacyURL, nil)
+			req, _ := http.NewRequest("GET", legacyURL, http.NoBody)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
 			ctxOther := context.Background()
@@ -214,7 +214,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 			})
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", legacyURL, nil)
+			req, _ := http.NewRequest("GET", legacyURL, http.NoBody)
 			req.Header.Set(authHeaderKey, expectedAuthToken)
 
 			ctxOther := context.Background()

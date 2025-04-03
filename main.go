@@ -36,15 +36,15 @@ import (
 	dpnethandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	dpnethttp "github.com/ONSdigital/dp-net/v2/http"
 	dpotelgo "github.com/ONSdigital/dp-otel-go"
-
-	_ "net/http/pprof"
 )
 
+// nolint:unused // ignoring unused type
 type unencryptedAuth struct {
 	smtp.Auth
 }
 
-func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+// nolint:unused // ignoring unused function
+func (a unencryptedAuth) Start(server *smtp.ServerInfo) (string, []byte, error) { // nolint:gocritic // unnamedResult: consider giving a name to these results
 	s := *server
 	s.TLS = true
 	return a.Auth.Start(&s)
@@ -72,9 +72,10 @@ func main() {
 	os.Exit(0)
 }
 
+// nolint:gocyclo // ignoring complexity warning
 func run(ctx context.Context) error {
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, os.Kill)
+	signal.Notify(signals, os.Interrupt, os.Kill) // nolint:staticcheck // SA1016: os.Kill cannot be trapped (did you mean syscall.SIGTERM?)
 
 	// Get config
 	cfg, err := config.Get()
@@ -86,7 +87,6 @@ func run(ctx context.Context) error {
 	log.Info(ctx, "got service configuration", log.Data{"config": cfg})
 
 	if cfg.OtelEnabled {
-
 		otelConfig := dpotelgo.Config{
 			OtelServiceName:          cfg.OTServiceName,
 			OtelExporterOtlpEndpoint: cfg.OTExporterOTLPEndpoint,
@@ -145,7 +145,7 @@ func run(ctx context.Context) error {
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
 	if err = registerCheckers(ctx, &healthcheck, apiRouterCli); err != nil {
-		os.Exit(1)
+		os.Exit(1) // nolint:gocritic // ignoring exitAfterDefer: os.Exit will exit, and `defer func(){...}(...)` will not run
 	}
 
 	// Initialise render client, routes and initialise localisations bundles

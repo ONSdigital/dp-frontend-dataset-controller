@@ -18,7 +18,7 @@ import (
 
 // TestCreateDatasetPage tests the CreateDatasetPage method in the mapper
 func TestCreateDatasetPage(t *testing.T) {
-	req := httptest.NewRequest("", "/", nil)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	expectedType := "dataset"
 	dummyModelData := zebedee.Dataset{
 		Type: "dataset",
@@ -352,26 +352,26 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versions, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /file?uri=", func() {
-				downloadUrl := result.DatasetPage.Downloads[0].DownloadURL
-				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
-				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+				downloadURL := result.DatasetPage.Downloads[0].DownloadURL
+				expectedDownloadURL := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
+				So(downloadURL, ShouldEqual, expectedDownloadURL)
 			})
 
 			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadURL
-				expectedDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
-				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+				downloadURL := result.DatasetPage.SupplementaryFiles[0].DownloadURL
+				expectedDownloadURL := fmt.Sprintf("/file?uri=%s/%s", basePath, filename)
+				So(downloadURL, ShouldEqual, expectedDownloadURL)
 			})
 		})
 	})
 
 	Convey("Given a file stored in Files API", t, func() {
 		filepath := basePath + "/" + filename
-		latestVersionUri := basePath + "/previous/v3"
+		latestVersionURI := basePath + "/previous/v3"
 
 		versionedDatasets := []zebedee.Dataset{
 			{
-				URI:       latestVersionUri,
+				URI:       latestVersionURI,
 				Downloads: []zebedee.Download{{URI: filepath}},
 			},
 		}
@@ -380,7 +380,7 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			URI:                basePath,
 			Downloads:          []zebedee.Download{{URI: filepath}},
 			SupplementaryFiles: []zebedee.SupplementaryFile{{URI: filepath}},
-			Versions:           []zebedee.Version{{URI: latestVersionUri}},
+			Versions:           []zebedee.Version{{URI: latestVersionURI}},
 		}
 
 		Convey("When CreateDatasetPage is called", func() {
@@ -396,44 +396,44 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Downloads should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.Downloads[0].DownloadURL
-				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
-				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+				downloadURL := result.DatasetPage.Downloads[0].DownloadURL
+				expectedDownloadURL := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadURL, ShouldEqual, expectedDownloadURL)
 			})
 
 			Convey("Then the resultant dataset SupplementaryFiles should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.SupplementaryFiles[0].DownloadURL
-				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
-				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+				downloadURL := result.DatasetPage.SupplementaryFiles[0].DownloadURL
+				expectedDownloadURL := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadURL, ShouldEqual, expectedDownloadURL)
 			})
 
 			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
-				downloadUrl := result.DatasetPage.Versions[0].Downloads[0].DownloadURL
-				expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
-				So(downloadUrl, ShouldEqual, expectedDownloadUrl)
+				downloadURL := result.DatasetPage.Versions[0].Downloads[0].DownloadURL
+				expectedDownloadURL := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, filepath)
+				So(downloadURL, ShouldEqual, expectedDownloadURL)
 			})
 		})
 	})
 
 	Convey("Given multiple versions with downloads stored in Files API and Zebedee", t, func() {
-		latestVersionUri := basePath + "/previous/v3"
-		previousVersionUri := basePath + "/previous/v2"
-		oldVersionUri := basePath + "/previous/v1"
+		latestVersionURI := basePath + "/previous/v3"
+		previousVersionURI := basePath + "/previous/v2"
+		oldVersionURI := basePath + "/previous/v1"
 
 		previousFilepath := basePath + "/previous/" + filename
 		currentFilepath := basePath + "/" + filename
 
 		versionedDatasets := []zebedee.Dataset{
 			{
-				URI:       latestVersionUri,
+				URI:       latestVersionURI,
 				Downloads: []zebedee.Download{{URI: currentFilepath}},
 			},
 			{
-				URI:       previousVersionUri,
+				URI:       previousVersionURI,
 				Downloads: []zebedee.Download{{URI: previousFilepath}},
 			},
 			{
-				URI:       oldVersionUri,
+				URI:       oldVersionURI,
 				Downloads: []zebedee.Download{{File: filename}},
 			},
 		}
@@ -442,9 +442,9 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			URI:       basePath,
 			Downloads: []zebedee.Download{{URI: currentFilepath}},
 			Versions: []zebedee.Version{
-				{URI: latestVersionUri},
-				{URI: previousVersionUri},
-				{URI: oldVersionUri},
+				{URI: latestVersionURI},
+				{URI: previousVersionURI},
+				{URI: oldVersionURI},
 			},
 		}
 
@@ -461,17 +461,17 @@ func TestCreateDatasetPageFileLinks(t *testing.T) {
 			result := CreateDatasetPage(basePage, req, ds, dlp, bc, versionedDatasets, lang, serviceMessage, emergencyBanner, navigationCache)
 
 			Convey("Then the resultant dataset Version should contain a DownloadURL containing /downloads-new", func() {
-				latestDownloads := findVersionedDownload(result.DatasetPage.Versions, latestVersionUri)
-				previousDownloads := findVersionedDownload(result.DatasetPage.Versions, previousVersionUri)
-				oldDownloads := findVersionedDownload(result.DatasetPage.Versions, oldVersionUri)
+				latestDownloads := findVersionedDownload(result.DatasetPage.Versions, latestVersionURI)
+				previousDownloads := findVersionedDownload(result.DatasetPage.Versions, previousVersionURI)
+				oldDownloads := findVersionedDownload(result.DatasetPage.Versions, oldVersionURI)
 
-				expectedFilesAPIDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, currentFilepath)
-				expectedFilesAPIDownloadUrlPreviousVersion := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, previousFilepath)
-				expectedZebedeeDownloadUrl := fmt.Sprintf("/file?uri=%s/%s", oldVersionUri, filename)
+				expectedFilesAPIDownloadURL := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, currentFilepath)
+				expectedFilesAPIDownloadURLPreviousVersion := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, previousFilepath)
+				expectedZebedeeDownloadURL := fmt.Sprintf("/file?uri=%s/%s", oldVersionURI, filename)
 
-				So(latestDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadUrl)
-				So(previousDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadUrlPreviousVersion)
-				So(oldDownloads[0].DownloadURL, ShouldEqual, expectedZebedeeDownloadUrl)
+				So(latestDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadURL)
+				So(previousDownloads[0].DownloadURL, ShouldEqual, expectedFilesAPIDownloadURLPreviousVersion)
+				So(oldDownloads[0].DownloadURL, ShouldEqual, expectedZebedeeDownloadURL)
 			})
 		})
 	})

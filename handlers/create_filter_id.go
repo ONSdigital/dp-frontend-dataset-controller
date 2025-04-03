@@ -30,17 +30,19 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		}
 
 		var names []string
-		for _, dim := range dimensions.Items {
+		for i := range dimensions.Items {
+			dimension := &dimensions.Items[i]
+
 			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
 			q := dataset.QueryParams{Offset: 0, Limit: 0}
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 			if err != nil {
 				setStatusCode(ctx, w, err)
 				return
 			}
 
 			if opts.TotalCount > 1 { // If there is only one option then it can't be filterable so don't add to filter api
-				names = append(names, dim.Name)
+				names = append(names, dimension.Name)
 			}
 		}
 		fid, _, err := c.CreateBlueprint(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version, names)
@@ -76,11 +78,13 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient) http.HandlerFunc {
 		}
 
 		dims := []filter.ModelDimension{}
-		for _, verDim := range ver.Dimensions {
+		for i := range ver.Dimensions {
+			versionDimension := &ver.Dimensions[i]
+
 			var dim = filter.ModelDimension{}
-			dim.Name = verDim.Name
-			dim.URI = verDim.HRef
-			dim.IsAreaType = verDim.IsAreaType
+			dim.Name = versionDimension.Name
+			dim.URI = versionDimension.HRef
+			dim.IsAreaType = versionDimension.IsAreaType
 			dims = append(dims, dim)
 		}
 
@@ -126,15 +130,17 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 		}
 
 		dims := []filter.ModelDimension{}
-		for _, verDim := range fo.Dimensions {
+		for i := range fo.Dimensions {
+			versionDimension := &fo.Dimensions[i]
+
 			var dim = filter.ModelDimension{}
-			dim.Name = verDim.Name
-			dim.URI = verDim.URI
-			dim.IsAreaType = verDim.IsAreaType
-			dim.Options = verDim.Options
-			dim.FilterByParent = verDim.FilterByParent
-			dim.QualityStatementText = verDim.QualityStatementText
-			dim.QualitySummaryURL = verDim.QualitySummaryURL
+			dim.Name = versionDimension.Name
+			dim.URI = versionDimension.URI
+			dim.IsAreaType = versionDimension.IsAreaType
+			dim.Options = versionDimension.Options
+			dim.FilterByParent = versionDimension.FilterByParent
+			dim.QualityStatementText = versionDimension.QualityStatementText
+			dim.QualitySummaryURL = versionDimension.QualitySummaryURL
 			dims = append(dims, dim)
 		}
 

@@ -94,7 +94,7 @@ func TestIsBoolPtr(t *testing.T) {
 		})
 	})
 	Convey("When the value is a false pointer", t, func() {
-		ptr := *new(bool)
+		ptr := false
 		Convey("Then the returned value is false", func() {
 			So(IsBoolPtr(&ptr), ShouldBeFalse)
 		})
@@ -186,7 +186,7 @@ func TestGetOSRLogoDetails(t *testing.T) {
 	})
 }
 
-// Tests for the `GetDistributionFileUrl` helper function
+// Tests for the `GetDistributionFileURL` helper function
 func TestGetDistributionFileUrl(t *testing.T) {
 	distributionCsv := models.Distribution{
 		Title:       "CSV file",
@@ -203,21 +203,28 @@ func TestGetDistributionFileUrl(t *testing.T) {
 		ByteSize:    1234,
 	}
 
+	Convey("Test function returns empty string if requested format is empty string", t, func() {
+		distributionList := []models.Distribution{
+			distributionCsv,
+			distributionXls,
+		}
+		result := GetDistributionFileURL(&distributionList, "")
+		So(result, ShouldEqual, "")
+	})
+
 	Convey("Test function returns empty string if input distributions is empty", t, func() {
 		distributionList := []models.Distribution{}
-		requestedFormat := "xls"
 
-		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		result := GetDistributionFileURL(&distributionList, "xls")
 		So(result, ShouldEqual, "")
 	})
 	Convey("Test function returns empty string if requested format doesn't match", t, func() {
-
 		distributionList := []models.Distribution{distributionCsv}
 		requestedFormat := "xls"
 
 		// Just confirm requested format doesn't match the distribution format
 		So(requestedFormat, ShouldNotEqual, distributionCsv.Format.String())
-		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		result := GetDistributionFileURL(&distributionList, requestedFormat)
 		So(result, ShouldEqual, "")
 	})
 	Convey("Test function returns valid url if requested format matches distribution", t, func() {
@@ -229,22 +236,12 @@ func TestGetDistributionFileUrl(t *testing.T) {
 
 		// Just confirm requested format matches the distribution format
 		So(requestedFormat, ShouldEqual, distributionCsv.Format.String())
-		result := GetDistributionFileUrl(&distributionList, requestedFormat)
+		result := GetDistributionFileURL(&distributionList, requestedFormat)
 		So(result, ShouldEqual, distributionCsv.DownloadURL)
-	})
-	Convey("Test function returns empty string if requested format is empty string", t, func() {
-		distributionList := []models.Distribution{
-			distributionCsv,
-			distributionXls,
-		}
-		requestedFormat := ""
-
-		result := GetDistributionFileUrl(&distributionList, requestedFormat)
-		So(result, ShouldEqual, "")
 	})
 }
 
-// Tests for the `GetDownloadFileUrl` helper function
+// Tests for the `GetDownloadFileURL` helper function
 func TestGetDownloadFileUrl(t *testing.T) {
 	downloadObjectCsv := models.DownloadObject{
 		HRef: "https://www.aws/123.csv",
@@ -259,17 +256,16 @@ func TestGetDownloadFileUrl(t *testing.T) {
 		downloadList := models.DownloadList{}
 		requestedFormat := "xls"
 
-		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		result := GetDownloadFileURL(&downloadList, requestedFormat)
 		So(result, ShouldEqual, "")
 	})
 	Convey("Test function returns empty string if requested format doesn't match", t, func() {
-
 		downloadList := models.DownloadList{
 			CSV: &downloadObjectCsv,
 		}
 		requestedFormat := "xls"
 
-		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		result := GetDownloadFileURL(&downloadList, requestedFormat)
 		So(result, ShouldEqual, "")
 	})
 	Convey("Test function returns valid url if requested format matches distribution", t, func() {
@@ -279,7 +275,7 @@ func TestGetDownloadFileUrl(t *testing.T) {
 		}
 		requestedFormat := "csv"
 
-		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		result := GetDownloadFileURL(&downloadList, requestedFormat)
 		So(result, ShouldEqual, downloadList.CSV.HRef)
 	})
 	Convey("Test function returns empty string if requested format is empty string", t, func() {
@@ -289,14 +285,13 @@ func TestGetDownloadFileUrl(t *testing.T) {
 		}
 		requestedFormat := ""
 
-		result := GetDownloadFileUrl(&downloadList, requestedFormat)
+		result := GetDownloadFileURL(&downloadList, requestedFormat)
 		So(result, ShouldEqual, "")
 	})
 }
 
 // Tests for the `MapVersionDownloads` helper function
 func TestMapVersionDownloads(t *testing.T) {
-
 	sharedModelVersion := sharedModel.Version{}
 
 	Convey("Test function doesn't update `sharedModelVersion.Downloads` if input `DownloadList` is nil pointer", t, func() {

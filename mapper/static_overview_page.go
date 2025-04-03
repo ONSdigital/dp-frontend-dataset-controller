@@ -26,7 +26,6 @@ func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dataset.Da
 				Size:      strconv.FormatInt(distribution.ByteSize, 10),
 				URI:       distribution.DownloadURL,
 			})
-
 		}
 		p.Version.Downloads = orderDownloads(p.Version.Downloads)
 		p.DatasetLandingPage.HasDownloads = true

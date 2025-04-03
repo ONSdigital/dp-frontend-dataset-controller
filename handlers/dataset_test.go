@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -312,7 +311,7 @@ func TestDatasetHandlers(t *testing.T) {
 			})
 
 			Convey("And the response body should be the body returned from Zebedee", func() {
-				actualBody, _ := ioutil.ReadAll(w.Body)
+				actualBody, _ := io.ReadAll(w.Body)
 				So(actualBody, ShouldResemble, expectedBody)
 			})
 		})
@@ -331,9 +330,9 @@ func TestDatasetTemplateRendering(t *testing.T) {
 	Convey("Given a file stored in Zebedee", t, func() {
 		expectedFormat := "/file?uri=%s"
 
-		expectedDownloadUrl := fmt.Sprintf(expectedFormat, uri)
-		expectedVersionDownloadUrl := fmt.Sprintf(expectedFormat, versionFilename)
-		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadUrl, expectedVersionDownloadUrl)
+		expectedDownloadURL := fmt.Sprintf(expectedFormat, uri)
+		expectedVersionDownloadURL := fmt.Sprintf(expectedFormat, versionFilename)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadURL, expectedVersionDownloadURL)
 
 		Convey("When render client page is built", func() {
 			w, _ := generateRecorderAndRequest()
@@ -342,30 +341,30 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the download href should contain a /file path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%q"]`, filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
-				So(actualHref, ShouldEqual, expectedDownloadUrl)
+				So(actualHref, ShouldEqual, expectedDownloadURL)
 			})
 
 			Convey("Then the version download href should contain a /file path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%q"]`, versionFilename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
-				So(actualHref, ShouldEqual, expectedVersionDownloadUrl)
+				So(actualHref, ShouldEqual, expectedVersionDownloadURL)
 			})
 		})
 	})
 
 	Convey("Given a file stored in Files API", t, func() {
-		expectedDownloadUrl := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, uri)
-		expectedVersionDownloadUrl := fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, versionFilename)
-		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadUrl, expectedVersionDownloadUrl)
+		expectedDownloadURL := fmt.Sprintf("/%s%s", staticFilesDownloadEndpoint, uri)
+		expectedVersionDownloadURL := fmt.Sprintf("/%s/%s", staticFilesDownloadEndpoint, versionFilename)
+		actualPageModel := mockZebedeePageModel(extension, uri, filename, versionFilename, expectedDownloadURL, expectedVersionDownloadURL)
 
 		Convey("When render client page is built", func() {
 			w, _ := generateRecorderAndRequest()
@@ -374,37 +373,37 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the download href should contain a /downloads-new path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%q"]`, filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
-				So(actualHref, ShouldEqual, expectedDownloadUrl)
+				So(actualHref, ShouldEqual, expectedDownloadURL)
 			})
 
 			Convey("Then the version download href should contain a /downloads-new path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				selector := fmt.Sprintf(`a[data-gtm-download-file="%q"]`, versionFilename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
 
-				So(actualHref, ShouldEqual, expectedVersionDownloadUrl)
+				So(actualHref, ShouldEqual, expectedVersionDownloadURL)
 			})
 		})
 	})
 }
 
-func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, downloadUrl, versionUrl string) mapper.DatasetPage {
+func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, downloadURL, versionURL string) mapper.DatasetPage {
 	size := "100"
 	basePath := "/some/path/2022"
-	latestVersionUri := basePath + "/previous/v3"
+	latestVersionURI := basePath + "/previous/v3"
 	expectedDownload := dsp.Download{
 		Extension:   extension,
 		Size:        size,
 		URI:         uri,
 		File:        downloadFilename,
-		DownloadURL: downloadUrl,
+		DownloadURL: downloadURL,
 	}
 
 	return mapper.DatasetPage{
@@ -416,8 +415,8 @@ func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, dow
 			Downloads: []dsp.Download{expectedDownload},
 			Versions: []dsp.Version{
 				{
-					URI:       latestVersionUri,
-					Downloads: []dsp.Download{{URI: versionFilename, DownloadURL: versionUrl, Extension: extension}},
+					URI:       latestVersionURI,
+					Downloads: []dsp.Download{{URI: versionFilename, DownloadURL: versionURL, Extension: extension}},
 				},
 			},
 		},
@@ -425,7 +424,7 @@ func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, dow
 }
 
 func generateRecorderAndRequest() (*httptest.ResponseRecorder, *http.Request) {
-	req, _ := http.NewRequest(http.MethodGet, editionPageURI, nil)
+	req, _ := http.NewRequest(http.MethodGet, editionPageURI, http.NoBody)
 	req.Header.Add("X-Florence-Token", userAuthTokenDatasets)
 	req.Header.Add("Collection-Id", collectionIDDatasets)
 	localeCookie := &http.Cookie{

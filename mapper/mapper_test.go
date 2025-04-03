@@ -12,14 +12,13 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
-	mdl := model.Page{}
+	mdl := dpRendererModel.Page{}
 
 	nomisRefURL := "https://www.nomisweb.co.uk/census/2011/ks101ew"
 	contact := dataset.Contact{
@@ -426,8 +425,8 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
-	mdl := model.Page{}
-	req := httptest.NewRequest("", "/", nil)
+	mdl := dpRendererModel.Page{}
+	req := httptest.NewRequest("/", "$2", http.NoBody)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
@@ -531,10 +530,10 @@ func TestCreateVersionsList(t *testing.T) {
 }
 
 func TestUnitMapCookiesPreferences(t *testing.T) {
-	req := httptest.NewRequest("", "/", nil)
-	pageModel := model.Page{
+	req := httptest.NewRequest("/", "$2", http.NoBody)
+	pageModel := dpRendererModel.Page{
 		CookiesPreferencesSet: false,
-		CookiesPolicy: model.CookiesPolicy{
+		CookiesPolicy: dpRendererModel.CookiesPolicy{
 			Essential: false,
 			Usage:     false,
 		},
@@ -558,7 +557,7 @@ func TestUpdateBasePage(t *testing.T) {
 	contacts := getTestContacts()
 	isValidationError := false
 	lang := "en"
-	mockRequest := httptest.NewRequest("", "/", nil)
+	mockRequest := httptest.NewRequest("/", "$2", http.NoBody)
 	relatedContent := getTestRelatedContent()
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
@@ -570,7 +569,6 @@ func TestUpdateBasePage(t *testing.T) {
 	}
 
 	Convey("Test `UpdateBasePage` updates page attributes correctly default parameters", t, func() {
-
 		UpdateBasePage(&basePageModel, datasetDetails, homepageContent, isValidationError, lang, mockRequest)
 
 		// These parameters are set by default and are not dependent on conditional inputs

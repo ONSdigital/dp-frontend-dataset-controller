@@ -26,7 +26,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -75,7 +74,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d dataset.DatasetDetails, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dataset.DatasetDetails, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	p := filterable.Page{
 		Page: basePage,
 	}
@@ -86,7 +85,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 
 	if d.Type == "nomis" {
 		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
-		homeBreadcrumb := coreModel.TaxonomyNode{
+		homeBreadcrumb := dpRendererModel.TaxonomyNode{
 			Title: "Home",
 			URI:   "/",
 		}
@@ -97,7 +96,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
-		p.Page.Breadcrumb = append(p.Page.Breadcrumb, coreModel.TaxonomyNode{
+		p.Page.Breadcrumb = append(p.Page.Breadcrumb, dpRendererModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
@@ -119,7 +118,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 		log.Warn(ctx, "failed to parse url, self link", log.FormatErrors([]error{err}))
 	}
 	datasetPath := strings.TrimPrefix(datasetURL.Path, apiRouterVersion)
-	datasetBreadcrumbs := []coreModel.TaxonomyNode{
+	datasetBreadcrumbs := []dpRendererModel.TaxonomyNode{
 		{
 			Title: d.Title,
 			URI:   datasetPath,
@@ -223,7 +222,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage coreModel.Page, d
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}
@@ -285,7 +284,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -305,14 +304,14 @@ func CreateEditionsList(ctx context.Context, basePage coreModel.Page, req *http.
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, bc := range breadcrumbs {
-		p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
+		p.Breadcrumb = append(p.Breadcrumb, dpRendererModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, bc, apiRouterVersion),
 		})
 	}
 
 	// breadcrumbs won't contain this page in it's response from Zebedee, so add it to the slice
-	p.Breadcrumb = append(p.Breadcrumb, coreModel.TaxonomyNode{
+	p.Breadcrumb = append(p.Breadcrumb, dpRendererModel.TaxonomyNode{
 		Title: d.Title,
 	})
 
@@ -352,7 +351,7 @@ func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Vers
 }
 
 //nolint:all // legacy code with poor test coverage
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims []dpDatasetApiModels.Dimension, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensionItems, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
@@ -495,17 +494,17 @@ func convertYYYYToTime(input string) (t time.Time, err error) {
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
-func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *dpRendererModel.CookiesPolicy) {
 	preferencesCookie := cookies.GetCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
-	*policy = coreModel.CookiesPolicy{
+	*policy = dpRendererModel.CookiesPolicy{
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}
 }
 
-func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) coreModel.EmergencyBanner {
-	var mappedEmergencyBanner coreModel.EmergencyBanner
+func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) dpRendererModel.EmergencyBanner {
+	var mappedEmergencyBanner dpRendererModel.EmergencyBanner
 	emptyBannerObj := zebedee.EmergencyBanner{}
 	if bannerData != emptyBannerObj {
 		mappedEmergencyBanner.Title = bannerData.Title
@@ -543,7 +542,6 @@ func MapDownloads(downloadsList []zebedee.Download, versionURI string) []dataset
 // dataset details across all dataset types
 func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dataset.DatasetDetails,
 	homepageContent zebedee.HomepageContent, isValidationError bool, lang string, request *http.Request) {
-
 	basePage.BackTo = dpRendererModel.BackTo{
 		Text: dpRendererModel.Localisation{
 			LocaleKey: "BackToContents",

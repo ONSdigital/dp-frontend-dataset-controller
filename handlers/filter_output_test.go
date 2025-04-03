@@ -177,7 +177,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -258,7 +258,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -334,7 +334,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=csv", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=csv", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -415,7 +415,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=doc", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=get-data&format=doc", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -495,7 +495,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=bob", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890?f=bob", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -553,7 +553,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					Return(population.GetPopulationTypeResponse{}, nil)
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 				router := mux.NewRouter()
 				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -637,7 +637,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 				router := mux.NewRouter()
 				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -725,7 +725,7 @@ func TestFilterOutputHandler(t *testing.T) {
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 					w := httptest.NewRecorder()
-					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 					router := mux.NewRouter()
 					router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -814,7 +814,7 @@ func TestFilterOutputHandler(t *testing.T) {
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 					w := httptest.NewRecorder()
-					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 					router := mux.NewRouter()
 					router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -899,7 +899,7 @@ func TestFilterOutputHandler(t *testing.T) {
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 					w := httptest.NewRecorder()
-					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+					req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 					router := mux.NewRouter()
 					router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -948,7 +948,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -995,7 +995,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1042,7 +1042,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1089,7 +1089,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			}, nil).AnyTimes()
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1144,7 +1144,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1202,7 +1202,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				Return(population.GetPopulationTypeResponse{}, nil)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1255,7 +1255,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				Return(population.GetPopulationTypeResponse{}, errors.New("Internal error"))
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, mockRend, cfg, ""))
@@ -1334,7 +1334,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					Return(population.GetPopulationTypeResponse{}, nil)
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", nil)
+				req := httptest.NewRequest("GET", "/datasets/12345/editions/2021/versions/1/filter-outputs/67890", http.NoBody)
 
 				router := mux.NewRouter()
 				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}", FilterOutput(mockZebedeeClient, mockFc, mockPc, mockDc, NewMockRenderClient(mockCtrl), cfg, ""))

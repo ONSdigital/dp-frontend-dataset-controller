@@ -36,7 +36,7 @@ func TestVersionList(t *testing.T) {
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "version-list")
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockZebedeeClient, mockRend, mockConfig))
@@ -52,7 +52,7 @@ func TestVersionList(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", nil)
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
 
 			router := mux.NewRouter()
 			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, nil, mockConfig))

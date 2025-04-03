@@ -17,7 +17,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if handleRequestForZebedeeJsonData(ctx, w, zc, path, userAccessToken) {
+	if handleRequestForZebedeeJSONData(ctx, w, zc, path, userAccessToken) {
 		return
 	}
 
@@ -51,7 +51,9 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 		return
 	}
 
-	var versions []zebedee.Dataset
+	// Pre-allocate `versions` with the length of dataset versions
+	versions := make([]zebedee.Dataset, 0, len(ds.Versions))
+
 	for _, ver := range ds.Versions {
 		version, err := zc.GetDataset(ctx, userAccessToken, collectionID, lang, ver.URI)
 		if err != nil {

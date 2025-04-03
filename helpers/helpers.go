@@ -117,7 +117,7 @@ func GetOSRLogoDetails(language string) osrlogo.OSRLogo {
 // requested format.
 // If a matching distribution is found, the download URL of that distribution is returned.
 // If no matching distribution is found, it returns an empty string.
-func GetDistributionFileUrl(distributionList *[]models.Distribution, requestedFormat string) string {
+func GetDistributionFileURL(distributionList *[]models.Distribution, requestedFormat string) string {
 	distributions := *distributionList
 	for _, distribution := range distributions {
 		if strings.EqualFold(distribution.Format.String(), requestedFormat) {
@@ -131,7 +131,7 @@ func GetDistributionFileUrl(distributionList *[]models.Distribution, requestedFo
 // requested format.
 // If a matching download object is found, it returns the HRef (URL) of that download object.
 // If no matching download object is found, it returns an empty string.
-func GetDownloadFileUrl(downloadList *models.DownloadList, requestedFormat string) string {
+func GetDownloadFileURL(downloadList *models.DownloadList, requestedFormat string) string {
 	if downloadList != nil {
 		// We need a way to map `DownloadObject` identifiers to extension strings
 		downloadObjects := MapDownloadObjectExtensions(downloadList)

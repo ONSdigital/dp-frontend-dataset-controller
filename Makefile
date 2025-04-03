@@ -23,7 +23,6 @@ debug: generate-debug
 
 .PHONY: lint 
 lint:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
 	golangci-lint run ./...
 
 .PHONY: run

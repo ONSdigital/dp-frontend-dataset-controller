@@ -65,7 +65,6 @@ func TestUnitHandlers(t *testing.T) {
 	ctx := coreContext.Background()
 
 	Convey("test setStatusCode", t, func() {
-
 		Convey("test status code handles 404 response from client", func() {
 			w := httptest.NewRecorder()
 			err := &testCliError{}
@@ -87,7 +86,6 @@ func TestUnitHandlers(t *testing.T) {
 }
 
 func TestSortOptionsByCode(t *testing.T) {
-
 	Convey("Population categories are sorted", t, func() {
 		getCategoryList := func(items []population.DimensionCategoryItem) []string {
 			results := []string{}

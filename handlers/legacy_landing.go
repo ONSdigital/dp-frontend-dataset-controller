@@ -52,7 +52,7 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	path := req.URL.Path
 	ctx := req.Context()
 
-	if handleRequestForZebedeeJsonData(ctx, w, lp.ZebedeeClient, path, lp.UserAccessToken) {
+	if handleRequestForZebedeeJSONData(ctx, w, lp.ZebedeeClient, path, lp.UserAccessToken) {
 		return
 	}
 
@@ -135,7 +135,7 @@ func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dat
 				return d, err
 			}
 
-			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			fileSize := strconv.FormatUint(md.SizeInBytes, 10)
 			d.Downloads[i].Size = fileSize
 		}
 	}
@@ -147,7 +147,7 @@ func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dat
 				return d, err
 			}
 
-			fileSize := strconv.Itoa(int(md.SizeInBytes))
+			fileSize := strconv.FormatUint(md.SizeInBytes, 10)
 			d.SupplementaryFiles[i].Size = fileSize
 		}
 	}

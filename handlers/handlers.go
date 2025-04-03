@@ -43,14 +43,14 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
-	for _, dim := range dimensions.Items {
+	for i := range dimensions.Items {
+		dimension := &dimensions.Items[i]
 
 		// for time and age, request all the options (assumed less than maxAgeAndTimeOptions)
-		if dim.Name == mapper.DimensionTime || dim.Name == mapper.DimensionAge {
-
+		if dimension.Name == mapper.DimensionTime || dimension.Name == mapper.DimensionAge {
 			// query with limit maxAgeAndTimeOptions
 			q := dataset.QueryParams{Offset: 0, Limit: maxAgeAndTimeOptions}
-			opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 			if err != nil {
 				return opts, err
 			}
@@ -65,7 +65,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 
 		// for other dimensions, cap the number of options to numOpts
 		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
 			return opts, err
 		}
@@ -82,7 +82,8 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
 
-	for _, dimension := range dimensions.Items {
+	for i := range dimensions.Items {
+		dimension := &dimensions.Items[i]
 		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
 		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
@@ -98,7 +99,7 @@ func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition
 	return b.Bytes(), nil
 }
 
-func handleRequestForZebedeeJsonData(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, path string, userAccessToken string) (wasZebedeeRequest bool) {
+func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, path, userAccessToken string) (wasZebedeeRequest bool) {
 	wasZebedeeRequest = false
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
@@ -126,7 +127,8 @@ func sortOptionsByCode(items []dataset.Option) []dataset.Option {
 	sorted = append(sorted, items...)
 
 	doNumericSort := func(items []dataset.Option) bool {
-		for _, item := range items {
+		for i := range items {
+			item := &items[i]
 			_, err := strconv.Atoi(item.Option)
 			if err != nil {
 				return false
