@@ -426,7 +426,7 @@ func TestUnitMapper(t *testing.T) {
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
 	mdl := dpRendererModel.Page{}
-	req := httptest.NewRequest("/", "$2", http.NoBody)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
@@ -530,7 +530,7 @@ func TestCreateVersionsList(t *testing.T) {
 }
 
 func TestUnitMapCookiesPreferences(t *testing.T) {
-	req := httptest.NewRequest("/", "$2", http.NoBody)
+	req := httptest.NewRequest("", "/", http.NoBody)
 	pageModel := dpRendererModel.Page{
 		CookiesPreferencesSet: false,
 		CookiesPolicy: dpRendererModel.CookiesPolicy{
@@ -557,7 +557,7 @@ func TestUpdateBasePage(t *testing.T) {
 	contacts := getTestContacts()
 	isValidationError := false
 	lang := "en"
-	mockRequest := httptest.NewRequest("/", "$2", http.NoBody)
+	mockRequest := httptest.NewRequest("", "/", http.NoBody)
 	relatedContent := getTestRelatedContent()
 	serviceMessage := getTestServiceMessage()
 	emergencyBanner := getTestEmergencyBanner()
