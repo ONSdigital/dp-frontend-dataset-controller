@@ -1,3 +1,6 @@
 {
-    "go.testTags": "production"
+    "go.testTags": "production",
+    "files.associations": {
+        "*.tmpl": "html"
+  }
 }
