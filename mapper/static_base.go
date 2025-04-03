@@ -64,6 +64,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	p.UsageNotes = getUsageDetails(version)
 
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(basePage.Language)
+	p.DatasetLandingPage.NextRelease = d.NextRelease
 
 	// CENSUS BRANDING
 	p.ShowCensusBranding = false
