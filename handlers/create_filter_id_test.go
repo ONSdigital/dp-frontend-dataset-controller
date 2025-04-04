@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	io "io"
+	"io"
 	"net/http/httptest"
 	"strings"
 	"testing"
