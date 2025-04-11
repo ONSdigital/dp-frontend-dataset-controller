@@ -8,10 +8,10 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
@@ -30,15 +30,15 @@ type FilterClient interface {
 
 // DatasetClient is an interface with methods required for a dataset client
 type DatasetClient interface {
-	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.DatasetDetails, err error)
-	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
-	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
-	GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error)
-	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (m dataset.VersionsList, err error)
-	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dpDatasetApiModels.Version, err error)
-	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
-	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
-	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
+	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiModels.Dataset, err error)
+	GetDatasetByPath(ctx context.Context, headers dpDatasetApiSdk.Headers, path string) (m dpDatasetApiModels.Dataset, err error)
+	GetEditions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiSdk.EditionsList, err error)
+	GetEdition(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, edition string) (dpDatasetApiModels.Edition, error)
+	GetVersions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionsList, err error)
+	GetVersion(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Version, err error)
+	GetVersionMetadata(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Metadata, err error)
+	GetVersionDimensions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiSdk.VersionDimensionsList, err error)
+	GetVersionDimensionOptions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, dimensionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionDimensionOptionsList, err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
