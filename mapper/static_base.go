@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
@@ -64,6 +65,8 @@ func CreateStaticBasePage(
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(lang)
 	p.DatasetLandingPage.NextRelease = d.NextRelease
 
+	
+
 	// SITE-WIDE BANNERS
 	p.BetaBannerEnabled = true
 	p.ServiceMessage = serviceMessage
@@ -71,6 +74,8 @@ func CreateStaticBasePage(
 
 	// CENSUS BRANDING
 	p.ShowCensusBranding = false
+
+	fmt.Println("YYYyYYY")
 
 	// BREADCRUMBS
 	p.Breadcrumb = []coreModel.TaxonomyNode{

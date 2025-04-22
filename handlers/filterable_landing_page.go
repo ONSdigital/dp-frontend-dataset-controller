@@ -17,18 +17,19 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v2/handlers"
+	"github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *sdk.Client, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *sdk.Client, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 
 	datasetID := vars["datasetID"]
@@ -36,12 +37,21 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 	version := vars["versionID"]
 	ctx := req.Context()
 
+
 	// Fetch the dataset
 	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
 	}
+
+	topic, err := tc.GetTopicPublic(ctx, sdk.Headers{}, "9622")
+
+	if err != nil {
+		fmt.Println("HHHHHHHHHHH error", err)
+	}
+
+	fmt.Println("HHHHHHHHHHHH topic", topic, "SLUGGGG", topic.Slug)
 
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
