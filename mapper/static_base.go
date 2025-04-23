@@ -1,8 +1,6 @@
 package mapper
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
@@ -16,7 +14,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
-	topicsSDK "github.com/ONSdigital/dp-topic-api/sdk"
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
@@ -35,6 +32,7 @@ func CreateStaticBasePage(
 	serviceMessage string,
 	emergencyBannerContent zebedee.EmergencyBanner,
 	isEnableMultivariate bool,
+	topicSlugList []string,
 ) static.Page {
 	p := static.Page{
 		Page: basePage,
@@ -77,33 +75,30 @@ func CreateStaticBasePage(
 	// CENSUS BRANDING
 	p.ShowCensusBranding = false
 
-	fmt.Println("YYYyYYY")
-
 	// BREADCRUMBS
-	topicsClient := topicsSDK.New("http://localhost:25300")
-	ctx := context.Background()
-	headers := topicsSDK.Headers{
-		ServiceAuthToken: "test-service-auth-token",
-		UserAuthToken: "test-user-auth-token",
-	}
-	topic, err := topicsClient.GetTopicPublic(ctx, headers, "7779")
+	var breadcrumbsObject []coreModel.TaxonomyNode
 
-	if err != nil {
-		fmt.Println("HHHHHHHHHHH", err)
+	for _, item := range topicSlugList {
+		entry := coreModel.TaxonomyNode{
+			Title: item,
+			URI: "#",
+		}
+		breadcrumbsObject = append(breadcrumbsObject, entry)
 	}
+	p.Breadcrumb = breadcrumbsObject
+	
+	// p.Breadcrumb = []coreModel.TaxonomyNode{
+	// 	{
+	// 		Title: "Home",
+	// 		URI:   "https://www.ons.gov.uk/",
+	// 	},
+	// 	{
+	// 		Title: "Overview page",
+	// 		URI:   "#",
+	// 	},
+	// }
 
-	fmt.Println("HHHHHHHHHHH", topic)
 
-	p.Breadcrumb = []coreModel.TaxonomyNode{
-		{
-			Title: "Home",
-			URI:   "https://www.ons.gov.uk/",
-		},
-		{
-			Title: "Overview page",
-			URI:   "#",
-		},
-	}
 
 	// FEEDBACK API
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL

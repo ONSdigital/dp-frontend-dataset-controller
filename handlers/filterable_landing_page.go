@@ -17,19 +17,19 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v2/handlers"
-	"github.com/ONSdigital/dp-topic-api/sdk"
+	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *sdk.Client, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *dpTopicApiSdk.Client, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *sdk.Client, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc *dpTopicApiSdk.Client, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 
 	datasetID := vars["datasetID"]
@@ -44,14 +44,6 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		setStatusCode(ctx, w, err)
 		return
 	}
-
-	topic, err := tc.GetTopicPublic(ctx, sdk.Headers{}, "9622")
-
-	if err != nil {
-		fmt.Println("HHHHHHHHHHH error", err)
-	}
-
-	fmt.Println("HHHHHHHHHHHH topic", topic, "SLUGGGG", topic.Slug)
 
 	if len(edition) == 0 {
 		latestVersionURL, err := url.Parse(datasetModel.Links.LatestVersion.URL)
@@ -182,6 +174,27 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 		ver.Downloads = make(map[string]dataset.Download)
 	}
 
+	// BREADCRUMB
+	headers := dpTopicApiSdk.Headers{
+		ServiceAuthToken: "test-service-auth-token",
+		UserAuthToken: "test-user-auth-token",
+	}
+
+	topicsIdList := metadata.Subtopics
+
+    topicSlugList := []string{}
+
+	for _, topicId := range topicsIdList {
+		topicObject, err := tc.GetTopicPublic(ctx, headers, topicId)
+		if (err != nil){
+			fmt.Println("Failed at GetTopicPublic:", err)
+		}
+		topicSlugList = append(topicSlugList, topicObject.Slug)
+	}
+	if err != nil {
+		fmt.Println("Failed to get topics", err)
+	}
+
 	// Build page context and render
 	basePage := rend.NewBasePageModel()
 
@@ -238,6 +251,7 @@ func filterableLanding(w http.ResponseWriter, req *http.Request, dc DatasetClien
 			homepageContent.EmergencyBanner,
 			cfg.EnableMultivariate,
 			pop,
+			topicSlugList,
 		)
 
 		rend.BuildPage(w, m, "static")

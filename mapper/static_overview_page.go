@@ -37,8 +37,9 @@ func CreateStaticOverviewPage(
 	emergencyBannerContent zebedee.EmergencyBanner,
 	isEnableMultivariate bool,
 	pop population.GetPopulationTypeResponse,
+	topicSlugList []string,
 ) static.Page {
-	p := CreateStaticBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate)
+	p := CreateStaticBasePage(req, basePage, d, version, initialVersionReleaseDate, hasOtherVersions, allVersions, latestVersionNumber, latestVersionURL, lang, isValidationError, serviceMessage, emergencyBannerContent, isEnableMultivariate, topicSlugList)
 
 	// DOWNLOADS
 	for ext, download := range version.Downloads {
