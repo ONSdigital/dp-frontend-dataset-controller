@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -22,7 +21,7 @@ const (
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dataset.DatasetDetails, version dpDatasetApiModels.Version,
+func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) census.Page {
 	censusPage := census.Page{
@@ -54,7 +53,7 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dataset.
 
 	latestVersionURL := helpers.DatasetVersionURL(datasetDetails.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
-	censusPage.IsNationalStatistic = datasetDetails.NationalStatistic
+	censusPage.IsNationalStatistic = *datasetDetails.NationalStatistic
 	censusPage.ContactDetails, censusPage.HasContactDetails = getContactDetails(datasetDetails)
 
 	censusPage.Version.ReleaseDate = version.ReleaseDate
@@ -145,7 +144,7 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dataset.
 	// RELATED CONTENT
 	censusPage.DatasetLandingPage.RelatedContentItems = []model.RelatedContentItem{}
 	if datasetDetails.RelatedContent != nil {
-		for _, content := range *datasetDetails.RelatedContent {
+		for _, content := range datasetDetails.RelatedContent {
 			censusPage.DatasetLandingPage.RelatedContentItems = append(censusPage.DatasetLandingPage.RelatedContentItems, model.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
@@ -157,12 +156,12 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dataset.
 	return censusPage
 }
 
-func getContactDetails(d dataset.DatasetDetails) (contact.Details, bool) {
+func getContactDetails(d dpDatasetApiModels.Dataset) (contact.Details, bool) {
 	details := contact.Details{}
 	hasContactDetails := false
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
+	if d.Contacts != nil && len(d.Contacts) > 0 {
+		contacts := d.Contacts
 		if d.Type == "static" {
 			if contacts[0].Name != "" {
 				details.Name = contacts[0].Name
@@ -189,7 +188,7 @@ func getReleaseDate(initialDate, alternateDate string) string {
 	return initialDate
 }
 
-func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) model.ShareDetails {
+func buildSharingDetails(d dpDatasetApiModels.Dataset, lang, currentURL string) model.ShareDetails {
 	shareDetails := model.ShareDetails{}
 	shareDetails.Language = lang
 	shareDetails.ShareLocations = []model.Share{
@@ -217,7 +216,7 @@ func buildSharingDetails(d dataset.DatasetDetails, lang, currentURL string) mode
 	return shareDetails
 }
 
-func buildTableOfContents(p census.Page, d dataset.DatasetDetails, hasOtherVersions bool) dpRendererModel.TableOfContents {
+func buildTableOfContents(p census.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
 	sections := make(map[string]dpRendererModel.ContentSection)
 	displayOrder := make([]string, 0)
 

@@ -1,11 +1,12 @@
 package mapper
 
 import (
+	"context"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -13,10 +14,11 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	topicsSDK "github.com/ONSdigital/dp-topic-api/sdk"
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, version dpDatasetApiModels.Version,
+func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) static.Page {
 	p := static.Page{
@@ -47,7 +49,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 
 	latestVersionURL := helpers.DatasetVersionURL(d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
-	p.IsNationalStatistic = d.NationalStatistic
+	p.IsNationalStatistic = *d.NationalStatistic
 	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
@@ -70,6 +72,20 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
+	topicsClient := topicsSDK.New("http://localhost:25300")
+	ctx := context.Background()
+	headers := topicsSDK.Headers{
+		ServiceAuthToken: "test-service-auth-token",
+		UserAuthToken: "test-user-auth-token",
+	}
+	topic, err := topicsClient.GetTopicPublic(ctx, headers, "7779")
+
+	if err != nil {
+		fmt.Println("HHHHHHHHHHH", err)
+	}
+
+	fmt.Println("HHHHHHHHHHH", topic)
+
 	p.Breadcrumb = []coreModel.TaxonomyNode{
 		{
 			Title: "Home",
@@ -143,7 +159,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	// RELATED CONTENT
 	p.DatasetLandingPage.RelatedContentItems = []sharedModel.RelatedContentItem{}
 	if d.RelatedContent != nil {
-		for _, content := range *d.RelatedContent {
+		for _, content := range d.RelatedContent {
 			p.DatasetLandingPage.RelatedContentItems = append(p.DatasetLandingPage.RelatedContentItems, sharedModel.RelatedContentItem{
 				Title: content.Title,
 				Link:  content.HRef,
@@ -155,7 +171,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dataset.DatasetDetails, ver
 	return p
 }
 
-func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string) sharedModel.ShareDetails {
+func buildStaticSharingDetails(d dpDatasetApiModels.Dataset, lang, currentURL string) sharedModel.ShareDetails {
 	shareDetails := sharedModel.ShareDetails{}
 	shareDetails.Language = lang
 	shareDetails.ShareLocations = []sharedModel.Share{
@@ -183,7 +199,7 @@ func buildStaticSharingDetails(d dataset.DatasetDetails, lang, currentURL string
 	return shareDetails
 }
 
-func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOtherVersions bool) coreModel.TableOfContents {
+func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) coreModel.TableOfContents {
 	sections := make(map[string]coreModel.ContentSection)
 	displayOrder := make([]string, 0)
 
@@ -252,7 +268,7 @@ func buildStaticTableOfContents(p static.Page, d dataset.DatasetDetails, hasOthe
 	return tableOfContents
 }
 
-func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
+func getPublisherDetails(d dpDatasetApiModels.Dataset) publisher.Publisher {
 	publisherObject := publisher.Publisher{}
 
 	// TODO: this code should be refactored to be uncoupled from predefined variables
@@ -264,8 +280,8 @@ func getPublisherDetails(d dataset.DatasetDetails) publisher.Publisher {
 	if d.Publisher != nil {
 		incomingPublisherDataset := *d.Publisher
 
-		if incomingPublisherDataset.URL != "" {
-			publisherObject.URL = incomingPublisherDataset.URL
+		if incomingPublisherDataset.HRef != "" {
+			publisherObject.URL = incomingPublisherDataset.HRef
 		}
 
 		if incomingPublisherDataset.Name != "" {

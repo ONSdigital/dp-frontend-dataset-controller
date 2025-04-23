@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/golang/mock/gomock"
@@ -24,7 +25,7 @@ func TestFilterOutputHandler(t *testing.T) {
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 	cfg := config.Config{}
-	versions := dataset.VersionsList{
+	versions := dpDatasetApiSdk.VersionsList{
 		Items: []dpDatasetApiModels.Version{
 			{
 				Downloads: &dpDatasetApiModels.DownloadList{

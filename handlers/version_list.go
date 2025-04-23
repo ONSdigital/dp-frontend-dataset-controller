@@ -3,12 +3,13 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
+
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // VersionsList will load a list of versions for a filterable dataset
@@ -24,7 +25,12 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	edition := vars["edition"]
 	ctx := req.Context()
 
-	d, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+	headers := dpDatasetApiSdk.Headers{
+		UserAccessToken: userAccessToken,
+		CollectionID: collectionID,
+	}
+
+	d, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -35,14 +41,14 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	q := dataset.QueryParams{Offset: 0, Limit: 1000}
-	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+	q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
+	versions, err := dc.GetVersions(ctx, headers, datasetID, edition, &q)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
 	}
 
-	e, err := dc.GetEdition(ctx, userAccessToken, "", collectionID, datasetID, edition)
+	e, err := dc.GetEdition(ctx, headers, datasetID, edition)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return

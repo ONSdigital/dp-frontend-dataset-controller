@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -35,7 +36,7 @@ func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient,
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
-func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, datasetClient DatasetClient,
+func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetClient,
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
@@ -59,15 +60,22 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	format := request.URL.Query().Get("format")
 	isValidationError := false
 
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID: collectionID,
+		DownloadServiceToken: downloadServiceAuthToken,
+		ServiceToken: serviceAuthToken,
+		UserAccessToken: userAccessToken,
+	}
+
 	// Fetch the dataset
-	datasetDetails, err := datasetClient.Get(ctx, userAccessToken, serviceAuthToken, collectionID, datasetID)
+	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return
 	}
 
 	if editionID == "" {
-		latestVersionURL, err := url.Parse(datasetDetails.Links.LatestVersion.URL)
+		latestVersionURL, err := url.Parse(datasetDetails.Links.LatestVersion.HRef)
 		if err != nil {
 			setStatusCode(ctx, responseWriter, err)
 			return
@@ -81,9 +89,8 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	// Fetch versions associated with dataset and redirect to latest if specific version isn't requested
-	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
-	versionsList, err := datasetClient.GetVersions(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken,
-		collectionID, datasetID, editionID, &getVersionsQueryParams)
+	getVersionsQueryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
+	versionsList, err := dc.GetVersions(ctx, headers, datasetID, editionID, &getVersionsQueryParams)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return
@@ -111,7 +118,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
-	version, err := datasetClient.GetVersion(ctx, userAccessToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, editionID, versionID)
+	version, err := dc.GetVersion(ctx, headers, datasetID, editionID, versionID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return
@@ -155,8 +162,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		if datasetDetails.Type == DatasetTypeNomis {
 			dims = dataset.VersionDimensions{Items: nil}
 		} else {
-			dims, err = datasetClient.GetVersionDimensions(ctx, userAccessToken, serviceAuthToken, collectionID,
-				datasetID, editionID, versionID)
+			dims, err = dc.GetVersionDimensions(ctx, headers, datasetID, editionID, versionID)
 			if err != nil {
 				setStatusCode(ctx, responseWriter, err)
 				return
@@ -171,7 +177,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			// Load from constant
 			numOpts = numOptsSummary
 		}
-		opts, err := getOptionsSummary(ctx, datasetClient, userAccessToken, collectionID, datasetID, editionID, versionID, dims, numOpts)
+		opts, err := getOptionsSummary(ctx, dc, userAccessToken, collectionID, datasetID, editionID, versionID, dims, numOpts)
 		if err != nil {
 			setStatusCode(ctx, responseWriter, err)
 			return
@@ -230,14 +236,14 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				}
 			}
 
-			metadata, err := datasetClient.GetVersionMetadata(ctx, userAccessToken, serviceAuthToken, collectionID, datasetID, editionID, versionID)
+			metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
 			if err != nil {
 				setStatusCode(ctx, responseWriter, err)
 				return
 			}
 
 			// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
-			textBytes, err := getText(datasetClient, userAccessToken, collectionID, datasetID, editionID, versionID, metadata, dims, request)
+			textBytes, err := getText(dc, headers, datasetID, editionID, versionID, metadata, dims, request)
 			if err != nil {
 				if err != errTooManyOptions {
 					setStatusCode(ctx, responseWriter, err)

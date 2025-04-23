@@ -13,6 +13,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
+
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // Constants...
@@ -42,21 +45,28 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
-func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dataset.Options, err error) {
+func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID: collectionID,
+		UserAccessToken: userAccessToken,
+	}
+
 	for i := range dimensions.Items {
 		dimension := &dimensions.Items[i]
 
 		// for time and age, request all the options (assumed less than maxAgeAndTimeOptions)
 		if dimension.Name == mapper.DimensionTime || dimension.Name == mapper.DimensionAge {
 			// query with limit maxAgeAndTimeOptions
-			q := dataset.QueryParams{Offset: 0, Limit: maxAgeAndTimeOptions}
-			opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
+			q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxAgeAndTimeOptions}
+			opt, err := dc.GetVersionDimensionOptions(ctx, headers, datasetID, edition, version, dimension.Name, &q)
 			if err != nil {
 				return opts, err
 			}
 
-			if opt.TotalCount > maxAgeAndTimeOptions {
-				log.Warn(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": opt.TotalCount})
+			totalCount := len(opt.Items)
+
+			if totalCount > maxAgeAndTimeOptions {
+				log.Warn(ctx, "total number of options is greater than the requested number", log.Data{"max_age_and_time_options": maxAgeAndTimeOptions, "total_count": totalCount})
 			}
 
 			opts = append(opts, opt)
@@ -64,8 +74,8 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 		}
 
 		// for other dimensions, cap the number of options to numOpts
-		q := dataset.QueryParams{Offset: 0, Limit: numOpts}
-		opt, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
+		q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: numOpts}
+		opt, err := dc.GetVersionDimensionOptions(ctx, headers, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
 			return opts, err
 		}
@@ -76,24 +86,29 @@ func getOptionsSummary(ctx context.Context, dc DatasetClient, userAccessToken, c
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
+func getText(dc DatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dpDatasetApiModels.Metadata, dimensions dpDatasetApiSdk.VersionDimensionsList, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
-	b.WriteString(metadata.ToString())
+	b.WriteString(metadata.ToString()) //TODO: Inbuilt function needed
 	b.WriteString("Dimensions:\n")
+
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID: collectionID,
+		UserAccessToken: userAccessToken,
+	}
 
 	for i := range dimensions.Items {
 		dimension := &dimensions.Items[i]
-		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
+		q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions}
+		opts, err := dc.GetVersionDimensionOptions(req.Context(), headers, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
 			return nil, err
 		}
-		if options.TotalCount > maxMetadataOptions {
+		if len(opts.Items) > maxMetadataOptions {
 			return []byte{}, errTooManyOptions
 		}
 
-		b.WriteString(options.String())
+		b.WriteString(opts.String())
 	}
 
 	return b.Bytes(), nil

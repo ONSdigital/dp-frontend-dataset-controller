@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
@@ -21,6 +20,8 @@ import (
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
+
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // FilterOutput will load a filtered landing page
@@ -35,8 +36,8 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool
-	var datasetModel dataset.DatasetDetails
-	var allVers dataset.VersionsList
+	var datasetModel dpDatasetApiModels.Dataset
+	var allVers dpDatasetApiSdk.VersionsList
 	var ver dpDatasetApiModels.Version
 	var filterOutput filter.Model
 	var dimDescriptions population.GetDimensionsResponse
@@ -55,6 +56,11 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	edition := vars["editionID"]
 	version := vars["versionID"]
 	filterOutputID := vars["filterOutputID"]
+
+	headers := dpDatasetApiSdk.Headers{
+		UserAccessToken: userAccessToken,
+		CollectionID: collectionID,
+	}
 
 	wg.Add(1)
 	go func() {
@@ -85,18 +91,18 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	wg.Add(3)
 	go func() {
 		defer wg.Done()
-		datasetModel, dmErr = dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+		datasetModel, dmErr = dc.GetDataset(ctx, headers, datasetID)
 	}()
 
 	go func() {
 		defer wg.Done()
-		q := dataset.QueryParams{Offset: 0, Limit: 1000}
-		allVers, versErr = dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+		q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
+		allVers, versErr = dc.GetVersions(ctx, headers, datasetID, edition, &q)
 	}()
 
 	go func() {
 		defer wg.Done()
-		ver, verErr = dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
+		ver, verErr = dc.GetVersion(ctx, headers, datasetID, edition, version)
 	}()
 
 	wg.Wait()

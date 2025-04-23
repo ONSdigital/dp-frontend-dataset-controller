@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
@@ -12,7 +11,7 @@ import (
 )
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
-func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dataset.DatasetDetails,
+func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dpDatasetApiModels.Dataset,
 	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
 ) static.Page {
 	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate)

@@ -17,7 +17,7 @@ import (
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(basePage coreModel.Page, d dataset.DatasetDetails, version dpDatasetApiModels.Version,
+func CreateCensusLandingPage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	opts []dataset.Options, categorisationsMap map[string]int, allVersions []dpDatasetApiModels.Version, queryStrValues []string,
 	isEnableMultivariate bool, pop population.GetPopulationTypeResponse,
 ) census.Page {

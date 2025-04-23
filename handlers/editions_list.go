@@ -9,6 +9,8 @@ import (
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
+
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // EditionsList will load a list of editions for a filterable dataset
@@ -23,13 +25,18 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
 
-	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID: collectionID,
+		UserAccessToken: userAccessToken,
+	}
+
+	datasetModel, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
 	}
 
-	datasetEditions, err := dc.GetEditions(ctx, userAccessToken, "", collectionID, datasetID)
+	datasetEditions, err := dc.GetEditions(ctx, headers, datasetID)
 	if err != nil {
 		if err, ok := err.(ClientError); ok {
 			if err.Code() != http.StatusNotFound {
@@ -44,19 +51,19 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetClient, zc
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.URL)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.HRef)
 	if err != nil {
-		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.HRef})
 	}
 
-	numberOfEditions := len(datasetEditions)
+	numberOfEditions := len(datasetEditions.Items)
 	if numberOfEditions == 1 {
-		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions[0].Edition, datasetEditions[0].Links.LatestVersion.ID)
+		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions.Items[0].Edition, datasetEditions.Items[0].Links.LatestVersion.ID)
 		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateEditionsList(ctx, basePage, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	m := mapper.CreateEditionsList(ctx, basePage, req, datasetModel, datasetEditions.Items, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
 	rend.BuildPage(w, m, "edition-list")
 }

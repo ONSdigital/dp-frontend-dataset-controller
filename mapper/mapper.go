@@ -74,7 +74,7 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dataset.DatasetDetails, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dpDatasetApiModels.Dataset, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	p := filterable.Page{
 		Page: basePage,
 	}
@@ -113,7 +113,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	if currentPageBreadcrumbTitle == "time-series" {
 		currentPageBreadcrumbTitle = "Current"
 	}
-	datasetURL, err := url.Parse(d.Links.Self.URL)
+	datasetURL, err := url.Parse(d.Links.Self.HRef)
 	if err != nil {
 		log.Warn(ctx, "failed to parse url, self link", log.FormatErrors([]error{err}))
 	}
@@ -129,8 +129,8 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	}
 	p.Breadcrumb = append(p.Breadcrumb, datasetBreadcrumbs...)
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
+	if d.Contacts != nil && len(d.Contacts) > 0 {
+		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
@@ -145,11 +145,11 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 		p.DatasetLandingPage.ShowEditionName = true
 	}
 
-	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.URL == ver.Links.Self.HRef
+	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.HRef == ver.Links.Self.HRef
 	p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
-	p.DatasetLandingPage.QMIURL = d.QMI.URL
-	p.DatasetLandingPage.IsNationalStatistic = d.NationalStatistic
+	p.DatasetLandingPage.QMIURL = d.QMI.HRef
+	p.DatasetLandingPage.IsNationalStatistic = *d.NationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = cases.Title(language.English).String(d.ReleaseFrequency)
 	p.DatasetLandingPage.Citation = d.License
 
@@ -164,29 +164,29 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 		}
 	}
 	if d.Methodologies != nil {
-		for _, meth := range *d.Methodologies {
+		for _, meth := range d.Methodologies {
 			p.DatasetLandingPage.Methodologies = append(p.DatasetLandingPage.Methodologies, filterable.Methodology{
 				Title:       meth.Title,
-				URL:         meth.URL,
+				URL:         meth.HRef,
 				Description: meth.Description,
 			})
 		}
 	}
 
 	if d.Publications != nil {
-		for _, pub := range *d.Publications {
+		for _, pub := range d.Publications {
 			p.DatasetLandingPage.Publications = append(p.DatasetLandingPage.Publications, filterable.Publication{
 				Title: pub.Title,
-				URL:   pub.URL,
+				URL:   pub.HRef,
 			})
 		}
 	}
 
 	if d.RelatedDatasets != nil {
-		for _, link := range *d.RelatedDatasets {
+		for _, link := range d.RelatedDatasets {
 			p.DatasetLandingPage.RelatedLinks = append(p.DatasetLandingPage.RelatedLinks, filterable.Publication{
 				Title: link.Title,
-				URL:   link.URL,
+				URL:   link.HRef,
 			})
 		}
 	}
@@ -215,14 +215,14 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims.Items, opts, d.Links.LatestVersion.URL, maxNumOpts)
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims.Items, opts, d.Links.LatestVersion.HRef, maxNumOpts)
 	}
 
 	return p
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, ed dpDatasetApiModels.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}
@@ -284,7 +284,7 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions []dpDatasetApiModels.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -315,8 +315,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		Title: d.Title,
 	})
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
+	if d.Contacts != nil && len(d.Contacts) > 0 {
+		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
@@ -540,7 +540,7 @@ func MapDownloads(downloadsList []zebedee.Download, versionURI string) []dataset
 
 // Updates input `basePage` to include common dataset overview attributes, homepage content and
 // dataset details across all dataset types
-func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dataset.DatasetDetails,
+func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dpDatasetApiModels.Dataset,
 	homepageContent zebedee.HomepageContent, isValidationError bool, lang string, request *http.Request) {
 	basePage.BackTo = dpRendererModel.BackTo{
 		Text: dpRendererModel.Localisation{
