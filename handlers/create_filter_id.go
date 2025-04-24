@@ -16,7 +16,7 @@ import (
 )
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
-func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
+func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -25,7 +25,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 		ctx := req.Context()
 
 		headers := dpDatasetApiSdk.Headers{
-			CollectionID: collectionID,
+			CollectionID:    collectionID,
 			UserAccessToken: userAccessToken,
 		}
 
@@ -63,7 +63,7 @@ func CreateFilterID(c FilterClient, dc DatasetClient) http.HandlerFunc {
 }
 
 // CreateFilterFlexID creates a new filter ID for filter flex journeys
-func CreateFilterFlexID(fc FilterClient, dc DatasetClient) http.HandlerFunc {
+func CreateFilterFlexID(fc FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -72,7 +72,7 @@ func CreateFilterFlexID(fc FilterClient, dc DatasetClient) http.HandlerFunc {
 		ctx := req.Context()
 
 		headers := dpDatasetApiSdk.Headers{
-			CollectionID: collectionID,
+			CollectionID:    collectionID,
 			UserAccessToken: userAccessToken,
 		}
 

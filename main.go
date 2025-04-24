@@ -21,6 +21,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/v2/health"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
@@ -136,7 +137,8 @@ func run(ctx context.Context) error {
 
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
-	dc := dataset.NewWithHealthClient(apiRouterCli)
+	apiClientsGoDatasetClient := dataset.NewWithHealthClient(apiRouterCli)
+	datasetApiSdkClient := dpDatasetApiSdk.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
 	tc := topic.NewWithHealthClient(apiRouterCli)
 	pc := populationClient
@@ -174,21 +176,21 @@ func run(ctx context.Context) error {
 	if cfg.EnableMultivariate {
 		router.Path("/datasets/create").Methods("GET").HandlerFunc(handlers.CreateCustomDataset(pc, zc, rend, *cfg, apiRouterVersion))
 		router.Path("/datasets/create").Methods("POST").HandlerFunc(handlers.PostCreateCustomDataset(f))
-		router.Path("/datasets/create/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, dc, rend, *cfg, apiRouterVersion))
+		router.Path("/datasets/create/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, apiClientsGoDatasetClient, rend, *cfg, apiRouterVersion))
 		router.Path("/datasets/create/filter-outputs/{filterOutputID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexIDFromOutput(f))
 	}
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(dc, zc, rend, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, pc, rend, zc, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(dc, zc, rend, *cfg))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(dc, pc, rend, zc, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, dc))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, dc, rend, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(apiClientsGoDatasetClient, zc, rend, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(apiClientsGoDatasetClient, zc, rend, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(apiClientsGoDatasetClient, pc, rend, zc, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(apiClientsGoDatasetClient, zc, rend, *cfg))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetApiSdkClient, pc, rend, zc, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, apiClientsGoDatasetClient))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, apiClientsGoDatasetClient))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, apiClientsGoDatasetClient, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexIDFromOutput(f))
 
-	router.Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(dc, *cfg))
+	router.Path("/datasets/{datasetID}/editions/{edition}/versions/{version}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(apiClientsGoDatasetClient, *cfg))
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, dc, fc, rend, cacheList, *cfg))

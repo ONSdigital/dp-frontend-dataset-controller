@@ -5,6 +5,7 @@ import (
 	io "io"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
@@ -16,7 +17,7 @@ import (
 )
 
 // To mock interfaces in this file
-//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,DatasetClient,RenderClient
+//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,ApiClientsGoDatasetClient,RenderClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
@@ -28,8 +29,21 @@ type FilterClient interface {
 	CreateFlexibleBlueprintCustom(ctx context.Context, uAuthToken, svcAuthToken, dlServiceToken string, req filter.CreateFlexBlueprintCustomRequest) (filterID, eTag string, err error)
 }
 
-// DatasetClient is an interface with methods required for a dataset client
-type DatasetClient interface {
+// Interface with methods required for a dp-api-clients-go dataset client
+type ApiClientsGoDatasetClient interface {
+	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.DatasetDetails, err error)
+	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
+	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
+	GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error)
+	GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (m dataset.VersionsList, err error)
+	GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (m dataset.Version, err error)
+	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.Metadata, err error)
+	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (m dataset.VersionDimensions, err error)
+	GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (m dataset.Options, err error)
+}
+
+// Interface with methods required for a dp-dataset-api/sdk dataset client
+type DatasetApiSdkClient interface {
 	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiModels.Dataset, err error)
 	GetDatasetByPath(ctx context.Context, headers dpDatasetApiSdk.Headers, path string) (m dpDatasetApiModels.Dataset, err error)
 	GetEditions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiSdk.EditionsList, err error)

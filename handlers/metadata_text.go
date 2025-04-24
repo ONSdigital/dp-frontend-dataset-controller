@@ -12,13 +12,13 @@ import (
 )
 
 // MetadataText generates a metadata text file
-func MetadataText(dc DatasetClient, cfg config.Config) http.HandlerFunc {
+func MetadataText(dc ApiClientsGoDatasetClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		metadataText(w, req, dc, cfg, userAccessToken, collectionID)
 	})
 }
 
-func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cfg config.Config, userAccessToken, collectionID string) {
+func metadataText(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatasetClient, cfg config.Config, userAccessToken, collectionID string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]
@@ -27,7 +27,7 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc DatasetClient, cf
 
 	headers := dpDatasetApiSdk.Headers{
 		UserAccessToken: userAccessToken,
-		CollectionID: collectionID,
+		CollectionID:    collectionID,
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, edition, version)

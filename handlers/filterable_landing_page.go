@@ -29,14 +29,14 @@ const (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetApiSdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
-func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetClient,
+func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetApiSdkClient,
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
@@ -61,10 +61,10 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	isValidationError := false
 
 	headers := dpDatasetApiSdk.Headers{
-		CollectionID: collectionID,
+		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken: serviceAuthToken,
-		UserAccessToken: userAccessToken,
+		ServiceToken:         serviceAuthToken,
+		UserAccessToken:      userAccessToken,
 	}
 
 	// Fetch the dataset

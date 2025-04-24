@@ -136,7 +136,7 @@ func (mr *MockFilterClientMockRecorder) GetOutput(ctx, userAuthToken, serviceAut
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutput", reflect.TypeOf((*MockFilterClient)(nil).GetOutput), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID)
 }
 
-// MockDatasetClient is a mock of DatasetClient interface.
+// MockDatasetClient is a mock of ApiClientsGoDatasetClient interface.
 type MockDatasetClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockDatasetClientMockRecorder

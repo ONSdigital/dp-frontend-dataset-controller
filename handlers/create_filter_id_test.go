@@ -352,7 +352,7 @@ func TestCreateFilterID(t *testing.T) {
 	})
 }
 
-func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc DatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
+func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc ApiClientsGoDatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", url, body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
