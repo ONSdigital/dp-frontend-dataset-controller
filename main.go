@@ -33,8 +33,8 @@ import (
 	"github.com/justinas/alice"
 	"github.com/pkg/errors"
 
-	dpnethandlers "github.com/ONSdigital/dp-net/v2/handlers"
-	dpnethttp "github.com/ONSdigital/dp-net/v2/http"
+	dpnethandlers "github.com/ONSdigital/dp-net/v3/handlers"
+	dpnethttp "github.com/ONSdigital/dp-net/v3/http"
 	dpotelgo "github.com/ONSdigital/dp-otel-go"
 
 	_ "net/http/pprof"
