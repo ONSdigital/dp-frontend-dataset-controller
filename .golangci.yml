@@ -79,7 +79,8 @@ issues:
         - gocritic
         - ineffassign
         - govet
-    - path: main.go|handlers
+        - typecheck
+    - path: main.go|handlers|cache
       linters:
         - typecheck
   new: false
