@@ -17,7 +17,7 @@ import (
 )
 
 // To mock interfaces in this file
-//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,ApiClientsGoDatasetClient,RenderClient
+//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,ApiClientsGoDatasetClient,DatasetApiSdkClient,RenderClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
