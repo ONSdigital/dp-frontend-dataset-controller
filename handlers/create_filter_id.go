@@ -6,13 +6,12 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
@@ -24,12 +23,7 @@ func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFu
 		version := vars["versionID"]
 		ctx := req.Context()
 
-		headers := dpDatasetApiSdk.Headers{
-			CollectionID:    collectionID,
-			UserAccessToken: userAccessToken,
-		}
-
-		dimensions, err := dc.GetVersionDimensions(ctx, headers, datasetID, edition, version)
+		dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)
 			return
@@ -40,8 +34,8 @@ func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFu
 			dimension := &dimensions.Items[i]
 
 			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
-			q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 0}
-			opts, err := dc.GetVersionDimensionOptions(ctx, headers, datasetID, edition, version, dimension.Name, &q)
+			q := dataset.QueryParams{Offset: 0, Limit: 0}
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
 			if err != nil {
 				setStatusCode(ctx, w, err)
 				return
@@ -71,18 +65,13 @@ func CreateFilterFlexID(fc FilterClient, dc ApiClientsGoDatasetClient) http.Hand
 		version := vars["versionID"]
 		ctx := req.Context()
 
-		headers := dpDatasetApiSdk.Headers{
-			CollectionID:    collectionID,
-			UserAccessToken: userAccessToken,
-		}
-
 		if err := req.ParseForm(); err != nil {
 			log.Error(ctx, "unable to parse request form", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		ver, err := dc.GetVersion(ctx, headers, datasetID, edition, version)
+		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)
 			return
@@ -94,12 +83,12 @@ func CreateFilterFlexID(fc FilterClient, dc ApiClientsGoDatasetClient) http.Hand
 
 			var dim = filter.ModelDimension{}
 			dim.Name = versionDimension.Name
-			dim.URI = versionDimension.HRef
+			dim.URI = versionDimension.URL
 			dim.IsAreaType = versionDimension.IsAreaType
 			dims = append(dims, dim)
 		}
 
-		datasetModel, err := dc.GetDataset(ctx, headers, datasetID)
+		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 		if err != nil {
 			setStatusCode(ctx, w, err)
 			return

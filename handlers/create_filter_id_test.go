@@ -9,13 +9,10 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
-	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
-
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 const (
@@ -35,8 +32,8 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
 
 			mockDatasetClient := NewMockDatasetClient(mockCtrl)
-			dims := dpDatasetApiSdk.VersionDimensionsList{
-				Items: []dpDatasetApiModels.Dimension{
+			dims := dataset.VersionDimensions{
+				Items: []dataset.VersionDimension{
 					{
 						Name: "aggregate",
 					},
@@ -74,11 +71,11 @@ func TestCreateFilterID(t *testing.T) {
 	})
 
 	Convey("test CreateFilterFlexID", t, func() {
-		mockVersions := dpDatasetApiSdk.VersionsList{
-			Items: []dpDatasetApiModels.Version{
+		mockVersions := dataset.VersionDimensions{
+			Items: []dataset.VersionDimension{
 				{}, // deliberately empty
 				{
-					Dimensions: []dpDatasetApiModels.Dimension{
+					Dimensions: []dataset.VersionDimension{
 						{
 							Name: "geography",
 						},

@@ -3,24 +3,23 @@ package handlers
 import (
 	"net/http"
 
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func EditionsList(dc DatasetApiSdkClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		editionsList(w, req, dc, zc, rend, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetApiSdkClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
@@ -56,8 +55,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatas
 		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.HRef})
 	}
 
-	numberOfEditions := len(datasetEditions.Items)
-	if numberOfEditions == 1 {
+	if datasetEditions.Count == 1 {
 		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions.Items[0].Edition, datasetEditions.Items[0].Links.LatestVersion.ID)
 		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
