@@ -9,8 +9,8 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/SDK"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/golang/mock/gomock"

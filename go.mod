@@ -4,13 +4,11 @@ go 1.24
 
 toolchain go1.24.1
 
-replace github.com/ONSdigital/dp-dataset-api => /Users/jakeandrews/dd/dp-dataset-api
-
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
 	github.com/ONSdigital/dp-cache v0.4.0
 	github.com/ONSdigital/dp-cookies v0.5.0
-	github.com/ONSdigital/dp-dataset-api v1.75.0
+	github.com/ONSdigital/dp-dataset-api v1.76.0
 	github.com/ONSdigital/dp-healthcheck v1.6.3
 	github.com/ONSdigital/dp-net/v2 v2.22.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
