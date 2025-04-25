@@ -7,8 +7,6 @@ import (
 	"github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 // MetadataText generates a metadata text file
@@ -25,18 +23,13 @@ func metadataText(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatas
 	version := vars["version"]
 	ctx := req.Context()
 
-	headers := dpDatasetApiSdk.Headers{
-		UserAccessToken: userAccessToken,
-		CollectionID:    collectionID,
-	}
-
-	metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, edition, version)
+	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
 	}
 
-	dimensions, err := dc.GetVersionDimensions(ctx, headers, datasetID, edition, version)
+	dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return

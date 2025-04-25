@@ -35,7 +35,7 @@ func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFu
 
 			// we are only interested in the totalCount, limit=0 will always return an empty list of items and the total count
 			q := dataset.QueryParams{Offset: 0, Limit: 0}
-			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dim.Name, &q)
+			opts, err := dc.GetOptions(ctx, userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 			if err != nil {
 				setStatusCode(ctx, w, err)
 				return

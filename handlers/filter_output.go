@@ -90,7 +90,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	wg.Add(3)
 	go func() {
 		defer wg.Done()
-		datasetModel, dmErr = dc.GetDataset(ctx, headers, datasetID)
+		datasetModel, dmErr = dc.GetDataset(ctx, headers, collectionID, datasetID)
 	}()
 
 	go func() {

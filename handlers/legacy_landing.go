@@ -16,8 +16,6 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 )
 
 type legacyLandingPage struct {
@@ -173,18 +171,13 @@ func (lp legacyLandingPage) getRelatedDatasetLinks(ctx context.Context, dlp *zeb
 	relatedFilterableDatasets := make([]zebedee.Link, len(dlp.RelatedFilterableDatasets))
 	var wg sync.WaitGroup
 
-	headers := dpDatasetApiSdk.Headers{
-		CollectionID:    lp.CollectionID,
-		UserAccessToken: lp.UserAccessToken,
-	}
-
 	for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 		wg.Add(1)
 
 		go func(ctx context.Context, i int, dc ApiClientsGoDatasetClient, relatedFilterableDataset zebedee.Link) {
 			defer wg.Done()
 
-			d, err := dc.GetDatasetByPath(ctx, headers, relatedFilterableDataset.URI)
+			d, err := dc.GetByPath(ctx, lp.UserAccessToken, "", lp.CollectionID, relatedFilterableDataset.URI)
 			if err != nil {
 				// log error but continue to map data. any datasets that fail won't get mapped and won't be displayed on frontend
 				log.Error(ctx, "error fetching dataset details", err, log.Data{"dataset": relatedFilterableDataset.URI})

@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
@@ -40,7 +39,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
-	var dims dataset.VersionDimensions
+	var dims dpDatasetApiSdk.VersionDimensionsList
 	var displayOtherVersionsLink bool
 	var numOpts int
 	var pageModel interface{}
@@ -68,7 +67,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	// Fetch the dataset
-	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
+	datasetDetails, err := dc.GetDataset(ctx, headers, collectionID, datasetID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return
@@ -160,7 +159,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	} else {
 		// Update dimensions based on dataset type
 		if datasetDetails.Type == DatasetTypeNomis {
-			dims = dataset.VersionDimensions{Items: nil}
+			dims = dpDatasetApiSdk.VersionDimensionsList{Items: nil}
 		} else {
 			dims, err = dc.GetVersionDimensions(ctx, headers, datasetID, editionID, versionID)
 			if err != nil {
@@ -213,9 +212,9 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		} else {
 			// Update breadcrumbs if not nomis
 			if !(datasetDetails.Type == DatasetTypeNomis) {
-				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetDetails.Links.Taxonomy.URL)
+				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetDetails.Links.Taxonomy.HRef)
 				if err != nil {
-					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.URL})
+					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.HRef})
 				}
 			}
 			// filterable landing mapper
@@ -236,20 +235,20 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				}
 			}
 
-			metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
-			if err != nil {
-				setStatusCode(ctx, responseWriter, err)
-				return
-			}
+			// metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
+			// if err != nil {
+			// 	setStatusCode(ctx, responseWriter, err)
+			// 	return
+			// }
 
-			// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
-			textBytes, err := getText(dc, headers, datasetID, editionID, versionID, metadata, dims, request)
-			if err != nil {
-				if err != errTooManyOptions {
-					setStatusCode(ctx, responseWriter, err)
-					return
-				}
-			}
+			// // get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+			// textBytes, err := getText(dc, headers, datasetID, editionID, versionID, metadata, dims, request)
+			// if err != nil {
+			// 	if err != errTooManyOptions {
+			// 		setStatusCode(ctx, responseWriter, err)
+			// 		return
+			// 	}
+			// }
 
 			// This needs to be after the for-loop to add the download files,
 			// because the loop adds the download services domain to the URLs
@@ -257,8 +256,9 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			// by this app
 			m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, model.Download{
 				Extension: "txt",
-				Size:      strconv.Itoa(len(textBytes)),
-				URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
+				Size:      "0",
+				// Size:      strconv.Itoa(len(textBytes)),
+				URI: fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
 			})
 
 			m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
@@ -312,15 +312,11 @@ func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient
 	return m
 }
 
-func sortedOpts(opts []dataset.Options) []dataset.Options {
-	sorted := []dataset.Options{}
+func sortedOpts(opts []dpDatasetApiSdk.VersionDimensionOptionsList) []dpDatasetApiSdk.VersionDimensionOptionsList {
+	sorted := []dpDatasetApiSdk.VersionDimensionOptionsList{}
 	for _, opt := range opts {
-		sorted = append(sorted, dataset.Options{
-			Items:      sortOptionsByCode(opt.Items),
-			Count:      opt.Count,
-			Offset:     opt.Offset,
-			Limit:      opt.Limit,
-			TotalCount: opt.TotalCount,
+		sorted = append(sorted, dpDatasetApiSdk.VersionDimensionOptionsList{
+			Items: sortOptionsByCode(opt.Items),
 		})
 	}
 	return sorted

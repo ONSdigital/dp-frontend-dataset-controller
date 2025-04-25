@@ -76,7 +76,9 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dpDatasetApiModels.Dataset, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dpDatasetApiSdk.VersionDimensionsList, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dpDatasetApiModels.Dataset, ver dpDatasetApiModels.Version,
+	datasetID string, opts []dpDatasetApiSdk.VersionDimensionOptionsList, dims dpDatasetApiSdk.VersionDimensionsList, displayOtherVersionsLink bool,
+	breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	// Set default values to be used if fields are null pointers
 	isLatest := false
 	isNationalStatistic := false
@@ -324,7 +326,7 @@ func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.Da
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions []dpDatasetApiModels.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -355,8 +357,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		Title: d.Title,
 	})
 
-	if d.Contacts != nil && len(d.Contacts) > 0 {
-		contacts := d.Contacts
+	if d.Contacts != nil && len(*d.Contacts) > 0 {
+		contacts := *d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
@@ -391,14 +393,15 @@ func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Vers
 }
 
 //nolint:all // legacy code with poor test coverage
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpDatasetApiSdk.VersionDimensionsList, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpDatasetApiSdk.VersionDimensionsList, opts []dpDatasetApiSdk.VersionDimensionOptionsList, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
+		totalCount := len(opt.Items)
 
 		var title string
-		if len(opt.Items) > 0 {
-			title = cases.Title(language.English).String(opt.Items[0].DimensionID)
+		if totalCount > 0 {
+			title = cases.Title(language.English).String(opt.Items[0].Name)
 		}
 
 		if datasetType != "nomis" {
@@ -408,7 +411,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpData
 				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 			}
 			for _, dimension := range dims.Items {
-				if dimension.Name == opt.Items[0].DimensionID {
+				if dimension.Name == opt.Items[0].Name {
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
 					if len(dimension.Label) > 0 {
@@ -417,8 +420,8 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpData
 				}
 			}
 
-			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].DimensionID)
-			pDim.TotalItems = opt.TotalCount
+			pDim.OptionsURL = fmt.Sprintf("%s/dimensions/%s/options", versionURL.Path, opt.Items[0].Name)
+			pDim.TotalItems = totalCount
 
 			if _, err = time.Parse("Jan-06", opt.Items[0].Label); err == nil {
 				var ts TimeSlice
@@ -491,7 +494,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpData
 				}
 			} else {
 				for i, val := range opt.Items {
-					if opt.TotalCount > maxNumberOfOptions {
+					if totalCount > maxNumberOfOptions {
 						if i > 9 {
 							break
 						}
@@ -499,7 +502,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpData
 					pDim.Values = append(pDim.Values, val.Label)
 				}
 
-				if opt.Items[0].DimensionID == DimensionTime || opt.Items[0].DimensionID == DimensionAge {
+				if opt.Items[0].Name == DimensionTime || opt.Items[0].Name == DimensionAge {
 					isValid := true
 					var intVals []int
 					for _, val := range pDim.Values {

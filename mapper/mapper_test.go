@@ -132,53 +132,53 @@ func TestUnitMapper(t *testing.T) {
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
 		expectedBreadcrumbItemWrongURI := breadcrumbItemWrongURI
-
-		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
+		options := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "age",
-						Label:       "6",
-						Option:      "6",
+						Name:   "age",
+						Label:  "6",
+						Option: "6",
 					},
 					{
-						DimensionID: "age",
-						Label:       "3",
-						Option:      "3",
+						Name:   "age",
+						Label:  "3",
+						Option: "3",
 					},
 					{
-						DimensionID: "age",
-						Label:       "24",
-						Option:      "24",
+						Name:   "age",
+						Label:  "24",
+						Option: "24",
 					},
 					{
-						DimensionID: "age",
-						Label:       "23",
-						Option:      "23",
+						Name:   "age",
+						Label:  "23",
+						Option: "23",
 					},
 					{
-						DimensionID: "age",
-						Label:       "19",
-						Option:      "19",
+						Name:   "age",
+						Label:  "19",
+						Option: "19",
 					},
 				},
 			},
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "time",
-						Label:       "Jan-05",
-						Option:      "Jan-05",
+						Name:   "time",
+						Label:  "Jan-05",
+						Option: "Jan-05",
 					},
 					{
-						DimensionID: "time",
-						Label:       "Feb-05",
-						Option:      "Feb-05",
+						Name:   "time",
+						Label:  "Feb-05",
+						Option: "Feb-05",
 					},
 				},
 			},
-		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
+		}
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, options, dpDatasetApiSdk.VersionDimensionsList{}, false,
+			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
@@ -241,53 +241,53 @@ func TestUnitMapper(t *testing.T) {
 			URI:         "/v1/%&*$^@$(@!@±£8",
 			Description: zebedee.NodeDescription{Title: "Something wrong"},
 		}
-
-		p := CreateFilterableLandingPage(ctx, mdl, nomisD, v[0], datasetID, []dataset.Options{
+		options := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "age",
-						Label:       "6",
-						Option:      "6",
+						Name:   "age",
+						Label:  "6",
+						Option: "6",
 					},
 					{
-						DimensionID: "age",
-						Label:       "3",
-						Option:      "3",
+						Name:   "age",
+						Label:  "3",
+						Option: "3",
 					},
 					{
-						DimensionID: "age",
-						Label:       "24",
-						Option:      "24",
+						Name:   "age",
+						Label:  "24",
+						Option: "24",
 					},
 					{
-						DimensionID: "age",
-						Label:       "23",
-						Option:      "23",
+						Name:   "age",
+						Label:  "23",
+						Option: "23",
 					},
 					{
-						DimensionID: "age",
-						Label:       "19",
-						Option:      "19",
+						Name:   "age",
+						Label:  "19",
+						Option: "19",
 					},
 				},
 			},
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "time",
-						Label:       "Jan-05",
-						Option:      "Jan-05",
+						Name:   "time",
+						Label:  "Jan-05",
+						Option: "Jan-05",
 					},
 					{
-						DimensionID: "time",
-						Label:       "Feb-05",
-						Option:      "Feb-05",
+						Name:   "time",
+						Label:  "Feb-05",
+						Option: "Feb-05",
 					},
 				},
 			},
-		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
-			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
+		}
+		p := CreateFilterableLandingPage(ctx, mdl, nomisD, v[0], datasetID, options, dpDatasetApiSdk.VersionDimensionsList{}, false,
+			[]zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI}, 1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
 		So(p.ContactDetails.Name, ShouldEqual, contact.Name)
@@ -327,17 +327,15 @@ func TestUnitMapper(t *testing.T) {
 				},
 			},
 		}
-		opts := []dataset.Options{
+		opts := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: dimensionName,
-						Label:       dimensionOptionLabel,
-						Option:      "0",
+						Name:   dimensionName,
+						Label:  dimensionOptionLabel,
+						Option: "0",
 					},
 				},
-				Count:      1,
-				TotalCount: 1,
 			},
 		}
 
@@ -356,27 +354,28 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions when parsing Jan-06 format for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
+		options := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "time",
-						Label:       "Jan-05",
-						Option:      "Jan-05",
+						Name:   "time",
+						Label:  "Jan-05",
+						Option: "Jan-05",
 					},
 					{
-						DimensionID: "time",
-						Label:       "May-07",
-						Option:      "May-07",
+						Name:   "time",
+						Label:  "May-07",
+						Option: "May-07",
 					},
 					{
-						DimensionID: "time",
-						Label:       "Jun-07",
-						Option:      "Jun-07",
+						Name:   "time",
+						Label:  "Jun-07",
+						Option: "Jun-07",
 					},
 				},
 			},
-		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
+		}
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, options, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
@@ -387,32 +386,33 @@ func TestUnitMapper(t *testing.T) {
 	})
 
 	Convey("test time dimensions for CreateFilterableLandingPage ", t, func() {
-		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, []dataset.Options{
+		options := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			{
-				Items: []dataset.Option{
+				Items: []dpDatasetApiModels.PublicDimensionOption{
 					{
-						DimensionID: "time",
-						Label:       "2016",
-						Option:      "2016",
+						Name:   "time",
+						Label:  "2016",
+						Option: "2016",
 					},
 					{
-						DimensionID: "time",
-						Label:       "2018",
-						Option:      "2018",
+						Name:   "time",
+						Label:  "2018",
+						Option: "2018",
 					},
 					{
-						DimensionID: "time",
-						Label:       "2019",
-						Option:      "2019",
+						Name:   "time",
+						Label:  "2019",
+						Option: "2019",
 					},
 					{
-						DimensionID: "time",
-						Label:       "2020",
-						Option:      "2020",
+						Name:   "time",
+						Label:  "2020",
+						Option: "2020",
 					},
 				},
 			},
-		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
+		}
+		p := CreateFilterableLandingPage(ctx, mdl, d, v[0], datasetID, options, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")

@@ -101,6 +101,12 @@ func TestFilterOutputHandler(t *testing.T) {
 		},
 	}
 	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID:         collectionID,
+		DownloadServiceToken: "",
+		ServiceToken:         serviceAuthToken,
+		UserAccessToken:      "",
+	}
 
 	Convey("Given the FilterOutput handler", t, func() {
 		Convey("When it receives good dataset api responses", func() {
@@ -110,10 +116,10 @@ func TestFilterOutputHandler(t *testing.T) {
 				GetHomepageContent(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 				Return(hp, nil).AnyTimes()
 
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Contacts: &[]dataset.Contact{{Name: "Nick"}},
 					Type:     "flexible",
@@ -127,11 +133,11 @@ func TestFilterOutputHandler(t *testing.T) {
 				}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc := NewMockFilterClient(mockCtrl)
@@ -191,10 +197,10 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When downloads are nil", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Contacts: &[]dataset.Contact{{Name: "Nick"}},
 					Type:     "flexible",
@@ -209,11 +215,11 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc := NewMockFilterClient(mockCtrl)
@@ -272,10 +278,10 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When valid download chosen", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Contacts: &[]dataset.Contact{{Name: "Nick"}},
 					Type:     "flexible",
@@ -289,11 +295,11 @@ func TestFilterOutputHandler(t *testing.T) {
 				}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc := NewMockFilterClient(mockCtrl)
@@ -348,10 +354,10 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When invalid download option chosen", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Contacts: &[]dataset.Contact{{Name: "Nick"}},
 					Type:     "flexible",
@@ -365,11 +371,11 @@ func TestFilterOutputHandler(t *testing.T) {
 				}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc := NewMockFilterClient(mockCtrl)
@@ -429,8 +435,8 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When unknown query made", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
-			mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Contacts: &[]dataset.Contact{{Name: "Nick"}},
 					Type:     "flexible",
@@ -445,11 +451,11 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc := NewMockFilterClient(mockCtrl)
@@ -510,8 +516,8 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("Given a dimension is not an area type", func() {
 			Convey("When the dc.GetOptions is called", func() {
-				mockDc := NewMockDatasetClient(mockCtrl)
-				mockDc.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+				mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
 					Return(dataset.DatasetDetails{
 						Contacts: &[]dataset.Contact{{Name: "Nick"}},
 						Type:     "flexible",
@@ -523,8 +529,8 @@ func TestFilterOutputHandler(t *testing.T) {
 						},
 						ID: "12345",
 					}, nil)
-				mockDc.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-				mockDc.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").Return(versions.Items[0], nil)
+				mockDc.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
+				mockDc.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 
 				mockFc := NewMockFilterClient(mockCtrl)
 				mockFc.EXPECT().GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(filterModels[0], nil)
@@ -568,10 +574,10 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("Given a dimension is an area type", func() {
 			Convey("When the pc.GetAreas is called", func() {
-				mockDc := NewMockDatasetClient(mockCtrl)
+				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
-					Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+					GetDataset(ctx, headers, collectionID, "12345").
 					Return(dataset.DatasetDetails{
 						Contacts: &[]dataset.Contact{{Name: "Nick"}},
 						Type:     "flexible",
@@ -585,11 +591,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					}, nil)
 				mockDc.
 					EXPECT().
-					GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+					GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 					Return(versions, nil)
 				mockDc.
 					EXPECT().
-					GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+					GetVersion(ctx, headers, "12345", "2021", "1").
 					Return(versions.Items[0], nil)
 
 				mockFc := NewMockFilterClient(mockCtrl)
@@ -651,10 +657,10 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the fc.GetDimensionOptions is called", func() {
 				Convey("and an additional call to pc.GetArea is made", func() {
-					mockDc := NewMockDatasetClient(mockCtrl)
+					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+						GetDataset(ctx, headers, collectionID, "12345").
 						Return(dataset.DatasetDetails{
 							Contacts: &[]dataset.Contact{{Name: "Nick"}},
 							Type:     "flexible",
@@ -668,11 +674,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						}, nil)
 					mockDc.
 						EXPECT().
-						GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+						GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 						Return(versions, nil)
 					mockDc.
 						EXPECT().
-						GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+						GetVersion(ctx, headers, "12345", "2021", "1").
 						Return(versions.Items[0], nil)
 
 					mockFc := NewMockFilterClient(mockCtrl)
@@ -740,10 +746,10 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the fc.GetDimensionOptions is called with parent options", func() {
 				Convey("and an additional call to pc.GetArea is made", func() {
-					mockDc := NewMockDatasetClient(mockCtrl)
+					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+						GetDataset(ctx, headers, collectionID, "12345").
 						Return(dataset.DatasetDetails{
 							Contacts: &[]dataset.Contact{{Name: "Nick"}},
 							Type:     "flexible",
@@ -757,11 +763,11 @@ func TestFilterOutputHandler(t *testing.T) {
 						}, nil)
 					mockDc.
 						EXPECT().
-						GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+						GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 						Return(versions, nil)
 					mockDc.
 						EXPECT().
-						GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+						GetVersion(ctx, headers, "12345", "2021", "1").
 						Return(versions.Items[0], nil)
 
 					mockFc := NewMockFilterClient(mockCtrl)
@@ -829,20 +835,20 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the dataset is a multivariate", func() {
 				Convey("Then an additional call to pc.GetBlockedAreaCount is made", func() {
-					mockDc := NewMockDatasetClient(mockCtrl)
+					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+						GetDataset(ctx, headers, collectionID, "12345").
 						Return(dataset.DatasetDetails{
 							Type: "multivariate",
 						}, nil)
 					mockDc.
 						EXPECT().
-						GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+						GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 						Return(versions, nil)
 					mockDc.
 						EXPECT().
-						GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+						GetVersion(ctx, headers, "12345", "2021", "1").
 						Return(versions.Items[0], nil)
 
 					mockFc := NewMockFilterClient(mockCtrl)
@@ -914,22 +920,22 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.Get fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -961,22 +967,22 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.GetVersions fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, errors.New("dataset client error"))
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -1008,22 +1014,22 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.GetVersion fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], errors.New("dataset client error"))
 
 			mockFc.
@@ -1055,22 +1061,22 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the fc.GetOutput fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -1102,22 +1108,22 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetDimensionsDescription fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -1157,24 +1163,24 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetBlockedAreaCount fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Type: "multivariate",
 				}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -1215,24 +1221,24 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetPopulationTypeResponse fails", func() {
-			mockDc := NewMockDatasetClient(mockCtrl)
+			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
 
 			mockDc.
 				EXPECT().
-				Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+				GetDataset(ctx, headers, collectionID, "12345").
 				Return(dataset.DatasetDetails{
 					Type: "multivariate",
 				}, nil)
 			mockDc.
 				EXPECT().
-				GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 				Return(versions, nil)
 			mockDc.
 				EXPECT().
-				GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+				GetVersion(ctx, headers, "12345", "2021", "1").
 				Return(versions.Items[0], nil)
 
 			mockFc.
@@ -1269,10 +1275,10 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("When the fc.GetDimensionOptions is called", func() {
 			Convey("and the additional call to pc.GetArea fails", func() {
-				mockDc := NewMockDatasetClient(mockCtrl)
+				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
-					Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").
+					GetDataset(ctx, headers, collectionID, "12345").
 					Return(dataset.DatasetDetails{
 						Contacts: &[]dataset.Contact{{Name: "Nick"}},
 						Type:     "flexible",
@@ -1286,11 +1292,11 @@ func TestFilterOutputHandler(t *testing.T) {
 					}, nil)
 				mockDc.
 					EXPECT().
-					GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", &dataset.QueryParams{Offset: 0, Limit: 1000}).
+					GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
 					Return(versions, nil)
 				mockDc.
 					EXPECT().
-					GetVersion(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2021", "1").
+					GetVersion(ctx, headers, "12345", "2021", "1").
 					Return(versions.Items[0], nil)
 
 				mockFc := NewMockFilterClient(mockCtrl)

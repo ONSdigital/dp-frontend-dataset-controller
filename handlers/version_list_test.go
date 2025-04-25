@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/golang/mock/gomock"
@@ -23,12 +22,12 @@ func TestVersionList(t *testing.T) {
 
 	Convey("test versions list", t, func() {
 		Convey("test versions list returns 200 when rendered successfully", func() {
-			mockClient := NewMockDatasetClient(mockCtrl)
+			mockClient := NewMockApiClientsGoDatasetClient(mockCtrl)
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, nil)
-			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2017", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(dataset.VersionsList{Items: []dpDatasetApiModels.Version{}}, nil)
+			mockClient.EXPECT().GetVersions(ctx, userAuthToken, serviceAuthToken, collectionID, "", "12345", "2017", &dataset.QueryParams{Offset: 0, Limit: 1000}).Return(dataset.VersionsList{Items: []dataset.Version{}}, nil)
 			mockClient.EXPECT().GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, "12345", "2017").Return(dataset.Edition{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -47,7 +46,7 @@ func TestVersionList(t *testing.T) {
 		})
 
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
-			mockClient := NewMockDatasetClient(mockCtrl)
+			mockClient := NewMockApiClientsGoDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 

@@ -45,7 +45,7 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
-func getOptionsSummary(ctx context.Context, dc ApiClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dataset.VersionDimensions, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
+func getOptionsSummary(ctx context.Context, dc DatasetApiSdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:    collectionID,
 		UserAccessToken: userAccessToken,
@@ -86,29 +86,24 @@ func getOptionsSummary(ctx context.Context, dc ApiClientsGoDatasetClient, userAc
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(dc ApiClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dpDatasetApiModels.Metadata, dimensions dpDatasetApiSdk.VersionDimensionsList, req *http.Request) ([]byte, error) {
+func getText(dc ApiClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString()) //TODO: Inbuilt function needed
 	b.WriteString("Dimensions:\n")
 
-	headers := dpDatasetApiSdk.Headers{
-		CollectionID:    collectionID,
-		UserAccessToken: userAccessToken,
-	}
-
 	for i := range dimensions.Items {
 		dimension := &dimensions.Items[i]
-		q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions}
-		opts, err := dc.GetVersionDimensionOptions(req.Context(), headers, datasetID, edition, version, dimension.Name, &q)
+		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
+		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
 		if err != nil {
 			return nil, err
 		}
-		if len(opts.Items) > maxMetadataOptions {
+		if len(options.Items) > maxMetadataOptions {
 			return []byte{}, errTooManyOptions
 		}
 
-		b.WriteString(opts.String())
+		b.WriteString(options.String())
 	}
 
 	return b.Bytes(), nil
@@ -137,11 +132,11 @@ func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter,
 }
 
 // sorts options by code - numerically if possible, with negatives listed last
-func sortOptionsByCode(items []dataset.Option) []dataset.Option {
-	sorted := []dataset.Option{}
+func sortOptionsByCode(items []dpDatasetApiModels.PublicDimensionOption) []dpDatasetApiModels.PublicDimensionOption {
+	sorted := []dpDatasetApiModels.PublicDimensionOption{}
 	sorted = append(sorted, items...)
 
-	doNumericSort := func(items []dataset.Option) bool {
+	doNumericSort := func(items []dpDatasetApiModels.PublicDimensionOption) bool {
 		for i := range items {
 			item := &items[i]
 			_, err := strconv.Atoi(item.Option)
