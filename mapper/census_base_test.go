@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
@@ -198,7 +197,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 		So(page.Error.Title, ShouldBeBlank)
 	})
 
-	noContacts := []dataset.Contact{
+	noContacts := []dpDatasetApiModels.ContactDetails{
 		{
 			Telephone: "",
 			Email:     "",
@@ -212,7 +211,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 		So(page.HasContactDetails, ShouldBeFalse)
 	})
 
-	oneContactDetail := []dataset.Contact{
+	oneContactDetail := []dpDatasetApiModels.ContactDetails{
 		{
 			Telephone: "123",
 			Email:     "",
@@ -227,7 +226,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("Dataset type is flexible, additional mapping is correct", t, func() {
-		flexDm := dataset.DatasetDetails{
+		flexDm := dpDatasetApiModels.Dataset{
 			Type: "cantabular_flexible_table",
 			ID:   "test-flex",
 		}
@@ -237,7 +236,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("Dataset type is multivariate, additional mapping is correct", t, func() {
-		mvd := dataset.DatasetDetails{
+		mvd := dpDatasetApiModels.Dataset{
 			Type: "cantabular_multivariate_table",
 			ID:   "test-multi",
 		}
@@ -247,7 +246,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 	})
 
 	Convey("Config for multivariate=false, additional mapping is correct", t, func() {
-		mvd := dataset.DatasetDetails{
+		mvd := dpDatasetApiModels.Dataset{
 			Type: "cantabular_multivariate_table",
 			ID:   "test-multi",
 		}

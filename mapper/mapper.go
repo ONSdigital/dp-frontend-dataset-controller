@@ -22,10 +22,12 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -74,7 +76,12 @@ func getTrimmedBreadcrumbURI(ctx context.Context, breadcrumb zebedee.Breadcrumb,
 // CreateFilterableLandingPage creates a filterable dataset landing page based on api model responses
 //
 //nolint:gocyclo //complexity 21
-func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dpDatasetApiModels.Dataset, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dataset.VersionDimensions, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.Page, d dpDatasetApiModels.Dataset, ver dpDatasetApiModels.Version, datasetID string, opts []dataset.Options, dims dpDatasetApiSdk.VersionDimensionsList, displayOtherVersionsLink bool, breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
+	// Set default values to be used if fields are null pointers
+	isLatest := false
+	isNationalStatistic := false
+	QMIURL := ""
+
 	p := filterable.Page{
 		Page: basePage,
 	}
@@ -84,7 +91,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	p.FeatureFlags.SixteensVersion = SixteensVersion
 
 	if d.Type == "nomis" {
-		p.DatasetLandingPage.NomisReferenceURL = d.NomisReferenceURL
+		p.DatasetLandingPage.NomisReferenceURL = ""
 		homeBreadcrumb := dpRendererModel.TaxonomyNode{
 			Title: "Home",
 			URI:   "/",
@@ -145,11 +152,27 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 		p.DatasetLandingPage.ShowEditionName = true
 	}
 
-	p.DatasetLandingPage.IsLatest = d.Links.LatestVersion.HRef == ver.Links.Self.HRef
+	// Update LatestVersion boolean if not null pointer
+	if d.Links.LatestVersion != nil {
+		if d.Links.LatestVersion.HRef == ver.Links.Self.HRef {
+			isLatest = true
+		}
+	}
+	p.DatasetLandingPage.IsLatest = isLatest
 	p.DatasetLandingPage.LatestVersionURL = latestVersionURL
 	p.DatasetLandingPage.IsLatestVersionOfEdition = latestVersionNumber == ver.Version
-	p.DatasetLandingPage.QMIURL = d.QMI.HRef
-	p.DatasetLandingPage.IsNationalStatistic = *d.NationalStatistic
+
+	// Update QMIURL if not null pointer
+	if d.QMI != nil {
+		QMIURL = d.QMI.HRef
+	}
+	p.DatasetLandingPage.QMIURL = QMIURL
+
+	// Update IsNationalStatistic if not null pointer
+	if d.NationalStatistic != nil {
+		isNationalStatistic = *d.NationalStatistic
+	}
+	p.DatasetLandingPage.IsNationalStatistic = isNationalStatistic
 	p.DatasetLandingPage.ReleaseFrequency = cases.Title(language.English).String(d.ReleaseFrequency)
 	p.DatasetLandingPage.Citation = d.License
 
@@ -215,14 +238,14 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	p.DatasetLandingPage.Version = v
 
 	if len(opts) > 0 {
-		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims.Items, opts, d.Links.LatestVersion.HRef, maxNumOpts)
+		p.DatasetLandingPage.Dimensions = mapOptionsToDimensions(ctx, d.Type, dims, opts, latestVersionURL, maxNumOpts)
 	}
 
 	return p
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, ed dpDatasetApiModels.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}
@@ -266,8 +289,25 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dpDa
 			latestVersionNumber = versions[i].Version
 		}
 
-		helpers.MapVersionDownloads(&v, versions[i].Downloads)
-		mapCorrectionAlert(&versions[i], &v)
+		for ext, download := range versions[i].Downloads {
+			v.Downloads = append(v.Downloads, sharedModel.Download{
+				Extension: ext,
+				Size:      download.Size,
+				URI:       download.URL,
+			})
+		}
+
+		// Map the correction alerts
+		if versions[i].Alerts != nil {
+			for _, alert := range *versions[i].Alerts {
+				if alert.Type == CorrectionAlertType {
+					v.Corrections = append(v.Corrections, sharedModel.Correction{
+						Reason: alert.Description,
+						Date:   alert.Date,
+					})
+				}
+			}
+		}
 
 		p.Data.Versions = append(p.Data.Versions, v)
 	}
@@ -351,7 +391,7 @@ func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Vers
 }
 
 //nolint:all // legacy code with poor test coverage
-func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dataset.VersionDimensionItems, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
+func mapOptionsToDimensions(ctx context.Context, datasetType string, dims dpDatasetApiSdk.VersionDimensionsList, opts []dataset.Options, latestVersionURL string, maxNumberOfOptions int) []sharedModel.Dimension {
 	dimensions := []sharedModel.Dimension{}
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
@@ -367,7 +407,7 @@ func mapOptionsToDimensions(ctx context.Context, datasetType string, dims datase
 			if err != nil {
 				log.Warn(ctx, "failed to parse url, last_version link", log.FormatErrors([]error{err}))
 			}
-			for _, dimension := range dims {
+			for _, dimension := range dims.Items {
 				if dimension.Name == opt.Items[0].DimensionID {
 					pDim.Name = dimension.Name
 					pDim.Description = dimension.Description
@@ -540,7 +580,7 @@ func MapDownloads(downloadsList []zebedee.Download, versionURI string) []dataset
 
 // Updates input `basePage` to include common dataset overview attributes, homepage content and
 // dataset details across all dataset types
-func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dpDatasetApiModels.Dataset,
+func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.Dataset,
 	homepageContent zebedee.HomepageContent, isValidationError bool, lang string, request *http.Request) {
 	basePage.BackTo = dpRendererModel.BackTo{
 		Text: dpRendererModel.Localisation{
@@ -554,7 +594,7 @@ func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dpDatasetApiM
 	// Cookies
 	MapCookiePreferences(request, &basePage.CookiesPreferencesSet, &basePage.CookiesPolicy)
 
-	basePage.DatasetId = datasetDetails.ID
+	basePage.DatasetId = dataset.ID
 	basePage.EmergencyBanner = mapEmergencyBanner(homepageContent.EmergencyBanner)
 
 	if isValidationError {
@@ -575,9 +615,9 @@ func UpdateBasePage(basePage *dpRendererModel.Page, datasetDetails dpDatasetApiM
 
 	basePage.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 	basePage.Language = lang
-	basePage.Metadata.Description = datasetDetails.Description
-	basePage.Metadata.Title = datasetDetails.Title
+	basePage.Metadata.Description = dataset.Description
+	basePage.Metadata.Title = dataset.Title
 	basePage.ServiceMessage = homepageContent.ServiceMessage
-	basePage.Type = datasetDetails.Type
+	basePage.Type = dataset.Type
 	basePage.URI = request.URL.Path
 }

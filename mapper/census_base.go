@@ -28,8 +28,10 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dpDatase
 		Page: basePage,
 	}
 
+	// Set default values to be used if fields are null pointers
 	hasOtherVersions := false
 	initialVersionReleaseDate := ""
+	isNationalStatistic := false
 	latestVersionNumber := 1
 
 	// Loop through versions to find info
@@ -53,7 +55,10 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dpDatase
 
 	latestVersionURL := helpers.DatasetVersionURL(datasetDetails.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
-	censusPage.IsNationalStatistic = *datasetDetails.NationalStatistic
+	if datasetDetails.NationalStatistic != nil {
+		isNationalStatistic = *datasetDetails.NationalStatistic
+	}
+	censusPage.IsNationalStatistic = isNationalStatistic
 	censusPage.ContactDetails, censusPage.HasContactDetails = getContactDetails(datasetDetails)
 
 	censusPage.Version.ReleaseDate = version.ReleaseDate

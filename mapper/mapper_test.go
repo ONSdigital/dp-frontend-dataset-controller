@@ -11,7 +11,9 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -20,27 +22,26 @@ func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 	mdl := dpRendererModel.Page{}
 
-	nomisRefURL := "https://www.nomisweb.co.uk/census/2011/ks101ew"
-	contact := dataset.Contact{
+	contact := dpDatasetApiModels.ContactDetails{
 		Name:      "Matt Rout",
 		Telephone: "01111 222222",
 		Email:     "mattrout@test.com",
 	}
-	d := dataset.DatasetDetails{
+	d := dpDatasetApiModels.Dataset{
 		CollectionID: "abcdefg",
-		Contacts: &[]dataset.Contact{
+		Contacts: []dpDatasetApiModels.ContactDetails{
 			contact,
 		},
 		Description: "A really awesome dataset for you to look at",
-		Links: dataset.Links{
-			Self: dataset.Link{
-				URL: "/datasets/83jd98fkflg",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			Self: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/83jd98fkflg",
 			},
 		},
 		NextRelease:      "11-11-2018",
 		ReleaseFrequency: "Yearly",
-		Publisher: &dataset.Publisher{
-			URL:  "ons.gov.uk",
+		Publisher: &dpDatasetApiModels.Publisher{
+			HRef: "ons.gov.uk",
 			Name: "ONS",
 			Type: "Government Agency",
 		},
@@ -49,30 +50,29 @@ func TestUnitMapper(t *testing.T) {
 		Title:   "Penguins of the Antarctic Ocean",
 		License: "ons",
 	}
-	nomisD := dataset.DatasetDetails{
+	nomisD := dpDatasetApiModels.Dataset{
 		CollectionID: "abcdefg",
-		Contacts: &[]dataset.Contact{
+		Contacts: []dpDatasetApiModels.ContactDetails{
 			contact,
 		},
 		Description: "A really awesome dataset for you to look at",
-		Links: dataset.Links{
-			Self: dataset.Link{
-				URL: "/datasets/83jd98fkflg",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			Self: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/83jd98fkflg",
 			},
 		},
 		NextRelease:      "11-11-2018",
 		ReleaseFrequency: "Yearly",
-		Publisher: &dataset.Publisher{
-			URL:  "ons.gov.uk",
+		Publisher: &dpDatasetApiModels.Publisher{
+			HRef: "ons.gov.uk",
 			Name: "ONS",
 			Type: "Government Agency",
 		},
-		State:             "created",
-		Theme:             "purple",
-		Title:             "Penguins of the Antarctic Ocean",
-		License:           "ons",
-		Type:              "nomis",
-		NomisReferenceURL: nomisRefURL,
+		State:   "created",
+		Theme:   "purple",
+		Title:   "Penguins of the Antarctic Ocean",
+		License: "ons",
+		Type:    "nomis",
 	}
 
 	v := []dpDatasetApiModels.Version{
@@ -177,7 +177,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
+		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
@@ -286,7 +286,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
+		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{breadcrumbItem0, breadcrumbItem1, breadcrumbItemWrongURI},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
@@ -300,7 +300,7 @@ func TestUnitMapper(t *testing.T) {
 		So(p.Breadcrumb[0].URI, ShouldEqual, expectedBreadcrumbItem0.URI)
 		So(p.Breadcrumb[1].Title, ShouldEqual, expectedBreadcrumbItem1.Description.Title)
 		So(p.Breadcrumb[1].URI, ShouldEqual, expectedBreadcrumbItem1.URI)
-		So(p.DatasetLandingPage.NomisReferenceURL, ShouldEqual, nomisRefURL)
+		So(p.DatasetLandingPage.NomisReferenceURL, ShouldBeEmpty)
 
 		v0 := p.DatasetLandingPage.Version
 		So(v0.Title, ShouldEqual, d.Title)
@@ -318,7 +318,7 @@ func TestUnitMapper(t *testing.T) {
 			dimensionOptionLabel = "London"
 		)
 
-		dims := dataset.VersionDimensions{
+		dims := dpDatasetApiSdk.VersionDimensionsList{
 			Items: []dpDatasetApiModels.Dimension{
 				{
 					ID:    dimensionID,
@@ -376,7 +376,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
@@ -412,7 +412,7 @@ func TestUnitMapper(t *testing.T) {
 					},
 				},
 			},
-		}, dataset.VersionDimensions{}, false, []zebedee.Breadcrumb{},
+		}, dpDatasetApiSdk.VersionDimensionsList{}, false, []zebedee.Breadcrumb{},
 			1, "/datasets/83jd98fkflg/editions/124/versions/1", "/v1", 50)
 
 		So(p.Type, ShouldEqual, "dataset_landing_page")
@@ -425,8 +425,8 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
-	mdl := dpRendererModel.Page{}
-	req := httptest.NewRequest("", "/", http.NoBody)
+	mdl := model.Page{}
+	req := httptest.NewRequest("", "/", nil)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
@@ -446,18 +446,19 @@ func TestCreateVersionsList(t *testing.T) {
 		},
 	}
 	dummyEditionData := dataset.Edition{}
-	dummyVersion1 := dpDatasetApiModels.Version{
+	dummyVersion1 := dataset.Version{
 		Alerts:        nil,
 		CollectionID:  "",
 		Downloads:     nil,
 		Edition:       "time-series",
 		Dimensions:    nil,
 		ID:            "",
+		InstanceID:    "",
 		LatestChanges: nil,
-		Links: &dpDatasetApiModels.VersionLinks{
-			Dataset: &dpDatasetApiModels.LinkObject{
-				HRef: "http://localhost:22000/datasets/cpih01",
-				ID:   "cpih01",
+		Links: dataset.Links{
+			Dataset: dataset.Link{
+				URL: "http://localhost:22000/datasets/cpih01",
+				ID:  "cpih01",
 			},
 		},
 		ReleaseDate: "2019-08-15T00:00:00.000Z",
@@ -469,7 +470,7 @@ func TestCreateVersionsList(t *testing.T) {
 	dummyVersion2.Version = 2
 	dummyVersion3 := dummyVersion1
 	dummyVersion3.Version = 3
-	dummyVersion3.Alerts = &[]dpDatasetApiModels.Alert{
+	dummyVersion3.Alerts = &[]dataset.Alert{
 		{
 			Date:        "",
 			Description: "This is a correction",
@@ -480,7 +481,7 @@ func TestCreateVersionsList(t *testing.T) {
 	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("test latest version page", t, func() {
-		dummySingleVersionList := []dpDatasetApiModels.Version{dummyVersion3}
+		dummySingleVersionList := []dataset.Version{dummyVersion3}
 
 		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList, serviceMessage, emergencyBanner)
 		Convey("title", func() {
@@ -490,7 +491,7 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions, ShouldHaveLength, 1)
 		})
 
-		dummyMultipleVersionList := []dpDatasetApiModels.Version{dummyVersion1, dummyVersion2, dummyVersion3}
+		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
 		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList, serviceMessage, emergencyBanner)
 
 		Convey("has correct number of versions when multiple should be present", func() {

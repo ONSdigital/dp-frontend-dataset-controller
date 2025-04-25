@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
@@ -38,7 +38,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 		contact := getTestContacts()
 		relatedContent := getTestRelatedContent()
 		datasetModel := getTestDatasetDetails(contact, relatedContent)
-		datasetOptions := []dataset.Options{
+		datasetOptions := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			getTestOptions("dim_1", 10),
 			getTestOptions("dim_2", 10),
 		}
@@ -102,8 +102,8 @@ func TestCleanDimensionsLabel(t *testing.T) {
 	})
 }
 
-func getTestRelatedContent() []dataset.GeneralDetails {
-	return []dataset.GeneralDetails{
+func getTestRelatedContent() []dpDatasetApiModels.GeneralDetails {
+	return []dpDatasetApiModels.GeneralDetails{
 		{
 			Title:       "Test related content 1",
 			HRef:        "testrc1.example.com",
@@ -117,8 +117,8 @@ func getTestRelatedContent() []dataset.GeneralDetails {
 	}
 }
 
-func getTestContacts() []dataset.Contact {
-	return []dataset.Contact{
+func getTestContacts() []dpDatasetApiModels.ContactDetails {
+	return []dpDatasetApiModels.ContactDetails{
 		{
 			Telephone: "01232 123 123",
 			Email:     "hello@testing.com",
@@ -126,17 +126,20 @@ func getTestContacts() []dataset.Contact {
 	}
 }
 
-func getTestDatasetDetails(contacts []dataset.Contact, relatedContent []dataset.GeneralDetails) dataset.DatasetDetails {
-	return dataset.DatasetDetails{
-		Contacts:          &contacts,
+// Returns a representative populated `dp-dataset-api.models.Dataset` data struct
+func getTestDatasetDetails(contacts []dpDatasetApiModels.ContactDetails, relatedContent []dpDatasetApiModels.GeneralDetails) dpDatasetApiModels.Dataset {
+	var nationalStatistic = true
+
+	return dpDatasetApiModels.Dataset{
+		Contacts:          contacts,
 		ID:                "cantabular-1",
 		Description:       "An interesting test description \n with a line break",
 		Title:             "Test title",
 		Type:              "cantabular_flexible_table",
-		NationalStatistic: true,
+		NationalStatistic: &nationalStatistic,
 		Survey:            "census",
-		RelatedContent:    &relatedContent,
-		IsBasedOn: &dataset.IsBasedOn{
+		RelatedContent:    relatedContent,
+		IsBasedOn: &dpDatasetApiModels.IsBasedOn{
 			ID: "UR",
 		},
 	}
@@ -238,24 +241,23 @@ func getTestDefaultDimensions() []dpDatasetApiModels.Dimension {
 	return []dpDatasetApiModels.Dimension{dim1, dim2, dim3}
 }
 
-func getTestOptions(dimensionID string, count int) dataset.Options {
-	items := []dataset.Option{}
+func getTestOptions(name string, count int) dpDatasetApiSdk.VersionDimensionOptionsList {
+	items := []dpDatasetApiModels.PublicDimensionOption{}
 	for i := 1; i <= count; i++ {
-		items = append(items, dataset.Option{
-			DimensionID: dimensionID,
-			Label:       fmt.Sprintf("Label %d", i),
-			Option:      fmt.Sprintf("Label %d", i),
+		items = append(items, dpDatasetApiModels.PublicDimensionOption{
+			Name:   name,
+			Label:  fmt.Sprintf("Label %d", i),
+			Option: fmt.Sprintf("Label %d", i),
 		})
 	}
 
-	return dataset.Options{
-		Items:      items,
-		TotalCount: count,
+	return dpDatasetApiSdk.VersionDimensionOptionsList{
+		Items: items,
 	}
 }
 
-func getTestOptionsList() []dataset.Options {
-	return []dataset.Options{
+func getTestOptionsList() []dpDatasetApiSdk.VersionDimensionOptionsList {
+	return []dpDatasetApiSdk.VersionDimensionOptionsList{
 		getTestOptions("dim_1", 2),
 	}
 }

@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -18,7 +18,7 @@ import (
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
 func CreateCensusLandingPage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
-	opts []dataset.Options, categorisationsMap map[string]int, allVersions []dpDatasetApiModels.Version, queryStrValues []string,
+	opts []dpDatasetApiSdk.VersionDimensionOptionsList, categorisationsMap map[string]int, allVersions []dpDatasetApiModels.Version, queryStrValues []string,
 	isEnableMultivariate bool, pop population.GetPopulationTypeResponse,
 ) census.Page {
 	p := CreateCensusBasePage(basePage, d, version, allVersions, isEnableMultivariate)
@@ -75,12 +75,13 @@ func CreateCensusLandingPage(basePage coreModel.Page, d dpDatasetApiModels.Datas
 }
 
 // mapCensusOptionsToDimensions links dimension options to dimensions and prepares them for display
-func mapCensusOptionsToDimensions(dims []dpDatasetApiModels.Dimension, opts []dataset.Options, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
+func mapCensusOptionsToDimensions(dims []dpDatasetApiModels.Dimension, opts []dpDatasetApiSdk.VersionDimensionOptionsList, categorisationsMap map[string]int, queryStrValues []string, path, lang string, isMultivariate bool) (area sharedModel.Dimension, dimensions []sharedModel.Dimension, qs []census.Panel) {
 	for _, opt := range opts {
 		var pDim sharedModel.Dimension
+		totalItems := len(opt.Items)
 
 		for i := range dims {
-			if dims[i].Name != opt.Items[0].DimensionID {
+			if dims[i].Name != opt.Items[0].Name {
 				continue
 			}
 			pDim.Name = dims[i].Name
@@ -100,10 +101,10 @@ func mapCensusOptionsToDimensions(dims []dpDatasetApiModels.Dimension, opts []da
 			}
 		}
 
-		pDim.TotalItems = opt.TotalCount
-		midFloor, midCeiling := getTruncationMidRange(opt.TotalCount)
+		pDim.TotalItems = totalItems
+		midFloor, midCeiling := getTruncationMidRange(totalItems)
 
-		var displayedOptions []dataset.Option
+		var displayedOptions []dpDatasetApiModels.PublicDimensionOption
 		if pDim.TotalItems > 9 && !helpers.HasStringInSlice(pDim.ID, queryStrValues) {
 			displayedOptions = opt.Items[:3]
 			displayedOptions = append(displayedOptions, opt.Items[midFloor:midCeiling]...)

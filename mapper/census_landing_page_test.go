@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
@@ -83,7 +83,7 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 		getTestDimension("sex", false),
 		getTestDimension("ethnicity", false),
 	}
-	datasetOptions := []dataset.Options{
+	datasetOptions := []dpDatasetApiSdk.VersionDimensionOptionsList{
 		getTestOptions("geography", 3),
 		getTestOptions("sex", 2),
 		getTestOptions("ethnicity", 20),
@@ -166,7 +166,7 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 
 		dimensions := []dpDatasetApiModels.Dimension{dim1, dim2, dim3}
 		version := getTestVersionDetails(1, dimensions, getTestDownloads([]string{"xlsx"}), nil)
-		datasetOptions := []dataset.Options{
+		datasetOptions := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			getTestOptions("1", 1),
 			getTestOptions("2", 1),
 		}
@@ -276,7 +276,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 	version := getTestVersionOneDetails()
 
 	Convey("given a dimension to truncate on census dataset landing page", t, func() {
-		datasetOptions := []dataset.Options{
+		datasetOptions := []dpDatasetApiSdk.VersionDimensionOptionsList{
 			getTestOptions("1", 21),
 			getTestOptions("2", 20),
 		}
@@ -286,7 +286,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 				[]dpDatasetApiModels.Version{version}, []string{}, true, population.GetPopulationTypeResponse{})
 
 			Convey("then the list should be truncated to show the first, middle, and last three values", func() {
-				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
+				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, len(datasetOptions[0].Items))
 				So(page.DatasetLandingPage.Dimensions[1].Values, ShouldHaveLength, 9)
 				So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3",
@@ -304,7 +304,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 				[]dpDatasetApiModels.Version{version}, parameters, true, population.GetPopulationTypeResponse{})
 
 			Convey("then the dimension is no longer truncated", func() {
-				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, datasetOptions[0].TotalCount)
+				So(page.DatasetLandingPage.Dimensions[1].TotalItems, ShouldEqual, len(datasetOptions[0].Items))
 				So(page.DatasetLandingPage.Dimensions[1].Values, ShouldHaveLength, 21)
 				So(page.DatasetLandingPage.Dimensions[1].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3", "Label 4", "Label 5",
@@ -327,7 +327,7 @@ func TestCreateCensusLandingPagePagination(t *testing.T) {
 					"Label 21",
 				})
 				So(page.DatasetLandingPage.Dimensions[1].TruncateLink, ShouldEqual, "/#1")
-				So(page.DatasetLandingPage.Dimensions[3].TotalItems, ShouldEqual, datasetOptions[1].TotalCount)
+				So(page.DatasetLandingPage.Dimensions[3].TotalItems, ShouldEqual, len(datasetOptions[1].Items))
 				So(page.DatasetLandingPage.Dimensions[3].Values, ShouldHaveLength, 9)
 				So(page.DatasetLandingPage.Dimensions[3].Values, ShouldResemble, []string{
 					"Label 1", "Label 2", "Label 3",

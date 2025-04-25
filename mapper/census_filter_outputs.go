@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -45,7 +44,7 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 			Email:     "census.customerservices@ons.gov.uk",
 			Telephone: "+44 1329 444972",
 		}
-		p.TableOfContents = buildTableOfContents(p, dataset.DatasetDetails{}, false)
+		p.TableOfContents = buildTableOfContents(p, dpDatasetApiModels.Dataset{}, false)
 	}
 
 	// DOWNLOADS
