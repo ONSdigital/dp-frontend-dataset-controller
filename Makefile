@@ -22,7 +22,7 @@ debug: generate-debug
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-dataset-controller
 
 .PHONY: lint 
-lint:
+lint: generate-prod
 	golangci-lint run ./... --build-tags 'production'
 
 .PHONY: run
