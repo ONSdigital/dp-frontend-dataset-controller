@@ -27,6 +27,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 
 	hasOtherVersions := false
 	initialVersionReleaseDate := ""
+	isNationalStatistic := false
 	latestVersionNumber := 1
 
 	// Loop through versions to find info
@@ -49,7 +50,10 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 
 	latestVersionURL := helpers.DatasetVersionURL(d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
-	p.IsNationalStatistic = *d.NationalStatistic
+	if d.NationalStatistic != nil {
+		isNationalStatistic = *d.NationalStatistic
+	}
+	p.IsNationalStatistic = isNationalStatistic
 	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
@@ -76,7 +80,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	ctx := context.Background()
 	headers := topicsSDK.Headers{
 		ServiceAuthToken: "test-service-auth-token",
-		UserAuthToken: "test-user-auth-token",
+		UserAuthToken:    "test-user-auth-token",
 	}
 	topic, err := topicsClient.GetTopicPublic(ctx, headers, "7779")
 

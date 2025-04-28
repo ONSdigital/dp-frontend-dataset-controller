@@ -80,6 +80,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	datasetID string, opts []dpDatasetApiSdk.VersionDimensionOptionsList, dims dpDatasetApiSdk.VersionDimensionsList, displayOtherVersionsLink bool,
 	breadcrumbs []zebedee.Breadcrumb, latestVersionNumber int, latestVersionURL, apiRouterVersion string, maxNumOpts int) filterable.Page {
 	// Set default values to be used if fields are null pointers
+	datasetSelfHRef := ""
 	isLatest := false
 	isNationalStatistic := false
 	QMIURL := ""
@@ -122,7 +123,11 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	if currentPageBreadcrumbTitle == "time-series" {
 		currentPageBreadcrumbTitle = "Current"
 	}
-	datasetURL, err := url.Parse(d.Links.Self.HRef)
+	if d.Links.Self != nil {
+		datasetSelfHRef = d.Links.Self.HRef
+	}
+
+	datasetURL, err := url.Parse(datasetSelfHRef)
 	if err != nil {
 		log.Warn(ctx, "failed to parse url, self link", log.FormatErrors([]error{err}))
 	}
