@@ -2,6 +2,7 @@
 
 cwd=$(pwd)
 
-pushd $cwd/dp-frontend-dataset-controller
+pushd $cwd/dp-dataset-api
+  go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.6
   make lint
 popd
