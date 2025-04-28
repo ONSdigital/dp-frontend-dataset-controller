@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
@@ -215,16 +214,6 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockGetResponse = dpDatasetApiModels.Dataset{
-				Contacts: []dpDatasetApiModels.ContactDetails{
-					{Name: "Matt"}},
-				URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-				Links: &dpDatasetApiModels.DatasetLinks{
-					LatestVersion: &dpDatasetApiModels.LinkObject{
-						HRef: "/datasets/1234/editions/5678/versions/2017",
-					},
-				},
-			}
 			mockZebedeeClient := NewMockZebedeeClient(mockController)
 			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, collectionID, "12345").Return(mockGetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
@@ -269,27 +258,35 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		ServiceToken:         serviceAuthToken,
 		UserAccessToken:      "",
 	}
+	mockGetDatasetResponse := dpDatasetApiModels.Dataset{
+		Contacts: []dpDatasetApiModels.ContactDetails{
+			{Name: "Nick"},
+		},
+		Type: "cantabular-table",
+		URI:  "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			LatestVersion: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/12345/editions/2021/versions/1",
+			},
+		},
+		ID: "12345",
+	}
 
 	Convey("test census landing page", t, func() {
-		mockOpts := []dataset.Options{
-			{
-				Items: []dataset.Option{
-					{
-						Label: "an option",
-					},
-				},
-			},
-			{
-				Items: []dataset.Option{},
-			},
-		}
 		mockClient := NewMockDatasetApiSdkClient(mockCtrl)
 		mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 		mockRend := NewMockRenderClient(mockCtrl)
+		mockGetVersionDimensionOptionsResponse := dpDatasetApiSdk.VersionDimensionOptionsList{
+			Items: []dpDatasetApiModels.PublicDimensionOption{
+				{
+					Label: "an option",
+				},
+			},
+		}
 		Convey("filterable landing handler returns census landing template for cantabular types", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -322,7 +319,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensionOptions(ctx, headers, "12345", "2021", "1", versions.Items[0].Dimensions[0].Name,
-				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockOpts[0], nil)
+				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionDimensionOptionsResponse, nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -349,9 +346,24 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		})
 
 		Convey("census dataset landing page correctly fetches version 1 data for initial release date field, when loading a later version", func() {
+			// Creating a custom response here as we want the latest version url to be version 2,
+			// as there are 2 versions associated with the dataset
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/2"}}, ID: "12345"}, nil)
-			versions := dpDatasetApiSdk.VersionsList{
+			mockGetDatasetResponseNew := dpDatasetApiModels.Dataset{
+				Contacts: []dpDatasetApiModels.ContactDetails{
+					{Name: "Nick"},
+				},
+				Type: "cantabular-table",
+				URI:  "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+				Links: &dpDatasetApiModels.DatasetLinks{
+					LatestVersion: &dpDatasetApiModels.LinkObject{
+						HRef: "/datasets/12345/editions/2021/versions/2",
+					},
+				},
+				ID: "12345",
+			}
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponseNew, nil)
+			mockGetVersionsResponse := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
 						ReleaseDate: "02-01-2005",
@@ -387,9 +399,9 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 			}
 			// Version requested doesn't have any dimensions
-			mockGetVersionDimensionsResponse := dataset.VersionDimensions{}
-			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "2").Return(versions.Items[1], nil)
+			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
+			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionsResponse, nil)
+			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "2").Return(mockGetVersionsResponse.Items[1], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "2").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -407,7 +419,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when no downloadable files provided", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -427,7 +439,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 			}
 			// Version requested doesn't have any dimensions
-			mockGetVersionDimensionsResponse := dataset.VersionDimensions{}
+			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
@@ -447,7 +459,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 302 when valid download option chosen", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -472,7 +484,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 			}
 			// Version requested doesn't have any dimensions
-			mockGetVersionDimensionsResponse := dataset.VersionDimensions{}
+			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
@@ -497,7 +509,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when invalid download option chosen", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -517,7 +529,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 			}
 			// Version requested doesn't have any dimensions
-			mockGetVersionDimensionsResponse := dataset.VersionDimensions{}
+			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
@@ -542,7 +554,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when unknown get query request made", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Nick"}}, Type: "cantabular-table", URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/12345/editions/2021/versions/1"}}, ID: "12345"}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -562,7 +574,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 			}
 			// Version requested doesn't have any dimensions
-			mockGetVersionDimensionsResponse := dataset.VersionDimensions{}
+			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
