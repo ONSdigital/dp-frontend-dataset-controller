@@ -41,7 +41,7 @@ func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFu
 				return
 			}
 
-			if len(opts.Items) > 1 { // If there is only one option then it can't be filterable so don't add to filter api
+			if opts.TotalCount > 1 { // If there is only one option then it can't be filterable so don't add to filter api
 				names = append(names, dimension.Name)
 			}
 		}
