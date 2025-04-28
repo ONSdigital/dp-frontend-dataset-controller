@@ -23,7 +23,7 @@ debug: generate-debug
 
 .PHONY: lint 
 lint:
-	golangci-lint run ./...
+	golangci-lint run ./... --build-tags 'production'
 
 .PHONY: run
 run:
