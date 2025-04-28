@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -107,6 +106,19 @@ func TestFilterOutputHandler(t *testing.T) {
 		ServiceToken:         serviceAuthToken,
 		UserAccessToken:      "",
 	}
+	mockGetDatsetResponse := dpDatasetApiModels.Dataset{
+		Contacts: []dpDatasetApiModels.ContactDetails{
+			{Name: "Nick"},
+		},
+		Type: "flexible",
+		URI:  "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			LatestVersion: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/12345/editions/2021/versions/1",
+			},
+		},
+		ID: "12345",
+	}
 
 	Convey("Given the FilterOutput handler", t, func() {
 		Convey("When it receives good dataset api responses", func() {
@@ -120,17 +132,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
-					Contacts: &[]dataset.Contact{{Name: "Nick"}},
-					Type:     "flexible",
-					URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-					Links: dataset.Links{
-						LatestVersion: dataset.Link{
-							URL: "/datasets/12345/editions/2021/versions/1",
-						},
-					},
-					ID: "12345",
-				}, nil)
+				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -201,17 +203,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
-					Contacts: &[]dataset.Contact{{Name: "Nick"}},
-					Type:     "flexible",
-					URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-					Links: dataset.Links{
-						LatestVersion: dataset.Link{
-							URL: "/datasets/12345/editions/2021/versions/1",
-						},
-					},
-					ID: "12345",
-				}, nil)
+				Return(mockGetDatsetResponse, nil)
 
 			mockDc.
 				EXPECT().
@@ -282,17 +274,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
-					Contacts: &[]dataset.Contact{{Name: "Nick"}},
-					Type:     "flexible",
-					URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-					Links: dataset.Links{
-						LatestVersion: dataset.Link{
-							URL: "/datasets/12345/editions/2021/versions/1",
-						},
-					},
-					ID: "12345",
-				}, nil)
+				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -358,17 +340,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
-					Contacts: &[]dataset.Contact{{Name: "Nick"}},
-					Type:     "flexible",
-					URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-					Links: dataset.Links{
-						LatestVersion: dataset.Link{
-							URL: "/datasets/12345/editions/2021/versions/1",
-						},
-					},
-					ID: "12345",
-				}, nil)
+				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -437,17 +409,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		Convey("When unknown query made", func() {
 			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 			mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
-					Contacts: &[]dataset.Contact{{Name: "Nick"}},
-					Type:     "flexible",
-					URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-					Links: dataset.Links{
-						LatestVersion: dataset.Link{
-							URL: "/datasets/12345/editions/2021/versions/1",
-						},
-					},
-					ID: "12345",
-				}, nil)
+				Return(mockGetDatsetResponse, nil)
 
 			mockDc.
 				EXPECT().
@@ -518,17 +480,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			Convey("When the dc.GetOptions is called", func() {
 				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
 				mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
-					Return(dataset.DatasetDetails{
-						Contacts: &[]dataset.Contact{{Name: "Nick"}},
-						Type:     "flexible",
-						URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-						Links: dataset.Links{
-							LatestVersion: dataset.Link{
-								URL: "/datasets/12345/editions/2021/versions/1",
-							},
-						},
-						ID: "12345",
-					}, nil)
+					Return(mockGetDatsetResponse, nil)
 				mockDc.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 				mockDc.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 
@@ -578,17 +530,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockDc.
 					EXPECT().
 					GetDataset(ctx, headers, collectionID, "12345").
-					Return(dataset.DatasetDetails{
-						Contacts: &[]dataset.Contact{{Name: "Nick"}},
-						Type:     "flexible",
-						URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-						Links: dataset.Links{
-							LatestVersion: dataset.Link{
-								URL: "/datasets/12345/editions/2021/versions/1",
-							},
-						},
-						ID: "12345",
-					}, nil)
+					Return(mockGetDatsetResponse, nil)
 				mockDc.
 					EXPECT().
 					GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -661,17 +603,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
-						Return(dataset.DatasetDetails{
-							Contacts: &[]dataset.Contact{{Name: "Nick"}},
-							Type:     "flexible",
-							URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-							Links: dataset.Links{
-								LatestVersion: dataset.Link{
-									URL: "/datasets/12345/editions/2021/versions/1",
-								},
-							},
-							ID: "12345",
-						}, nil)
+						Return(mockGetDatsetResponse, nil)
 					mockDc.
 						EXPECT().
 						GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -750,17 +682,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
-						Return(dataset.DatasetDetails{
-							Contacts: &[]dataset.Contact{{Name: "Nick"}},
-							Type:     "flexible",
-							URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-							Links: dataset.Links{
-								LatestVersion: dataset.Link{
-									URL: "/datasets/12345/editions/2021/versions/1",
-								},
-							},
-							ID: "12345",
-						}, nil)
+						Return(mockGetDatsetResponse, nil)
 					mockDc.
 						EXPECT().
 						GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -839,7 +761,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
-						Return(dataset.DatasetDetails{
+						Return(dpDatasetApiModels.Dataset{
 							Type: "multivariate",
 						}, nil)
 					mockDc.
@@ -928,7 +850,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
+				Return(dpDatasetApiModels.Dataset{}, errors.New("dataset client error"))
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -975,7 +897,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{}, nil)
+				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -1022,7 +944,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{}, nil)
+				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -1069,7 +991,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{}, nil)
+				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -1116,7 +1038,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{}, nil)
+				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
 				GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
@@ -1171,7 +1093,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
+				Return(dpDatasetApiModels.Dataset{
 					Type: "multivariate",
 				}, nil)
 			mockDc.
@@ -1229,7 +1151,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
-				Return(dataset.DatasetDetails{
+				Return(dpDatasetApiModels.Dataset{
 					Type: "multivariate",
 				}, nil)
 			mockDc.
@@ -1279,17 +1201,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockDc.
 					EXPECT().
 					GetDataset(ctx, headers, collectionID, "12345").
-					Return(dataset.DatasetDetails{
-						Contacts: &[]dataset.Contact{{Name: "Nick"}},
-						Type:     "flexible",
-						URI:      "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-						Links: dataset.Links{
-							LatestVersion: dataset.Link{
-								URL: "/datasets/12345/editions/2021/versions/1",
-							},
-						},
-						ID: "12345",
-					}, nil)
+					Return(mockGetDatsetResponse, nil)
 				mockDc.
 					EXPECT().
 					GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).
