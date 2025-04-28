@@ -24,14 +24,14 @@ import (
 )
 
 // FilterOutput will load a filtered landing page
-func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc DatasetApiSdkClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc DatasetAPISdkClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterOutput(w, req, zc, dc, fc, pc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // Legacy code
-func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetApiSdkClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetAPISdkClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool

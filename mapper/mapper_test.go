@@ -13,7 +13,6 @@ import (
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -425,8 +424,8 @@ func TestUnitMapper(t *testing.T) {
 
 // TestCreateVersionsList Tests the CreateVersionsList function in the mapper
 func TestCreateVersionsList(t *testing.T) {
-	mdl := model.Page{}
-	req := httptest.NewRequest("", "/", nil)
+	mdl := dpRendererModel.Page{}
+	req := httptest.NewRequest("", "/", http.NoBody)
 	dummyModelData := dataset.DatasetDetails{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",

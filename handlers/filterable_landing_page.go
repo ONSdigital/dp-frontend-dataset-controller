@@ -28,14 +28,14 @@ const (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetApiSdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
-func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetApiSdkClient,
+func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient,
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
@@ -47,7 +47,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 	downloadServiceAuthToken := ""
 	serviceAuthToken := ""
-	taxonomyUrl := ""
+	taxonomyURL := ""
 
 	ctx := request.Context()
 	vars := mux.Vars(request)
@@ -214,11 +214,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			// Update breadcrumbs if not nomis
 			if !(datasetDetails.Type == DatasetTypeNomis) {
 				if datasetDetails.Links.Taxonomy != nil {
-					taxonomyUrl = datasetDetails.Links.Taxonomy.HRef
+					taxonomyURL = datasetDetails.Links.Taxonomy.HRef
 				}
-				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, taxonomyUrl)
+				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, taxonomyURL)
 				if err != nil {
-					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": taxonomyUrl})
+					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": taxonomyURL})
 				}
 			}
 			// filterable landing mapper
@@ -239,30 +239,10 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				}
 			}
 
-			// metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
-			// if err != nil {
-			// 	setStatusCode(ctx, responseWriter, err)
-			// 	return
-			// }
-
-			// // get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
-			// textBytes, err := getText(dc, headers, datasetID, editionID, versionID, metadata, dims, request)
-			// if err != nil {
-			// 	if err != errTooManyOptions {
-			// 		setStatusCode(ctx, responseWriter, err)
-			// 		return
-			// 	}
-			// }
-
-			// This needs to be after the for-loop to add the download files,
-			// because the loop adds the download services domain to the URLs
-			// which this text file doesn't need because it's created on-the-fly
-			// by this app
 			m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, model.Download{
 				Extension: "txt",
 				Size:      "0",
-				// Size:      strconv.Itoa(len(textBytes)),
-				URI: fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
+				URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
 			})
 
 			m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)

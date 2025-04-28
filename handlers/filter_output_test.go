@@ -128,7 +128,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				GetHomepageContent(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 				Return(hp, nil).AnyTimes()
 
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
@@ -199,7 +199,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When downloads are nil", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
@@ -270,7 +270,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When valid download chosen", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
@@ -336,7 +336,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When invalid download option chosen", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
 				GetDataset(ctx, headers, collectionID, "12345").
@@ -407,7 +407,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When unknown query made", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
 				Return(mockGetDatsetResponse, nil)
 
@@ -478,7 +478,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("Given a dimension is not an area type", func() {
 			Convey("When the dc.GetOptions is called", func() {
-				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 				mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
 					Return(mockGetDatsetResponse, nil)
 				mockDc.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
@@ -526,7 +526,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("Given a dimension is an area type", func() {
 			Convey("When the pc.GetAreas is called", func() {
-				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
 					GetDataset(ctx, headers, collectionID, "12345").
@@ -599,7 +599,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the fc.GetDimensionOptions is called", func() {
 				Convey("and an additional call to pc.GetArea is made", func() {
-					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
@@ -678,7 +678,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the fc.GetDimensionOptions is called with parent options", func() {
 				Convey("and an additional call to pc.GetArea is made", func() {
-					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
@@ -757,7 +757,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			Convey("When the dataset is a multivariate", func() {
 				Convey("Then an additional call to pc.GetBlockedAreaCount is made", func() {
-					mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
 						GetDataset(ctx, headers, collectionID, "12345").
@@ -842,7 +842,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.Get fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -889,7 +889,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.GetVersions fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -936,7 +936,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the dc.GetVersion fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -983,7 +983,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the fc.GetOutput fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -1030,7 +1030,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetDimensionsDescription fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -1085,7 +1085,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetBlockedAreaCount fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -1143,7 +1143,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		})
 
 		Convey("When the pc.GetPopulationTypeResponse fails", func() {
-			mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockFc := NewMockFilterClient(mockCtrl)
 			mockPc := NewMockPopulationClient(mockCtrl)
 			mockRend := NewMockRenderClient(mockCtrl)
@@ -1197,7 +1197,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("When the fc.GetDimensionOptions is called", func() {
 			Convey("and the additional call to pc.GetArea fails", func() {
-				mockDc := NewMockDatasetApiSdkClient(mockCtrl)
+				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
 					GetDataset(ctx, headers, collectionID, "12345").

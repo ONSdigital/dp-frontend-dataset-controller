@@ -20,7 +20,7 @@ import (
 
 type legacyLandingPage struct {
 	ZebedeeClient   ZebedeeClient
-	DatasetClient   ApiClientsGoDatasetClient
+	DatasetClient   APIClientsGoDatasetClient
 	FilesAPIClient  FilesAPIClient
 	RenderClient    RenderClient
 	Language        string
@@ -31,7 +31,7 @@ type legacyLandingPage struct {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc ApiClientsGoDatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List, cfg config.Config) http.HandlerFunc {
+func LegacyLanding(zc ZebedeeClient, dc APIClientsGoDatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		lp := legacyLandingPage{
 			ZebedeeClient:   zc,
@@ -174,7 +174,7 @@ func (lp legacyLandingPage) getRelatedDatasetLinks(ctx context.Context, dlp *zeb
 	for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 		wg.Add(1)
 
-		go func(ctx context.Context, i int, dc ApiClientsGoDatasetClient, relatedFilterableDataset zebedee.Link) {
+		go func(ctx context.Context, i int, dc APIClientsGoDatasetClient, relatedFilterableDataset zebedee.Link) {
 			defer wg.Done()
 
 			d, err := dc.GetByPath(ctx, lp.UserAccessToken, "", lp.CollectionID, relatedFilterableDataset.URI)

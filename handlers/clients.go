@@ -17,7 +17,7 @@ import (
 )
 
 // To mock interfaces in this file
-//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,ApiClientsGoDatasetClient,DatasetApiSdkClient,RenderClient
+//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,APIClientsGoDatasetClient,DatasetAPISdkClient,RenderClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
@@ -30,7 +30,7 @@ type FilterClient interface {
 }
 
 // Interface with methods required for a dp-api-clients-go dataset client
-type ApiClientsGoDatasetClient interface {
+type APIClientsGoDatasetClient interface {
 	Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.DatasetDetails, err error)
 	GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (m dataset.DatasetDetails, err error)
 	GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m []dataset.Edition, err error)
@@ -43,7 +43,7 @@ type ApiClientsGoDatasetClient interface {
 }
 
 // Interface with methods required for a dp-dataset-api/sdk dataset client
-type DatasetApiSdkClient interface {
+type DatasetAPISdkClient interface {
 	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, collectionID, datasetID string) (m dpDatasetApiModels.Dataset, err error)
 	GetDatasetByPath(ctx context.Context, headers dpDatasetApiSdk.Headers, path string) (m dpDatasetApiModels.Dataset, err error)
 	GetEditions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.EditionsList, err error)

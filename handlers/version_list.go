@@ -12,13 +12,13 @@ import (
 )
 
 // VersionsList will load a list of versions for a filterable dataset
-func VersionsList(dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func VersionsList(dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, zc, rend, collectionID, userAccessToken, lang)
 	})
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
+func versionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	edition := vars["edition"]

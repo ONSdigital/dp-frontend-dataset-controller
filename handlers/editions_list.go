@@ -12,13 +12,13 @@ import (
 )
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func EditionsList(dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		editionsList(w, req, dc, zc, rend, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc ApiClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()

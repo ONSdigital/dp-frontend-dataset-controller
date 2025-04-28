@@ -26,7 +26,7 @@ func TestLegacyLanding(t *testing.T) {
 	cfg := initialiseMockConfig()
 
 	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-	mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+	mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 
 	Convey("test /path/to/something/data endpoint", t, func() {
@@ -127,7 +127,7 @@ func TestHandlersFilesAPI(t *testing.T) {
 	cfg := initialiseMockConfig()
 
 	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-	mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+	mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 	mockRend := NewMockRenderClient(mockCtrl)
 	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
 

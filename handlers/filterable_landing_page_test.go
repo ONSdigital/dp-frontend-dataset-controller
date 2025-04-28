@@ -23,7 +23,7 @@ func TestFilterableLandingPage(t *testing.T) {
 	mockConfig := initialiseMockConfig()
 	mockContext := gomock.Any()
 	mockController := gomock.NewController(t)
-	mockDatasetClient := NewMockDatasetApiSdkClient(mockController)
+	mockDatasetClient := NewMockDatasetAPISdkClient(mockController)
 	mockPopulationClient := NewMockPopulationClient(mockController)
 	mockRenderClient := NewMockRenderClient(mockController)
 	mockZebedeeClient := NewMockZebedeeClient(mockController)
@@ -95,7 +95,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	mockConfig := initialiseMockConfig()
 	mockContext := gomock.Any()
 	mockController := gomock.NewController(t)
-	mockDatasetClient := NewMockDatasetApiSdkClient(mockController)
+	mockDatasetClient := NewMockDatasetAPISdkClient(mockController)
 	mockPopulationClient := NewMockPopulationClient(mockController)
 	mockRenderClient := NewMockRenderClient(mockController)
 	mockZebedeeClient := NewMockZebedeeClient(mockController)
@@ -184,15 +184,6 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			).Return(
 				mockGetVersionDimsOptsResponse, nil,
 			)
-			// mockDatasetClient.EXPECT().GetVersionMetadata(
-			// 	mockContext, headers, datasetID, editionID, versionID,
-			// )
-			// mockDatasetClient.EXPECT().GetVersionDimensionOptions(
-			// 	mockContext, headers, datasetID, editionID, versionID, "aggregate",
-			// 	&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions},
-			// ).Return(
-			// 	mockGetVersionDimsOptsResponse, nil,
-			// )
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 
 			mockZebedeeClient.EXPECT().GetBreadcrumb(mockContext, userAuthToken, collectionID, locale, "")
@@ -273,7 +264,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	}
 
 	Convey("test census landing page", t, func() {
-		mockClient := NewMockDatasetApiSdkClient(mockCtrl)
+		mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 		mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 		mockRend := NewMockRenderClient(mockCtrl)
@@ -604,7 +595,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 	mockConfig := initialiseMockConfig()
 	mockContext := gomock.Any()
 	mockController := gomock.NewController(t)
-	mockDatasetClient := NewMockDatasetApiSdkClient(mockController)
+	mockDatasetClient := NewMockDatasetAPISdkClient(mockController)
 	mockPopulationClient := NewMockPopulationClient(mockController)
 	mockRenderClient := NewMockRenderClient(mockController)
 	mockZebedeeClient := NewMockZebedeeClient(mockController)

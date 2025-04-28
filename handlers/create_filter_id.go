@@ -15,7 +15,7 @@ import (
 )
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
-func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFunc {
+func CreateFilterID(c FilterClient, dc APIClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -57,7 +57,7 @@ func CreateFilterID(c FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFu
 }
 
 // CreateFilterFlexID creates a new filter ID for filter flex journeys
-func CreateFilterFlexID(fc FilterClient, dc ApiClientsGoDatasetClient) http.HandlerFunc {
+func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]

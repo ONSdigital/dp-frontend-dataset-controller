@@ -45,7 +45,7 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
-func getOptionsSummary(ctx context.Context, dc DatasetApiSdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
+func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:    collectionID,
 		UserAccessToken: userAccessToken,
@@ -86,7 +86,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetApiSdkClient, userAccessTo
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(dc ApiClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
+func getText(dc APIClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString()) //TODO: Inbuilt function needed

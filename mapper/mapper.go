@@ -27,7 +27,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -143,7 +142,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 	}
 	p.Breadcrumb = append(p.Breadcrumb, datasetBreadcrumbs...)
 
-	if d.Contacts != nil && len(d.Contacts) > 0 {
+	if len(d.Contacts) > 0 {
 		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
@@ -252,7 +251,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage coreModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}

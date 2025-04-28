@@ -137,31 +137,31 @@ func (mr *MockFilterClientMockRecorder) GetOutput(ctx, userAuthToken, serviceAut
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutput", reflect.TypeOf((*MockFilterClient)(nil).GetOutput), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID)
 }
 
-// MockApiClientsGoDatasetClient is a mock of ApiClientsGoDatasetClient interface.
-type MockApiClientsGoDatasetClient struct {
+// MockAPIClientsGoDatasetClient is a mock of APIClientsGoDatasetClient interface.
+type MockAPIClientsGoDatasetClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockApiClientsGoDatasetClientMockRecorder
+	recorder *MockAPIClientsGoDatasetClientMockRecorder
 }
 
-// MockApiClientsGoDatasetClientMockRecorder is the mock recorder for MockApiClientsGoDatasetClient.
-type MockApiClientsGoDatasetClientMockRecorder struct {
-	mock *MockApiClientsGoDatasetClient
+// MockAPIClientsGoDatasetClientMockRecorder is the mock recorder for MockAPIClientsGoDatasetClient.
+type MockAPIClientsGoDatasetClientMockRecorder struct {
+	mock *MockAPIClientsGoDatasetClient
 }
 
-// NewMockApiClientsGoDatasetClient creates a new mock instance.
-func NewMockApiClientsGoDatasetClient(ctrl *gomock.Controller) *MockApiClientsGoDatasetClient {
-	mock := &MockApiClientsGoDatasetClient{ctrl: ctrl}
-	mock.recorder = &MockApiClientsGoDatasetClientMockRecorder{mock}
+// NewMockAPIClientsGoDatasetClient creates a new mock instance.
+func NewMockAPIClientsGoDatasetClient(ctrl *gomock.Controller) *MockAPIClientsGoDatasetClient {
+	mock := &MockAPIClientsGoDatasetClient{ctrl: ctrl}
+	mock.recorder = &MockAPIClientsGoDatasetClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockApiClientsGoDatasetClient) EXPECT() *MockApiClientsGoDatasetClientMockRecorder {
+func (m *MockAPIClientsGoDatasetClient) EXPECT() *MockAPIClientsGoDatasetClientMockRecorder {
 	return m.recorder
 }
 
 // Get mocks base method.
-func (m *MockApiClientsGoDatasetClient) Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.DatasetDetails, error) {
+func (m *MockAPIClientsGoDatasetClient) Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.DatasetDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 	ret0, _ := ret[0].(dataset.DatasetDetails)
@@ -170,13 +170,13 @@ func (m *MockApiClientsGoDatasetClient) Get(ctx context.Context, userAuthToken, 
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).Get), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).Get), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 }
 
 // GetByPath mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (dataset.DatasetDetails, error) {
+func (m *MockAPIClientsGoDatasetClient) GetByPath(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, path string) (dataset.DatasetDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByPath", ctx, userAuthToken, serviceAuthToken, collectionID, path)
 	ret0, _ := ret[0].(dataset.DatasetDetails)
@@ -185,13 +185,13 @@ func (m *MockApiClientsGoDatasetClient) GetByPath(ctx context.Context, userAuthT
 }
 
 // GetByPath indicates an expected call of GetByPath.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetByPath(ctx, userAuthToken, serviceAuthToken, collectionID, path interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetByPath(ctx, userAuthToken, serviceAuthToken, collectionID, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPath", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetByPath), ctx, userAuthToken, serviceAuthToken, collectionID, path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPath", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetByPath), ctx, userAuthToken, serviceAuthToken, collectionID, path)
 }
 
 // GetEdition mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error) {
+func (m *MockAPIClientsGoDatasetClient) GetEdition(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID, edition string) (dataset.Edition, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEdition", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, edition)
 	ret0, _ := ret[0].(dataset.Edition)
@@ -200,13 +200,13 @@ func (m *MockApiClientsGoDatasetClient) GetEdition(ctx context.Context, userAuth
 }
 
 // GetEdition indicates an expected call of GetEdition.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, edition interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetEdition(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, edition interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdition", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetEdition), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, edition)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdition", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetEdition), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID, edition)
 }
 
 // GetEditions mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) ([]dataset.Edition, error) {
+func (m *MockAPIClientsGoDatasetClient) GetEditions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) ([]dataset.Edition, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEditions", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 	ret0, _ := ret[0].([]dataset.Edition)
@@ -215,13 +215,13 @@ func (m *MockApiClientsGoDatasetClient) GetEditions(ctx context.Context, userAut
 }
 
 // GetEditions indicates an expected call of GetEditions.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetEditions(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetEditions(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEditions", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetEditions), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEditions", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetEditions), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 }
 
 // GetOptions mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (dataset.Options, error) {
+func (m *MockAPIClientsGoDatasetClient) GetOptions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, q *dataset.QueryParams) (dataset.Options, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOptions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q)
 	ret0, _ := ret[0].(dataset.Options)
@@ -230,13 +230,13 @@ func (m *MockApiClientsGoDatasetClient) GetOptions(ctx context.Context, userAuth
 }
 
 // GetOptions indicates an expected call of GetOptions.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetOptions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptions", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetOptions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptions", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetOptions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension, q)
 }
 
 // GetVersion mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error) {
+func (m *MockAPIClientsGoDatasetClient) GetVersion(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersion", ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version)
 	ret0, _ := ret[0].(dataset.Version)
@@ -245,13 +245,13 @@ func (m *MockApiClientsGoDatasetClient) GetVersion(ctx context.Context, userAuth
 }
 
 // GetVersion indicates an expected call of GetVersion.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetVersion(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetVersion(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetVersion), ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetVersion), ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, version)
 }
 
 // GetVersionDimensions mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error) {
+func (m *MockAPIClientsGoDatasetClient) GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersionDimensions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 	ret0, _ := ret[0].(dataset.VersionDimensions)
@@ -260,13 +260,13 @@ func (m *MockApiClientsGoDatasetClient) GetVersionDimensions(ctx context.Context
 }
 
 // GetVersionDimensions indicates an expected call of GetVersionDimensions.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // GetVersionMetadata mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error) {
+func (m *MockAPIClientsGoDatasetClient) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersionMetadata", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 	ret0, _ := ret[0].(dataset.Metadata)
@@ -275,13 +275,13 @@ func (m *MockApiClientsGoDatasetClient) GetVersionMetadata(ctx context.Context, 
 }
 
 // GetVersionMetadata indicates an expected call of GetVersionMetadata.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // GetVersions mocks base method.
-func (m *MockApiClientsGoDatasetClient) GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (dataset.VersionsList, error) {
+func (m *MockAPIClientsGoDatasetClient) GetVersions(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition string, q *dataset.QueryParams) (dataset.VersionsList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersions", ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, q)
 	ret0, _ := ret[0].(dataset.VersionsList)
@@ -290,36 +290,36 @@ func (m *MockApiClientsGoDatasetClient) GetVersions(ctx context.Context, userAut
 }
 
 // GetVersions indicates an expected call of GetVersions.
-func (mr *MockApiClientsGoDatasetClientMockRecorder) GetVersions(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, q interface{}) *gomock.Call {
+func (mr *MockAPIClientsGoDatasetClientMockRecorder) GetVersions(ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, q interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockApiClientsGoDatasetClient)(nil).GetVersions), ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, q)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockAPIClientsGoDatasetClient)(nil).GetVersions), ctx, userAuthToken, serviceAuthToken, downloadServiceAuthToken, collectionID, datasetID, edition, q)
 }
 
-// MockDatasetApiSdkClient is a mock of DatasetApiSdkClient interface.
-type MockDatasetApiSdkClient struct {
+// MockDatasetAPISdkClient is a mock of DatasetAPISdkClient interface.
+type MockDatasetAPISdkClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockDatasetApiSdkClientMockRecorder
+	recorder *MockDatasetAPISdkClientMockRecorder
 }
 
-// MockDatasetApiSdkClientMockRecorder is the mock recorder for MockDatasetApiSdkClient.
-type MockDatasetApiSdkClientMockRecorder struct {
-	mock *MockDatasetApiSdkClient
+// MockDatasetAPISdkClientMockRecorder is the mock recorder for MockDatasetAPISdkClient.
+type MockDatasetAPISdkClientMockRecorder struct {
+	mock *MockDatasetAPISdkClient
 }
 
-// NewMockDatasetApiSdkClient creates a new mock instance.
-func NewMockDatasetApiSdkClient(ctrl *gomock.Controller) *MockDatasetApiSdkClient {
-	mock := &MockDatasetApiSdkClient{ctrl: ctrl}
-	mock.recorder = &MockDatasetApiSdkClientMockRecorder{mock}
+// NewMockDatasetAPISdkClient creates a new mock instance.
+func NewMockDatasetAPISdkClient(ctrl *gomock.Controller) *MockDatasetAPISdkClient {
+	mock := &MockDatasetAPISdkClient{ctrl: ctrl}
+	mock.recorder = &MockDatasetAPISdkClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDatasetApiSdkClient) EXPECT() *MockDatasetApiSdkClientMockRecorder {
+func (m *MockDatasetAPISdkClient) EXPECT() *MockDatasetAPISdkClientMockRecorder {
 	return m.recorder
 }
 
 // GetDataset mocks base method.
-func (m *MockDatasetApiSdkClient) GetDataset(ctx context.Context, headers sdk.Headers, collectionID, datasetID string) (models.Dataset, error) {
+func (m *MockDatasetAPISdkClient) GetDataset(ctx context.Context, headers sdk.Headers, collectionID, datasetID string) (models.Dataset, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDataset", ctx, headers, collectionID, datasetID)
 	ret0, _ := ret[0].(models.Dataset)
@@ -328,13 +328,13 @@ func (m *MockDatasetApiSdkClient) GetDataset(ctx context.Context, headers sdk.He
 }
 
 // GetDataset indicates an expected call of GetDataset.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetDataset(ctx, headers, collectionID, datasetID interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetDataset(ctx, headers, collectionID, datasetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetDataset), ctx, headers, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetDataset), ctx, headers, collectionID, datasetID)
 }
 
 // GetDatasetByPath mocks base method.
-func (m *MockDatasetApiSdkClient) GetDatasetByPath(ctx context.Context, headers sdk.Headers, path string) (models.Dataset, error) {
+func (m *MockDatasetAPISdkClient) GetDatasetByPath(ctx context.Context, headers sdk.Headers, path string) (models.Dataset, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDatasetByPath", ctx, headers, path)
 	ret0, _ := ret[0].(models.Dataset)
@@ -343,13 +343,13 @@ func (m *MockDatasetApiSdkClient) GetDatasetByPath(ctx context.Context, headers 
 }
 
 // GetDatasetByPath indicates an expected call of GetDatasetByPath.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetDatasetByPath(ctx, headers, path interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetDatasetByPath(ctx, headers, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetByPath", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetDatasetByPath), ctx, headers, path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetByPath", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetDatasetByPath), ctx, headers, path)
 }
 
 // GetEdition mocks base method.
-func (m *MockDatasetApiSdkClient) GetEdition(ctx context.Context, headers sdk.Headers, datasetID, edition string) (models.Edition, error) {
+func (m *MockDatasetAPISdkClient) GetEdition(ctx context.Context, headers sdk.Headers, datasetID, edition string) (models.Edition, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEdition", ctx, headers, datasetID, edition)
 	ret0, _ := ret[0].(models.Edition)
@@ -358,13 +358,13 @@ func (m *MockDatasetApiSdkClient) GetEdition(ctx context.Context, headers sdk.He
 }
 
 // GetEdition indicates an expected call of GetEdition.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetEdition(ctx, headers, datasetID, edition interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetEdition(ctx, headers, datasetID, edition interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdition", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetEdition), ctx, headers, datasetID, edition)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdition", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetEdition), ctx, headers, datasetID, edition)
 }
 
 // GetEditions mocks base method.
-func (m *MockDatasetApiSdkClient) GetEditions(ctx context.Context, headers sdk.Headers, datasetID string, q *sdk.QueryParams) (sdk.EditionsList, error) {
+func (m *MockDatasetAPISdkClient) GetEditions(ctx context.Context, headers sdk.Headers, datasetID string, q *sdk.QueryParams) (sdk.EditionsList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEditions", ctx, headers, datasetID, q)
 	ret0, _ := ret[0].(sdk.EditionsList)
@@ -373,13 +373,13 @@ func (m *MockDatasetApiSdkClient) GetEditions(ctx context.Context, headers sdk.H
 }
 
 // GetEditions indicates an expected call of GetEditions.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetEditions(ctx, headers, datasetID, q interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetEditions(ctx, headers, datasetID, q interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEditions", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetEditions), ctx, headers, datasetID, q)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEditions", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetEditions), ctx, headers, datasetID, q)
 }
 
 // GetVersion mocks base method.
-func (m *MockDatasetApiSdkClient) GetVersion(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (models.Version, error) {
+func (m *MockDatasetAPISdkClient) GetVersion(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (models.Version, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersion", ctx, headers, datasetID, editionID, versionID)
 	ret0, _ := ret[0].(models.Version)
@@ -388,13 +388,13 @@ func (m *MockDatasetApiSdkClient) GetVersion(ctx context.Context, headers sdk.He
 }
 
 // GetVersion indicates an expected call of GetVersion.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetVersion(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersion(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetVersion), ctx, headers, datasetID, editionID, versionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersion), ctx, headers, datasetID, editionID, versionID)
 }
 
 // GetVersionDimensionOptions mocks base method.
-func (m *MockDatasetApiSdkClient) GetVersionDimensionOptions(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID, dimensionID string, q *sdk.QueryParams) (sdk.VersionDimensionOptionsList, error) {
+func (m *MockDatasetAPISdkClient) GetVersionDimensionOptions(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID, dimensionID string, q *sdk.QueryParams) (sdk.VersionDimensionOptionsList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersionDimensionOptions", ctx, headers, datasetID, editionID, versionID, dimensionID, q)
 	ret0, _ := ret[0].(sdk.VersionDimensionOptionsList)
@@ -403,13 +403,13 @@ func (m *MockDatasetApiSdkClient) GetVersionDimensionOptions(ctx context.Context
 }
 
 // GetVersionDimensionOptions indicates an expected call of GetVersionDimensionOptions.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetVersionDimensionOptions(ctx, headers, datasetID, editionID, versionID, dimensionID, q interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersionDimensionOptions(ctx, headers, datasetID, editionID, versionID, dimensionID, q interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensionOptions", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetVersionDimensionOptions), ctx, headers, datasetID, editionID, versionID, dimensionID, q)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensionOptions", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersionDimensionOptions), ctx, headers, datasetID, editionID, versionID, dimensionID, q)
 }
 
 // GetVersionDimensions mocks base method.
-func (m *MockDatasetApiSdkClient) GetVersionDimensions(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (sdk.VersionDimensionsList, error) {
+func (m *MockDatasetAPISdkClient) GetVersionDimensions(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (sdk.VersionDimensionsList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersionDimensions", ctx, headers, datasetID, editionID, versionID)
 	ret0, _ := ret[0].(sdk.VersionDimensionsList)
@@ -418,13 +418,13 @@ func (m *MockDatasetApiSdkClient) GetVersionDimensions(ctx context.Context, head
 }
 
 // GetVersionDimensions indicates an expected call of GetVersionDimensions.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetVersionDimensions(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersionDimensions(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetVersionDimensions), ctx, headers, datasetID, editionID, versionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersionDimensions), ctx, headers, datasetID, editionID, versionID)
 }
 
 // GetVersionMetadata mocks base method.
-func (m *MockDatasetApiSdkClient) GetVersionMetadata(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (models.Metadata, error) {
+func (m *MockDatasetAPISdkClient) GetVersionMetadata(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (models.Metadata, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersionMetadata", ctx, headers, datasetID, editionID, versionID)
 	ret0, _ := ret[0].(models.Metadata)
@@ -433,13 +433,13 @@ func (m *MockDatasetApiSdkClient) GetVersionMetadata(ctx context.Context, header
 }
 
 // GetVersionMetadata indicates an expected call of GetVersionMetadata.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetVersionMetadata(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersionMetadata(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetVersionMetadata), ctx, headers, datasetID, editionID, versionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersionMetadata), ctx, headers, datasetID, editionID, versionID)
 }
 
 // GetVersions mocks base method.
-func (m *MockDatasetApiSdkClient) GetVersions(ctx context.Context, headers sdk.Headers, datasetID, editionID string, q *sdk.QueryParams) (sdk.VersionsList, error) {
+func (m *MockDatasetAPISdkClient) GetVersions(ctx context.Context, headers sdk.Headers, datasetID, editionID string, q *sdk.QueryParams) (sdk.VersionsList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVersions", ctx, headers, datasetID, editionID, q)
 	ret0, _ := ret[0].(sdk.VersionsList)
@@ -448,9 +448,9 @@ func (m *MockDatasetApiSdkClient) GetVersions(ctx context.Context, headers sdk.H
 }
 
 // GetVersions indicates an expected call of GetVersions.
-func (mr *MockDatasetApiSdkClientMockRecorder) GetVersions(ctx, headers, datasetID, editionID, q interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersions(ctx, headers, datasetID, editionID, q interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockDatasetApiSdkClient)(nil).GetVersions), ctx, headers, datasetID, editionID, q)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersions), ctx, headers, datasetID, editionID, q)
 }
 
 // MockRenderClient is a mock of RenderClient interface.

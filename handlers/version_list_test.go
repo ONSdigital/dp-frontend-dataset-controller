@@ -22,7 +22,7 @@ func TestVersionList(t *testing.T) {
 
 	Convey("test versions list", t, func() {
 		Convey("test versions list returns 200 when rendered successfully", func() {
-			mockClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 			mockConfig := config.Config{}
@@ -46,7 +46,7 @@ func TestVersionList(t *testing.T) {
 		})
 
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
-			mockClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockConfig := config.Config{}
 			mockClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "12345").Return(dataset.DatasetDetails{}, errors.New("dataset client error"))
 

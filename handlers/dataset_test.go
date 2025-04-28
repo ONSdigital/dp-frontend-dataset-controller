@@ -341,7 +341,7 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the download href should contain a /file path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
+				selector := fmt.Sprintf("a[data-gtm-download-file=%q]", filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
@@ -351,7 +351,7 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the version download href should contain a /file path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				selector := fmt.Sprintf("a[data-gtm-download-file=%q]", versionFilename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
@@ -373,7 +373,7 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the download href should contain a /downloads-new path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, filename)
+				selector := fmt.Sprintf("a[data-gtm-download-file=%q]", filename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})
@@ -383,7 +383,7 @@ func TestDatasetTemplateRendering(t *testing.T) {
 
 			Convey("Then the version download href should contain a /downloads-new path", func() {
 				var actualHref string
-				selector := fmt.Sprintf(`a[data-gtm-download-file="%s"]`, versionFilename)
+				selector := fmt.Sprintf("a[data-gtm-download-file=%q]", versionFilename)
 				doc.Find(selector).Each(func(i int, s *goquery.Selection) {
 					actualHref, _ = s.Attr("href")
 				})

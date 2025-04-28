@@ -31,7 +31,7 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			dims := dataset.VersionDimensions{
 				Items: []dataset.VersionDimension{
 					{
@@ -61,7 +61,7 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient := NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", "", errors.New("unable to create filter blueprint"))
 
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.VersionDimensions{}, nil)
 
 			body := strings.NewReader("")
@@ -100,7 +100,7 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -128,7 +128,7 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -156,7 +156,7 @@ func TestCreateFilterID(t *testing.T) {
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -172,7 +172,7 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterFlexID returns 500 if unable to create a blueprint on filter api", func() {
-			mockDatasetClient := NewMockApiClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[0], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{}}, nil)
 			mockFilterClient := NewMockFilterClient(mockCtrl)
@@ -221,7 +221,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=change")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -241,7 +241,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=geography")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -293,7 +293,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil).MaxTimes(0)
 
 			body := strings.NewReader("dimension=change")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -313,7 +313,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=coverage")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -329,7 +329,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return(filter.Model{}, errors.New("unable to get filter job"))
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput returns 500 if unable to create a blueprint on filter api", func() {
@@ -344,12 +344,12 @@ func TestCreateFilterID(t *testing.T) {
 				Return("", "", errors.New("unable to create filter blueprint"))
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockApiClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 		})
 	})
 }
 
-func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc ApiClientsGoDatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
+func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc APIClientsGoDatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", url, body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 

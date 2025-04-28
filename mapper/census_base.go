@@ -165,7 +165,7 @@ func getContactDetails(d dpDatasetApiModels.Dataset) (contact.Details, bool) {
 	details := contact.Details{}
 	hasContactDetails := false
 
-	if d.Contacts != nil && len(d.Contacts) > 0 {
+	if len(d.Contacts) > 0 {
 		contacts := d.Contacts
 		if d.Type == "static" {
 			if contacts[0].Name != "" {
