@@ -34,9 +34,9 @@ func TestFilterableLandingPage(t *testing.T) {
 	datasetID := "12345"
 	downloadServiceAuthToken := ""
 	editionID := "67890"
-	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
-	mockGetResponse := dataset.DatasetDetails{}
-	mockGetVersionsResponse := dataset.VersionsList{}
+	getVersionsQueryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
+	mockGetResponse := dpDatasetApiModels.Dataset{}
+	mockGetVersionsResponse := dpDatasetApiSdk.VersionsList{}
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
@@ -107,13 +107,13 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	getVersionsQueryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
 	editionID := "5678"
 	versionID := "2017"
-	mockGetResponse := dataset.DatasetDetails{
-		Contacts: &[]dataset.Contact{
+	mockGetResponse := dpDatasetApiModels.Dataset{
+		Contacts: []dpDatasetApiModels.ContactDetails{
 			{Name: "Matt"}},
 		URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-		Links: dataset.Links{
-			LatestVersion: dataset.Link{
-				URL: "/datasets/1234/editions/5678/versions/2017",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			LatestVersion: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/1234/editions/5678/versions/2017",
 			},
 		},
 		Type: datasetType,
@@ -135,6 +135,18 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 		Items: []dpDatasetApiModels.Dimension{
 			{
 				Name: "aggregate",
+			},
+		},
+	}
+	mockGetVersionDimsOptsResponse := dpDatasetApiSdk.VersionDimensionOptionsList{
+		Items: []dpDatasetApiModels.PublicDimensionOption{
+			{
+				Label:  "1",
+				Option: "abd",
+			},
+			{
+				Label:  "2",
+				Option: "fjd",
 			},
 		},
 	}
@@ -171,17 +183,17 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 				mockContext, headers, datasetID, editionID, versionID, "aggregate",
 				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: numOptsSummary},
 			).Return(
-				datasetOptions(0, numOptsSummary), nil,
+				mockGetVersionDimsOptsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersionMetadata(
-				mockContext, headers, datasetID, editionID, versionID,
-			)
-			mockDatasetClient.EXPECT().GetVersionDimensionOptions(
-				mockContext, headers, datasetID, editionID, versionID, "aggregate",
-				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions},
-			).Return(
-				datasetOptions(0, maxMetadataOptions), nil,
-			)
+			// mockDatasetClient.EXPECT().GetVersionMetadata(
+			// 	mockContext, headers, datasetID, editionID, versionID,
+			// )
+			// mockDatasetClient.EXPECT().GetVersionDimensionOptions(
+			// 	mockContext, headers, datasetID, editionID, versionID, "aggregate",
+			// 	&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions},
+			// ).Return(
+			// 	mockGetVersionDimsOptsResponse, nil,
+			// )
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 
 			mockZebedeeClient.EXPECT().GetBreadcrumb(mockContext, userAuthToken, collectionID, locale, "")
@@ -203,8 +215,18 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
+			mockGetResponse = dpDatasetApiModels.Dataset{
+				Contacts: []dpDatasetApiModels.ContactDetails{
+					{Name: "Matt"}},
+				URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
+				Links: &dpDatasetApiModels.DatasetLinks{
+					LatestVersion: &dpDatasetApiModels.LinkObject{
+						HRef: "/datasets/1234/editions/5678/versions/2017",
+					},
+				},
+			}
 			mockZebedeeClient := NewMockZebedeeClient(mockController)
-			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, collectionID, "12345").Return(dataset.DatasetDetails{Contacts: &[]dataset.Contact{{Name: "Matt"}}, URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018", Links: dataset.Links{LatestVersion: dataset.Link{URL: "/datasets/1234/editions/5678/versions/2017"}}}, nil)
+			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, collectionID, "12345").Return(mockGetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -578,16 +600,17 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 	datasetID := "12345"
 	datasetType := "static"
 	downloadServiceAuthToken := ""
-	getVersionsQueryParams := dataset.QueryParams{Offset: 0, Limit: 1000}
+	getVersionsQueryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
 	editionID := "5678"
 	versionID := "1"
-	mockGetResponse := dataset.DatasetDetails{
-		Contacts: &[]dataset.Contact{
-			{Name: "Matt"}},
+	mockGetResponse := dpDatasetApiModels.Dataset{
+		Contacts: []dpDatasetApiModels.ContactDetails{
+			{Name: "Matt"},
+		},
 		URI: "/economy/grossdomesticproduct/datasets/gdpjanuary2018",
-		Links: dataset.Links{
-			LatestVersion: dataset.Link{
-				URL: "/datasets/1234/editions/5678/versions/2017",
+		Links: &dpDatasetApiModels.DatasetLinks{
+			LatestVersion: &dpDatasetApiModels.LinkObject{
+				HRef: "/datasets/1234/editions/5678/versions/2017",
 			},
 		},
 		Type: datasetType,

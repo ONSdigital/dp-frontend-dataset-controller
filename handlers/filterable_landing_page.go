@@ -47,6 +47,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 
 	downloadServiceAuthToken := ""
 	serviceAuthToken := ""
+	taxonomyUrl := ""
 
 	ctx := request.Context()
 	vars := mux.Vars(request)
@@ -212,9 +213,12 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		} else {
 			// Update breadcrumbs if not nomis
 			if !(datasetDetails.Type == DatasetTypeNomis) {
-				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetDetails.Links.Taxonomy.HRef)
+				if datasetDetails.Links.Taxonomy != nil {
+					taxonomyUrl = datasetDetails.Links.Taxonomy.HRef
+				}
+				bc, err = zebedeeClient.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, taxonomyUrl)
 				if err != nil {
-					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.HRef})
+					log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": taxonomyUrl})
 				}
 			}
 			// filterable landing mapper
