@@ -1,8 +1,6 @@
 package mapper
 
 import (
-	"context"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,7 +12,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
-	topicsSDK "github.com/ONSdigital/dp-topic-api/sdk"
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
@@ -76,20 +73,6 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
-	topicsClient := topicsSDK.New("http://localhost:25300")
-	ctx := context.Background()
-	headers := topicsSDK.Headers{
-		ServiceAuthToken: "test-service-auth-token",
-		UserAuthToken:    "test-user-auth-token",
-	}
-	topic, err := topicsClient.GetTopicPublic(ctx, headers, "7779")
-
-	if err != nil {
-		fmt.Println("HHHHHHHHHHH", err)
-	}
-
-	fmt.Println("HHHHHHHHHHH", topic)
-
 	p.Breadcrumb = []coreModel.TaxonomyNode{
 		{
 			Title: "Home",

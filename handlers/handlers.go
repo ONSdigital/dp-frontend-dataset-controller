@@ -89,7 +89,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessTo
 func getText(dc APIClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
 	var b bytes.Buffer
 
-	b.WriteString(metadata.ToString()) //TODO: Inbuilt function needed
+	b.WriteString(metadata.ToString())
 	b.WriteString("Dimensions:\n")
 
 	for i := range dimensions.Items {
