@@ -8,13 +8,14 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
 func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dpDatasetApiModels.Dataset,
-	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
+	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic,
 ) static.Page {
-	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate)
+	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate, topicObjectList)
 
 	// DOWNLOADS
 	if version.Distributions != nil {

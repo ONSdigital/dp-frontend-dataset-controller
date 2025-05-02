@@ -18,6 +18,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v3/handlers"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
+	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -28,15 +30,15 @@ const (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc TopicAPIClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
 func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient,
-	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
+	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, tc TopicAPIClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
 	var dims dpDatasetApiSdk.VersionDimensionsList
@@ -65,6 +67,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		DownloadServiceToken: downloadServiceAuthToken,
 		ServiceToken:         serviceAuthToken,
 		UserAccessToken:      userAccessToken,
+	}
+
+	topicHeaders := dpTopicApiSdk.Headers{
+		ServiceAuthToken: serviceAuthToken,
+		UserAuthToken:    userAccessToken,
 	}
 
 	// Fetch the dataset
@@ -155,7 +162,27 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, isValidationError, lang, request)
 
 	if datasetDetails.Type == DatasetTypeStatic {
-		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate)
+		// Fetch version metadata content
+		versionMetadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
+		if err != nil {
+			setStatusCode(ctx, responseWriter, err)
+			return
+		}
+
+		// BREADCRUMB
+		topicsIDList := versionMetadata.Subtopics
+		topicObjectList := []dpTopicApiModels.Topic{}
+
+		for _, topicID := range topicsIDList {
+			topicObject, err := tc.GetTopicPublic(ctx, topicHeaders, topicID)
+			if err != nil {
+				setStatusCode(ctx, responseWriter, err)
+				return
+			}
+			topicObjectList = append(topicObjectList, *topicObject)
+		}
+
+		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList)
 		templateName = DatasetTypeStatic
 	} else {
 		// Update dimensions based on dataset type
