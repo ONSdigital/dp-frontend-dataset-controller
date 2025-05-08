@@ -172,14 +172,24 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		// BREADCRUMB
 		topicsIDList := versionMetadata.Subtopics
 		topicObjectList := []dpTopicApiModels.Topic{}
+		someTopicAPIFetchesFailed := false
 
 		for _, topicID := range topicsIDList {
 			topicObject, err := tc.GetTopicPublic(ctx, topicHeaders, topicID)
 			if err != nil {
-				setStatusCode(ctx, responseWriter, err)
-				return
+				someTopicAPIFetchesFailed = true
+				log.Warn(
+					ctx,
+					fmt.Sprintf("unable to get topic data for topic ID: %s", topicID),
+					log.FormatErrors([]error{err}),
+				)
+				continue
 			}
 			topicObjectList = append(topicObjectList, *topicObject)
+		}
+		// We can't construct breadcrumbs with only part of data
+		if someTopicAPIFetchesFailed {
+			topicObjectList = []dpTopicApiModels.Topic{}
 		}
 
 		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList)
