@@ -239,9 +239,25 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				}
 			}
 
+			// Add metadata file to list of downloads
+			metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
+			if err != nil {
+				setStatusCode(ctx, responseWriter, err)
+				return
+			}
+
+			// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+			textBytes, err := getText(ctx, dc, headers, datasetID, editionID, versionID, metadata, dims)
+			if err != nil {
+				if err != errTooManyOptions {
+					setStatusCode(ctx, responseWriter, err)
+					return
+				}
+			}
+
 			m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, model.Download{
 				Extension: "txt",
-				Size:      "0",
+				Size:      strconv.Itoa(len(textBytes)),
 				URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
 			})
 
