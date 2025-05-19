@@ -20,6 +20,7 @@ import (
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
+	errors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -175,7 +176,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		someTopicAPIFetchesFailed := false
 
 		for _, topicID := range topicsIDList {
-			topicObject, err := tc.GetTopicPublic(ctx, topicHeaders, topicID)
+			topicObject, err := GetPublicOrPrivateTopics(tc, cfg, ctx, topicHeaders, topicID)
 			if err != nil {
 				someTopicAPIFetchesFailed = true
 				log.Warn(
@@ -341,4 +342,23 @@ func sortedOpts(opts []dpDatasetApiSdk.VersionDimensionOptionsList) []dpDatasetA
 		})
 	}
 	return sorted
+}
+
+func GetPublicOrPrivateTopics(
+	topicsClient TopicAPIClient,
+	cfg config.Config,
+	ctx context.Context,
+	topicHeaders dpTopicApiSdk.Headers,
+	topicID string,
+) (*dpTopicApiModels.Topic, errors.Error) {
+	if cfg.IsPublishing {
+		topicResponse, err := topicsClient.GetTopicPrivate(ctx, topicHeaders, topicID)
+		if err != nil {
+			return nil, err
+		} else {
+			return topicResponse.Current, err
+		}
+	} else {
+		return topicsClient.GetTopicPublic(ctx, topicHeaders, topicID)
+	}
 }

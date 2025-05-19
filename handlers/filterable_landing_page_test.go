@@ -654,6 +654,13 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 		Keywords:    &[]string{"test"},
 		State:       "published",
 	}
+	mockGetTopicPrivateResponse := dpTopicApiModels.TopicResponse{
+		ID: "123",
+		Current: &dpTopicApiModels.Topic{
+			ID: "123",
+		},
+		Next: &dpTopicApiModels.Topic{},
+	}
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
@@ -810,10 +817,6 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 		})
 
 		Convey("test filterable landing page successfully builds when one of two topic-api calls fails", func() {
-			var buf bytes.Buffer
-			var fbBuf bytes.Buffer
-			dpLogger.SetDestination(&buf, &fbBuf)
-
 			testTopicAPIError := dpTopicApiErrors.StatusError{
 				Code: 404,
 				Err:  errors.New("test error"),
@@ -862,6 +865,115 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
+			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
+		})
+		Convey("Given IsPublishing flag is enabled", func() {
+			mockConfig.IsPublishing = true
+
+			Convey("When GetTopicPrivate is called with invalid topicID", func() {
+				var buf bytes.Buffer
+				var fbBuf bytes.Buffer
+				dpLogger.SetDestination(&buf, &fbBuf)
+
+				testTopicAPIError := dpTopicApiErrors.StatusError{
+					Code: 404,
+					Err:  errors.New("test error"),
+				}
+
+				mockDatasetClient.EXPECT().GetDataset(
+					mockContext, headers, collectionID, datasetID,
+				).Return(
+					mockGetResponse, nil,
+				)
+				mockDatasetClient.EXPECT().GetVersions(
+					mockContext, headers, datasetID, editionID, &getVersionsQueryParams,
+				).Return(
+					mockGetVersionsResponse, nil,
+				)
+				mockDatasetClient.EXPECT().GetVersion(
+					mockContext, headers, datasetID, editionID, versionID,
+				).Return(
+					mockGetVersionsResponse.Items[0], nil,
+				)
+				mockDatasetClient.EXPECT().GetVersionMetadata(mockContext, headers, datasetID, editionID, versionID).Return(
+					mockGetVersionMetadataResponse, nil,
+				)
+				mockTopicClient.EXPECT().GetTopicPrivate(mockContext, topicHeaders, "123").Return(
+					nil, testTopicAPIError,
+				)
+				mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
+				mockRenderClient.EXPECT().NewBasePageModel().Return(
+					coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				)
+				// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
+				mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
+
+				mockRequestWriter := httptest.NewRecorder()
+				mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
+
+				router := mux.NewRouter()
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+
+				router.ServeHTTP(mockRequestWriter, mockRequest)
+				Convey("Then filterable landing page logs correct warning", func() {
+					So(buf.String(), ShouldContainSubstring, "unable to get topic data for topic ID: 123")
+				})
+			})
+
+			Convey("When one of two topic api calls fails", func() {
+				testTopicAPIError := dpTopicApiErrors.StatusError{
+					Code: 404,
+					Err:  errors.New("test error"),
+				}
+
+				mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{
+					EditableMetadata: dpDatasetApiModels.EditableMetadata{
+						Subtopics: []string{"123", "456"},
+					},
+				}
+				mockDatasetClient.EXPECT().GetDataset(
+					mockContext, headers, collectionID, datasetID,
+				).Return(
+					mockGetResponse, nil,
+				)
+				mockDatasetClient.EXPECT().GetVersions(
+					mockContext, headers, datasetID, editionID, &getVersionsQueryParams,
+				).Return(
+					mockGetVersionsResponse, nil,
+				)
+				mockDatasetClient.EXPECT().GetVersion(
+					mockContext, headers, datasetID, editionID, versionID,
+				).Return(
+					mockGetVersionsResponse.Items[0], nil,
+				)
+				mockDatasetClient.EXPECT().GetVersionMetadata(mockContext, headers, datasetID, editionID, versionID).Return(
+					mockGetVersionMetadataResponse, nil,
+				)
+				mockTopicClient.EXPECT().GetTopicPrivate(mockContext, topicHeaders, "123").Return(
+					nil, testTopicAPIError,
+				)
+				mockTopicClient.EXPECT().GetTopicPrivate(mockContext, topicHeaders, "456").Return(
+					&mockGetTopicPrivateResponse, nil,
+				)
+				mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
+				mockRenderClient.EXPECT().NewBasePageModel().Return(
+					coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				)
+				// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
+				mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
+
+				mockRequestWriter := httptest.NewRecorder()
+				mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
+
+				router := mux.NewRouter()
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+
+				router.ServeHTTP(mockRequestWriter, mockRequest)
+
+				Convey("Then the filterable landing page builds correctly, with status 200", func() {
+					So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
+				})
+			})
 		})
 	})
 }
