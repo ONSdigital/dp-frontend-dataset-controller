@@ -724,6 +724,21 @@ func (m *MockTopicAPIClient) EXPECT() *MockTopicAPIClientMockRecorder {
 	return m.recorder
 }
 
+// GetTopicPrivate mocks base method.
+func (m *MockTopicAPIClient) GetTopicPrivate(ctx context.Context, headers sdk0.Headers, id string) (*models0.TopicResponse, errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopicPrivate", ctx, headers, id)
+	ret0, _ := ret[0].(*models0.TopicResponse)
+	ret1, _ := ret[1].(errors.Error)
+	return ret0, ret1
+}
+
+// GetTopicPrivate indicates an expected call of GetTopicPrivate.
+func (mr *MockTopicAPIClientMockRecorder) GetTopicPrivate(ctx, headers, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopicPrivate", reflect.TypeOf((*MockTopicAPIClient)(nil).GetTopicPrivate), ctx, headers, id)
+}
+
 // GetTopicPublic mocks base method.
 func (m *MockTopicAPIClient) GetTopicPublic(ctx context.Context, headers sdk0.Headers, id string) (*models0.Topic, errors.Error) {
 	m.ctrl.T.Helper()

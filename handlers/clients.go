@@ -85,6 +85,7 @@ type PopulationClient interface {
 // TopicClient is an interface with methods required for a topic client
 type TopicAPIClient interface {
 	GetTopicPublic(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.Topic, dpTopicApiErrors.Error)
+	GetTopicPrivate(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.TopicResponse, dpTopicApiErrors.Error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

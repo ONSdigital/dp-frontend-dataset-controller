@@ -22,6 +22,7 @@ type Config struct {
 	GracefulShutdownTimeout       time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout    time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval           time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
+	IsPublishing                  bool          `envconfig:"IS_PUBLISHING"`
 	OTBatchTimeout                time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
 	OTServiceName                 string        `envconfig:"OTEL_SERVICE_NAME"`
 	OTExporterOTLPEndpoint        string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
@@ -67,6 +68,7 @@ func get() (*Config, error) {
 		GracefulShutdownTimeout:       5 * time.Second,
 		HealthCheckCriticalTimeout:    90 * time.Second,
 		HealthCheckInterval:           30 * time.Second,
+		IsPublishing:                  false,
 		OTBatchTimeout:                5 * time.Second,
 		OTExporterOTLPEndpoint:        "localhost:4317",
 		OTServiceName:                 "dp-frontend-dataset-controller",
