@@ -15,6 +15,7 @@ import (
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/editions"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -28,6 +29,7 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -381,6 +383,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		}
 	}
 
+	p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
+
 	return p
 }
 
@@ -628,6 +632,75 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.ServiceMessage = homepageContent.ServiceMessage
 	basePage.Type = dataset.Type
 	basePage.URI = request.URL.Path
+}
+
+func buildEditionsListTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) coreModel.TableOfContents {
+	sections := make(map[string]coreModel.ContentSection)
+	displayOrder := make([]string, 0)
+
+	tableOfContents := coreModel.TableOfContents{
+		AriaLabel: coreModel.Localisation{
+			LocaleKey: "ContentsAria",
+			Plural:    1,
+		},
+		Title: coreModel.Localisation{
+			LocaleKey: "StaticTocHeading",
+			Plural:    1,
+		},
+	}
+
+	sections["get-data"] = coreModel.ContentSection{
+		Title: coreModel.Localisation{
+			LocaleKey: "GetData",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "get-data")
+
+	if len(p.UsageNotes) > 0 {
+		sections["usage-notes"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "UsageNotes",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "usage-notes")
+	}
+
+	if d.RelatedContent != nil {
+		sections["related-content"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "RelatedContentTitle",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "related-content")
+	}
+
+	if hasOtherVersions {
+		sections["version-history"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "VersionHistory",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "version-history")
+	}
+
+	if p.HasContactDetails {
+		sections["contact"] = coreModel.ContentSection{
+			Title: coreModel.Localisation{
+				LocaleKey: "DatasetContactDetailsStatic",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "contact")
+	}
+
+	tableOfContents.Sections = sections
+	tableOfContents.DisplayOrder = displayOrder
+
+	return tableOfContents
 }
 
 func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {

@@ -23,7 +23,11 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatas
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
 
-	datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+	const (
+		DatasetTypeStatic = "static"
+	)
+
+	datasetDetails, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return
@@ -44,9 +48,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatas
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetModel.Links.Taxonomy.URL)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetDetails.Links.Taxonomy.URL)
 	if err != nil {
-		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetModel.Links.Taxonomy.URL})
+		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.URL})
 	}
 
 	numberOfEditions := len(datasetEditions)
@@ -57,6 +61,14 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatas
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateEditionsList(ctx, basePage, req, datasetModel, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
-	rend.BuildPage(w, m, "edition-list")
+
+	m := mapper.CreateEditionsList(ctx, basePage, req, datasetDetails, datasetEditions, datasetID, bc, lang, apiRouterVersion, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	
+	if (datasetDetails.Type == DatasetTypeStatic){
+		m.FeatureFlags.SixteensVersion = "" // When unset, dp-design-system is used 
+		m.Type =  DatasetTypeStatic
+		rend.BuildPage(w, m, "edition-list-static")
+	} else {
+		rend.BuildPage(w, m, "edition-list")
+	}
 }

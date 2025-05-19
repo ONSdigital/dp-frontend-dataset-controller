@@ -1,0 +1,85 @@
+<section class="ons-hero ons-grid--gutterless ons-hero--grey">
+  <div class="ons-hero__container ons-container">
+    <div class="ons-hero__details ons-grid__col ons-col-12@m col-10@s@m">
+      {{/*  Breadcrumbs  */}}
+      {{ if .Breadcrumb }}
+        {{ $bc := .Breadcrumb }}
+        {{ $length := $bc }}
+        <nav class="ons-breadcrumbs ons-u-pt-no"
+          aria-label="Breadcrumbs">
+          <ol class="ons-breadcrumb__items ons-u-fs-s">
+            {{ range $i, $b := $bc }}
+              <li class="ons-breadcrumb__item ons-u-p-no">
+                {{ if $b.URI }}
+                  <a class="ons-breadcrumb__link" href="{{ $b.URI }}">{{ $b.Title }}</a>
+                {{ else }}
+                  {{ $b.Title }}
+                {{ end }}
+                {{ template "icons/chevron-right" }}
+              </li>
+            {{ end }}
+          </ol>
+        </nav>
+      {{ end }}
+
+      {{/*  Hero  */}}
+      <h2 class="ons-hero--topic">Dataset series</h2>
+      <div class="ons-hero__title-container">
+        <header>
+          <h1 class="ons-hero__title ons-u-fs-3xl">{{- .Metadata.Title -}}</h1>
+        </header>
+        <p class="ons-hero__text">{{ .Metadata.Description }}</p>
+      </div>
+
+      {{/*  Release summary  */}}
+      <div class="ons-grid ons-grid--gutterless ons-u-mb-no ons-u-mt-s ons-u-mt-l@l">
+        {{/*  ...Release date  */}}
+        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+          <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "Released" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">
+                <time datetime="{{ .ReleaseDate }}">{{ dateFormat .ReleaseDate }}</time>
+            </dd>
+          </div>
+        </div>
+        {{/*  ...Last updated  */}}
+        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
+          <div class="ons-metadata__item">
+            <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "LastUpdated" .Language 1 }}:</dt>
+            <dd class="ons-metadata__value ons-u-f-no">
+              <time datetime="{{ .Version.ReleaseDate }}">{{ dateFormat .Version.ReleaseDate }}</time>
+            </dd>
+          </div>
+        </div>
+        {{/*  ...Next release  */}}
+        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">       
+          <div class="ons-metadata__item">
+              <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "NextRelease" .Language 1 }}</dt>
+              <dd class="ons-metadata__value ons-u-f-no">
+              {{ if .DatasetLandingPage.NextRelease }}
+                {{ dateFormat .DatasetLandingPage.NextRelease }}
+              {{ else }}
+                {{ localise "TBA" .Language 1 }}
+              {{ end }}
+              </dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ons-page__container ons-container">
+  {{ if .Page.Error.Title }}
+  {{ template "partials/error-summary" .Page.Error }}
+  {{ end }}
+  <div class="ons-grid ons-js-toc-container ons-u-ml-no ons-u-pt-3xl ons-u-pb-3xl">
+    <div class="ons-grid__col ons-col-4@m ons-u-pl-no ons-grid__col--sticky@m" id="toc">
+      {{ template "partials/table-of-contents" . }}
+    </div>
+    {{/*  Contact details  */}}
+    <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
+      {{ template "partials/static/contact-details" . }}
+    </div>
+  </div>
+</div>
