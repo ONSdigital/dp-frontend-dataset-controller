@@ -18,7 +18,6 @@ func MetadataText(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
 }
 
 func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, cfg config.Config, userAccessToken, collectionID string) {
-
 	downloadServiceAuthToken := ""
 	serviceAuthToken := ""
 
