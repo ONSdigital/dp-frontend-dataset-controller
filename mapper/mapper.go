@@ -362,7 +362,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		Title: d.Title,
 	})
 
-	if d.Contacts != nil && len(d.Contacts) > 0 {
+	if len(d.Contacts) > 0 {
 		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
@@ -381,8 +381,9 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 			p.Editions = append(p.Editions, el)
 		}
 	}
-	//TODO: table of contents
-	// p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
+	
+	// TODO: table of contents
+	p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
 
 	return p
 }
@@ -633,38 +634,38 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.URI = request.URL.Path
 }
 
-// func buildEditionsListTableOfContents(p edition.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
-// 	sections := make(map[string]dpRendererModel.ContentSection)
-// 	displayOrder := make([]string, 0)
+func buildEditionsListTableOfContents(p edition.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
+	sections := make(map[string]dpRendererModel.ContentSection)
+	displayOrder := make([]string, 0)
 
-// 	tableOfContents := dpRendererModel.TableOfContents{
-// 		AriaLabel: dpRendererModel.Localisation{
-// 			LocaleKey: "ContentsAria",
-// 			Plural:    1,
-// 		},
-// 		Title: dpRendererModel.Localisation{
-// 			LocaleKey: "StaticTocHeading",
-// 			Plural:    1,
-// 		},
-// 	}
+	tableOfContents := dpRendererModel.TableOfContents{
+		AriaLabel: dpRendererModel.Localisation{
+			LocaleKey: "ContentsAria",
+			Plural:    1,
+		},
+		Title: dpRendererModel.Localisation{
+			LocaleKey: "StaticTocHeading",
+			Plural:    1,
+		},
+	}
 
-// 	// TODO: bring in contact details
-// 	_, hasContactDetails := helpers.GetContactDetails(d)
-// 	if p.HasContactDetails {
-// 		sections["contact"] = dpRendererModel.ContentSection{
-// 			Title: dpRendererModel.Localisation{
-// 				LocaleKey: "DatasetContactDetailsStatic",
-// 				Plural:    1,
-// 			},
-// 		}
-// 		displayOrder = append(displayOrder, "contact")
-// 	}
+	// TODO: bring in contact details
+	_, hasContactDetails := helpers.GetContactDetails(d)
+	if hasContactDetails {
+		sections["contact"] = dpRendererModel.ContentSection{
+			Title: dpRendererModel.Localisation{
+				LocaleKey: "DatasetContactDetailsStatic",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "contact")
+	}
 
-// 	tableOfContents.Sections = sections
-// 	tableOfContents.DisplayOrder = displayOrder
+	tableOfContents.Sections = sections
+	tableOfContents.DisplayOrder = displayOrder
 
-// 	return tableOfContents
-// }
+	return tableOfContents
+}
 
 func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
 	breadcrumbsObject := []dpRendererModel.TaxonomyNode{
