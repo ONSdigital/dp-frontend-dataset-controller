@@ -15,7 +15,6 @@ import (
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/editions"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -29,7 +28,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -333,7 +331,7 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 }
 
 // CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -364,8 +362,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		Title: d.Title,
 	})
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
+	if d.Contacts != nil && len(d.Contacts) > 0 {
+		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
@@ -374,16 +372,17 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
-	if len(editions) > 0 {
-		for i := range editions {
+	editionItems := editions.Items
+	if len(editionItems) > 0 {
+		for i := range editionItems {
 			var el edition.List
-			el.Title = editions[i].Edition
-			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editions[i].Edition, editions[i].Links.LatestVersion.ID)
+			el.Title = editionItems[i].Edition
+			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editionItems[i].Edition, editionItems[i].Links.LatestVersion.ID)
 			p.Editions = append(p.Editions, el)
 		}
 	}
-
-	p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
+	//TODO: table of contents
+	// p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
 
 	return p
 }
@@ -634,74 +633,38 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.URI = request.URL.Path
 }
 
-func buildEditionsListTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) coreModel.TableOfContents {
-	sections := make(map[string]coreModel.ContentSection)
-	displayOrder := make([]string, 0)
+// func buildEditionsListTableOfContents(p edition.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
+// 	sections := make(map[string]dpRendererModel.ContentSection)
+// 	displayOrder := make([]string, 0)
 
-	tableOfContents := coreModel.TableOfContents{
-		AriaLabel: coreModel.Localisation{
-			LocaleKey: "ContentsAria",
-			Plural:    1,
-		},
-		Title: coreModel.Localisation{
-			LocaleKey: "StaticTocHeading",
-			Plural:    1,
-		},
-	}
+// 	tableOfContents := dpRendererModel.TableOfContents{
+// 		AriaLabel: dpRendererModel.Localisation{
+// 			LocaleKey: "ContentsAria",
+// 			Plural:    1,
+// 		},
+// 		Title: dpRendererModel.Localisation{
+// 			LocaleKey: "StaticTocHeading",
+// 			Plural:    1,
+// 		},
+// 	}
 
-	sections["get-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
-			LocaleKey: "GetData",
-			Plural:    1,
-		},
-	}
-	displayOrder = append(displayOrder, "get-data")
+// 	// TODO: bring in contact details
+// 	_, hasContactDetails := helpers.GetContactDetails(d)
+// 	if p.HasContactDetails {
+// 		sections["contact"] = dpRendererModel.ContentSection{
+// 			Title: dpRendererModel.Localisation{
+// 				LocaleKey: "DatasetContactDetailsStatic",
+// 				Plural:    1,
+// 			},
+// 		}
+// 		displayOrder = append(displayOrder, "contact")
+// 	}
 
-	if len(p.UsageNotes) > 0 {
-		sections["usage-notes"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "UsageNotes",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "usage-notes")
-	}
+// 	tableOfContents.Sections = sections
+// 	tableOfContents.DisplayOrder = displayOrder
 
-	if d.RelatedContent != nil {
-		sections["related-content"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "RelatedContentTitle",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "related-content")
-	}
-
-	if hasOtherVersions {
-		sections["version-history"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "VersionHistory",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "version-history")
-	}
-
-	if p.HasContactDetails {
-		sections["contact"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
-				LocaleKey: "DatasetContactDetailsStatic",
-				Plural:    1,
-			},
-		}
-		displayOrder = append(displayOrder, "contact")
-	}
-
-	tableOfContents.Sections = sections
-	tableOfContents.DisplayOrder = displayOrder
-
-	return tableOfContents
-}
+// 	return tableOfContents
+// }
 
 func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
 	breadcrumbsObject := []dpRendererModel.TaxonomyNode{
