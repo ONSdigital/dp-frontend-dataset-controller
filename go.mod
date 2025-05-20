@@ -6,7 +6,7 @@ require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.266.0
 	github.com/ONSdigital/dp-cache v0.5.0
 	github.com/ONSdigital/dp-cookies v0.6.0
-	github.com/ONSdigital/dp-dataset-api v1.77.0
+	github.com/ONSdigital/dp-dataset-api v1.80.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.3.0
 	github.com/ONSdigital/dp-otel-go v0.0.8

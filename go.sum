@@ -6,8 +6,8 @@ github.com/ONSdigital/dp-cache v0.5.0 h1:St+3Xun98RxIGHf/dz676n5kshA1/csVgDdB/k5
 github.com/ONSdigital/dp-cache v0.5.0/go.mod h1:V/wdPIgSGDsPZzk7EA0CamFpAQf2+l2Flge6tUuX+jI=
 github.com/ONSdigital/dp-cookies v0.6.0 h1:bYiV/M0W7ufn7bIJf2cYjY2vtMUrdU0uLt7mYP3TV4c=
 github.com/ONSdigital/dp-cookies v0.6.0/go.mod h1:YQyEcsQJQcndQFraHt6YawJGOccsm6wJv+31f9jaKfI=
-github.com/ONSdigital/dp-dataset-api v1.77.0 h1:Mdyq9J24xDPK1S37X9MazYuxuuXWChGJbi5rpH1SkRM=
-github.com/ONSdigital/dp-dataset-api v1.77.0/go.mod h1:uOHwjAyWeRtlGqWxJHciXNlKoeI1/dzu7rQKsB24LZI=
+github.com/ONSdigital/dp-dataset-api v1.80.0 h1:cG9Sb0j67uZHWjcY238XojAJuCGToNJ77BPkwxIwnyg=
+github.com/ONSdigital/dp-dataset-api v1.80.0/go.mod h1:/rTXiNJFqMKmxbmqi35Ijz6PuJvzab1CSttn5SGhOzg=
 github.com/ONSdigital/dp-healthcheck v1.6.4 h1:FhWOuVmob36dYq7AzCdbgyf0Vk58IFitSl8y8pWJ8ck=
 github.com/ONSdigital/dp-healthcheck v1.6.4/go.mod h1:j3UNbGT4ZJg1chrRkPLE6YUVYCg1su3AAQ8frcBrvgc=
 github.com/ONSdigital/dp-mocking v0.11.0 h1:laln6e2JD4vtsYbg0cTw9ur1Xf390AUYdd85cG2UNQw=
