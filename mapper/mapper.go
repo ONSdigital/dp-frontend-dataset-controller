@@ -382,8 +382,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		}
 	}
 	
-	// TODO: table of contents
-	p.TableOfContents = buildEditionsListTableOfContents(p, d, false)
+	// Prepares table of components object for use in dp-renderer
+	p.TableOfContents = buildEditionsListTableOfContents(d, false)
 
 	return p
 }
@@ -634,7 +634,7 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.URI = request.URL.Path
 }
 
-func buildEditionsListTableOfContents(p edition.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
+func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset, hasOtherVersions bool) dpRendererModel.TableOfContents {
 	sections := make(map[string]dpRendererModel.ContentSection)
 	displayOrder := make([]string, 0)
 
