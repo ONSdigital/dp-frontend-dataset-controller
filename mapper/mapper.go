@@ -41,7 +41,7 @@ const (
 	DimensionTime      = "time"
 	DimensionAge       = "age"
 	DimensionGeography = "geography"
-	SixteensVersion    = "2c5867a"
+	SixteensVersion    = "662bc97"
 )
 
 var (
