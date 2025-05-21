@@ -397,6 +397,11 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
+	// BREADCRUMBS
+	baseURL := "https://www.ons.gov.uk/"
+
+	p.Breadcrumb = CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
+
 	// Get editions list
 	editionItems := editions.Items
 	if len(editionItems) > 0 {
