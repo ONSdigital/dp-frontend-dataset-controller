@@ -372,7 +372,7 @@ func GetPublicOrPrivateTopics(
 		if err != nil {
 			return nil, err
 		} else {
-			return topicResponse.Current, err
+			return topicResponse.Next, err
 		}
 	} else {
 		return topicsClient.GetTopicPublic(ctx, topicHeaders, topicID)

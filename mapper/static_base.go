@@ -74,17 +74,9 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
-	breadcrumbsObject := []coreModel.TaxonomyNode{}
+	baseURL := "https://www.ons.gov.uk/"
 
-	for _, topicObject := range topicObjectList {
-		entry := coreModel.TaxonomyNode{
-			Title: topicObject.Title,
-			URI:   "#",
-		}
-		breadcrumbsObject = append(breadcrumbsObject, entry)
-	}
-
-	p.Breadcrumb = breadcrumbsObject
+	p.Breadcrumb = CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
 
 	// ALERTS
 	if version.Alerts != nil {
