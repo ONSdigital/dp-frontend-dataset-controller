@@ -23,7 +23,7 @@
       <h2 class="ons-hero--topic">Dataset</h2>
       <div class="ons-hero__title-container">
         <header>
-          <h1 class="ons-hero__title ons-u-fs-3xl">{{- .Metadata.Title -}}</h1>
+          <h1 class="ons-hero__title ons-u-fs-3xl">{{ .Metadata.Title }}: {{ .Version.Edition }}</h1>
         </header>
         {{ range .DatasetLandingPage.Description }}
         <p class="ons-hero__text">{{ . }}</p>
