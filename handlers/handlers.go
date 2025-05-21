@@ -10,12 +10,16 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
+	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpTopicApiSdkErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 )
 
 // Constants...
@@ -204,4 +208,23 @@ func sortCategoriesByID(items []population.DimensionCategoryItem) []population.D
 		})
 	}
 	return sorted
+}
+
+func GetPublicOrPrivateTopics(
+	topicsClient TopicAPIClient,
+	cfg config.Config,
+	ctx context.Context,
+	topicHeaders dpTopicApiSdk.Headers,
+	topicID string,
+) (*dpTopicApiModels.Topic, dpTopicApiSdkErrors.Error) {
+	if cfg.IsPublishing {
+		topicResponse, err := topicsClient.GetTopicPrivate(ctx, topicHeaders, topicID)
+		if err != nil {
+			return nil, err
+		} else {
+			return topicResponse.Current, err
+		}
+	} else {
+		return topicsClient.GetTopicPublic(ctx, topicHeaders, topicID)
+	}
 }

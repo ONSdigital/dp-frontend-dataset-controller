@@ -330,25 +330,13 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 	return p
 }
 
-// CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+// CreateEditionsList creates an editions list page based on api model responses
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, breadcrumbs []zebedee.Breadcrumb, apiRouterVersion string) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-	p.Type = "dataset_edition_list"
-	p.Language = lang
-	p.Metadata.Title = d.Title
-	p.URI = req.URL.Path
-	p.Metadata.Description = d.Description
-	p.DatasetId = datasetID
-	p.BetaBannerEnabled = true
 	p.FeatureFlags.SixteensVersion = SixteensVersion
-
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
-
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, dpRendererModel.TaxonomyNode{
@@ -372,6 +360,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
+	// Get editions list
 	editionItems := editions.Items
 	if len(editionItems) > 0 {
 		for i := range editionItems {
@@ -381,12 +370,50 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 			p.Editions = append(p.Editions, el)
 		}
 	}
-	
+
 	// Prepares table of components object for use in dp-renderer
 	p.TableOfContents = buildEditionsListTableOfContents(d, false)
 
 	return p
 }
+
+// CreateEditionsListForStaticDatasetType creates an editions list page when dataset type is static, based on api model responses
+func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, apiRouterVersion string, topicObjectList []dpTopicApiModels.Topic) edition.Page {
+	p := edition.Page{
+		Page: basePage,
+	}
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+
+	// Unset SixteensVersion when dp-design-system is needed
+	p.FeatureFlags.SixteensVersion = ""
+
+	if len(d.Contacts) > 0 {
+		contacts := d.Contacts
+		p.ContactDetails.Name = contacts[0].Name
+		p.ContactDetails.Telephone = contacts[0].Telephone
+		p.ContactDetails.Email = contacts[0].Email
+	}
+
+	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
+	p.DatasetLandingPage.DatasetID = datasetID
+
+	// Get editions list
+	editionItems := editions.Items
+	if len(editionItems) > 0 {
+		for i := range editionItems {
+			var el edition.List
+			el.Title = editionItems[i].Edition
+			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editionItems[i].Edition, editionItems[i].Links.LatestVersion.ID)
+			p.Editions = append(p.Editions, el)
+		}
+	}
+
+	// Prepares table of components object for use in dp-renderer
+	p.TableOfContents = buildEditionsListTableOfContents(d, false)
+
+	return p
+}
+
 
 func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Version) {
 	if ver.Alerts != nil {
