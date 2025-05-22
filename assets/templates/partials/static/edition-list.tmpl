@@ -1,13 +1,16 @@
-{{/*  Title of list  */}}
-<h2>{{ len .Editions }} editions in this series</h2>
+<section id="edition-list" aria-label="{{ localise "EditionListForDataset" .Language 1 }}">
+    {{/*  Title of list  */}}
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="editions-list">{{ len .Editions }} editions in this series</h2>
 
-{{/*  Editions list  */}}
-<ul class="ons-list ons-list--summary ons-list--icons">
-    {{ range .Editions }}
-        <li class="ons-list__item">
-            <a href="{{.LatestVersionURL}}">
-                {{ .Title}}
-            </a>
-        </li>
-    {{ end }}
-</ul>
+    {{/*  Editions list  */}}
+    <ul class="ons-list ons-list--summary ons-list--icons">
+        {{ range .Editions }}
+            <li class="ons-list__item">
+                <a href="{{.LatestVersionURL}}">
+                    {{ .Title}}
+                </a>
+            </li>
+        {{ end }}
+    </ul>
+</section>
+

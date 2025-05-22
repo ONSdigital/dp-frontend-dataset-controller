@@ -78,6 +78,10 @@ few = "Editions in the dataset"
 many = "Editions in the dataset"
 other = "Editions in the dataset"
 
+[EditionListForDataset]
+description = "Dataset editions"
+one = "Dataset editions"
+
 [DownloadInFormatWithSingleTitle]
 description = "Download {{title}} in {{download extension}} format"
 one = "Download {{.arg0}} in {{.arg1}} format"

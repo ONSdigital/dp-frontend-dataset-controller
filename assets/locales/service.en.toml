@@ -65,6 +65,10 @@ description = "Editions in this dataset"
 one = "Edition in this dataset"
 other = "Editions in this dataset"
 
+[EditionListForDataset]
+description = "Edition list for the dataset"
+one = "Edition list for the dataset"
+
 [DownloadInFormatWithSingleTitle]
 description = "Download {{title}} in {{download extension}} format"
 one = "Download {{.arg0}} in {{.arg1}} format"

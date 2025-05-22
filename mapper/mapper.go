@@ -681,7 +681,14 @@ func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset) dpRendererMo
 		},
 	}
 
-	// TODO: bring in contact details
+	sections["editions-list"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
+			LocaleKey: "EditionListForDataset",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "editions-list")
+
 	_, hasContactDetails := helpers.GetContactDetails(d)
 	if hasContactDetails {
 		sections["contact"] = dpRendererModel.ContentSection{
