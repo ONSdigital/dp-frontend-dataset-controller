@@ -14,10 +14,13 @@ import (
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
+	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
+	dpTopicApiErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 )
 
 // To mock interfaces in this file
-//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,APIClientsGoDatasetClient,DatasetAPISdkClient,RenderClient
+//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,APIClientsGoDatasetClient,DatasetAPISdkClient,RenderClient,TopicAPIClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
@@ -77,6 +80,12 @@ type PopulationClient interface {
 	GetPopulationType(ctx context.Context, input population.GetPopulationTypeInput) (population.GetPopulationTypeResponse, error)
 	GetPopulationTypes(ctx context.Context, input population.GetPopulationTypesInput) (population.GetPopulationTypesResponse, error)
 	GetPopulationTypeMetadata(ctx context.Context, input population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error)
+}
+
+// TopicClient is an interface with methods required for a topic client
+type TopicAPIClient interface {
+	GetTopicPublic(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.Topic, dpTopicApiErrors.Error)
+	GetTopicPrivate(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.TopicResponse, dpTopicApiErrors.Error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored

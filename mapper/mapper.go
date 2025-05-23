@@ -15,6 +15,7 @@ import (
 	datasetMdl "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
 	filterable "github.com/ONSdigital/dp-frontend-dataset-controller/model/datasetLandingPageFilterable"
 	edition "github.com/ONSdigital/dp-frontend-dataset-controller/model/editions"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -627,4 +628,28 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.ServiceMessage = homepageContent.ServiceMessage
 	basePage.Type = dataset.Type
 	basePage.URI = request.URL.Path
+}
+
+func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
+	breadcrumbsObject := []dpRendererModel.TaxonomyNode{
+		{
+			Title: "Home",
+			URI:   baseURL,
+		},
+	}
+	path := baseURL
+
+	for i, topicObject := range topicObjectList {
+		if i == 0 {
+			path += topicObject.Slug
+		} else {
+			// topic1 URI => /slug1 ... topic2 URI => /slug1/slug2... etc..
+			path += "/" + topicObject.Slug
+		}
+		breadcrumbsObject = append(breadcrumbsObject, dpRendererModel.TaxonomyNode{
+			Title: topicObject.Title,
+			URI:   path,
+		})
+	}
+	return breadcrumbsObject
 }

@@ -6,6 +6,7 @@
 package main
 
 import (
+	_ "github.com/go-jose/go-jose/v4"
 	_ "github.com/golang/glog"
 	_ "github.com/kevinburke/go-bindata"
 	_ "golang.org/x/crypto/hkdf"

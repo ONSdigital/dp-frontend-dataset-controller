@@ -18,6 +18,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-net/v3/handlers"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
+	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
+	errors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -28,15 +31,15 @@ const (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc TopicAPIClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
 func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient,
-	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
+	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, tc TopicAPIClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
 	var dims dpDatasetApiSdk.VersionDimensionsList
@@ -65,6 +68,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		DownloadServiceToken: downloadServiceAuthToken,
 		ServiceToken:         serviceAuthToken,
 		UserAccessToken:      userAccessToken,
+	}
+
+	topicHeaders := dpTopicApiSdk.Headers{
+		ServiceAuthToken: serviceAuthToken,
+		UserAuthToken:    userAccessToken,
 	}
 
 	// Fetch the dataset
@@ -155,7 +163,37 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, isValidationError, lang, request)
 
 	if datasetDetails.Type == DatasetTypeStatic {
-		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate)
+		// Fetch version metadata content
+		versionMetadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
+		if err != nil {
+			setStatusCode(ctx, responseWriter, err)
+			return
+		}
+
+		// BREADCRUMB
+		topicsIDList := versionMetadata.Subtopics
+		topicObjectList := []dpTopicApiModels.Topic{}
+		someTopicAPIFetchesFailed := false
+
+		for _, topicID := range topicsIDList {
+			topicObject, err := GetPublicOrPrivateTopics(tc, cfg, ctx, topicHeaders, topicID)
+			if err != nil {
+				someTopicAPIFetchesFailed = true
+				log.Warn(
+					ctx,
+					fmt.Sprintf("unable to get topic data for topic ID: %s", topicID),
+					log.FormatErrors([]error{err}),
+				)
+				continue
+			}
+			topicObjectList = append(topicObjectList, *topicObject)
+		}
+		// We can't construct breadcrumbs with only part of data
+		if someTopicAPIFetchesFailed {
+			topicObjectList = []dpTopicApiModels.Topic{}
+		}
+
+		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList)
 		templateName = DatasetTypeStatic
 	} else {
 		// Update dimensions based on dataset type
@@ -239,9 +277,25 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				}
 			}
 
+			// Add metadata file to list of downloads
+			metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
+			if err != nil {
+				setStatusCode(ctx, responseWriter, err)
+				return
+			}
+
+			// get metadata file content. If a dimension has too many options, ignore the error and a size 0 will be shown to the user
+			textBytes, err := getText(ctx, dc, headers, datasetID, editionID, versionID, metadata, dims)
+			if err != nil {
+				if err != errTooManyOptions {
+					setStatusCode(ctx, responseWriter, err)
+					return
+				}
+			}
+
 			m.DatasetLandingPage.Version.Downloads = append(m.DatasetLandingPage.Version.Downloads, model.Download{
 				Extension: "txt",
-				Size:      "0",
+				Size:      strconv.Itoa(len(textBytes)),
 				URI:       fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata.txt", datasetID, editionID, versionID),
 			})
 
@@ -304,4 +358,23 @@ func sortedOpts(opts []dpDatasetApiSdk.VersionDimensionOptionsList) []dpDatasetA
 		})
 	}
 	return sorted
+}
+
+func GetPublicOrPrivateTopics(
+	topicsClient TopicAPIClient,
+	cfg config.Config,
+	ctx context.Context,
+	topicHeaders dpTopicApiSdk.Headers,
+	topicID string,
+) (*dpTopicApiModels.Topic, errors.Error) {
+	if cfg.IsPublishing {
+		topicResponse, err := topicsClient.GetTopicPrivate(ctx, topicHeaders, topicID)
+		if err != nil {
+			return nil, err
+		} else {
+			return topicResponse.Next, err
+		}
+	} else {
+		return topicsClient.GetTopicPublic(ctx, topicHeaders, topicID)
+	}
 }

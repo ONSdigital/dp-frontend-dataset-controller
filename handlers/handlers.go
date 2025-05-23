@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -86,7 +85,8 @@ func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessTo
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(dc APIClientsGoDatasetClient, userAccessToken, collectionID, datasetID, edition, version string, metadata dataset.Metadata, dimensions dataset.VersionDimensions, req *http.Request) ([]byte, error) {
+func getText(ctx context.Context, dc DatasetAPISdkClient, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string,
+	metadata dpDatasetApiModels.Metadata, dimensions dpDatasetApiSdk.VersionDimensionsList) ([]byte, error) {
 	var b bytes.Buffer
 
 	b.WriteString(metadata.ToString())
@@ -94,8 +94,8 @@ func getText(dc APIClientsGoDatasetClient, userAccessToken, collectionID, datase
 
 	for i := range dimensions.Items {
 		dimension := &dimensions.Items[i]
-		q := dataset.QueryParams{Offset: 0, Limit: maxMetadataOptions}
-		options, err := dc.GetOptions(req.Context(), userAccessToken, "", collectionID, datasetID, edition, version, dimension.Name, &q)
+		q := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: maxMetadataOptions}
+		options, err := dc.GetVersionDimensionOptions(ctx, headers, datasetID, editionID, versionID, dimension.Name, &q)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func getText(dc APIClientsGoDatasetClient, userAccessToken, collectionID, datase
 			return []byte{}, errTooManyOptions
 		}
 
-		b.WriteString(options.String())
+		b.WriteString(options.ToString())
 	}
 
 	return b.Bytes(), nil

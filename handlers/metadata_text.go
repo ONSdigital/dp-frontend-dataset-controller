@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/gorilla/mux"
@@ -10,40 +11,51 @@ import (
 )
 
 // MetadataText generates a metadata text file
-func MetadataText(dc APIClientsGoDatasetClient, cfg config.Config) http.HandlerFunc {
-	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		metadataText(w, req, dc, cfg, userAccessToken, collectionID)
+func MetadataText(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
+	return handlers.ControllerHandler(func(responseWriter http.ResponseWriter, request *http.Request, lang, collectionID, userAccessToken string) {
+		metadataText(responseWriter, request, dc, cfg, userAccessToken, collectionID)
 	})
 }
 
-func metadataText(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatasetClient, cfg config.Config, userAccessToken, collectionID string) {
-	vars := mux.Vars(req)
+func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, cfg config.Config, userAccessToken, collectionID string) {
+	downloadServiceAuthToken := ""
+	serviceAuthToken := ""
+
+	ctx := request.Context()
+	vars := mux.Vars(request)
+
 	datasetID := vars["datasetID"]
-	edition := vars["edition"]
-	version := vars["version"]
-	ctx := req.Context()
+	editionID := vars["editionID"]
+	versionID := vars["versionID"]
 
-	metadata, err := dc.GetVersionMetadata(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID:         collectionID,
+		DownloadServiceToken: downloadServiceAuthToken,
+		ServiceToken:         serviceAuthToken,
+		UserAccessToken:      userAccessToken,
+	}
+
+	metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)
 	if err != nil {
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, responseWriter, err)
 		return
 	}
 
-	dimensions, err := dc.GetVersionDimensions(ctx, userAccessToken, "", collectionID, datasetID, edition, version)
+	dimensions, err := dc.GetVersionDimensions(ctx, headers, datasetID, editionID, versionID)
 	if err != nil {
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, responseWriter, err)
 		return
 	}
 
-	b, err := getText(dc, userAccessToken, collectionID, datasetID, edition, version, metadata, dimensions, req)
+	b, err := getText(ctx, dc, headers, datasetID, editionID, versionID, metadata, dimensions)
 	if err != nil {
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, responseWriter, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "plain/text")
-	_, err = w.Write(b)
+	responseWriter.Header().Set("Content-Type", "plain/text")
+	_, err = responseWriter.Write(b)
 	if err != nil {
-		setStatusCode(ctx, w, errors.Wrap(err, "failed to write metadata text response"))
+		setStatusCode(ctx, responseWriter, errors.Wrap(err, "failed to write metadata text response"))
 	}
 }

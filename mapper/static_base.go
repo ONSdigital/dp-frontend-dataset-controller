@@ -12,11 +12,12 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
 func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
-	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool,
+	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic,
 ) static.Page {
 	var editionStr string
 
@@ -83,16 +84,9 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
-	p.Breadcrumb = []coreModel.TaxonomyNode{
-		{
-			Title: "Home",
-			URI:   "https://www.ons.gov.uk/",
-		},
-		{
-			Title: "Overview page",
-			URI:   "#",
-		},
-	}
+	baseURL := "https://www.ons.gov.uk/"
+
+	p.Breadcrumb = CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
 
 	// ALERTS
 	if version.Alerts != nil {

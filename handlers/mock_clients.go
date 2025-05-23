@@ -17,6 +17,9 @@ import (
 	models "github.com/ONSdigital/dp-dataset-api/models"
 	sdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	model "github.com/ONSdigital/dp-renderer/v2/model"
+	models0 "github.com/ONSdigital/dp-topic-api/models"
+	sdk0 "github.com/ONSdigital/dp-topic-api/sdk"
+	errors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -696,6 +699,59 @@ func (m *MockPopulationClient) GetPopulationTypes(ctx context.Context, input pop
 func (mr *MockPopulationClientMockRecorder) GetPopulationTypes(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypes", reflect.TypeOf((*MockPopulationClient)(nil).GetPopulationTypes), ctx, input)
+}
+
+// MockTopicAPIClient is a mock of TopicAPIClient interface.
+type MockTopicAPIClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockTopicAPIClientMockRecorder
+}
+
+// MockTopicAPIClientMockRecorder is the mock recorder for MockTopicAPIClient.
+type MockTopicAPIClientMockRecorder struct {
+	mock *MockTopicAPIClient
+}
+
+// NewMockTopicAPIClient creates a new mock instance.
+func NewMockTopicAPIClient(ctrl *gomock.Controller) *MockTopicAPIClient {
+	mock := &MockTopicAPIClient{ctrl: ctrl}
+	mock.recorder = &MockTopicAPIClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTopicAPIClient) EXPECT() *MockTopicAPIClientMockRecorder {
+	return m.recorder
+}
+
+// GetTopicPrivate mocks base method.
+func (m *MockTopicAPIClient) GetTopicPrivate(ctx context.Context, headers sdk0.Headers, id string) (*models0.TopicResponse, errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopicPrivate", ctx, headers, id)
+	ret0, _ := ret[0].(*models0.TopicResponse)
+	ret1, _ := ret[1].(errors.Error)
+	return ret0, ret1
+}
+
+// GetTopicPrivate indicates an expected call of GetTopicPrivate.
+func (mr *MockTopicAPIClientMockRecorder) GetTopicPrivate(ctx, headers, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopicPrivate", reflect.TypeOf((*MockTopicAPIClient)(nil).GetTopicPrivate), ctx, headers, id)
+}
+
+// GetTopicPublic mocks base method.
+func (m *MockTopicAPIClient) GetTopicPublic(ctx context.Context, headers sdk0.Headers, id string) (*models0.Topic, errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopicPublic", ctx, headers, id)
+	ret0, _ := ret[0].(*models0.Topic)
+	ret1, _ := ret[1].(errors.Error)
+	return ret0, ret1
+}
+
+// GetTopicPublic indicates an expected call of GetTopicPublic.
+func (mr *MockTopicAPIClientMockRecorder) GetTopicPublic(ctx, headers, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopicPublic", reflect.TypeOf((*MockTopicAPIClient)(nil).GetTopicPublic), ctx, headers, id)
 }
 
 // MockClientError is a mock of ClientError interface.
