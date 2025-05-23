@@ -28,6 +28,9 @@
         {{ range .DatasetLandingPage.Description }}
         <p class="ons-hero__text">{{ . }}</p>
         {{ end }}
+        {{ if .DatasetLandingPage.HasOtherVersions }}
+        <p class="ons-hero__text"><a href="#version-history">See all versions</a></p>
+        {{ end }}
       </div>
       {{ if .IsNationalStatistic }}
         {{ template "partials/static/official-statistics-badge" }}
