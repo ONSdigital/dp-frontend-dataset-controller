@@ -3,30 +3,46 @@ package mapper
 import (
 	"testing"
 
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateStaticBasePage(t *testing.T) {
-	Convey("Given a topicObjectList with two topics", t, func() {
-		topicObjectList := []dpTopicApiModels.Topic{
-			{Title: "Topic One", Slug: "slug1"},
-			{Title: "Topic Two", Slug: "slug2"},
+	basePage := coreModel.Page{}
+	dataset := dpDatasetApiModels.Dataset{}
+	allVersions := []dpDatasetApiModels.Version{}
+	isEnableMultivariate := true
+	topicObjectList := []dpTopicApiModels.Topic{}
+
+	Convey("If `version.EditionTitle` field value is valid", t, func() {
+		editionTitleStr := "My edition title"
+		editionSlug := "my-edition-title"
+		version := dpDatasetApiModels.Version{
+			EditionTitle: editionTitleStr,
+			Edition:      editionSlug,
 		}
+		Convey("When CreateStaticBasePage is called", func() {
+			staticPage := CreateStaticBasePage(basePage, dataset, version, allVersions, isEnableMultivariate, topicObjectList)
 
-		baseURL := "https://www.ons.gov.uk/"
+			Convey("Then the resulting static.Page should have expected values", func() {
+				So(staticPage.Version.Edition, ShouldEqual, editionTitleStr)
+			})
+		})
+	})
+	Convey("If `version.EditionTitle` field value is not valid", t, func() {
+		editionTitleStr := ""
+		editionSlug := "my-edition-title"
+		version := dpDatasetApiModels.Version{
+			EditionTitle: editionTitleStr,
+			Edition:      editionSlug,
+		}
+		Convey("When CreateStaticBasePage is called", func() {
+			staticPage := CreateStaticBasePage(basePage, dataset, version, allVersions, isEnableMultivariate, topicObjectList)
 
-		Convey("When CreateBreadcrumbsFromTopicList is called to build the breadcrumbs from the topics list", func() {
-			breadcrumbObject := CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
-
-			Convey("Then the breadcrumbs object should contain a TaxonomyNode for each topic ", func() {
-				So(breadcrumbObject, ShouldHaveLength, 3)
-				So(breadcrumbObject[0].Title, ShouldEqual, "Home")
-				So(breadcrumbObject[0].URI, ShouldEqual, "https://www.ons.gov.uk/")
-				So(breadcrumbObject[1].Title, ShouldEqual, "Topic One")
-				So(breadcrumbObject[1].URI, ShouldEqual, "https://www.ons.gov.uk/slug1")
-				So(breadcrumbObject[2].Title, ShouldEqual, "Topic Two")
-				So(breadcrumbObject[2].URI, ShouldEqual, "https://www.ons.gov.uk/slug1/slug2")
+			Convey("Then the resulting static.Page should have expected values", func() {
+				So(staticPage.Version.Edition, ShouldEqual, editionSlug)
 			})
 		})
 	})
