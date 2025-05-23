@@ -330,25 +330,13 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 	return p
 }
 
-// CreateEditionsList creates a editions list page based on api model responses
-func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, editions []dataset.Edition, datasetID string, breadcrumbs []zebedee.Breadcrumb, lang, apiRouterVersion, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) edition.Page {
+// CreateEditionsList creates an editions list page based on api model responses
+func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, breadcrumbs []zebedee.Breadcrumb, apiRouterVersion string) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
-	p.Type = "dataset_edition_list"
-	p.Language = lang
-	p.Metadata.Title = d.Title
-	p.URI = req.URL.Path
-	p.Metadata.Description = d.Description
-	p.DatasetId = datasetID
-	p.BetaBannerEnabled = true
 	p.FeatureFlags.SixteensVersion = SixteensVersion
-
-	p.ServiceMessage = serviceMessage
-	p.EmergencyBanner = mapEmergencyBanner(emergencyBannerContent)
-
-	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, bc := range breadcrumbs {
 		p.Breadcrumb = append(p.Breadcrumb, dpRendererModel.TaxonomyNode{
@@ -362,8 +350,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		Title: d.Title,
 	})
 
-	if d.Contacts != nil && len(*d.Contacts) > 0 {
-		contacts := *d.Contacts
+	if len(d.Contacts) > 0 {
+		contacts := d.Contacts
 		p.ContactDetails.Name = contacts[0].Name
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
@@ -372,14 +360,62 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
-	if len(editions) > 0 {
-		for i := range editions {
+	// Get editions list
+	editionItems := editions.Items
+	if len(editionItems) > 0 {
+		for i := range editionItems {
 			var el edition.List
-			el.Title = editions[i].Edition
-			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editions[i].Edition, editions[i].Links.LatestVersion.ID)
+			el.Title = editionItems[i].Edition
+			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editionItems[i].Edition, editionItems[i].Links.LatestVersion.ID)
 			p.Editions = append(p.Editions, el)
 		}
 	}
+
+	// Prepares table of components object for use in dp-renderer
+	p.TableOfContents = buildEditionsListTableOfContents(d)
+
+	return p
+}
+
+// CreateEditionsListForStaticDatasetType creates an editions list page when dataset type is static, based on api model responses
+func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID, apiRouterVersion string, topicObjectList []dpTopicApiModels.Topic) edition.Page {
+	p := edition.Page{
+		Page: basePage,
+	}
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+
+	// Unset SixteensVersion when dp-design-system is needed
+	p.FeatureFlags.SixteensVersion = ""
+
+	if len(d.Contacts) > 0 {
+		contacts := d.Contacts
+		p.ContactDetails.Name = contacts[0].Name
+		p.ContactDetails.Telephone = contacts[0].Telephone
+		p.ContactDetails.Email = contacts[0].Email
+	}
+	lastIndexOfEditions := len(editions.Items) - 1
+	p.ReleaseDate = editions.Items[lastIndexOfEditions].ReleaseDate
+	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
+	p.DatasetLandingPage.DatasetID = datasetID
+
+	// BREADCRUMBS
+	baseURL := "https://www.ons.gov.uk/"
+
+	p.Breadcrumb = CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
+
+	// Get editions list
+	editionItems := editions.Items
+	if len(editionItems) > 0 {
+		for i := range editionItems {
+			var el edition.List
+			el.Title = editionItems[i].Edition
+			el.LatestVersionURL = helpers.DatasetVersionURL(datasetID, editionItems[i].Edition, editionItems[i].Links.LatestVersion.ID)
+			p.Editions = append(p.Editions, el)
+		}
+	}
+
+	// Prepares table of components object for use in dp-renderer
+	p.TableOfContents = buildEditionsListTableOfContents(d)
 
 	return p
 }
@@ -628,6 +664,46 @@ func UpdateBasePage(basePage *dpRendererModel.Page, dataset dpDatasetApiModels.D
 	basePage.ServiceMessage = homepageContent.ServiceMessage
 	basePage.Type = dataset.Type
 	basePage.URI = request.URL.Path
+}
+
+func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset) dpRendererModel.TableOfContents {
+	sections := make(map[string]dpRendererModel.ContentSection)
+	displayOrder := make([]string, 0)
+
+	tableOfContents := dpRendererModel.TableOfContents{
+		AriaLabel: dpRendererModel.Localisation{
+			LocaleKey: "ContentsAria",
+			Plural:    1,
+		},
+		Title: dpRendererModel.Localisation{
+			LocaleKey: "StaticTocHeading",
+			Plural:    1,
+		},
+	}
+
+	sections["editions-list"] = dpRendererModel.ContentSection{
+		Title: dpRendererModel.Localisation{
+			LocaleKey: "EditionListForDataset",
+			Plural:    1,
+		},
+	}
+	displayOrder = append(displayOrder, "editions-list")
+
+	_, hasContactDetails := helpers.GetContactDetails(d)
+	if hasContactDetails {
+		sections["contact"] = dpRendererModel.ContentSection{
+			Title: dpRendererModel.Localisation{
+				LocaleKey: "DatasetContactDetailsStatic",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "contact")
+	}
+
+	tableOfContents.Sections = sections
+	tableOfContents.DisplayOrder = displayOrder
+
+	return tableOfContents
 }
 
 func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {

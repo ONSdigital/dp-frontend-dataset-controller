@@ -62,7 +62,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 		isNationalStatistic = *d.NationalStatistic
 	}
 	p.IsNationalStatistic = isNationalStatistic
-	p.ContactDetails, p.HasContactDetails = getContactDetails(d)
+	p.ContactDetails, p.HasContactDetails = helpers.GetContactDetails(d)
 
 	p.Version.ReleaseDate = version.ReleaseDate
 	p.ReleaseDate = getReleaseDate(initialVersionReleaseDate, p.Version.ReleaseDate)

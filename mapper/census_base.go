@@ -9,7 +9,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-renderer/v2/helper"
 	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -59,7 +58,7 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dpDatase
 		isNationalStatistic = *datasetDetails.NationalStatistic
 	}
 	censusPage.IsNationalStatistic = isNationalStatistic
-	censusPage.ContactDetails, censusPage.HasContactDetails = getContactDetails(datasetDetails)
+	censusPage.ContactDetails, censusPage.HasContactDetails = helpers.GetContactDetails(datasetDetails)
 
 	censusPage.Version.ReleaseDate = version.ReleaseDate
 	censusPage.ReleaseDate = getReleaseDate(initialVersionReleaseDate, censusPage.Version.ReleaseDate)
@@ -159,31 +158,6 @@ func CreateCensusBasePage(basePage dpRendererModel.Page, datasetDetails dpDatase
 	}
 
 	return censusPage
-}
-
-func getContactDetails(d dpDatasetApiModels.Dataset) (contact.Details, bool) {
-	details := contact.Details{}
-	hasContactDetails := false
-
-	if len(d.Contacts) > 0 {
-		contacts := d.Contacts
-		if d.Type == "static" {
-			if contacts[0].Name != "" {
-				details.Name = contacts[0].Name
-				hasContactDetails = true
-			}
-		}
-		if contacts[0].Telephone != "" {
-			details.Telephone = contacts[0].Telephone
-			hasContactDetails = true
-		}
-		if contacts[0].Email != "" {
-			details.Email = contacts[0].Email
-			hasContactDetails = true
-		}
-	}
-
-	return details, hasContactDetails
 }
 
 func getReleaseDate(initialDate, alternateDate string) string {
