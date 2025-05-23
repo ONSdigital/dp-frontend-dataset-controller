@@ -49,18 +49,18 @@
             </dd>
           </div>
         </div>
-        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">       
+        {{ if and .Publisher.Name .Publisher.URL }}
+        <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
           <div class="ons-metadata__item">
-              <dt class="ons-metadata__term ons-u-mr-xs">{{ localise "NextRelease" .Language 1 }}</dt>
-              <dd class="ons-metadata__value ons-u-f-no">
-              {{ if .DatasetLandingPage.NextRelease }}
-                {{ dateFormat .DatasetLandingPage.NextRelease }}
-              {{ else }}
-                {{ localise "TBA" .Language 1 }}
-              {{ end }}
-              </dd>
+          <dt class="ons-metadata__term ons-u-mr-xs">
+            {{ localise "Publisher" .Language 1 }}
+          </dt>
+          <dd class="ons-metadata__value ons-u-f-no">
+            <a href="{{.Publisher.URL}}">{{.Publisher.Name}}</a>
+          </dd>
           </div>
         </div>
+        {{ end }}
       </div>
     </div>
   </div>

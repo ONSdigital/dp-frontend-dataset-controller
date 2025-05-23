@@ -262,6 +262,10 @@ one = "Last updated"
 description = "See version history"
 one = "See version history"
 
+[Publisher]
+description = "Publisher:"
+one = "Publisher:"
+
 [PublisherName]
 description = "Publisher name:"
 one = "Publisher name:"
@@ -273,6 +277,10 @@ one = "Publisher URL:"
 [VersionHistory]
 description = "Version history"
 one = "Version history"
+
+[Version]
+description = "Version:"
+one = "Version:"
 
 [UpdateReasonHeading]
 description = "Update reason"
