@@ -130,6 +130,14 @@ one = "Manylion cyswllt ar gyfer y set ddata hon"
 description = "Contact details"
 one = "Contact details"
 
+[Name]
+description = "Name"
+one = "Name"
+
+[Team]
+description = "Team"
+one = "Team"
+
 [Email]
 description = "Email"
 one = "Email"

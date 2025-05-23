@@ -2,16 +2,18 @@
     <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "DatasetContactDetailsStatic" .Language 1 }}</h2>
         <div class="ons-text-indent">
         {{ if .ContactDetails.Name }}
-            <p class="ons-u-mb-no">{{ .ContactDetails.Name }}</p>
+            <p class="ons-u-mb-no">
+                <b>{{ localise "Team" .Language 1 }}:</b> {{ .ContactDetails.Name }}
+            </p>
         {{ end }}
         {{ if .ContactDetails.Email }}
             <p class="ons-u-mb-no">
-                <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
+                <b>{{ localise "Email" .Language 1 }}:</b> <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
             </p>
         {{ end }}
         {{ if .ContactDetails.Telephone }}
             <p class="ons-u-mb-no">
-                {{ localise "Telephone" .Language 1 }}: <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
+                <b>{{ localise "Telephone" .Language 1 }}:</b> <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
             </p>
         {{ end }}
         </div>                
