@@ -65,6 +65,10 @@ description = "Editions in this dataset"
 one = "Edition in this dataset"
 other = "Editions in this dataset"
 
+[EditionListForDataset]
+description = "Dataset editions"
+one = "Dataset editions"
+
 [DownloadInFormatWithSingleTitle]
 description = "Download {{title}} in {{download extension}} format"
 one = "Download {{.arg0}} in {{.arg1}} format"
@@ -113,6 +117,10 @@ one = "Contact details"
 [Name]
 description = "Name"
 one = "Name"
+
+[Team]
+description = "Team"
+one = "Team"
 
 [Email]
 description = "Email"

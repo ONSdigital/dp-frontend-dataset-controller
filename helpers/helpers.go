@@ -6,8 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 )
 
@@ -117,7 +118,7 @@ func GetOSRLogoDetails(language string) osrlogo.OSRLogo {
 // requested format.
 // If a matching distribution is found, the download URL of that distribution is returned.
 // If no matching distribution is found, it returns an empty string.
-func GetDistributionFileURL(distributionList *[]models.Distribution, requestedFormat string) string {
+func GetDistributionFileURL(distributionList *[]dpDatasetApiModels.Distribution, requestedFormat string) string {
 	distributions := *distributionList
 	for _, distribution := range distributions {
 		if strings.EqualFold(distribution.Format.String(), requestedFormat) {
@@ -131,7 +132,7 @@ func GetDistributionFileURL(distributionList *[]models.Distribution, requestedFo
 // requested format.
 // If a matching download object is found, it returns the HRef (URL) of that download object.
 // If no matching download object is found, it returns an empty string.
-func GetDownloadFileURL(downloadList *models.DownloadList, requestedFormat string) string {
+func GetDownloadFileURL(downloadList *dpDatasetApiModels.DownloadList, requestedFormat string) string {
 	if downloadList != nil {
 		// We need a way to map `DownloadObject` identifiers to extension strings
 		downloadObjects := downloadList.ExtensionsMapping()
@@ -147,8 +148,20 @@ func GetDownloadFileURL(downloadList *models.DownloadList, requestedFormat strin
 	return ""
 }
 
+// Creates a mapping from download objects to their corresponding file extension strings
+func MapDownloadObjectExtensions(downloadList *dpDatasetApiModels.DownloadList) map[*dpDatasetApiModels.DownloadObject]string {
+	downloads := *downloadList
+	return map[*dpDatasetApiModels.DownloadObject]string{
+		downloads.XLS:  "xls",
+		downloads.XLSX: "xlsx",
+		downloads.CSV:  "csv",
+		downloads.TXT:  "txt",
+		downloads.CSVW: "csvw",
+	}
+}
+
 // Maps download objects from a dp-dataset-api Version to download details, including file extensions, sizes, and URIs
-func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *models.DownloadList) {
+func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *dpDatasetApiModels.DownloadList) {
 	if downloadList != nil {
 		downloadObjects := downloadList.ExtensionsMapping()
 		// Loop through the possible downloadobjects and add to downloads if valid
@@ -165,4 +178,30 @@ func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *
 			}
 		}
 	}
+}
+
+// Collects the contact details of a datset into a contacts object and provides a HasContactDetails flag.
+func GetContactDetails(d dpDatasetApiModels.Dataset) (contact.Details, bool) {
+	details := contact.Details{}
+	hasContactDetails := false
+
+	if len(d.Contacts) > 0 {
+		contacts := d.Contacts
+		if d.Type == "static" {
+			if contacts[0].Name != "" {
+				details.Name = contacts[0].Name
+				hasContactDetails = true
+			}
+		}
+		if contacts[0].Telephone != "" {
+			details.Telephone = contacts[0].Telephone
+			hasContactDetails = true
+		}
+		if contacts[0].Email != "" {
+			details.Email = contacts[0].Email
+			hasContactDetails = true
+		}
+	}
+
+	return details, hasContactDetails
 }
