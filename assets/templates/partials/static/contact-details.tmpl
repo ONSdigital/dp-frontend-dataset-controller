@@ -1,21 +1,26 @@
 <section id="contact" aria-label="{{ localise "RelatedLinksForCensus" .Language 1 }}">
     <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no" id="contact-details">{{ localise "DatasetContactDetailsStatic" .Language 1 }}</h2>
         <div class="ons-text-indent">
-        {{ if .ContactDetails.Name }}
-            <p class="ons-u-mb-no">
-                <b>{{ localise "Team" .Language 1 }}:</b> {{ .ContactDetails.Name }}
-            </p>
-        {{ end }}
-        {{ if .ContactDetails.Email }}
-            <p class="ons-u-mb-no">
-                <b>{{ localise "Email" .Language 1 }}:</b> <a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a>
-            </p>
-        {{ end }}
-        {{ if .ContactDetails.Telephone }}
-            <p class="ons-u-mb-no">
-                <b>{{ localise "Telephone" .Language 1 }}:</b> <a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a>
-            </p>
-        {{ end }}
+            <dl class="ons-description-list ons-description-list__items ons-grid ons-grid--gutterless ons-u-cf ons-u-mb-no" title="Contact details for this dataset series version" aria-label="Contact details for this dataset series version">
+            {{ if .ContactDetails.Name }}
+            <div class="ons-description-list__item">
+                <dt class="ons-description-list__term ons-grid__col ons-col-2@m">{{ localise "Team" .Language 1 }}:</dt>
+                <dd class="ons-description-list__value ons-grid__col ons-col-10@m">{{ .ContactDetails.Name }}</dd>
+            </div>
+            {{ end }}
+             {{ if .ContactDetails.Email }}
+            <div class="ons-description-list__item">
+                <dt class="ons-description-list__term ons-grid__col ons-col-2@m">{{ localise "Email" .Language 1 }}:</dt>
+                <dd class="ons-description-list__value ons-grid__col ons-col-10@m"><a href="mailto:{{.ContactDetails.Email}}">{{ .ContactDetails.Email }}</a></dd>
+            </div>
+            {{ end }}
+            {{ if .ContactDetails.Telephone }}
+            <div class="ons-description-list__item">
+                <dt class="ons-description-list__term ons-grid__col ons-col-2@m">{{ localise "Telephone" .Language 1 }}:</dt>
+                <dd class="ons-description-list__value ons-grid__col ons-col-10@m"><a href="tel:{{ .ContactDetails.Telephone | safeHTML }}">{{ .ContactDetails.Telephone }}</a></dd>
+            </div>
+            {{ end }}
+            </dl>
         </div>                
     {{ template "partials/census/back-to-contents" . }}
 </section>
