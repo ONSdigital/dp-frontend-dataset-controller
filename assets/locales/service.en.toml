@@ -114,6 +114,10 @@ one = "Contact details"
 description = "Name"
 one = "Name"
 
+[Team]
+description = "Team"
+one = "Team"
+
 [Email]
 description = "Email"
 one = "Email"
