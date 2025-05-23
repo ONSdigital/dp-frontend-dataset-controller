@@ -135,7 +135,7 @@ func GetDistributionFileURL(distributionList *[]dpDatasetApiModels.Distribution,
 func GetDownloadFileURL(downloadList *dpDatasetApiModels.DownloadList, requestedFormat string) string {
 	if downloadList != nil {
 		// We need a way to map `DownloadObject` identifiers to extension strings
-		downloadObjects := MapDownloadObjectExtensions(downloadList)
+		downloadObjects := downloadList.ExtensionsMapping()
 		// Loop through the possible downloadobjects and redirect to the requested one
 		for downloadObject, extension := range downloadObjects {
 			if strings.EqualFold(extension, requestedFormat) {
@@ -163,7 +163,7 @@ func MapDownloadObjectExtensions(downloadList *dpDatasetApiModels.DownloadList) 
 // Maps download objects from a dp-dataset-api Version to download details, including file extensions, sizes, and URIs
 func MapVersionDownloads(sharedModelVersion *sharedModel.Version, downloadList *dpDatasetApiModels.DownloadList) {
 	if downloadList != nil {
-		downloadObjects := MapDownloadObjectExtensions(downloadList)
+		downloadObjects := downloadList.ExtensionsMapping()
 		// Loop through the possible downloadobjects and add to downloads if valid
 		for downloadObject, extension := range downloadObjects {
 			if downloadObject != nil {

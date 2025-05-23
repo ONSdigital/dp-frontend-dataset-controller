@@ -203,7 +203,7 @@ func getTestDownloads(formats []string) *dpDatasetApiModels.DownloadList {
 		CSVW: &dpDatasetApiModels.DownloadObject{},
 	}
 
-	downloadObjects := helpers.MapDownloadObjectExtensions(downloadList)
+	downloadObjects := downloadList.ExtensionsMapping()
 	// Loop through the possible downloadobjects and add files to each format if requested
 	for downloadObject, extension := range downloadObjects {
 		if slices.Contains(formats, extension) {

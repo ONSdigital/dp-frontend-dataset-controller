@@ -163,6 +163,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 		ServiceToken:         serviceAuthToken,
 		UserAccessToken:      "",
 	}
+	mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{}
 
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
@@ -194,6 +195,18 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 			mockZebedeeClient.EXPECT().GetBreadcrumb(mockContext, userAuthToken, collectionID, locale, "")
+			mockDatasetClient.EXPECT().GetVersionMetadata(
+				mockContext, headers, datasetID, editionID, versionID,
+			).Return(
+				mockGetVersionMetadataResponse, nil,
+			)
+			mockDatasetClient.EXPECT().GetVersionDimensionOptions(
+				mockContext, headers, datasetID, editionID, versionID, "aggregate",
+				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000},
+			).Return(
+				mockGetVersionDimsOptsResponse, nil,
+			)
+
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
 				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
