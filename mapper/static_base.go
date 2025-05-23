@@ -39,7 +39,6 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	isNationalStatistic := false
 	latestVersionNumber := 1
 
-
 	// Loop through versions to find info
 	for i := range allVersions {
 		singleVersion := &allVersions[i]
