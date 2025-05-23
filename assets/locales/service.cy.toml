@@ -274,6 +274,10 @@ one = "Publisher URL:"
 description = "Version history"
 one = "Version history"
 
+[Version]
+description = "Version"
+one = "Version"
+
 [UpdateReasonHeading]
 description = "Update reason"
 one = "Reason for update"

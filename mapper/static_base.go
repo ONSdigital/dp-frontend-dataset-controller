@@ -32,6 +32,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 		editionStr = version.Edition
 	}
 	p.Version.Edition = editionStr
+	p.Version.Version = strconv.Itoa(version.Version)
 
 	hasOtherVersions := false
 	initialVersionReleaseDate := ""
