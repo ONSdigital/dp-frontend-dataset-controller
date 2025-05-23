@@ -19,9 +19,19 @@ import (
 func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic,
 ) static.Page {
+	var editionStr string
+
 	p := static.Page{
 		Page: basePage,
 	}
+
+	// Use edition title string if available
+	if version.EditionTitle != "" {
+		editionStr = version.EditionTitle
+	} else {
+		editionStr = version.Edition
+	}
+	p.Version.Edition = editionStr
 
 	hasOtherVersions := false
 	initialVersionReleaseDate := ""
