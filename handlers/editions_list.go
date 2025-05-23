@@ -31,9 +31,9 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 
 	headers := dpDatasetApiSdk.Headers{
 		UserAccessToken: userAccessToken,
-		CollectionID: collectionID,
+		CollectionID:    collectionID,
 	}
-		
+
 	topicHeaders := dpTopicApiSdk.Headers{
 		ServiceAuthToken: serviceAuthToken,
 		UserAuthToken:    userAccessToken,
@@ -75,8 +75,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 	// Update basePage common parameters
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, false, lang, req)
 
-	if (datasetDetails.Type == DatasetTypeStatic){
-
+	if datasetDetails.Type == DatasetTypeStatic {
 		// BREADCRUMB
 		topicsIDList := datasetDetails.Subtopics
 		topicObjectList := []dpTopicApiModels.Topic{}
@@ -99,16 +98,16 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 		if someTopicAPIFetchesFailed {
 			topicObjectList = []dpTopicApiModels.Topic{}
 		}
-		
+
 		m := mapper.CreateEditionsListForStaticDatasetType(ctx, basePage, req, datasetDetails, datasetEditions, datasetID, apiRouterVersion, topicObjectList)
 		rend.BuildPage(w, m, "edition-list-static")
-		} else {
-			bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetDetails.Links.Taxonomy.HRef)
-			if err != nil {
-				log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.HRef})
-			}
+	} else {
+		bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetDetails.Links.Taxonomy.HRef)
+		if err != nil {
+			log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.HRef})
+		}
 
-			m := mapper.CreateEditionsList(ctx, basePage, req, datasetDetails, datasetEditions, datasetID, bc, apiRouterVersion)
-			rend.BuildPage(w, m, "edition-list")
+		m := mapper.CreateEditionsList(ctx, basePage, req, datasetDetails, datasetEditions, datasetID, bc, apiRouterVersion)
+		rend.BuildPage(w, m, "edition-list")
 	}
 }

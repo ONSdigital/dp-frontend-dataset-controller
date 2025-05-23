@@ -378,7 +378,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 }
 
 // CreateEditionsListForStaticDatasetType creates an editions list page when dataset type is static, based on api model responses
-func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID string, apiRouterVersion string, topicObjectList []dpTopicApiModels.Topic) edition.Page {
+func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID, apiRouterVersion string, topicObjectList []dpTopicApiModels.Topic) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -393,7 +393,8 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 		p.ContactDetails.Telephone = contacts[0].Telephone
 		p.ContactDetails.Email = contacts[0].Email
 	}
-
+	lastIndexOfEditions := len(editions.Items) - 1
+	p.ReleaseDate = editions.Items[lastIndexOfEditions].ReleaseDate
 	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
@@ -418,7 +419,6 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 
 	return p
 }
-
 
 func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Version) {
 	if ver.Alerts != nil {
