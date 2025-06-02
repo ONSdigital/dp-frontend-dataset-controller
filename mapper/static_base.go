@@ -25,11 +25,11 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 		Page: basePage,
 	}
 
-	// Use edition title string if available
-	if version.EditionTitle != "" {
-		editionStr = version.EditionTitle
+	// Use edition for use in title if available
+	if version.Edition != "" {
+		editionStr = version.Edition 
 	} else {
-		editionStr = version.Edition
+		editionStr = "Edition not found"
 	}
 	p.Version.Edition = editionStr
 	p.Version.Version = strconv.Itoa(version.Version)
