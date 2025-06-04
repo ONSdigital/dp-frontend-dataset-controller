@@ -535,21 +535,27 @@ func TestUnitMapCookiesPreferences(t *testing.T) {
 	pageModel := dpRendererModel.Page{
 		CookiesPreferencesSet: false,
 		CookiesPolicy: dpRendererModel.CookiesPolicy{
-			Essential: false,
-			Usage:     false,
+			Communications: false,
+			Essential:      false,
+			Settings:       false,
+			Usage:          false,
 		},
 	}
 
 	Convey("maps cookies preferences cookie data to page model correctly", t, func() {
-		So(pageModel.CookiesPreferencesSet, ShouldEqual, false)
-		So(pageModel.CookiesPolicy.Essential, ShouldEqual, false)
-		So(pageModel.CookiesPolicy.Usage, ShouldEqual, false)
-		req.AddCookie(&http.Cookie{Name: "cookies_preferences_set", Value: "true"})
-		req.AddCookie(&http.Cookie{Name: "cookies_policy", Value: "%7B%22essential%22%3Atrue%2C%22usage%22%3Atrue%7D"})
+		So(pageModel.CookiesPreferencesSet, ShouldBeFalse)
+		So(pageModel.CookiesPolicy.Communications, ShouldBeFalse)
+		So(pageModel.CookiesPolicy.Essential, ShouldBeFalse)
+		So(pageModel.CookiesPolicy.Settings, ShouldBeFalse)
+		So(pageModel.CookiesPolicy.Usage, ShouldBeFalse)
+		req.AddCookie(&http.Cookie{Name: "ons_cookie_message_displayed", Value: "true"})
+		req.AddCookie(&http.Cookie{Name: "ons_cookie_policy", Value: "{'essential':true,'settings':true,'usage':true,'campaigns':true}"})
 		MapCookiePreferences(req, &pageModel.CookiesPreferencesSet, &pageModel.CookiesPolicy)
-		So(pageModel.CookiesPreferencesSet, ShouldEqual, true)
-		So(pageModel.CookiesPolicy.Essential, ShouldEqual, true)
-		So(pageModel.CookiesPolicy.Usage, ShouldEqual, true)
+		So(pageModel.CookiesPreferencesSet, ShouldBeTrue)
+		So(pageModel.CookiesPolicy.Communications, ShouldBeTrue)
+		So(pageModel.CookiesPolicy.Essential, ShouldBeTrue)
+		So(pageModel.CookiesPolicy.Settings, ShouldBeTrue)
+		So(pageModel.CookiesPolicy.Usage, ShouldBeTrue)
 	})
 }
 

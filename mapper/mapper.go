@@ -41,7 +41,7 @@ const (
 	DimensionTime      = "time"
 	DimensionAge       = "age"
 	DimensionGeography = "geography"
-	SixteensVersion    = "2c5867a"
+	SixteensVersion    = "662bc97"
 )
 
 var (
@@ -579,11 +579,13 @@ func convertYYYYToTime(input string) (t time.Time, err error) {
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
 func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *dpRendererModel.CookiesPolicy) {
-	preferencesCookie := cookies.GetCookiePreferences(req)
+	preferencesCookie := cookies.GetONSCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
 	*policy = dpRendererModel.CookiesPolicy{
-		Essential: preferencesCookie.Policy.Essential,
-		Usage:     preferencesCookie.Policy.Usage,
+		Communications: preferencesCookie.Policy.Campaigns,
+		Essential:      preferencesCookie.Policy.Essential,
+		Settings:       preferencesCookie.Policy.Settings,
+		Usage:          preferencesCookie.Policy.Usage,
 	}
 }
 
