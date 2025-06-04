@@ -170,7 +170,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		}
 
 		// BREADCRUMB
-		topicsIDList := versionMetadata.Subtopics
+		topicsIDList := versionMetadata.Topics
 		topicObjectList := []dpTopicApiModels.Topic{}
 		someTopicAPIFetchesFailed := false
 
