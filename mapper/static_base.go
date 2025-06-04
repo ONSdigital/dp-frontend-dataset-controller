@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -90,20 +89,11 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 
 	breadcrumbsObject := CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
 
-	// For overview page, also append a breadcrumb to editions list page
-	re := regexp.MustCompile(`^(/datasets/[^/]+/editions)`)
-	matches := re.FindStringSubmatch(latestVersionURL)
-	var editionsURI string
+	editionsListURL := "/datasets/" + d.ID + "/editions"
 
-	if len(matches) > 1 {
-		editionsURI = matches[1]
-	} else {
-		// Use latestVersionURL is not found
-		editionsURI = latestVersionURL
-	}
 	breadcrumbsObject = append(breadcrumbsObject, coreModel.TaxonomyNode{
 		Title: d.Title,
-		URI:   editionsURI,
+		URI:   editionsListURL,
 	})
 
 	p.Breadcrumb = breadcrumbsObject
