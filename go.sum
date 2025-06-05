@@ -16,8 +16,8 @@ github.com/ONSdigital/dp-net/v3 v3.3.0 h1:NAH9z+nvbJxoK6OnDpOyJJ+52dqBhVtaugk5bq
 github.com/ONSdigital/dp-net/v3 v3.3.0/go.mod h1:ur4LLCvd2xW2jpa785pElE6HB2bPvszZxdAjqv0XFGg=
 github.com/ONSdigital/dp-otel-go v0.0.8 h1:jSX32oDmOUKlHyH3FPCBkBpiBKYmWKELoNo6jontKRM=
 github.com/ONSdigital/dp-otel-go v0.0.8/go.mod h1:pCDuFqZX8+7CBQX1nMlLMPj52VsMAN3Y8h0uLmzC3cU=
-github.com/ONSdigital/dp-renderer/v2 v2.23.0 h1:oasZ8qDsF8sJfDahGQDKU8Z5hmEEouJJCxYQRyzpIYc=
-github.com/ONSdigital/dp-renderer/v2 v2.23.0/go.mod h1:RnpkYyv2/aB7RO1kvd279aiCRabcHf3lllihBNXPNx8=
+github.com/ONSdigital/dp-renderer/v2 v2.23.2 h1:qoro679LmA8QW9OtzUQRhvrfTg4Mn3csuAinpv3Lcoo=
+github.com/ONSdigital/dp-renderer/v2 v2.23.2/go.mod h1:RnpkYyv2/aB7RO1kvd279aiCRabcHf3lllihBNXPNx8=
 github.com/ONSdigital/dp-topic-api v1.0.0 h1:EJGmGAqq8vEInfDgIYrt+EZ9/OGomii/QfsPDLpUcxM=
 github.com/ONSdigital/dp-topic-api v1.0.0/go.mod h1:RdlYxTMKmtnQToQshmP/xDJJdHzx/3W7gcS+xTAbSrU=
 github.com/ONSdigital/log.go/v2 v2.4.5 h1:LclSJUNHgbhgl386daHXNX9j3LOwXd/AeuiSSfEuclM=

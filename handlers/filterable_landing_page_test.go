@@ -656,7 +656,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 	}
 	mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{
 		EditableMetadata: dpDatasetApiModels.EditableMetadata{
-			Subtopics: []string{"123"},
+			Topics: []string{"123"},
 		},
 	}
 	mockGetTopicPublicResponse := dpTopicApiModels.Topic{
@@ -837,7 +837,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 
 			mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{
 				EditableMetadata: dpDatasetApiModels.EditableMetadata{
-					Subtopics: []string{"123", "456"},
+					Topics: []string{"123", "456"},
 				},
 			}
 			mockDatasetClient.EXPECT().GetDataset(
@@ -941,7 +941,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 
 				mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{
 					EditableMetadata: dpDatasetApiModels.EditableMetadata{
-						Subtopics: []string{"123", "456"},
+						Topics: []string{"123", "456"},
 					},
 				}
 				mockDatasetClient.EXPECT().GetDataset(

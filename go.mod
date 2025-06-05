@@ -10,7 +10,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.3.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/dp-renderer/v2 v2.23.0
+	github.com/ONSdigital/dp-renderer/v2 v2.23.2
 	github.com/ONSdigital/log.go/v2 v2.4.5
 	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/go-jose/go-jose/v4 v4.1.0
