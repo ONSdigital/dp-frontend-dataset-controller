@@ -144,6 +144,7 @@
                     {{ end }}
                     <h2 class="margin-bottom--2">{{ localise "EditionsInDataset" .Language 1 }}</h2>
                     {{ if .DatasetLandingPage.IsTimeseries }}
+                    {{ if .DatasetLandingPage.Datasets }}
                     {{ $timeseriesDataset := index .DatasetLandingPage.Datasets 0 }}
                         {{ range $timeseriesDataset.Downloads }}
                             <div class="inline-block--md margin-bottom-sm--1">
@@ -161,6 +162,7 @@
                                 </a>
                             </div>
                         {{ end }}
+                       
                         {{ if $timeseriesDataset.HasVersions }}
                             <p class="margin-top--0">
                                 <span class="icon icon-info--inline"></span>
@@ -178,7 +180,9 @@
                                 {{ end }}
                             </ul>
                         {{ end }}
+                        {{ end }}
                     {{else}}
+                    {{ if .DatasetLandingPage.Datasets }}
                         {{ range $key, $value := .DatasetLandingPage.Datasets }}
                             {{ $dataset := . }}
                             <div class="show-hide show-hide--light js-show-hide border-top--abbey-sm border-top--abbey-md border-top--abbey-lg{{if .IsLast}} border-bottom--abbey-sm border-bottom--abbey-md border-bottom--abbey-lg{{end}}">
@@ -218,6 +222,7 @@
                                     {{ end }}
                                 </div>
                             </div>
+                        {{ end }}
                         {{ end }}
                     {{ end }}
                 </section>
