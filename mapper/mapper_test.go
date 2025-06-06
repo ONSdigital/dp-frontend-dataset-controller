@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
@@ -427,38 +426,37 @@ func TestUnitMapper(t *testing.T) {
 func TestCreateVersionsList(t *testing.T) {
 	mdl := dpRendererModel.Page{}
 	req := httptest.NewRequest("", "/", http.NoBody)
-	dummyModelData := dataset.DatasetDetails{
+	dummyModelData := dpDatasetApiModels.Dataset{
 		ID:    "cpih01",
 		Title: "Consumer Prices Index including owner occupiers? housing costs (CPIH)",
-		Links: dataset.Links{
-			Editions: dataset.Link{
-				URL: "http://localhost:22000/datasets/cpih01/editions",
-				ID:  ""},
-			LatestVersion: dataset.Link{
-				URL: "http://localhost:22000/datasets/cpih01/editions/time-series/versions/3",
-				ID:  "3"},
-			Self: dataset.Link{
-				URL: "http://localhost:22000/datasets/cpih01",
-				ID:  ""},
-			Taxonomy: dataset.Link{
-				URL: "/economy/environmentalaccounts/datasets/consumerpricesindexincludingowneroccupiershousingcostscpih",
-				ID:  ""},
+		Links: &dpDatasetApiModels.DatasetLinks{
+			Editions: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cpih01/editions",
+				ID:   ""},
+			LatestVersion: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cpih01/editions/time-series/versions/3",
+				ID:   "3"},
+			Self: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cpih01",
+				ID:   ""},
+			Taxonomy: &dpDatasetApiModels.LinkObject{
+				HRef: "/economy/environmentalaccounts/datasets/consumerpricesindexincludingowneroccupiershousingcostscpih",
+				ID:   ""},
 		},
 	}
-	dummyEditionData := dataset.Edition{}
-	dummyVersion1 := dataset.Version{
+	dummyEditionData := dpDatasetApiModels.Edition{}
+	dummyVersion1 := dpDatasetApiModels.Version{
 		Alerts:        nil,
 		CollectionID:  "",
 		Downloads:     nil,
 		Edition:       "time-series",
 		Dimensions:    nil,
 		ID:            "",
-		InstanceID:    "",
 		LatestChanges: nil,
-		Links: dataset.Links{
-			Dataset: dataset.Link{
-				URL: "http://localhost:22000/datasets/cpih01",
-				ID:  "cpih01",
+		Links: &dpDatasetApiModels.VersionLinks{
+			Dataset: &dpDatasetApiModels.LinkObject{
+				HRef: "http://localhost:22000/datasets/cpih01",
+				ID:   "cpih01",
 			},
 		},
 		ReleaseDate: "2019-08-15T00:00:00.000Z",
@@ -470,7 +468,7 @@ func TestCreateVersionsList(t *testing.T) {
 	dummyVersion2.Version = 2
 	dummyVersion3 := dummyVersion1
 	dummyVersion3.Version = 3
-	dummyVersion3.Alerts = &[]dataset.Alert{
+	dummyVersion3.Alerts = &[]dpDatasetApiModels.Alert{
 		{
 			Date:        "",
 			Description: "This is a correction",
@@ -481,7 +479,7 @@ func TestCreateVersionsList(t *testing.T) {
 	emergencyBanner := getTestEmergencyBanner()
 
 	Convey("test latest version page", t, func() {
-		dummySingleVersionList := []dataset.Version{dummyVersion3}
+		dummySingleVersionList := []dpDatasetApiModels.Version{dummyVersion3}
 
 		page := CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummySingleVersionList, serviceMessage, emergencyBanner)
 		Convey("title", func() {
@@ -491,7 +489,7 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.Data.Versions, ShouldHaveLength, 1)
 		})
 
-		dummyMultipleVersionList := []dataset.Version{dummyVersion1, dummyVersion2, dummyVersion3}
+		dummyMultipleVersionList := []dpDatasetApiModels.Version{dummyVersion1, dummyVersion2, dummyVersion3}
 		page = CreateVersionsList(mdl, req, dummyModelData, dummyEditionData, dummyMultipleVersionList, serviceMessage, emergencyBanner)
 
 		Convey("has correct number of versions when multiple should be present", func() {

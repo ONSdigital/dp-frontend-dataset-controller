@@ -24,11 +24,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	DatasetTypeNomis  = "nomis"
-	DatasetTypeStatic = "static"
-)
-
 // FilterableLanding will load a filterable landing page
 func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc TopicAPIClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
@@ -108,17 +103,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		displayOtherVersionsLink = true
 	}
 
-	latestVersionNumber := 1
-	for i := range versionsList.Items {
-		singleVersion := &versionsList.Items[i]
-
-		if singleVersion.Version > latestVersionNumber {
-			latestVersionNumber = singleVersion.Version
-		}
-	}
+	latestVersionNumber := helpers.GetLatestVersionID(versionsList)
 
 	latestVersionURL := helpers.DatasetVersionURL(datasetID, editionID, strconv.Itoa(latestVersionNumber))
 
+	// i.e. coming in from /datasets/{datasetID}/editions/{editionID}
 	if versionID == "" {
 		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
 		http.Redirect(responseWriter, request, latestVersionURL, http.StatusFound)
