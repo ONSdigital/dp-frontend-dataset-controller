@@ -19,7 +19,6 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
@@ -252,21 +251,25 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 }
 
 // CreateVersionsList creates a versions list page based on api model responses
-func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d dataset.DatasetDetails, ed dataset.Edition, versions []dataset.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
+func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, datasetDetails dpDatasetApiModels.Dataset, editionDetails dpDatasetApiModels.Edition, versions []dpDatasetApiModels.Version, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) version.Page {
 	p := version.Page{
 		Page: basePage,
 	}
 	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
-	p.Metadata.Title = "All versions of " + d.Title
+	p.Metadata.Title = "All versions of " + datasetDetails.Title
 	if len(versions) > 0 {
 		p.Metadata.Title += " " + versions[0].Edition
 	}
 	p.Metadata.Title += " dataset"
 	p.BetaBannerEnabled = true
 
-	p.Data.LatestVersionURL = helpers.DatasetVersionURL(d.ID, ed.Edition, ed.Links.LatestVersion.ID)
-	p.DatasetId = d.ID
+	if editionDetails.Links != nil && editionDetails.Links.LatestVersion != nil {
+		p.Data.LatestVersionURL = helpers.DatasetVersionURL(datasetDetails.ID, editionDetails.Edition, editionDetails.Links.LatestVersion.ID)
+	} else {
+		p.Data.LatestVersionURL = ""
+	}
+	p.DatasetId = datasetDetails.ID
 	p.URI = req.URL.Path
 	p.FeatureFlags.SixteensVersion = SixteensVersion
 
@@ -280,7 +283,7 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 		var v sharedModel.Version
 		v.IsLatest = false
 		v.VersionNumber = versions[i].Version
-		v.Title = d.Title
+		v.Title = datasetDetails.Title
 		v.Date = versions[i].ReleaseDate
 		versionURL := helpers.DatasetVersionURL(versions[i].Links.Dataset.ID, versions[i].Edition, strconv.Itoa(versions[i].Version))
 		v.VersionURL = versionURL
@@ -296,12 +299,8 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, d data
 			latestVersionNumber = versions[i].Version
 		}
 
-		for ext, download := range versions[i].Downloads {
-			v.Downloads = append(v.Downloads, sharedModel.Download{
-				Extension: ext,
-				Size:      download.Size,
-				URI:       download.URL,
-			})
+		if versions[i].Downloads != nil {
+			helpers.MapVersionDownloads(&v, versions[i].Downloads)
 		}
 
 		// Map the correction alerts
