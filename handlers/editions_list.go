@@ -77,7 +77,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 
 	if datasetDetails.Type == DatasetTypeStatic {
 		// BREADCRUMB
-		topicsIDList := datasetDetails.Subtopics
+		topicsIDList := datasetDetails.Topics
 		topicObjectList := []dpTopicApiModels.Topic{}
 		someTopicAPIFetchesFailed := false
 

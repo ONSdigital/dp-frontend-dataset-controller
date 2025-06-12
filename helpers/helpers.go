@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
@@ -26,6 +27,18 @@ func ExtractDatasetInfoFromPath(path string) (datasetID, edition, version string
 // DatasetVersionURL constructs a dataset version URL from the provided datasetID, edition and version values
 func DatasetVersionURL(datasetID, edition, version string) string {
 	return fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version)
+}
+
+func GetLatestVersionID(versionsList dpDatasetApiSdk.VersionsList) int {
+	latestVersionNumber := 1
+	for i := range versionsList.Items {
+		singleVersion := &versionsList.Items[i]
+
+		if singleVersion.Version > latestVersionNumber {
+			latestVersionNumber = singleVersion.Version
+		}
+	}
+	return latestVersionNumber
 }
 
 // GetAPIRouterVersion returns the path of the provided url, which corresponds to the api router version

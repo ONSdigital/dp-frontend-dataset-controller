@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -12,21 +14,43 @@ import (
 )
 
 // VersionsList will load a list of versions for a filterable dataset
-func VersionsList(dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
+func VersionsList(dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, zc, rend, collectionID, userAccessToken, lang)
 	})
 }
 
-func versionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatasetClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
-	vars := mux.Vars(req)
+func versionsList(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
+	vars := mux.Vars(request)
 	datasetID := vars["datasetID"]
-	edition := vars["edition"]
-	ctx := req.Context()
+	editionID := vars["edition"]
+	ctx := request.Context()
 
-	d, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+	headers := dpDatasetApiSdk.Headers{
+		CollectionID:    collectionID,
+		UserAccessToken: userAccessToken,
+	}
+
+	datasetDetails, err := dc.GetDataset(ctx, headers, collectionID, datasetID)
 	if err != nil {
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, responseWriter, err)
+		return
+	}
+
+	getVersionsQueryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
+
+	versionsList, err := dc.GetVersions(ctx, headers, datasetID, editionID, &getVersionsQueryParams)
+	if err != nil {
+		setStatusCode(ctx, responseWriter, err)
+		return
+	}
+
+	// Static dataset types (e.g dataset overview pages) do not show versions list
+	if datasetDetails.Type == DatasetTypeStatic {
+		latestVersionNumber := helpers.GetLatestVersionID(versionsList)
+		latestVersionURL := helpers.DatasetVersionURL(datasetID, editionID, strconv.Itoa(latestVersionNumber))
+		log.Info(ctx, "Dataset type is 'static' and need not render the versions list, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
+		http.Redirect(responseWriter, request, latestVersionURL, http.StatusFound)
 		return
 	}
 
@@ -35,20 +59,13 @@ func versionsList(w http.ResponseWriter, req *http.Request, dc APIClientsGoDatas
 		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
 	}
 
-	q := dataset.QueryParams{Offset: 0, Limit: 1000}
-	versions, err := dc.GetVersions(ctx, userAccessToken, "", "", collectionID, datasetID, edition, &q)
+	editionDetails, err := dc.GetEdition(ctx, headers, datasetID, editionID)
 	if err != nil {
-		setStatusCode(ctx, w, err)
-		return
-	}
-
-	e, err := dc.GetEdition(ctx, userAccessToken, "", collectionID, datasetID, edition)
-	if err != nil {
-		setStatusCode(ctx, w, err)
+		setStatusCode(ctx, responseWriter, err)
 		return
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateVersionsList(basePage, req, d, e, versions.Items, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
-	rend.BuildPage(w, m, "version-list")
+	m := mapper.CreateVersionsList(basePage, request, datasetDetails, editionDetails, versionsList.Items, homepageContent.ServiceMessage, homepageContent.EmergencyBanner)
+	rend.BuildPage(responseWriter, m, "version-list")
 }

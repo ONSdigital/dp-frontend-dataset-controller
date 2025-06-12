@@ -29,6 +29,8 @@ const (
 	maxAgeAndTimeOptions = 1000
 	homepagePath         = "/"
 	queryStrKey          = "showAll"
+	DatasetTypeNomis     = "nomis"
+	DatasetTypeStatic    = "static"
 )
 
 var errTooManyOptions = errors.New("too many options in dimension")
