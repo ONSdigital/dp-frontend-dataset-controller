@@ -12,7 +12,7 @@ require (
 	github.com/ONSdigital/dp-otel-go v0.0.8
 	github.com/ONSdigital/dp-renderer/v2 v2.24.0
 	github.com/ONSdigital/log.go/v2 v2.4.5
-	github.com/PuerkitoBio/goquery v1.9.1
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/go-jose/go-jose/v4 v4.1.0
 	github.com/golang/glog v1.2.5
 	github.com/golang/mock v1.6.0
@@ -30,7 +30,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/ONSdigital/dp-topic-api v1.0.0
-	github.com/andybalholm/cascadia v1.3.2 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/fatih/color v1.18.0 // indirect
