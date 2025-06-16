@@ -85,9 +85,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 	p.ShowCensusBranding = false
 
 	// BREADCRUMBS
-	baseURL := "https://www.ons.gov.uk/"
-
-	breadcrumbsObject := CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
+	breadcrumbsObject := CreateBreadcrumbsFromTopicList(topicObjectList)
 
 	editionsListURL := "/datasets/" + d.ID + "/editions"
 
