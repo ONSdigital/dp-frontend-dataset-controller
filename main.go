@@ -193,6 +193,8 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(datasetAPISdkClient, *cfg))
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
+	router.HandleFunc("/filters/{filterID}/dimensions/{dimension}", handlers.FilterPageHandler(f, datasetAPISdkClient))
+	router.HandleFunc("/filters/{filterID}/dimensions", handlers.FilterPageHandler(f, datasetAPISdkClient))
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, apiClientsGoDatasetClient, fc, rend, cacheList, *cfg))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})

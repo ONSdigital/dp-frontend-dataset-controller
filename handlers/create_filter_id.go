@@ -77,13 +77,6 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 			return
 		}
 
-		if datasetModel.Type == "cmd" {
-			cmdPath := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter", datasetID, edition, version)
-			log.Info(ctx, "redirecting to CMD filter journey", log.Data{"path": cmdPath})
-			http.Redirect(w, req, cmdPath, http.StatusTemporaryRedirect)
-			return
-		}
-
 		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)

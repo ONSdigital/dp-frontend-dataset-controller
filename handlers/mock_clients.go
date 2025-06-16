@@ -125,6 +125,22 @@ func (mr *MockFilterClientMockRecorder) GetDimensionOptions(ctx, userAuthToken, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionOptions", reflect.TypeOf((*MockFilterClient)(nil).GetDimensionOptions), ctx, userAuthToken, serviceAuthToken, collectionID, filterID, name, q)
 }
 
+// GetJobState mocks base method.
+func (m *MockFilterClient) GetJobState(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterID string) (filter.Model, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetJobState", ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterID)
+	ret0, _ := ret[0].(filter.Model)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetJobState indicates an expected call of GetJobState.
+func (mr *MockFilterClientMockRecorder) GetJobState(ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobState", reflect.TypeOf((*MockFilterClient)(nil).GetJobState), ctx, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterID)
+}
+
 // GetOutput mocks base method.
 func (m *MockFilterClient) GetOutput(ctx context.Context, userAuthToken, serviceAuthToken, downloadServiceToken, collectionID, filterOutputID string) (filter.Model, error) {
 	m.ctrl.T.Helper()

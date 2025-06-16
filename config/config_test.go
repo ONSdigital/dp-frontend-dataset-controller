@@ -22,6 +22,8 @@ func TestConfig(t *testing.T) {
 				So(cfg.BindAddr, ShouldEqual, "localhost:20200")
 				So(cfg.Debug, ShouldBeFalse)
 				So(cfg.EnableMultivariate, ShouldBeFalse)
+				So(cfg.FilterFlexDatasetServiceURL, ShouldEqual, "http://localhost:27100")
+				So(cfg.FrontendFilterDatasetControllerURL, ShouldEqual, "http://localhost:20001")
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.DownloadServiceURL, ShouldEqual, "http://localhost:23600")
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
