@@ -71,6 +71,19 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 			return
 		}
 
+		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+		if err != nil {
+			setStatusCode(ctx, w, err)
+			return
+		}
+
+		if datasetModel.Type == "cmd" {
+			cmdPath := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/filter", datasetID, edition, version)
+			log.Info(ctx, "redirecting to CMD filter journey", log.Data{"path": cmdPath})
+			http.Redirect(w, req, cmdPath, http.StatusTemporaryRedirect)
+			return
+		}
+
 		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)
@@ -86,12 +99,6 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 			dim.URI = versionDimension.URL
 			dim.IsAreaType = versionDimension.IsAreaType
 			dims = append(dims, dim)
-		}
-
-		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
-		if err != nil {
-			setStatusCode(ctx, w, err)
-			return
 		}
 
 		popType := datasetModel.IsBasedOn.ID
