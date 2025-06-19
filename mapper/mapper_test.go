@@ -657,19 +657,17 @@ func TestCreateBreadcrumbsFromTopicList(t *testing.T) {
 			{Title: "Topic Two", Slug: "slug2"},
 		}
 
-		baseURL := "https://www.ons.gov.uk/"
-
 		Convey("When CreateBreadcrumbsFromTopicList is called to build the breadcrumbs from the topics list", func() {
-			breadcrumbObject := CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
+			breadcrumbObject := CreateBreadcrumbsFromTopicList(topicObjectList)
 
 			Convey("Then the breadcrumbs object should contain a TaxonomyNode for each topic ", func() {
 				So(breadcrumbObject, ShouldHaveLength, 3)
 				So(breadcrumbObject[0].Title, ShouldEqual, "Home")
-				So(breadcrumbObject[0].URI, ShouldEqual, "https://www.ons.gov.uk/")
+				So(breadcrumbObject[0].URI, ShouldEqual, "/")
 				So(breadcrumbObject[1].Title, ShouldEqual, "Topic One")
-				So(breadcrumbObject[1].URI, ShouldEqual, "https://www.ons.gov.uk/slug1")
+				So(breadcrumbObject[1].URI, ShouldEqual, "/slug1")
 				So(breadcrumbObject[2].Title, ShouldEqual, "Topic Two")
-				So(breadcrumbObject[2].URI, ShouldEqual, "https://www.ons.gov.uk/slug1/slug2")
+				So(breadcrumbObject[2].URI, ShouldEqual, "/slug1/slug2")
 			})
 		})
 	})
