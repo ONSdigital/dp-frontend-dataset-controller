@@ -9,6 +9,8 @@ github.com/ONSdigital/dp-cookies v0.6.0 h1:bYiV/M0W7ufn7bIJf2cYjY2vtMUrdU0uLt7mY
 github.com/ONSdigital/dp-cookies v0.6.0/go.mod h1:YQyEcsQJQcndQFraHt6YawJGOccsm6wJv+31f9jaKfI=
 github.com/ONSdigital/dp-dataset-api v1.81.0 h1:kSv52ZPQUQJW0kc7Sc8oj022z0NTgghRW+RTeE1J/3o=
 github.com/ONSdigital/dp-dataset-api v1.81.0/go.mod h1:/rTXiNJFqMKmxbmqi35Ijz6PuJvzab1CSttn5SGhOzg=
+github.com/ONSdigital/dp-dataset-api v1.81.1 h1:MrnalEDRLhCMmR0it0rMUOkhpV9yCwiK2SvAPpj7eQY=
+github.com/ONSdigital/dp-dataset-api v1.81.1/go.mod h1:a+D0PzLwNhJKhEXuEPW9ij3XgL7D9tg2NSsT9NkOt+o=
 github.com/ONSdigital/dp-healthcheck v1.6.4 h1:FhWOuVmob36dYq7AzCdbgyf0Vk58IFitSl8y8pWJ8ck=
 github.com/ONSdigital/dp-healthcheck v1.6.4/go.mod h1:j3UNbGT4ZJg1chrRkPLE6YUVYCg1su3AAQ8frcBrvgc=
 github.com/ONSdigital/dp-mocking v0.11.0 h1:laln6e2JD4vtsYbg0cTw9ur1Xf390AUYdd85cG2UNQw=
@@ -71,6 +73,8 @@ github.com/gosimple/unidecode v1.0.1 h1:hZzFTMMqSswvf0LBJZCZgThIZrpDHFXux9KeGmn6
 github.com/gosimple/unidecode v1.0.1/go.mod h1:CP0Cr1Y1kogOtx0bJblKzsVWrqYaqfNOnHzpgWw4Awc=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3 h1:5ZPtiqj0JL5oKWmcsq4VMaAW5ukBEgSGXEN89zeH1Jo=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3/go.mod h1:ndYquD05frm2vACXE1nsccT4oJzjhw2arTS2cpUD1PI=
+github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.0 h1:+epNPbD5EqgpEMm5wrl4Hqts3jZt8+kYaqUisuuIGTk=
+github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.0/go.mod h1:Zanoh4+gvIgluNqcfMVTJueD4wSS5hT7zTt4Mrutd90=
 github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f h1:7LYC+Yfkj3CTRcShK0KOL/w6iTiKyqqBA9a41Wnggw8=
 github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f/go.mod h1:pFlLw2CfqZiIBOx6BuCeRLCrfxBJipTY0nIOF/VbGcI=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
