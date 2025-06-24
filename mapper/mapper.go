@@ -398,9 +398,7 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	p.DatasetLandingPage.DatasetID = datasetID
 
 	// BREADCRUMBS
-	baseURL := "https://www.ons.gov.uk/"
-
-	p.Breadcrumb = CreateBreadcrumbsFromTopicList(baseURL, topicObjectList)
+	p.Breadcrumb = CreateBreadcrumbsFromTopicList(topicObjectList)
 
 	// Get editions list
 	editionItems := editions.Items
@@ -707,22 +705,18 @@ func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset) dpRendererMo
 	return tableOfContents
 }
 
-func CreateBreadcrumbsFromTopicList(baseURL string, topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
+func CreateBreadcrumbsFromTopicList(topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
 	breadcrumbsObject := []dpRendererModel.TaxonomyNode{
 		{
 			Title: "Home",
-			URI:   baseURL,
+			URI:   "/",
 		},
 	}
-	path := baseURL
+	path := ""
 
-	for i, topicObject := range topicObjectList {
-		if i == 0 {
-			path += topicObject.Slug
-		} else {
-			// topic1 URI => /slug1 ... topic2 URI => /slug1/slug2... etc..
-			path += "/" + topicObject.Slug
-		}
+	for _, topicObject := range topicObjectList {
+		// topic1 URI => /slug1 ... topic2 URI => /slug1/slug2... etc..
+		path += "/" + topicObject.Slug
 		breadcrumbsObject = append(breadcrumbsObject, dpRendererModel.TaxonomyNode{
 			Title: topicObject.Title,
 			URI:   path,
