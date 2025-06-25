@@ -29,16 +29,24 @@ func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.H
 			return
 		}
 
-		headers := dpDatasetApiSdk.Headers{}
+		jobStateUserAuthToken := ""
+		jobStateServiceAuthToken := "" 
+		jobStateDownloadServiceToken := "" 
+		jobStateCollectionID := ""
 
-		filterModel, _, err := f.GetJobState(ctx, "", "", "", "", filterID)
+		filterModel, _, err := f.GetJobState(
+			ctx, jobStateUserAuthToken, jobStateServiceAuthToken, jobStateDownloadServiceToken, jobStateCollectionID, filterID,
+		)
 		if err != nil {
 			log.Error(ctx, "failed to get filter job state", err)
 			http.Error(w, "failed to get filter", http.StatusInternalServerError)
 			return
 		}
 
-		datasetDetails, err := datasetClient.GetDataset(ctx, headers, "", filterModel.Dataset.DatasetID)
+		getDatasetHeaders := dpDatasetApiSdk.Headers{}
+		datasetCollectionID := ""
+
+		datasetDetails, err := datasetClient.GetDataset(ctx, getDatasetHeaders, datasetCollectionID, filterModel.Dataset.DatasetID)
 		if err != nil {
 			log.Error(ctx, "failed to get dataset details", err)
 			http.Error(w, "failed to get dataset", http.StatusInternalServerError)
