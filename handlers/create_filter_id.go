@@ -71,12 +71,6 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 			return
 		}
 
-		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
-		if err != nil {
-			setStatusCode(ctx, w, err)
-			return
-		}
-
 		ver, err := dc.GetVersion(ctx, userAccessToken, "", "", collectionID, datasetID, edition, version)
 		if err != nil {
 			setStatusCode(ctx, w, err)
@@ -92,6 +86,12 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 			dim.URI = versionDimension.URL
 			dim.IsAreaType = versionDimension.IsAreaType
 			dims = append(dims, dim)
+		}
+
+		datasetModel, err := dc.Get(ctx, userAccessToken, "", collectionID, datasetID)
+		if err != nil {
+			setStatusCode(ctx, w, err)
+			return
 		}
 
 		popType := datasetModel.IsBasedOn.ID
