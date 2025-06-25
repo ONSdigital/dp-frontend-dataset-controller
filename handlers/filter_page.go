@@ -24,7 +24,6 @@ func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.H
 			ServiceToken:         "",
 			UserAccessToken:      "",
 		}
-
 		if err != nil {
 			log.Error(ctx, "unable to retrieve service configuration", err)
 			return
@@ -39,7 +38,6 @@ func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.H
 		filterModel, _, err := f.GetJobState(
 			ctx, headers.UserAccessToken, headers.ServiceToken, headers.DownloadServiceToken, headers.CollectionID, filterID,
 		)
-
 		if err != nil {
 			log.Error(ctx, "failed to get filter job state", err)
 			http.Error(w, "failed to get filter", http.StatusInternalServerError)
@@ -47,7 +45,6 @@ func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.H
 		}
 
 		datasetDetails, err := datasetClient.GetDataset(ctx, headers, headers.CollectionID, filterModel.Dataset.DatasetID)
-
 		if err != nil {
 			log.Error(ctx, "failed to get dataset details", err)
 			http.Error(w, "failed to get dataset", http.StatusInternalServerError)
