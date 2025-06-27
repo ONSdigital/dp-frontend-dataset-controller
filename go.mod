@@ -27,6 +27,8 @@ require (
 	golang.org/x/sync v0.15.0
 )
 
+require github.com/ONSdigital/dp-frontend-router v1.102.0
+
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/ONSdigital/dp-topic-api v1.0.0
@@ -60,7 +62,7 @@ require (
 	go.opentelemetry.io/contrib/propagators/b3 v1.36.0 // indirect
 	go.opentelemetry.io/contrib/propagators/jaeger v1.36.0 // indirect
 	go.opentelemetry.io/contrib/propagators/ot v1.36.0 // indirect
-	go.opentelemetry.io/otel v1.36.0 // indirect
+	go.opentelemetry.io/otel v1.36.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.36.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.36.0 // indirect
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect

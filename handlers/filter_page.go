@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 
@@ -12,21 +11,16 @@ import (
 )
 
 // FilterPageHandler handles requests to /filters/{filterID}
-func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.HandlerFunc {
+func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient, filter, filterFlex http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		vars := mux.Vars(r)
-		cfg, err := config.Get()
 
 		headers := dpDatasetApiSdk.Headers{
 			CollectionID:         "",
 			DownloadServiceToken: "",
 			ServiceToken:         "",
 			UserAccessToken:      "",
-		}
-		if err != nil {
-			log.Error(ctx, "unable to retrieve service configuration", err)
-			return
 		}
 
 		filterID := vars["filterID"]
@@ -53,13 +47,11 @@ func FilterPageHandler(f FilterClient, datasetClient DatasetAPISdkClient) http.H
 
 		if strings.Contains(datasetDetails.Type, "cantabular") {
 			// Redirect to dp-frontend-filter-flex-dataset and continue filter-flex journey
-			target := cfg.FilterFlexDatasetServiceURL + r.URL.Path
-			http.Redirect(w, r, target, http.StatusTemporaryRedirect)
+			filterFlex.ServeHTTP(w, r)
 			return
 		}
 
 		// If CMD type, the CMD filter journey works as it currently does i.e. to frontend-filter-dataset-controller
-		target := cfg.FrontendFilterDatasetControllerURL + r.URL.Path
-		http.Redirect(w, r, target, http.StatusTemporaryRedirect)
+		filter.ServeHTTP(w, r)
 	}
 }

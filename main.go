@@ -173,6 +173,12 @@ func run(ctx context.Context) error {
 
 	router.Path("/health").HandlerFunc(healthcheck.Handler)
 
+	filterDatasetControllerURL, _ := helpers.ParseURL(ctx, cfg.FrontendFilterDatasetControllerURL, "FilterDatasetControllerURL")
+	filterFlexDatasetServiceURL, _ := helpers.ParseURL(ctx, cfg.FilterFlexDatasetServiceURL, "FilterFlexDatasetServiceURL")
+	filterHandler := helpers.CreateReverseProxy("filters", filterDatasetControllerURL) // CMD
+	filterFlexHandler := helpers.CreateReverseProxy("flex", filterFlexDatasetServiceURL) // Cantabular
+
+
 	if cfg.EnableMultivariate {
 		router.Path("/datasets/create").Methods("GET").HandlerFunc(handlers.CreateCustomDataset(pc, zc, rend, *cfg, apiRouterVersion))
 		router.Path("/datasets/create").Methods("POST").HandlerFunc(handlers.PostCreateCustomDataset(f))
@@ -193,8 +199,7 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(datasetAPISdkClient, *cfg))
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
-	router.HandleFunc("/filters/{filterID}/dimensions/{dimension}", handlers.FilterPageHandler(f, datasetAPISdkClient))
-	router.HandleFunc("/filters/{filterID}/dimensions", handlers.FilterPageHandler(f, datasetAPISdkClient))
+	router.HandleFunc("/filters/{uri:.*}", handlers.FilterPageHandler(f, datasetAPISdkClient, filterHandler, filterFlexHandler))
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, apiClientsGoDatasetClient, fc, rend, cacheList, *cfg))
 
 	log.Info(ctx, "Starting server", log.Data{"config": cfg})

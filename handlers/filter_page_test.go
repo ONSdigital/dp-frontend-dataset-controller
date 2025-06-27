@@ -14,7 +14,14 @@ import (
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-router/router/routertest"
 )
+
+func NewHandlerMock() *routertest.HandlerMock {
+	return &routertest.HandlerMock{
+		ServeHTTPFunc: func(in1 http.ResponseWriter, in2 *http.Request) {},
+	}
+}
 
 func TestFilterPageHandler(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
@@ -28,6 +35,8 @@ func TestFilterPageHandler(t *testing.T) {
 
 	mockFilterClient := NewMockFilterClient(mockCtrl)
 	mockDatasetClient := NewMockDatasetAPISdkClient(mockCtrl)
+	filterHandler := NewHandlerMock()
+	filterFlexHandler := NewHandlerMock()
 
 	mockFilterModel := &filter.Model{
 		Dataset: filter.Dataset{
@@ -38,7 +47,7 @@ func TestFilterPageHandler(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{}
 
 	Convey("Given a FilterPageHandler", t, func() {
-		handler := FilterPageHandler(mockFilterClient, mockDatasetClient)
+		handler := FilterPageHandler(mockFilterClient, mockDatasetClient, filterHandler, filterFlexHandler)
 		router := mux.NewRouter()
 		router.HandleFunc("/filters/{filterID}/dimensions", handler)
 		router.HandleFunc("/filters/{filterID}/dimensions/{dimension}", handler)
@@ -51,7 +60,7 @@ func TestFilterPageHandler(t *testing.T) {
 			vars := map[string]string{"filterID": ""}
 			mockRequest = mux.SetURLVars(mockRequest, vars)
 
-			handler := FilterPageHandler(mockFilterClient, mockDatasetClient)
+			handler := FilterPageHandler(mockFilterClient, mockDatasetClient, filterHandler, filterFlexHandler)
 			handler(mockRequestWriter, mockRequest)
 
 			Convey("Then the status code is 400", func() {
