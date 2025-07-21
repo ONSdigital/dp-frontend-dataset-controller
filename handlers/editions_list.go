@@ -62,6 +62,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions.Items[0].Edition, datasetEditions.Items[0].Links.LatestVersion.ID)
 		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
+		return
 	}
 
 	// Fetch homepage content
