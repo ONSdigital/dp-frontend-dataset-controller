@@ -101,7 +101,7 @@ func TestLegacyLanding(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("And the request has a matching If-None-Match header", func() {
-				eTag := `W/"57cd7b83cca10ead8bba7e01c4cae515d517c6ce"`
+				eTag := `W/"f5fe18be7b633201e9301b8a4ff519e1cc9c5d2b"`
 				req.Header.Set("If-None-Match", eTag)
 
 				LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg).ServeHTTP(w, req)
