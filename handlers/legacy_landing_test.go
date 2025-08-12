@@ -73,7 +73,43 @@ func TestLegacyLanding(t *testing.T) {
 
 			LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg).ServeHTTP(w, req)
 
+			Convey("the response should have an ETag", func() {
+				eTag := w.Header().Get("ETag")
+
+				So(eTag, ShouldNotBeEmpty)
+			})
 			So(w.Code, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("when the requested content has not changed", func() {
+			dlp := zebedee.DatasetLandingPage{URI: "https://helloworld.com"}
+			dlp.Datasets = append(dlp.Datasets, zebedee.Link{Title: "A dataset!", URI: "dataset.com"})
+
+			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthToken, collectionID, locale, "/somelegacypage").Return(dlp, nil)
+			mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, userAuthToken, collectionID, locale, dlp.URI)
+			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
+			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
+
+			mockRend := NewMockRenderClient(mockCtrl)
+			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/somelegacypage", http.NoBody)
+
+			ctxOther := context.Background()
+			mockCacheList, err := cache.GetMockCacheList(ctxOther, cfg.SupportedLanguages)
+			So(err, ShouldBeNil)
+
+			Convey("And the request has a matching If-None-Match header", func() {
+				eTag := `W/"57cd7b83cca10ead8bba7e01c4cae515d517c6ce"`
+				req.Header.Set("If-None-Match", eTag)
+
+				LegacyLanding(mockZebedeeClient, mockDatasetClient, mockFilesAPIClient, mockRend, mockCacheList, cfg).ServeHTTP(w, req)
+
+				Convey("Then it returns 304", func() {
+					So(w.Code, ShouldEqual, http.StatusNotModified)
+				})
+			})
 		})
 
 		Convey("test status 500 returned when zebedee client returns error retrieving landing page", func() {

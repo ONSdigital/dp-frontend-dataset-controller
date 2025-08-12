@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
+	"github.com/ONSdigital/dp-net/v3/handlers/response"
 	"github.com/ONSdigital/dp-net/v3/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
@@ -94,6 +96,21 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	m := mapper.CreateLegacyDatasetLanding(ctx, basePage, req, dlp, bc, datasets, lp.Language, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, navigationCache)
 
 	m.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(m.Language)
+
+	b, err := json.Marshal(m)
+	if err != nil {
+		log.Error(ctx, "error marshalling legacy dataset page model", err)
+		setStatusCode(ctx, w, err)
+		return
+	}
+
+	generatedETag := response.GenerateETag(b, true)
+	requestedETag := req.Header.Get("If-None-Match")
+	if requestedETag == generatedETag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+	response.SetETag(w, generatedETag)
 
 	lp.RenderClient.BuildPage(w, m, "static-legacy")
 }
