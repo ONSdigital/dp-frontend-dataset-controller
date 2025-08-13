@@ -22,7 +22,7 @@ func TestCreateCensusLandingPage(t *testing.T) {
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
 	datasetOptions := getTestOptionsList()
-	population := population.GetPopulationTypeResponse{
+	pop := population.GetPopulationTypeResponse{
 		PopulationType: population.PopulationType{
 			Name:        "UR",
 			Label:       "Usual residents",
@@ -35,7 +35,7 @@ func TestCreateCensusLandingPage(t *testing.T) {
 
 		Convey("When we build a census landing page", func() {
 			page := CreateCensusLandingPage(pageModel, datasetModel, version, datasetOptions, map[string]int{},
-				[]dpDatasetApiModels.Version{version}, []string{}, true, population)
+				[]dpDatasetApiModels.Version{version}, []string{}, true, pop)
 
 			Convey("Then downloads map correctly", func() {
 				So(page.Version.Downloads[0].Size, ShouldEqual, "438290")

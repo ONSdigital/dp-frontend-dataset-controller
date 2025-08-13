@@ -77,13 +77,13 @@ func TestGetCurrentUrl(t *testing.T) {
 func TestGenerateSharingLink(t *testing.T) {
 	Convey("The sharing link is correctly constructed from the parameters", t, func() {
 		const title = "a title"
-		const url = "mydomain.com/page"
-		So(GenerateSharingLink("", url, title), ShouldBeBlank)
-		So(GenerateSharingLink("facebook", url, title), ShouldResemble, fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", url))
-		So(GenerateSharingLink("twitter", url, title), ShouldResemble, fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, url))
-		So(GenerateSharingLink("linkedin", url, title), ShouldResemble, fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", url))
-		So(GenerateSharingLink("email", url, title), ShouldResemble, fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, url))
-		So(GenerateSharingLink("x", url, title), ShouldResemble, fmt.Sprintf("https://x.com/intent/tweet?original_referer&text=%s&url=%s", title, url))
+		const testURL = "mydomain.com/page"
+		So(GenerateSharingLink("", testURL, title), ShouldBeBlank)
+		So(GenerateSharingLink("facebook", testURL, title), ShouldResemble, fmt.Sprintf("https://www.facebook.com/sharer/sharer.php?u=%s", testURL))
+		So(GenerateSharingLink("twitter", testURL, title), ShouldResemble, fmt.Sprintf("https://twitter.com/intent/tweet?original_referer&text=%s&url=%s", title, testURL))
+		So(GenerateSharingLink("linkedin", testURL, title), ShouldResemble, fmt.Sprintf("https://www.linkedin.com/sharing/share-offsite/?url=%s", testURL))
+		So(GenerateSharingLink("email", testURL, title), ShouldResemble, fmt.Sprintf("mailto:?subject=%s&body=%s\n%s", title, title, testURL))
+		So(GenerateSharingLink("x", testURL, title), ShouldResemble, fmt.Sprintf("https://x.com/intent/tweet?original_referer&text=%s&url=%s", title, testURL))
 	})
 }
 

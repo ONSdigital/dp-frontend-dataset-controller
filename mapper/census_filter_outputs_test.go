@@ -56,7 +56,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 			Downloads:      getTestFilterDownloads([]string{"xlsx"}),
 			PopulationType: "UR",
 		}
-		population := population.GetPopulationTypeResponse{
+		pop := population.GetPopulationTypeResponse{
 			PopulationType: population.PopulationType{
 				Name:        "UR",
 				Label:       "Usual residents",
@@ -65,7 +65,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 		}
 
 		Convey("when we build a filter outputs page", func() {
-			page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, version, false, []dpDatasetApiModels.Version{version}, 1, "/a/version/1", "", []string{}, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, population)
+			page := CreateCensusFilterOutputsPage(req, pageModel, datasetModel, version, false, []dpDatasetApiModels.Version{version}, 1, "/a/version/1", "", []string{}, false, true, filterOutputs, filterDims, serviceMessage, emergencyBanner, true, dimDesc, cantabular.GetBlockedAreaCountResult{}, pop)
 
 			Convey("then the type should have _filter_output appended", func() {
 				So(page.Type, ShouldEqual, fmt.Sprintf("%s_filter_output", datasetModel.Type))
