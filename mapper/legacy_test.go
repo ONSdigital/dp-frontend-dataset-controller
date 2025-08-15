@@ -78,7 +78,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 
 		So(sdlp.ServiceMessage, ShouldEqual, serviceMessage)
 
-		So(sdlp.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(sdlp.EmergencyBanner.Type, ShouldEqual, strings.ReplaceAll(emergencyBanner.Type, "_", "-"))
 		So(sdlp.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
 		So(sdlp.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
 		So(sdlp.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)

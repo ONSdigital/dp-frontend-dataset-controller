@@ -519,7 +519,7 @@ func TestCreateVersionsList(t *testing.T) {
 			So(page.ServiceMessage, ShouldEqual, serviceMessage)
 		})
 		Convey("emergency banner maps correctly", func() {
-			So(page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+			So(page.EmergencyBanner.Type, ShouldEqual, strings.ReplaceAll(emergencyBanner.Type, "_", "-"))
 			So(page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
 			So(page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
 			So(page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
@@ -579,7 +579,7 @@ func TestUpdateBasePage(t *testing.T) {
 		// These parameters are set by default and are not dependent on conditional inputs
 		So(basePageModel.BetaBannerEnabled, ShouldEqual, true)
 		So(basePageModel.DatasetId, ShouldEqual, datasetDetails.ID)
-		So(basePageModel.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(basePageModel.EmergencyBanner.Type, ShouldEqual, strings.ReplaceAll(emergencyBanner.Type, "_", "-"))
 		So(basePageModel.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
 		So(basePageModel.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
 		So(basePageModel.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)

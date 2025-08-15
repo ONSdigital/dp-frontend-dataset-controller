@@ -591,7 +591,7 @@ func mapEmergencyBanner(bannerData zebedee.EmergencyBanner) dpRendererModel.Emer
 	emptyBannerObj := zebedee.EmergencyBanner{}
 	if bannerData != emptyBannerObj {
 		mappedEmergencyBanner.Title = bannerData.Title
-		mappedEmergencyBanner.Type = strings.Replace(bannerData.Type, "_", "-", -1)
+		mappedEmergencyBanner.Type = strings.ReplaceAll(bannerData.Type, "_", "-")
 		mappedEmergencyBanner.Description = bannerData.Description
 		mappedEmergencyBanner.URI = bannerData.URI
 		mappedEmergencyBanner.LinkText = bannerData.LinkText

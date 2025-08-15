@@ -64,7 +64,7 @@ func TestCreateCensusBasePage(t *testing.T) {
 		So(page.DatasetLandingPage.RelatedContentItems[0].Title, ShouldEqual, relatedContent[0].Title)
 		So(page.DatasetLandingPage.RelatedContentItems[1].Title, ShouldEqual, relatedContent[1].Title)
 		So(page.ServiceMessage, ShouldEqual, serviceMessage)
-		So(page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(page.EmergencyBanner.Type, ShouldEqual, strings.ReplaceAll(emergencyBanner.Type, "_", "-"))
 		So(page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
 		So(page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
 		So(page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
