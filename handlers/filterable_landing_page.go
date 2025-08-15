@@ -238,7 +238,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			templateName = "census-landing"
 		} else {
 			// Update breadcrumbs if not nomis
-			if !(datasetDetails.Type == DatasetTypeNomis) {
+			if datasetDetails.Type != DatasetTypeNomis {
 				if datasetDetails.Links.Taxonomy != nil {
 					taxonomyURL = datasetDetails.Links.Taxonomy.HRef
 				}
