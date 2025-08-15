@@ -105,7 +105,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 
 	// Trim API version path prefix from breadcrumb URIs, if present.
 	for _, breadcrumb := range breadcrumbs {
-		p.Page.Breadcrumb = append(p.Page.Breadcrumb, dpRendererModel.TaxonomyNode{
+		p.Breadcrumb = append(p.Breadcrumb, dpRendererModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   getTrimmedBreadcrumbURI(ctx, breadcrumb, apiRouterVersion),
 		})
@@ -149,7 +149,7 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 		p.ContactDetails.Email = contacts[0].Email
 	}
 
-	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
+	p.DatasetLandingPage.NextRelease = d.NextRelease
 	p.DatasetLandingPage.DatasetID = datasetID
 
 	p.DatasetLandingPage.Edition = ver.Edition
@@ -255,7 +255,7 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, datase
 	p := version.Page{
 		Page: basePage,
 	}
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+	MapCookiePreferences(req, &p.CookiesPreferencesSet, &p.CookiesPolicy)
 	// TODO refactor and make Welsh compatible.
 	p.Metadata.Title = "All versions of " + datasetDetails.Title
 	if len(versions) > 0 {
@@ -334,7 +334,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 	p := edition.Page{
 		Page: basePage,
 	}
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+	MapCookiePreferences(req, &p.CookiesPreferencesSet, &p.CookiesPolicy)
 	p.FeatureFlags.SixteensVersion = SixteensVersion
 
 	for _, bc := range breadcrumbs {
@@ -356,8 +356,8 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		p.ContactDetails.Email = contacts[0].Email
 	}
 
-	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
-	p.DatasetLandingPage.DatasetID = datasetID
+	p.NextRelease = d.NextRelease
+	p.DatasetID = datasetID
 
 	// Get editions list
 	editionItems := editions.Items
@@ -381,7 +381,7 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	p := edition.Page{
 		Page: basePage,
 	}
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+	MapCookiePreferences(req, &p.CookiesPreferencesSet, &p.CookiesPolicy)
 
 	// Unset SixteensVersion when dp-design-system is needed
 	p.FeatureFlags.SixteensVersion = ""
@@ -394,8 +394,8 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	}
 	lastIndexOfEditions := len(editions.Items) - 1
 	p.ReleaseDate = editions.Items[lastIndexOfEditions].ReleaseDate
-	p.DatasetLandingPage.DatasetLandingPage.NextRelease = d.NextRelease
-	p.DatasetLandingPage.DatasetID = datasetID
+	p.NextRelease = d.NextRelease
+	p.DatasetID = datasetID
 
 	// BREADCRUMBS
 	p.Breadcrumb = CreateBreadcrumbsFromTopicList(topicObjectList)

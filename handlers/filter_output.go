@@ -337,7 +337,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 			PopulationType: populationType,
 			Dimension:      dimension,
 		})
-		return cats.PaginationResponse.TotalCount, err
+		return cats.TotalCount, err
 	}
 
 	var fDims []model.FilterDimension

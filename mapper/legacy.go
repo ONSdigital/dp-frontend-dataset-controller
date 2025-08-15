@@ -101,14 +101,14 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 	sdlp.DatasetLandingPage.Notes = dlp.Section.Markdown
 
 	for _, bc := range bcs {
-		sdlp.Page.Breadcrumb = append(sdlp.Page.Breadcrumb, coreModel.TaxonomyNode{
+		sdlp.Breadcrumb = append(sdlp.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})
 	}
 
-	if len(sdlp.Page.Breadcrumb) > 0 {
-		sdlp.DatasetLandingPage.ParentPath = sdlp.Page.Breadcrumb[len(sdlp.Page.Breadcrumb)-1].Title
+	if len(sdlp.Breadcrumb) > 0 {
+		sdlp.DatasetLandingPage.ParentPath = sdlp.Breadcrumb[len(sdlp.Breadcrumb)-1].Title
 	}
 
 	for i := range ds {

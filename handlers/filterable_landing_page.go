@@ -328,7 +328,7 @@ func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient
 				if err != nil {
 					m[dim.ID] = 1
 				} else {
-					m[dim.ID] = cats.PaginationResponse.TotalCount
+					m[dim.ID] = cats.TotalCount
 				}
 			}(dim)
 		}

@@ -56,9 +56,9 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].Title, ShouldEqual, dlp.RelatedMethodology[0].Title)
 		So(sdlp.DatasetLandingPage.Related.Methodology[0].URI, ShouldEqual, dlp.RelatedMethodology[0].URI)
 
-		So(sdlp.Details.Email, ShouldEqual, dlp.Description.Contact.Email)
-		So(sdlp.Details.Name, ShouldEqual, dlp.Description.Contact.Name)
-		So(sdlp.Details.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
+		So(sdlp.Email, ShouldEqual, dlp.Description.Contact.Email)
+		So(sdlp.Name, ShouldEqual, dlp.Description.Contact.Name)
+		So(sdlp.Telephone, ShouldEqual, dlp.Description.Contact.Telephone)
 
 		So(sdlp.DatasetLandingPage.IsNationalStatistic, ShouldEqual, dlp.Description.NationalStatistic)
 		So(sdlp.DatasetLandingPage.Survey, ShouldEqual, dlp.Description.Survey)
@@ -67,7 +67,7 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.ReleaseDate, ShouldNotBeEmpty)
 		So(sdlp.DatasetLandingPage.NextRelease, ShouldEqual, dlp.Description.NextRelease)
 
-		So(sdlp.Page.Breadcrumb[0].Title, ShouldEqual, bcs[0].Description.Title)
+		So(sdlp.Breadcrumb[0].Title, ShouldEqual, bcs[0].Description.Title)
 
 		So(sdlp.DatasetLandingPage.Datasets, ShouldHaveLength, 1)
 		So(sdlp.DatasetLandingPage.Datasets[0].URI, ShouldEqual, "google.com")
@@ -76,13 +76,13 @@ func TestUnitMapperLegacy(t *testing.T) {
 		So(sdlp.DatasetLandingPage.Datasets[0].Downloads[0].Extension, ShouldEqual, "csv")
 		So(sdlp.DatasetLandingPage.Datasets[0].Downloads[0].Size, ShouldEqual, "452456")
 
-		So(sdlp.Page.ServiceMessage, ShouldEqual, serviceMessage)
+		So(sdlp.ServiceMessage, ShouldEqual, serviceMessage)
 
-		So(sdlp.Page.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
-		So(sdlp.Page.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
-		So(sdlp.Page.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
-		So(sdlp.Page.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
-		So(sdlp.Page.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
+		So(sdlp.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+		So(sdlp.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+		So(sdlp.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+		So(sdlp.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+		So(sdlp.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 	})
 
 	Convey("test legacy / zebedee URI rendering - supplementary", t, func() {

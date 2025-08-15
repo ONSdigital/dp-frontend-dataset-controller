@@ -38,27 +38,27 @@ func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dat
 	dp.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, breadcrumb := range bc {
-		dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, coreModel.TaxonomyNode{
+		dp.Breadcrumb = append(dp.Breadcrumb, coreModel.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   breadcrumb.URI,
 		})
 	}
 
-	dp.Page.Breadcrumb = append(dp.Page.Breadcrumb, coreModel.TaxonomyNode{
+	dp.Breadcrumb = append(dp.Breadcrumb, coreModel.TaxonomyNode{
 		Title: dp.DatasetPage.Edition,
 	})
 
-	if len(dp.Page.Breadcrumb) > 0 {
-		dp.DatasetPage.ParentPath = dp.Page.Breadcrumb[len(dp.Page.Breadcrumb)-1].Title
+	if len(dp.Breadcrumb) > 0 {
+		dp.DatasetPage.ParentPath = dp.Breadcrumb[len(dp.Breadcrumb)-1].Title
 	}
 
 	dp.DatasetPage.IsNationalStatistic = dlp.Description.NationalStatistic
 	dp.DatasetPage.NextRelease = dlp.Description.NextRelease
 	dp.DatasetPage.DatasetID = dlp.Description.DatasetID
 
-	dp.Details.Email = strings.TrimSpace(dlp.Description.Contact.Email)
-	dp.Details.Name = dlp.Description.Contact.Name
-	dp.Details.Telephone = dlp.Description.Contact.Telephone
+	dp.Email = strings.TrimSpace(dlp.Description.Contact.Email)
+	dp.Name = dlp.Description.Contact.Name
+	dp.Telephone = dlp.Description.Contact.Telephone
 
 	if navigationContent != nil {
 		dp.NavigationContent = MapNavigationContent(*navigationContent)
