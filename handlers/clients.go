@@ -53,6 +53,7 @@ type DatasetAPISdkClient interface {
 	GetEdition(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, edition string) (dpDatasetApiModels.Edition, error)
 	GetVersions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionsList, err error)
 	GetVersion(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Version, err error)
+	GetVersionV2(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Version, err error)
 	GetVersionMetadata(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiSdk.VersionDimensionsList, err error)
 	GetVersionDimensionOptions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, dimensionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionDimensionOptionsList, err error)

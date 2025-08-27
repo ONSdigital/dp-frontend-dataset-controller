@@ -114,7 +114,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
-	version, err := dc.GetVersion(ctx, headers, datasetID, editionID, versionID)
+	version, err := dc.GetVersionV2(ctx, headers, datasetID, editionID, versionID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return

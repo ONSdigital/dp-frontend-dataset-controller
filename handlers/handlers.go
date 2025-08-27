@@ -45,6 +45,13 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
+	if err, ok := err.(dpDatasetApiModels.Error); ok {
+		if errCode, err := strconv.Atoi(err.Code); err == nil {
+			if errCode == http.StatusNotFound {
+				status = errCode
+			}
+		}
+	}
 	log.Error(ctx, "client error", err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }
