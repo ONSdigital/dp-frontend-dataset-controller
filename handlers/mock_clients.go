@@ -441,6 +441,21 @@ func (mr *MockDatasetAPISdkClientMockRecorder) GetVersionMetadata(ctx, headers, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersionMetadata), ctx, headers, datasetID, editionID, versionID)
 }
 
+// GetVersionV2 mocks base method.
+func (m *MockDatasetAPISdkClient) GetVersionV2(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID string) (models.Version, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVersionV2", ctx, headers, datasetID, editionID, versionID)
+	ret0, _ := ret[0].(models.Version)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersionV2 indicates an expected call of GetVersionV2.
+func (mr *MockDatasetAPISdkClientMockRecorder) GetVersionV2(ctx, headers, datasetID, editionID, versionID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionV2", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersionV2), ctx, headers, datasetID, editionID, versionID)
+}
+
 // GetVersions mocks base method.
 func (m *MockDatasetAPISdkClient) GetVersions(ctx context.Context, headers sdk.Headers, datasetID, editionID string, q *sdk.QueryParams) (sdk.VersionsList, error) {
 	m.ctrl.T.Helper()

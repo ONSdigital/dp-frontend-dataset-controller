@@ -177,7 +177,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			).Return(
 				mockGetVersionsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersion(
+			mockDatasetClient.EXPECT().GetVersionV2(
 				mockContext, headers, datasetID, editionID, versionID,
 			).Return(
 				mockGetVersionsResponse.Items[0], nil,
@@ -329,7 +329,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				Items: versions.Items[0].Dimensions,
 			}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensionOptions(ctx, headers, "12345", "2021", "1", versions.Items[0].Dimensions[0].Name,
 				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionDimensionOptionsResponse, nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
@@ -413,7 +413,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			// Version requested doesn't have any dimensions
 			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionsResponse, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "2").Return(mockGetVersionsResponse.Items[1], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "2").Return(mockGetVersionsResponse.Items[1], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "2").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -453,7 +453,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			// Version requested doesn't have any dimensions
 			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -498,7 +498,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			// Version requested doesn't have any dimensions
 			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -543,7 +543,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			// Version requested doesn't have any dimensions
 			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -588,7 +588,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			// Version requested doesn't have any dimensions
 			mockGetVersionDimensionsResponse := dpDatasetApiSdk.VersionDimensionsList{}
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
-			mockClient.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
+			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
 			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -697,7 +697,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			).Return(
 				mockGetVersionsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersion(
+			mockDatasetClient.EXPECT().GetVersionV2(
 				mockContext, headers, datasetID, editionID, versionID,
 			).Return(
 				mockGetVersionsResponse.Items[0], nil,
@@ -753,7 +753,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			).Return(
 				mockGetVersionsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersion(
+			mockDatasetClient.EXPECT().GetVersionV2(
 				mockContext, headers, datasetID, editionID, versionID,
 			).Return(
 				mockGetVersionsResponse.Items[0], nil,
@@ -801,7 +801,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			).Return(
 				mockGetVersionsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersion(
+			mockDatasetClient.EXPECT().GetVersionV2(
 				mockContext, headers, datasetID, editionID, versionID,
 			).Return(
 				mockGetVersionsResponse.Items[0], nil,
@@ -850,7 +850,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			).Return(
 				mockGetVersionsResponse, nil,
 			)
-			mockDatasetClient.EXPECT().GetVersion(
+			mockDatasetClient.EXPECT().GetVersionV2(
 				mockContext, headers, datasetID, editionID, versionID,
 			).Return(
 				mockGetVersionsResponse.Items[0], nil,
@@ -903,7 +903,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				).Return(
 					mockGetVersionsResponse, nil,
 				)
-				mockDatasetClient.EXPECT().GetVersion(
+				mockDatasetClient.EXPECT().GetVersionV2(
 					mockContext, headers, datasetID, editionID, versionID,
 				).Return(
 					mockGetVersionsResponse.Items[0], nil,
@@ -954,7 +954,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				).Return(
 					mockGetVersionsResponse, nil,
 				)
-				mockDatasetClient.EXPECT().GetVersion(
+				mockDatasetClient.EXPECT().GetVersionV2(
 					mockContext, headers, datasetID, editionID, versionID,
 				).Return(
 					mockGetVersionsResponse.Items[0], nil,
