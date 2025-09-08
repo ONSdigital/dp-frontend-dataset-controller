@@ -40,16 +40,17 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 	if err == errTooManyOptions {
 		status = http.StatusRequestEntityTooLarge
 	}
-	if err, ok := err.(ClientError); ok {
-		if err.Code() == http.StatusNotFound {
-			status = err.Code()
+	if clientErr, ok := err.(ClientError); ok {
+		if clientErr.Code() == http.StatusNotFound {
+			status = clientErr.Code()
 		}
 	}
-	if err, ok := err.(dpDatasetApiModels.Error); ok {
-		if errCode, err := strconv.Atoi(err.Code); err == nil {
-			if errCode == http.StatusNotFound {
-				status = errCode
-			}
+	if datasetErr, ok := err.(dpDatasetApiModels.Error); ok {
+		errCode, atoiErr := strconv.Atoi(datasetErr.Code)
+		if atoiErr != nil {
+			log.Error(ctx, "failed to convert error code to int", atoiErr, log.Data{"code": datasetErr.Code})
+		} else if errCode == http.StatusNotFound {
+			status = errCode
 		}
 	}
 	log.Error(ctx, "client error", err, log.Data{"setting-response-status": status})
