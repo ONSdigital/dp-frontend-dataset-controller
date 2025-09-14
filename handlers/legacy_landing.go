@@ -105,11 +105,6 @@ func (lp legacyLandingPage) Build(w http.ResponseWriter, req *http.Request) {
 	}
 
 	generatedETag := response.GenerateETag(b, true)
-	requestedETag := req.Header.Get("If-None-Match")
-	if requestedETag == generatedETag {
-		w.WriteHeader(http.StatusNotModified)
-		return
-	}
 	response.SetETag(w, generatedETag)
 
 	lp.RenderClient.BuildPage(w, m, "static-legacy")
