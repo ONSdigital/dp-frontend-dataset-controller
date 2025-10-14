@@ -9,8 +9,8 @@ LOCAL_DP_RENDERER_IN_USE = $(shell grep -c "\"github.com/ONSdigital/dp-renderer/
 all: audit test build
 
 .PHONY: audit
-audit:
-	set -o pipefail; go list -m all | nancy sleuth
+audit: generate-prod
+	dis-vulncheck --build-tags=production
 
 .PHONY: build
 build: generate-prod
