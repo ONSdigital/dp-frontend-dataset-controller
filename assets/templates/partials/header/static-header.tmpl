@@ -3,9 +3,6 @@
   {{ if or (eq .DatasetLandingPage.State "associated") (eq .DatasetLandingPage.State "approved") }}
     <div>
       <div class="ons-container ons-u-mt-s ons-u-mb-s">
-        <!-- <p>{{ .DatasetLandingPage.State }}</p>
-        <p>{{ .DatasetLandingPage.IsPublishing }}</p> 
-        <p>{{ .URI }}</p>  -->
         {{ if eq .DatasetLandingPage.State "associated"}}
           <form action="{{ .URI }}/approve" method="get">
             <div class="ons-u-dib ons-u-mt-xxs ons-u-mr-l">
