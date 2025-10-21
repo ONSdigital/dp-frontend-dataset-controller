@@ -34,6 +34,7 @@ type DatasetLandingPage struct {
 	HasOtherVersions    bool                             `json:"has_other_versions"`
 	HasSDC              bool                             `json:"has_sdc"`
 	ImproveResults      model.Collapsible                `json:"improve_results"`
+	IsPublishing        bool                             `json:"is_publishing"`
 	IsCustom            bool                             `json:"is_custom"`
 	IsFlexibleForm      bool                             `json:"is_flexible_form"`
 	IsMultivariate      bool                             `json:"is_multivariate"`
@@ -46,6 +47,7 @@ type DatasetLandingPage struct {
 	SDC                 []Panel                          `json:"sdc"`
 	ShareDetails        sharedModel.ShareDetails         `json:"share_details"`
 	ShowXLSXInfo        bool                             `json:"show_xlsx_info"`
+	State               string                           `json:"state"`
 	Version             sharedModel.Version              `json:"version"`
 }
 
