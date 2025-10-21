@@ -181,7 +181,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			topicObjectList = []dpTopicApiModels.Topic{}
 		}
 
-		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList)
+		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList, cfg.IsPublishing)
 		templateName = DatasetTypeStatic
 	} else {
 		// Update dimensions based on dataset type
