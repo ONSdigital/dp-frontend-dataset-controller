@@ -33,11 +33,14 @@ func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetA
 		UserAccessToken:      userAccessToken,
 	}
 
+	logData := log.Data{"datasetID": datasetID, "editionID": editionID, "versionID": versionID}
+
 	err := dc.PutVersionState(ctx, headers, datasetID, editionID, versionID, "approved")
 	if err != nil {
-		log.Error(ctx, "dataset version approval failed", err)
+		log.Error(ctx, "dataset version approval failed", err, logData)
 	}
 
+	log.Info(ctx, "dataset version approval successful", logData)
 	uri := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID)
 	http.Redirect(w, req, uri, http.StatusTemporaryRedirect)
 }
