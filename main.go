@@ -186,12 +186,15 @@ func run(ctx context.Context) error {
 	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(datasetAPISdkClient, zc, rend, *cfg))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, apiClientsGoDatasetClient))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve").Methods("GET").HandlerFunc(handlers.ApproveDatasetVersion(datasetAPISdkClient, *cfg))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, apiClientsGoDatasetClient))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, datasetAPISdkClient, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexIDFromOutput(f))
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(datasetAPISdkClient, *cfg))
+
+	if cfg.IsPublishing {
+		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve").Methods("GET").HandlerFunc(handlers.ApproveDatasetVersion(datasetAPISdkClient, *cfg))
+	}
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
 	router.HandleFunc("/{uri:.*}", handlers.LegacyLanding(zc, apiClientsGoDatasetClient, fc, rend, cacheList, *cfg))
