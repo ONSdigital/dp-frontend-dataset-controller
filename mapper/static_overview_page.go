@@ -13,12 +13,12 @@ import (
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
 func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dpDatasetApiModels.Dataset,
-	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic, IsPublishing bool,
+	version dpDatasetApiModels.Version, allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic, isPublishing bool,
 ) static.Page {
 	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate, topicObjectList)
 
 	// SET STATE FOR APPROVAL BUTTON USE
-	p.DatasetLandingPage.IsPublishing = IsPublishing
+	p.DatasetLandingPage.IsPublishing = isPublishing
 	p.DatasetLandingPage.State = version.State
 
 	// DOWNLOADS
