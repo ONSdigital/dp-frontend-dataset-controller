@@ -57,6 +57,7 @@ type DatasetAPISdkClient interface {
 	GetVersionMetadata(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Metadata, err error)
 	GetVersionDimensions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiSdk.VersionDimensionsList, err error)
 	GetVersionDimensionOptions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, dimensionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionDimensionOptionsList, err error)
+	PutVersionState(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, state string) (err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
