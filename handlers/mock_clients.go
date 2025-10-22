@@ -471,6 +471,20 @@ func (mr *MockDatasetAPISdkClientMockRecorder) GetVersions(ctx, headers, dataset
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersions", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetVersions), ctx, headers, datasetID, editionID, q)
 }
 
+// PutVersionState mocks base method.
+func (m *MockDatasetAPISdkClient) PutVersionState(ctx context.Context, headers sdk.Headers, datasetID, editionID, versionID, state string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutVersionState", ctx, headers, datasetID, editionID, versionID, state)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PutVersionState indicates an expected call of PutVersionState.
+func (mr *MockDatasetAPISdkClientMockRecorder) PutVersionState(ctx, headers, datasetID, editionID, versionID, state interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutVersionState", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).PutVersionState), ctx, headers, datasetID, editionID, versionID, state)
+}
+
 // MockRenderClient is a mock of RenderClient interface.
 type MockRenderClient struct {
 	ctrl     *gomock.Controller
