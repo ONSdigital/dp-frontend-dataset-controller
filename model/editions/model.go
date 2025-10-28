@@ -12,6 +12,7 @@ type Page struct {
 	filterable.DatasetLandingPage
 	ContactDetails contact.Details `json:"contact_details"`
 	Editions       []List          `json:"editions"`
+	ShowApprove    bool            `json:"show_approve"`
 }
 
 // List contains data for a single edition

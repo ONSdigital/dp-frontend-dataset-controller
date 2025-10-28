@@ -1,5 +1,5 @@
 <!-- temporary dataset approval block -->
-{{ if not .DatasetLandingPage}}
+{{ if .ShowApprove }}
   {{ if .DatasetLandingPage.IsPublishing}}
     {{ if or (eq .DatasetLandingPage.State "associated") (eq .DatasetLandingPage.State "approved") }}
       <div>

@@ -22,6 +22,7 @@ type Page struct {
 	ShowCensusBranding  bool                  `json:"show_census_branding"`
 	Publisher           publisher.Publisher   `json:"publisher,omitempty"`
 	UsageNotes          []UsageNote           `json:"usage_notes"`
+	ShowApprove         bool                  `json:"show_approve"`
 }
 
 // StaticOverviewPage contains properties related to the static dataset
