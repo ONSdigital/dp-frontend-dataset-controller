@@ -18,9 +18,10 @@ func CreateStaticOverviewPage(basePage coreModel.Page, datasetDetails dpDatasetA
 	p := CreateStaticBasePage(basePage, datasetDetails, version, allVersions, isEnableMultivariate, topicObjectList)
 
 	// SET STATE FOR APPROVAL BUTTON USE
-	p.DatasetLandingPage.IsPublishing = isPublishing
 	p.DatasetLandingPage.State = version.State
-	p.ShowApprove = true
+	if isPublishing {
+		p.ShowApprove = true
+	}
 
 	// DOWNLOADS
 	if version.Distributions != nil {

@@ -1,27 +1,25 @@
 <!-- temporary dataset approval block -->
 {{ if .ShowApprove }}
-  {{ if .DatasetLandingPage.IsPublishing}}
-    {{ if or (eq .DatasetLandingPage.State "associated") (eq .DatasetLandingPage.State "approved") }}
-      <div>
-        <div class="ons-container ons-u-mt-s ons-u-mb-s">
-          {{ if eq .DatasetLandingPage.State "associated"}}
-            <form action="{{ .URI }}/approve" method="get">
-              <div class="ons-u-dib ons-u-mt-xxs ons-u-mr-l">
-                <span class="ons-status ons-status--pending">Awaiting approval</span>
-              </div>
-              <button type="submit" class="ons-btn ons-btn--secondary ons-btn--small">
-                <span class="ons-btn__inner">
-                  <span class="ons-btn__text">Approve</span>
-                </span>
-              </button>
-            </form>
-          {{ end }}
-          {{ if eq .DatasetLandingPage.State "approved"}}
-            <span class="ons-status ons-status--success">Approved</span>
-          {{ end }}
-        </div>
+  {{ if or (eq .DatasetLandingPage.State "associated") (eq .DatasetLandingPage.State "approved") }}
+    <div>
+      <div class="ons-container ons-u-mt-s ons-u-mb-s">
+        {{ if eq .DatasetLandingPage.State "associated"}}
+          <form action="{{ .URI }}/approve" method="get">
+            <div class="ons-u-dib ons-u-mt-xxs ons-u-mr-l">
+              <span class="ons-status ons-status--pending">Awaiting approval</span>
+            </div>
+            <button type="submit" class="ons-btn ons-btn--secondary ons-btn--small">
+              <span class="ons-btn__inner">
+                <span class="ons-btn__text">Approve</span>
+              </span>
+            </button>
+          </form>
+        {{ end }}
+        {{ if eq .DatasetLandingPage.State "approved"}}
+          <span class="ons-status ons-status--success">Approved</span>
+        {{ end }}
       </div>
-    {{ end }}
+    </div>
   {{ end }}
 {{ end }}
 <div class="ons-phase-banner">
