@@ -8,11 +8,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
 	dpTopicApiErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
@@ -208,7 +208,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			)
 
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
-				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -333,7 +333,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersionDimensionOptions(ctx, headers, "12345", "2021", "1", versions.Items[0].Dimensions[0].Name,
 				&dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionDimensionOptionsResponse, nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
 				PaginationResponse: population.PaginationResponse{
@@ -415,7 +415,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(mockGetVersionsResponse, nil)
 			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "2").Return(mockGetVersionsResponse.Items[1], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "2").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
@@ -455,7 +455,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
@@ -500,7 +500,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
 				PaginationResponse: population.PaginationResponse{
@@ -545,7 +545,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
 				PaginationResponse: population.PaginationResponse{
@@ -590,7 +590,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 			mockClient.EXPECT().GetVersionV2(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
 			mockClient.EXPECT().GetVersionDimensions(ctx, headers, "12345", "2021", "1").Return(mockGetVersionDimensionsResponse, nil)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 			mockPc.EXPECT().GetCategorisations(ctx, gomock.Any()).Return(population.GetCategorisationsResponse{
 				PaginationResponse: population.PaginationResponse{
@@ -710,7 +710,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
-				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -765,7 +765,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
-				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -814,7 +814,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
-				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -866,7 +866,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			)
 			mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 			mockRenderClient.EXPECT().NewBasePageModel().Return(
-				coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+				core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 			)
 			// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 			mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -916,7 +916,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				)
 				mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 				mockRenderClient.EXPECT().NewBasePageModel().Return(
-					coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+					core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 				)
 				// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 				mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)
@@ -970,7 +970,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				)
 				mockZebedeeClient.EXPECT().GetHomepageContent(mockContext, userAuthToken, collectionID, locale, "/")
 				mockRenderClient.EXPECT().NewBasePageModel().Return(
-					coreModel.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
+					core.NewPage(mockConfig.PatternLibraryAssetsPath, mockConfig.SiteDomain),
 				)
 				// `BuildPage` should be called with the `dataset.DatasetDetails.Type` defining the template to be used
 				mockRenderClient.EXPECT().BuildPage(gomock.Any(), gomock.Any(), datasetType)

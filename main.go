@@ -17,6 +17,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
+	render "github.com/ONSdigital/dis-design-system-go"
+	"github.com/ONSdigital/dis-design-system-go/middleware/renderror"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/v2/health"
@@ -27,8 +29,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
-	render "github.com/ONSdigital/dp-renderer/v2"
-	"github.com/ONSdigital/dp-renderer/v2/middleware/renderror"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"

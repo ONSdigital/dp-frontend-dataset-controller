@@ -11,9 +11,9 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
 	dpTopicApiErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
@@ -63,7 +63,7 @@ type DatasetAPISdkClient interface {
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
 	BuildPage(w io.Writer, pageModel interface{}, templateName string)
-	NewBasePageModel() coreModel.Page
+	NewBasePageModel() core.Page
 }
 
 // FilesAPIClient is an interface with methods required for getting metadata from Files API

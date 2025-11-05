@@ -8,12 +8,12 @@ import (
 	"regexp"
 	"strings"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Constants...
@@ -40,20 +40,20 @@ func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
 	return ordered
 }
 
-func areaTypeItem() coreModel.CollapsibleItem {
-	return coreModel.CollapsibleItem{
+func areaTypeItem() core.CollapsibleItem {
+	return core.CollapsibleItem{
 		Subheading: AreaType,
-		SafeHTML: coreModel.Localisation{
+		SafeHTML: core.Localisation{
 			LocaleKey: "VariableInfoAreaType",
 			Plural:    1,
 		},
 	}
 }
 
-func coverageItem() coreModel.CollapsibleItem {
-	return coreModel.CollapsibleItem{
+func coverageItem() core.CollapsibleItem {
+	return core.CollapsibleItem{
 		Subheading: Coverage,
-		SafeHTML: coreModel.Localisation{
+		SafeHTML: core.Localisation{
 			LocaleKey: "VariableInfoCoverage",
 			Plural:    1,
 		},
@@ -61,9 +61,9 @@ func coverageItem() coreModel.CollapsibleItem {
 }
 
 // mapOutputCollapsible maps the collapsible on the output page
-func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []coreModel.CollapsibleItem {
-	var collapsibleContentItems []coreModel.CollapsibleItem
-	var areaItem coreModel.CollapsibleItem
+func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims []sharedModel.Dimension) []core.CollapsibleItem {
+	var collapsibleContentItems []core.CollapsibleItem
+	var areaItem core.CollapsibleItem
 
 	for i := range dims {
 		for _, dimDescription := range dimDescriptions.Dimensions {
@@ -71,7 +71,7 @@ func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims
 				areaItem.Subheading = cleanDimensionLabel(dimDescription.Label)
 				areaItem.Content = strings.Split(dimDescription.Description, "\n")
 			} else if dims[i].ID == dimDescription.ID && !dims[i].IsAreaType {
-				collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+				collapsibleContentItems = append(collapsibleContentItems, core.CollapsibleItem{
 					Subheading: cleanDimensionLabel(dimDescription.Label),
 					Content:    strings.Split(dimDescription.Description, "\n"),
 				})
@@ -83,15 +83,15 @@ func mapOutputCollapsible(dimDescriptions population.GetDimensionsResponse, dims
 }
 
 // mapLandingCollapsible maps the collapsible on the landing page
-func mapLandingCollapsible(dimensions []dpDatasetApiModels.Dimension) []coreModel.CollapsibleItem {
-	var collapsibleContentItems []coreModel.CollapsibleItem
-	var areaItem coreModel.CollapsibleItem
+func mapLandingCollapsible(dimensions []dpDatasetApiModels.Dimension) []core.CollapsibleItem {
+	var collapsibleContentItems []core.CollapsibleItem
+	var areaItem core.CollapsibleItem
 	for i := range dimensions {
 		if helpers.IsBoolPtr(dimensions[i].IsAreaType) && dimensions[i].Description != "" {
 			areaItem.Subheading = cleanDimensionLabel(dimensions[i].Label)
 			areaItem.Content = strings.Split(dimensions[i].Description, "\n")
 		} else if dimensions[i].Description != "" {
-			collapsibleContentItems = append(collapsibleContentItems, coreModel.CollapsibleItem{
+			collapsibleContentItems = append(collapsibleContentItems, core.CollapsibleItem{
 				Subheading: cleanDimensionLabel(dimensions[i].Label),
 				Content:    strings.Split(dimensions[i].Description, "\n"),
 			})
@@ -102,8 +102,8 @@ func mapLandingCollapsible(dimensions []dpDatasetApiModels.Dimension) []coreMode
 }
 
 // concatenateCollapsibleItems returns the collapsible in the order: area type, area type description, coverage then other dimensions
-func concatenateCollapsibleItems(collapsibleContentItems []coreModel.CollapsibleItem, areaItem coreModel.CollapsibleItem) []coreModel.CollapsibleItem {
-	collapsibleContentItems = append([]coreModel.CollapsibleItem{
+func concatenateCollapsibleItems(collapsibleContentItems []core.CollapsibleItem, areaItem core.CollapsibleItem) []core.CollapsibleItem {
+	collapsibleContentItems = append([]core.CollapsibleItem{
 		areaTypeItem(),
 		areaItem,
 		coverageItem(),

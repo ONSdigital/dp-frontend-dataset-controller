@@ -26,8 +26,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 
+	dpRendererModel "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/version"
-	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -370,7 +370,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 		}
 	}
 
-	// Prepares table of components object for use in dp-renderer
+	// Prepares table of components object for use in dis-design-system-go
 	p.TableOfContents = buildEditionsListTableOfContents(d)
 
 	return p
@@ -411,7 +411,7 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 		}
 	}
 
-	// Prepares table of components object for use in dp-renderer
+	// Prepares table of components object for use in dis-design-system-go
 	p.TableOfContents = buildEditionsListTableOfContents(d)
 
 	return p

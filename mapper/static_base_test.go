@@ -3,14 +3,14 @@ package mapper
 import (
 	"testing"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateStaticBasePage(t *testing.T) {
-	basePage := coreModel.Page{}
+	basePage := core.Page{}
 	dataset := dpDatasetApiModels.Dataset{}
 	allVersions := []dpDatasetApiModels.Version{}
 	isEnableMultivariate := true

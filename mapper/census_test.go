@@ -7,6 +7,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -15,8 +17,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -34,7 +34,7 @@ func TestCleanDimensionsLabel(t *testing.T) {
 	Convey("Given simple page data", t, func() {
 		helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 		req := httptest.NewRequest("", "/", http.NoBody)
-		pageModel := coreModel.Page{}
+		pageModel := core.Page{}
 		contact := getTestContacts()
 		relatedContent := getTestRelatedContent()
 		datasetModel := getTestDatasetDetails(contact, relatedContent)

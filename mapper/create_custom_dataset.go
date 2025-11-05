@@ -3,15 +3,15 @@ package mapper
 import (
 	"net/http"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/custom"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // CreateCustomDatasetPage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populationTypes []population.PopulationType, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) custom.Page {
+func CreateCustomDatasetPage(req *http.Request, basePage core.Page, populationTypes []population.PopulationType, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner) custom.Page {
 	p := custom.Page{
 		Page: basePage,
 	}
@@ -34,7 +34,7 @@ func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populat
 	p.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	// BREADCRUMBS
-	p.Breadcrumb = []coreModel.TaxonomyNode{
+	p.Breadcrumb = []core.TaxonomyNode{
 		{
 			Title: "Home",
 			URI:   "/",
@@ -51,11 +51,11 @@ func CreateCustomDatasetPage(req *http.Request, basePage coreModel.Page, populat
 	// ERROR HANDLING
 	errorVal := req.URL.Query().Get("error")
 	if errorVal == "true" {
-		p.Error = coreModel.Error{
+		p.Error = core.Error{
 			Title: helper.Localise("CreateCustomDatasetErrorText", lang, 1),
-			ErrorItems: []coreModel.ErrorItem{
+			ErrorItems: []core.ErrorItem{
 				{
-					Description: coreModel.Localisation{
+					Description: core.Localisation{
 						LocaleKey: "CreateCustomDatasetErrorText",
 						Plural:    1,
 					},

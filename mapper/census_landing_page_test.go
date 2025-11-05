@@ -4,20 +4,20 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCreateCensusLandingPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -73,7 +73,7 @@ func TestCreateCensusLandingPage(t *testing.T) {
 
 func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -146,7 +146,7 @@ func TestCreateCensusLandingPageChangeButtonLogic(t *testing.T) {
 
 func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -195,7 +195,7 @@ func TestCreateCensusLandingPageQualityNotices(t *testing.T) {
 
 func TestCreateCensusLandingPageDownloads(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -267,7 +267,7 @@ func TestCreateCensusLandingPageDownloads(t *testing.T) {
 func TestCreateCensusLandingPagePagination(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	// Setting `URI` here as this done by `UpdateBasePage` mapper when called in the handler
-	pageModel := coreModel.Page{
+	pageModel := core.Page{
 		URI: "/",
 	}
 	contacts := getTestContacts()

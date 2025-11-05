@@ -1,7 +1,7 @@
 package custom
 
 import (
-	"github.com/ONSdigital/dp-renderer/v2/model"
+	"github.com/ONSdigital/dis-design-system-go/model"
 )
 
 // Page contains data for the census landing page

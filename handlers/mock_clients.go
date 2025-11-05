@@ -9,6 +9,7 @@ import (
 	io "io"
 	reflect "reflect"
 
+	model "github.com/ONSdigital/dis-design-system-go/model"
 	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	files "github.com/ONSdigital/dp-api-clients-go/v2/files"
@@ -16,7 +17,6 @@ import (
 	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
 	models "github.com/ONSdigital/dp-dataset-api/models"
 	sdk "github.com/ONSdigital/dp-dataset-api/sdk"
-	model "github.com/ONSdigital/dp-renderer/v2/model"
 	models0 "github.com/ONSdigital/dp-topic-api/models"
 	sdk0 "github.com/ONSdigital/dp-topic-api/sdk"
 	errors "github.com/ONSdigital/dp-topic-api/sdk/errors"

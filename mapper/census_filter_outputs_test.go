@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -15,8 +17,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -24,7 +24,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
 	// Setting `Type` here as this done by `UpdateBasePage` mapper when called in the handler
-	pageModel := coreModel.Page{
+	pageModel := core.Page{
 		Type: "cantabular_flexible_table",
 	}
 	contacts := getTestContacts()
@@ -132,7 +132,7 @@ func TestCreateCensusFilterOutputsPage(t *testing.T) {
 func TestSDCOnFilterOutputsPage(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -185,8 +185,8 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
 	// Setting `Metadata.Title` here as this done by `UpdateBasePage` mapper when called in the handler
-	pageModel := coreModel.Page{
-		Metadata: coreModel.Metadata{
+	pageModel := core.Page{
+		Metadata: core.Metadata{
 			Title: "Test title",
 		},
 	}
@@ -241,7 +241,7 @@ func TestCustomHeadingOnFilterOutputs(t *testing.T) {
 func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -292,7 +292,7 @@ func TestMetadataOverridesOnCustomFilterOutputs(t *testing.T) {
 func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -364,7 +364,7 @@ func TestCreateCensusFilterOutputsDownloads(t *testing.T) {
 func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -443,7 +443,7 @@ func TestCreateCensusFilterOutputsPagination(t *testing.T) {
 func TestCreateCensusFilterOutputsQualityNotices(t *testing.T) {
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	req := httptest.NewRequest("", "/", http.NoBody)
-	pageModel := coreModel.Page{}
+	pageModel := core.Page{}
 	contacts := getTestContacts()
 	relatedContent := getTestRelatedContent()
 	datasetModel := getTestDatasetDetails(contacts, relatedContent)
@@ -736,16 +736,16 @@ func TestMapImproveResultsCollapsible(t *testing.T) {
 			IsCoverage: false,
 		},
 	}
-	mockCollapsible := coreModel.Collapsible{
-		Title: coreModel.Localisation{
+	mockCollapsible := core.Collapsible{
+		Title: core.Localisation{
 			LocaleKey: "ImproveResultsTitle",
 			Plural:    4,
 		},
-		CollapsibleItems: []coreModel.CollapsibleItem{
+		CollapsibleItems: []core.CollapsibleItem{
 			{
 				Subheading: "Try the following",
 				Content:    []string(nil),
-				SafeHTML: coreModel.Localisation{
+				SafeHTML: core.Localisation{
 					Text: "A list of suggestions",
 				},
 			},

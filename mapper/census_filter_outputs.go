@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -17,8 +19,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 // CreateCensusFilterOutputsPage creates a filter output page based on api model responses
-func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version, hasOtherVersions bool, allVersions []dpDatasetApiModels.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pop population.GetPopulationTypeResponse) census.Page {
+func CreateCensusFilterOutputsPage(req *http.Request, basePage core.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version, hasOtherVersions bool, allVersions []dpDatasetApiModels.Version, latestVersionNumber int, latestVersionURL, lang string, queryStrValues []string, isValidationError, hasNoAreaOptions bool, filterOutput filter.Model, fDims []sharedModel.FilterDimension, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, isEnableMultivariate bool, dimDesc population.GetDimensionsResponse, sdc cantabular.GetBlockedAreaCountResult, pop population.GetPopulationTypeResponse) census.Page {
 	p := CreateCensusBasePage(basePage, d, version, allVersions, isEnableMultivariate)
 
 	p.Type += FilterOutput
@@ -100,8 +100,8 @@ func CreateCensusFilterOutputsPage(req *http.Request, basePage coreModel.Page, d
 	}
 
 	// COLLAPSIBLE CONTENT
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
+	p.Collapsible = core.Collapsible{
+		Title: core.Localisation{
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},
@@ -246,19 +246,19 @@ func mapBlockedAreasPanel(sdc *cantabular.GetBlockedAreaCountResult, panelType c
 	return p
 }
 
-func mapImproveResultsCollapsible(dims []sharedModel.Dimension, lang string) coreModel.Collapsible {
+func mapImproveResultsCollapsible(dims []sharedModel.Dimension, lang string) core.Collapsible {
 	dimsList := getNonGeographyDims(dims)
 	stringList := buildConjoinedList(dimsList, false)
 
-	return coreModel.Collapsible{
-		Title: coreModel.Localisation{
+	return core.Collapsible{
+		Title: core.Localisation{
 			LocaleKey: "ImproveResultsTitle",
 			Plural:    4,
 		},
-		CollapsibleItems: []coreModel.CollapsibleItem{
+		CollapsibleItems: []core.CollapsibleItem{
 			{
 				Subheading: helper.Localise("ImproveResultsSubHeading", lang, 1),
-				SafeHTML: coreModel.Localisation{
+				SafeHTML: core.Localisation{
 					Text: helper.Localise("ImproveResultsList", lang, 1, stringList),
 				},
 			},

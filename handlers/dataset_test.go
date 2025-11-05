@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"testing"
 
+	render "github.com/ONSdigital/dis-design-system-go"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
@@ -17,8 +19,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
-	render "github.com/ONSdigital/dp-renderer/v2"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
@@ -67,7 +67,7 @@ func TestDatasetHandlers(t *testing.T) {
 				Downloads: []zebedee.Download{{URI: expectedDownloadFilename}},
 			}
 
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
 			mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
@@ -151,7 +151,7 @@ func TestDatasetHandlers(t *testing.T) {
 			}
 
 			Convey("And all page data is successfully retrieved", func() {
-				mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 
 				mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, homepagePath).Return(hp, nil)
 				mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, userAuthTokenDatasets, collectionIDDatasets, localeDatasets, datasetLandingPageURI).Return(dlp, nil)
@@ -407,7 +407,7 @@ func mockZebedeePageModel(extension, uri, downloadFilename, versionFilename, dow
 	}
 
 	return mapper.DatasetPage{
-		Page: coreModel.Page{
+		Page: core.Page{
 			SiteDomain: "https://foo.bar.com",
 			Language:   "en",
 		},

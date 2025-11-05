@@ -5,18 +5,18 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/publisher"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
-func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
+func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic,
 ) static.Page {
 	var editionStr string
@@ -89,7 +89,7 @@ func CreateStaticBasePage(basePage coreModel.Page, d dpDatasetApiModels.Dataset,
 
 	editionsListURL := "/datasets/" + d.ID + "/editions"
 
-	breadcrumbsObject = append(breadcrumbsObject, coreModel.TaxonomyNode{
+	breadcrumbsObject = append(breadcrumbsObject, core.TaxonomyNode{
 		Title: d.Title,
 		URI:   editionsListURL,
 	})
@@ -198,23 +198,23 @@ func buildStaticSharingDetails(d dpDatasetApiModels.Dataset, lang, currentURL st
 	return shareDetails
 }
 
-func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) coreModel.TableOfContents {
-	sections := make(map[string]coreModel.ContentSection)
+func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, hasOtherVersions bool) core.TableOfContents {
+	sections := make(map[string]core.ContentSection)
 	displayOrder := make([]string, 0)
 
-	tableOfContents := coreModel.TableOfContents{
-		AriaLabel: coreModel.Localisation{
+	tableOfContents := core.TableOfContents{
+		AriaLabel: core.Localisation{
 			LocaleKey: "ContentsAria",
 			Plural:    1,
 		},
-		Title: coreModel.Localisation{
+		Title: core.Localisation{
 			LocaleKey: "StaticTocHeading",
 			Plural:    1,
 		},
 	}
 
-	sections["get-data"] = coreModel.ContentSection{
-		Title: coreModel.Localisation{
+	sections["get-data"] = core.ContentSection{
+		Title: core.Localisation{
 			LocaleKey: "GetData",
 			Plural:    1,
 		},
@@ -222,8 +222,8 @@ func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, has
 	displayOrder = append(displayOrder, "get-data")
 
 	if len(p.UsageNotes) > 0 {
-		sections["usage-notes"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["usage-notes"] = core.ContentSection{
+			Title: core.Localisation{
 				LocaleKey: "UsageNotes",
 				Plural:    1,
 			},
@@ -232,8 +232,8 @@ func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, has
 	}
 
 	if d.RelatedContent != nil {
-		sections["related-content"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["related-content"] = core.ContentSection{
+			Title: core.Localisation{
 				LocaleKey: "RelatedContentTitle",
 				Plural:    1,
 			},
@@ -242,8 +242,8 @@ func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, has
 	}
 
 	if hasOtherVersions {
-		sections["version-history"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["version-history"] = core.ContentSection{
+			Title: core.Localisation{
 				LocaleKey: "VersionHistory",
 				Plural:    1,
 			},
@@ -252,8 +252,8 @@ func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, has
 	}
 
 	if p.HasContactDetails {
-		sections["contact"] = coreModel.ContentSection{
-			Title: coreModel.Localisation{
+		sections["contact"] = core.ContentSection{
+			Title: core.Localisation{
 				LocaleKey: "DatasetContactDetailsStatic",
 				Plural:    1,
 			},

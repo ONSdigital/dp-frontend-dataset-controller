@@ -5,16 +5,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // DatasetPage is a DatasetPage representation
 type DatasetPage dataset.Page
 
-func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) DatasetPage {
+func CreateDatasetPage(basePage core.Page, req *http.Request, d zebedee.Dataset, dlp zebedee.DatasetLandingPage, bc []zebedee.Breadcrumb, versions []zebedee.Dataset, lang, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) DatasetPage {
 	dp := DatasetPage{
 		Page: basePage,
 	}
@@ -38,13 +38,13 @@ func CreateDatasetPage(basePage coreModel.Page, req *http.Request, d zebedee.Dat
 	dp.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 
 	for _, breadcrumb := range bc {
-		dp.Breadcrumb = append(dp.Breadcrumb, coreModel.TaxonomyNode{
+		dp.Breadcrumb = append(dp.Breadcrumb, core.TaxonomyNode{
 			Title: breadcrumb.Description.Title,
 			URI:   breadcrumb.URI,
 		})
 	}
 
-	dp.Breadcrumb = append(dp.Breadcrumb, coreModel.TaxonomyNode{
+	dp.Breadcrumb = append(dp.Breadcrumb, core.TaxonomyNode{
 		Title: dp.DatasetPage.Edition,
 	})
 
@@ -131,20 +131,20 @@ func determineSupplementaryFileURL(supplementaryFile zebedee.SupplementaryFile, 
 }
 
 // mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
-func MapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
-	var mappedNavigationContent []coreModel.NavigationItem
+func MapNavigationContent(navigationContent topicModel.Navigation) []core.NavigationItem {
+	var mappedNavigationContent []core.NavigationItem
 	if navigationContent.Items != nil {
 		for _, rootContent := range *navigationContent.Items {
-			var subItems []coreModel.NavigationItem
+			var subItems []core.NavigationItem
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
-					subItems = append(subItems, coreModel.NavigationItem{
+					subItems = append(subItems, core.NavigationItem{
 						Uri:   subtopicContent.URI,
 						Label: subtopicContent.Label,
 					})
 				}
 			}
-			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
+			mappedNavigationContent = append(mappedNavigationContent, core.NavigationItem{
 				Uri:      rootContent.URI,
 				Label:    rootContent.Label,
 				SubItems: subItems,

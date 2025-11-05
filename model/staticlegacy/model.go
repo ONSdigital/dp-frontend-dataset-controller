@@ -1,10 +1,10 @@
 package staticlegacy
 
 import (
+	"github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
-	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Page contains data re-used for each page type a Data struct for data specific to the page type

@@ -6,18 +6,18 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // CreateCensusLandingPage creates a census-landing page based on api model responses
-func CreateCensusLandingPage(basePage coreModel.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
+func CreateCensusLandingPage(basePage core.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
 	opts []dpDatasetApiSdk.VersionDimensionOptionsList, categorisationsMap map[string]int, allVersions []dpDatasetApiModels.Version, queryStrValues []string,
 	isEnableMultivariate bool, pop population.GetPopulationTypeResponse,
 ) census.Page {
@@ -57,8 +57,8 @@ func CreateCensusLandingPage(basePage coreModel.Page, d dpDatasetApiModels.Datas
 	}
 
 	// COLLAPSIBLE
-	p.Collapsible = coreModel.Collapsible{
-		Title: coreModel.Localisation{
+	p.Collapsible = core.Collapsible{
+		Title: core.Localisation{
 			LocaleKey: "VariablesExplanation",
 			Plural:    4,
 		},

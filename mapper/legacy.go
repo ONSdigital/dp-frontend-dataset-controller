@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/related"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/staticlegacy"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -26,7 +26,7 @@ type StaticDatasetLandingPage staticlegacy.Page
 // CreateLegacyDatasetLanding maps a zebedee response struct into a frontend model to be used for rendering
 //
 //nolint:gocyclo //complexity 21
-func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
+func CreateLegacyDatasetLanding(ctx context.Context, basePage core.Page, req *http.Request, dlp zebedee.DatasetLandingPage, bcs []zebedee.Breadcrumb, ds []zebedee.Dataset, localeCode, serviceMessage string, emergencyBannerContent zebedee.EmergencyBanner, navigationContent *topicModel.Navigation) StaticDatasetLandingPage {
 	sdlp := StaticDatasetLandingPage{
 		Page: basePage,
 	}
@@ -101,7 +101,7 @@ func CreateLegacyDatasetLanding(ctx context.Context, basePage coreModel.Page, re
 	sdlp.DatasetLandingPage.Notes = dlp.Section.Markdown
 
 	for _, bc := range bcs {
-		sdlp.Breadcrumb = append(sdlp.Breadcrumb, coreModel.TaxonomyNode{
+		sdlp.Breadcrumb = append(sdlp.Breadcrumb, core.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})

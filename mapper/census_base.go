@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	dpRendererModel "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/census"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	dpRendererModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // Constants...

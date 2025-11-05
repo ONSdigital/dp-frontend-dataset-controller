@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
@@ -13,7 +14,6 @@ import (
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
@@ -180,7 +180,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockRend.
 				EXPECT().
 				NewBasePageModel().
-				Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.
 				EXPECT().
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -251,7 +251,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockRend := NewMockRenderClient(mockCtrl)
 			mockRend.
 				EXPECT().NewBasePageModel().
-				Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.
 				EXPECT().
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -319,7 +319,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				Return(population.GetPopulationTypeResponse{}, nil)
 
 			mockRend := NewMockRenderClient(mockCtrl)
-			mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 			w := httptest.NewRecorder()
@@ -388,7 +388,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockRend.
 				EXPECT().
 				NewBasePageModel().
-				Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.
 				EXPECT().
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -458,7 +458,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockRend.
 				EXPECT().
 				NewBasePageModel().
-				Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.
 				EXPECT().
 				BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -488,7 +488,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockFc.EXPECT().GetOutput(ctx, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(filterModels[0], nil)
 
 				mockRend := NewMockRenderClient(mockCtrl)
-				mockRend.EXPECT().NewBasePageModel().Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+				mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 				mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "census-landing")
 
 				mockPc := NewMockPopulationClient(mockCtrl)
@@ -580,7 +580,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockRend.
 					EXPECT().
 					NewBasePageModel().
-					Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+					Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 				mockRend.
 					EXPECT().
 					BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -658,7 +658,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockRend.
 						EXPECT().
 						NewBasePageModel().
-						Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+						Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 					mockRend.
 						EXPECT().
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -737,7 +737,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockRend.
 						EXPECT().
 						NewBasePageModel().
-						Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+						Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 					mockRend.
 						EXPECT().
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
@@ -822,7 +822,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockRend.
 						EXPECT().
 						NewBasePageModel().
-						Return(coreModel.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
+						Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 					mockRend.
 						EXPECT().
 						BuildPage(gomock.Any(), gomock.Any(), "census-landing")
