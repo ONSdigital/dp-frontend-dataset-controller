@@ -1,12 +1,15 @@
 package config
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
 )
 
 var cfg *Config
+
+var RendererVersion = "v0.2.0"
 
 // Config represents service configuration for dp-frontend-dataset-controller
 type Config struct {
@@ -44,7 +47,7 @@ func Get() (*Config, error) {
 	if config.Debug {
 		config.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		config.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/f3e1909"
+		config.PatternLibraryAssetsPath = fmt.Sprintf("//cdn.ons.gov.uk/dis-design-system-go/%s", RendererVersion)
 	}
 
 	return config, nil
