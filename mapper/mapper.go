@@ -40,7 +40,7 @@ const (
 	DimensionTime      = "time"
 	DimensionAge       = "age"
 	DimensionGeography = "geography"
-	SixteensVersion    = "a18521a"
+	SixteensVersion    = "418c927"
 )
 
 var (
@@ -291,7 +291,9 @@ func CreateVersionsList(basePage dpRendererModel.Page, req *http.Request, datase
 
 		// Not the 'created' first version and more than one stored version
 		if versions[i].Version > 1 && len(p.Data.Versions) >= 1 {
+			//nolint:gosec // Potential indexes out of range are handled in if condition above
 			previousVersion := p.Data.Versions[len(p.Data.Versions)-1].VersionNumber
+			//nolint:gosec // Potential indexes out of range are handled in if condition above
 			v.Superseded = helpers.DatasetVersionURL(versions[i].Links.Dataset.ID, versions[i].Edition, strconv.Itoa(previousVersion))
 		}
 
