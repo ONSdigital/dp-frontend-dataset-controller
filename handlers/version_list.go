@@ -27,11 +27,11 @@ func versionsList(responseWriter http.ResponseWriter, request *http.Request, dc 
 	ctx := request.Context()
 
 	headers := dpDatasetApiSdk.Headers{
-		CollectionID:    collectionID,
-		UserAccessToken: userAccessToken,
+		CollectionID: collectionID,
+		AccessToken:  userAccessToken,
 	}
 
-	datasetDetails, err := dc.GetDataset(ctx, headers, collectionID, datasetID)
+	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return

@@ -45,15 +45,14 @@ func TestFilterableLandingPage(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      "",
+		AccessToken:          serviceAuthToken,
 	}
 
 	Convey("Test filterable landing page", t, func() {
 		Convey("Test filterableLanding returns 500 error if dataset is not found", func() {
 			// Dataset client `GetDataset()` will return an error if dataset is not found
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, errors.New("sorry"),
 			)
@@ -72,7 +71,7 @@ func TestFilterableLandingPage(t *testing.T) {
 		Convey("Test filterableLanding returns 500 if dataset versions are not found", func() {
 			// Dataset client `GetDataset()` will return valid response if dataset found
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -160,15 +159,14 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      "",
+		AccessToken:          serviceAuthToken,
 	}
 	mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{}
 
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -226,7 +224,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
 			mockZebedeeClient := NewMockZebedeeClient(mockController)
-			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, collectionID, "12345").Return(mockGetResponse, nil)
+			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, "12345").Return(mockGetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -267,8 +265,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: "",
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      "",
+		AccessToken:          serviceAuthToken,
 	}
 	mockGetDatasetResponse := dpDatasetApiModels.Dataset{
 		Contacts: []dpDatasetApiModels.ContactDetails{
@@ -298,7 +295,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 		}
 		Convey("filterable landing handler returns census landing template for cantabular types", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -374,7 +371,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 				},
 				ID: "12345",
 			}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponseNew, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponseNew, nil)
 			mockGetVersionsResponse := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -431,7 +428,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when no downloadable files provided", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -471,7 +468,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 302 when valid download option chosen", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -521,7 +518,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when invalid download option chosen", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -566,7 +563,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 
 		Convey("census dataset landing page returns 200 when unknown get query request made", func() {
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(mockGetDatasetResponse, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(mockGetDatasetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
 					{
@@ -677,8 +674,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      userAuthToken,
+		AccessToken:          serviceAuthToken,
 	}
 	topicHeaders := dpTopicApiSdk.Headers{
 		ServiceAuthToken: serviceAuthToken,
@@ -688,7 +684,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -727,7 +723,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, collectionID, datasetID).Return(mockGetResponse, nil)
+			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, datasetID).Return(mockGetResponse, nil)
 			mockDatasetClient.EXPECT().GetVersions(mockContext, headers, datasetID, editionID, &getVersionsQueryParams).Return(mockGetVersionsResponse, nil)
 
 			mockRequestWriter := httptest.NewRecorder()
@@ -744,7 +740,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 
 		Convey("test filterable landing page is successful, when GetVersionMetadata retrieved is an empty object", func() {
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -792,7 +788,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			}
 
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -841,7 +837,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				},
 			}
 			mockDatasetClient.EXPECT().GetDataset(
-				mockContext, headers, collectionID, datasetID,
+				mockContext, headers, datasetID,
 			).Return(
 				mockGetResponse, nil,
 			)
@@ -894,7 +890,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				}
 
 				mockDatasetClient.EXPECT().GetDataset(
-					mockContext, headers, collectionID, datasetID,
+					mockContext, headers, datasetID,
 				).Return(
 					mockGetResponse, nil,
 				)
@@ -945,7 +941,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 					},
 				}
 				mockDatasetClient.EXPECT().GetDataset(
-					mockContext, headers, collectionID, datasetID,
+					mockContext, headers, datasetID,
 				).Return(
 					mockGetResponse, nil,
 				)

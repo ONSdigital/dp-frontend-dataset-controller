@@ -23,8 +23,7 @@ func TestVersionList(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: "",
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      "",
+		AccessToken:          serviceAuthToken,
 	}
 
 	Convey("test versions list", t, func() {
@@ -33,7 +32,7 @@ func TestVersionList(t *testing.T) {
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dpDatasetApiModels.Dataset{}, nil)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{}, nil)
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2017", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(dpDatasetApiSdk.VersionsList{Items: []dpDatasetApiModels.Version{}}, nil)
 			mockClient.EXPECT().GetEdition(ctx, headers, "12345", "2017").Return(dpDatasetApiModels.Edition{}, nil)
 
@@ -55,7 +54,7 @@ func TestVersionList(t *testing.T) {
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dpDatasetApiModels.Dataset{}, errors.New("dataset client error"))
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{}, errors.New("dataset client error"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
@@ -70,7 +69,7 @@ func TestVersionList(t *testing.T) {
 		Convey("test versions list returns status 302 when dataset type is static", func() {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, collectionID, "12345").Return(dpDatasetApiModels.Dataset{
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{
 				Type: DatasetTypeStatic,
 			}, nil)
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2017", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(dpDatasetApiSdk.VersionsList{Items: []dpDatasetApiModels.Version{}}, nil)

@@ -25,8 +25,7 @@ func TestApproveDatasetVersion(t *testing.T) {
 			headers := dpDatasetApiSdk.Headers{
 				CollectionID:         collectionID,
 				DownloadServiceToken: "",
-				ServiceToken:         "",
-				UserAccessToken:      userAuthToken,
+				AccessToken:          userAuthToken,
 			}
 
 			mockClient.
@@ -52,8 +51,7 @@ func TestApproveDatasetVersion(t *testing.T) {
 			headers := dpDatasetApiSdk.Headers{
 				CollectionID:         collectionID,
 				DownloadServiceToken: "",
-				ServiceToken:         "",
-				UserAccessToken:      userAuthToken,
+				AccessToken:          userAuthToken,
 			}
 
 			mockClient.

@@ -60,8 +60,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      userAccessToken,
+		AccessToken:          userAccessToken,
 	}
 
 	topicHeaders := dpTopicApiSdk.Headers{
@@ -69,8 +68,11 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		UserAuthToken:    userAccessToken,
 	}
 
+	fmt.Println("SENDING HEADERS")
+	fmt.Println(headers)
+
 	// Fetch the dataset
-	datasetDetails, err := dc.GetDataset(ctx, headers, collectionID, datasetID)
+	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, err)
 		return

@@ -60,8 +60,8 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
 	headers := dpDatasetApiSdk.Headers{
-		CollectionID:    collectionID,
-		UserAccessToken: userAccessToken,
+		CollectionID: collectionID,
+		AccessToken:  userAccessToken,
 	}
 
 	for i := range dimensions.Items {

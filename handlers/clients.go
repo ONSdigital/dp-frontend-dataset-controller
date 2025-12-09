@@ -47,7 +47,7 @@ type APIClientsGoDatasetClient interface {
 
 // Interface with methods required for a dp-dataset-api/sdk dataset client
 type DatasetAPISdkClient interface {
-	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, collectionID, datasetID string) (m dpDatasetApiModels.Dataset, err error)
+	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiModels.Dataset, err error)
 	GetDatasetByPath(ctx context.Context, headers dpDatasetApiSdk.Headers, path string) (m dpDatasetApiModels.Dataset, err error)
 	GetEditions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.EditionsList, err error)
 	GetEdition(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, edition string) (dpDatasetApiModels.Edition, error)

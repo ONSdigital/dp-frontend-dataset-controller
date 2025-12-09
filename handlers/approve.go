@@ -29,8 +29,7 @@ func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetA
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: "",
-		ServiceToken:         "",
-		UserAccessToken:      userAccessToken,
+		AccessToken:          userAccessToken,
 	}
 
 	logData := log.Data{"datasetID": datasetID, "editionID": editionID, "versionID": versionID}

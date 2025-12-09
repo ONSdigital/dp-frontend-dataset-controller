@@ -57,8 +57,8 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	filterOutputID := vars["filterOutputID"]
 
 	headers := dpDatasetApiSdk.Headers{
-		UserAccessToken: userAccessToken,
-		CollectionID:    collectionID,
+		AccessToken:  userAccessToken,
+		CollectionID: collectionID,
 	}
 
 	wg.Add(1)
@@ -90,7 +90,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	wg.Add(3)
 	go func() {
 		defer wg.Done()
-		datasetModel, dmErr = dc.GetDataset(ctx, headers, collectionID, datasetID)
+		datasetModel, dmErr = dc.GetDataset(ctx, headers, datasetID)
 	}()
 
 	go func() {

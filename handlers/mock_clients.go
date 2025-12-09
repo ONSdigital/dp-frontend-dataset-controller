@@ -322,18 +322,18 @@ func (m *MockDatasetAPISdkClient) EXPECT() *MockDatasetAPISdkClientMockRecorder 
 }
 
 // GetDataset mocks base method.
-func (m *MockDatasetAPISdkClient) GetDataset(ctx context.Context, headers sdk.Headers, collectionID, datasetID string) (models.Dataset, error) {
+func (m *MockDatasetAPISdkClient) GetDataset(ctx context.Context, headers sdk.Headers, datasetID string) (models.Dataset, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDataset", ctx, headers, collectionID, datasetID)
+	ret := m.ctrl.Call(m, "GetDataset", ctx, headers, datasetID)
 	ret0, _ := ret[0].(models.Dataset)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDataset indicates an expected call of GetDataset.
-func (mr *MockDatasetAPISdkClientMockRecorder) GetDataset(ctx, headers, collectionID, datasetID interface{}) *gomock.Call {
+func (mr *MockDatasetAPISdkClientMockRecorder) GetDataset(ctx, headers, datasetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetDataset), ctx, headers, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDataset", reflect.TypeOf((*MockDatasetAPISdkClient)(nil).GetDataset), ctx, headers, datasetID)
 }
 
 // GetDatasetByPath mocks base method.

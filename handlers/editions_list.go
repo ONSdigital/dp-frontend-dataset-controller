@@ -30,8 +30,8 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 	serviceAuthToken := ""
 
 	headers := dpDatasetApiSdk.Headers{
-		UserAccessToken: userAccessToken,
-		CollectionID:    collectionID,
+		AccessToken:  userAccessToken,
+		CollectionID: collectionID,
 	}
 
 	topicHeaders := dpTopicApiSdk.Headers{
@@ -39,7 +39,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 		UserAuthToken:    userAccessToken,
 	}
 
-	datasetDetails, err := dc.GetDataset(ctx, headers, collectionID, datasetID)
+	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
 	if err != nil {
 		setStatusCode(ctx, w, err)
 		return

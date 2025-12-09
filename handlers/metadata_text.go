@@ -19,7 +19,6 @@ func MetadataText(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
 
 func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, cfg config.Config, userAccessToken, collectionID string) {
 	downloadServiceAuthToken := ""
-	serviceAuthToken := ""
 
 	ctx := request.Context()
 	vars := mux.Vars(request)
@@ -31,8 +30,7 @@ func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc 
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: downloadServiceAuthToken,
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      userAccessToken,
+		AccessToken:          userAccessToken,
 	}
 
 	metadata, err := dc.GetVersionMetadata(ctx, headers, datasetID, editionID, versionID)

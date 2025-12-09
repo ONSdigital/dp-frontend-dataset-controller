@@ -2,17 +2,19 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 
 go 1.24.0
 
+replace github.com/ONSdigital/dp-dataset-api => /Users/francesmoore/src/github.com/ONSdigital/dp-dataset-api
+
 require (
 	github.com/ONSdigital/dis-design-system-go v1.3.0
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.270.0
-	github.com/ONSdigital/dp-cache v0.6.0
-	github.com/ONSdigital/dp-cookies v0.7.0
-	github.com/ONSdigital/dp-dataset-api v1.89.0
+	github.com/ONSdigital/dp-cache v0.6.1
+	github.com/ONSdigital/dp-cookies v0.7.1
+	github.com/ONSdigital/dp-dataset-api v1.91.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
-	github.com/ONSdigital/dp-net/v3 v3.5.0
+	github.com/ONSdigital/dp-net/v3 v3.9.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/log.go/v2 v2.5.0
-	github.com/PuerkitoBio/goquery v1.10.3
+	github.com/ONSdigital/log.go/v2 v2.5.1
+	github.com/PuerkitoBio/goquery v1.11.0
 	github.com/go-jose/go-jose/v4 v4.1.3
 	github.com/golang/glog v1.2.5
 	github.com/golang/mock v1.6.0
@@ -24,7 +26,7 @@ require (
 	github.com/smartystreets/goconvey v1.8.1
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0
-	golang.org/x/sync v0.17.0
+	golang.org/x/sync v0.18.0
 )
 
 require (
@@ -68,12 +70,12 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.43.0
-	golang.org/x/net v0.46.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/text v0.30.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20251103181224-f26f9409b101 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
-	google.golang.org/grpc v1.76.0 // indirect
+	golang.org/x/crypto v0.45.0
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/grpc v1.77.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )

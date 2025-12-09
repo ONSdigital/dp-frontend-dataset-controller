@@ -103,8 +103,7 @@ func TestFilterOutputHandler(t *testing.T) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID:         collectionID,
 		DownloadServiceToken: "",
-		ServiceToken:         serviceAuthToken,
-		UserAccessToken:      "",
+		AccessToken:          serviceAuthToken,
 	}
 	mockGetDatsetResponse := dpDatasetApiModels.Dataset{
 		Contacts: []dpDatasetApiModels.ContactDetails{
@@ -131,7 +130,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
@@ -202,7 +201,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(mockGetDatsetResponse, nil)
 
 			mockDc.
@@ -273,7 +272,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
@@ -339,7 +338,7 @@ func TestFilterOutputHandler(t *testing.T) {
 			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(mockGetDatsetResponse, nil)
 			mockDc.
 				EXPECT().
@@ -408,7 +407,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 		Convey("When unknown query made", func() {
 			mockDc := NewMockDatasetAPISdkClient(mockCtrl)
-			mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
+			mockDc.EXPECT().GetDataset(ctx, headers, "12345").
 				Return(mockGetDatsetResponse, nil)
 
 			mockDc.
@@ -479,7 +478,7 @@ func TestFilterOutputHandler(t *testing.T) {
 		Convey("Given a dimension is not an area type", func() {
 			Convey("When the dc.GetOptions is called", func() {
 				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
-				mockDc.EXPECT().GetDataset(ctx, headers, collectionID, "12345").
+				mockDc.EXPECT().GetDataset(ctx, headers, "12345").
 					Return(mockGetDatsetResponse, nil)
 				mockDc.EXPECT().GetVersions(ctx, headers, "12345", "2021", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(versions, nil)
 				mockDc.EXPECT().GetVersion(ctx, headers, "12345", "2021", "1").Return(versions.Items[0], nil)
@@ -529,7 +528,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
-					GetDataset(ctx, headers, collectionID, "12345").
+					GetDataset(ctx, headers, "12345").
 					Return(mockGetDatsetResponse, nil)
 				mockDc.
 					EXPECT().
@@ -602,7 +601,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						GetDataset(ctx, headers, collectionID, "12345").
+						GetDataset(ctx, headers, "12345").
 						Return(mockGetDatsetResponse, nil)
 					mockDc.
 						EXPECT().
@@ -681,7 +680,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						GetDataset(ctx, headers, collectionID, "12345").
+						GetDataset(ctx, headers, "12345").
 						Return(mockGetDatsetResponse, nil)
 					mockDc.
 						EXPECT().
@@ -760,7 +759,7 @@ func TestFilterOutputHandler(t *testing.T) {
 					mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 					mockDc.
 						EXPECT().
-						GetDataset(ctx, headers, collectionID, "12345").
+						GetDataset(ctx, headers, "12345").
 						Return(dpDatasetApiModels.Dataset{
 							Type: "multivariate",
 						}, nil)
@@ -849,7 +848,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{}, errors.New("dataset client error"))
 			mockDc.
 				EXPECT().
@@ -896,7 +895,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
@@ -943,7 +942,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
@@ -990,7 +989,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
@@ -1037,7 +1036,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{}, nil)
 			mockDc.
 				EXPECT().
@@ -1092,7 +1091,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{
 					Type: "multivariate",
 				}, nil)
@@ -1150,7 +1149,7 @@ func TestFilterOutputHandler(t *testing.T) {
 
 			mockDc.
 				EXPECT().
-				GetDataset(ctx, headers, collectionID, "12345").
+				GetDataset(ctx, headers, "12345").
 				Return(dpDatasetApiModels.Dataset{
 					Type: "multivariate",
 				}, nil)
@@ -1200,7 +1199,7 @@ func TestFilterOutputHandler(t *testing.T) {
 				mockDc := NewMockDatasetAPISdkClient(mockCtrl)
 				mockDc.
 					EXPECT().
-					GetDataset(ctx, headers, collectionID, "12345").
+					GetDataset(ctx, headers, "12345").
 					Return(mockGetDatsetResponse, nil)
 				mockDc.
 					EXPECT().
