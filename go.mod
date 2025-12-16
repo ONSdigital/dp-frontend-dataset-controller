@@ -2,14 +2,14 @@ module github.com/ONSdigital/dp-frontend-dataset-controller
 
 go 1.24.0
 
-replace github.com/ONSdigital/dp-dataset-api => /Users/francesmoore/src/github.com/ONSdigital/dp-dataset-api
+toolchain go1.24.1
 
 require (
 	github.com/ONSdigital/dis-design-system-go v1.3.0
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.270.0
 	github.com/ONSdigital/dp-cache v0.6.1
 	github.com/ONSdigital/dp-cookies v0.7.1
-	github.com/ONSdigital/dp-dataset-api v1.91.0
+	github.com/ONSdigital/dp-dataset-api v1.92.1
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.9.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
