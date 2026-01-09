@@ -146,7 +146,7 @@ func run(ctx context.Context) error {
 
 	// Get Authorisation Middleware if publishing
 	var authorisation auth.Middleware
-	if cfg.IsPublishing {
+	if cfg.EnablePermissionsAuth {
 		authorisation, err = auth.NewFeatureFlaggedMiddleware(ctx, cfg.AuthConfig, nil)
 		if err != nil {
 			log.Error(ctx, "could not instantiate authorisation middleware", err)

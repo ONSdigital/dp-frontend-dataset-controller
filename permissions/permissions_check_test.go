@@ -54,6 +54,7 @@ func TestPermissionsCheck(t *testing.T) {
 			}
 			_, err := CheckIsAdmin(t.Context(), invalidToken, middlewareMock)
 			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "jwt token is not valid")
 		})
 	})
 }
