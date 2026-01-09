@@ -82,6 +82,7 @@ func get() (*Config, error) {
 		SiteDomain:                    "localhost",
 		SupportedLanguages:            []string{"en", "cy"},
 		AuthConfig:                    authorisation.NewDefaultConfig(),
+		EnablePermissionsAuth:         false,
 	}
 
 	return cfg, envconfig.Process("", cfg)
