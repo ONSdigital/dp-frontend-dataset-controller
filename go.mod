@@ -11,6 +11,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.9.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
+	github.com/ONSdigital/dp-permissions-api v1.10.0
 	github.com/ONSdigital/log.go/v2 v2.5.1
 	github.com/PuerkitoBio/goquery v1.11.0
 	github.com/go-jose/go-jose/v4 v4.1.3
@@ -28,7 +29,13 @@ require (
 )
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/maxcnunes/httpfake v1.2.4 // indirect
+)
+
+require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/ONSdigital/dp-authorisation/v2 v2.33.1
 	github.com/ONSdigital/dp-topic-api v1.3.0
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect

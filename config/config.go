@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -34,6 +35,8 @@ type Config struct {
 	PprofToken                    string        `envconfig:"PPROF_TOKEN" json:"-"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
 	SupportedLanguages            []string      `envconfig:"SUPPORTED_LANGUAGES"`
+	EnablePermissionsAuth         bool          `envconfig:"ENABLE_PERMISSIONS_AUTH"`
+	AuthConfig                    *authorisation.Config
 }
 
 // Get returns the default config with any modifications through environment
@@ -78,6 +81,7 @@ func get() (*Config, error) {
 		OtelEnabled:                   false,
 		SiteDomain:                    "localhost",
 		SupportedLanguages:            []string{"en", "cy"},
+		AuthConfig:                    authorisation.NewDefaultConfig(),
 	}
 
 	return cfg, envconfig.Process("", cfg)

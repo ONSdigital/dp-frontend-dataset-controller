@@ -9,30 +9,30 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/files"
-	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
-	cachePublic "github.com/ONSdigital/dp-frontend-dataset-controller/cache/public"
-	topic "github.com/ONSdigital/dp-topic-api/sdk"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-
 	render "github.com/ONSdigital/dis-design-system-go"
 	"github.com/ONSdigital/dis-design-system-go/middleware/renderror"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
 	apihealthcheck "github.com/ONSdigital/dp-api-clients-go/v2/health"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	cachePublic "github.com/ONSdigital/dp-frontend-dataset-controller/cache/public"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
+	topic "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/pkg/errors"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	dpnethandlers "github.com/ONSdigital/dp-net/v3/handlers"
 	dpnethttp "github.com/ONSdigital/dp-net/v3/http"
@@ -144,6 +144,16 @@ func run(ctx context.Context) error {
 	pc := populationClient
 	fc.Version = "v1"
 
+	// Get Authorisation Middleware if publishing
+	var authorisation auth.Middleware
+	if cfg.IsPublishing {
+		authorisation, err = auth.NewFeatureFlaggedMiddleware(ctx, cfg.AuthConfig, nil)
+		if err != nil {
+			log.Error(ctx, "could not instantiate authorisation middleware", err)
+			return err
+		}
+	}
+
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 
 	if err = registerCheckers(ctx, &healthcheck, apiRouterCli); err != nil {
@@ -182,9 +192,9 @@ func run(ctx context.Context) error {
 
 	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, tc, rend, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, tc, rend, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion, authorisation))
 	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(datasetAPISdkClient, zc, rend, *cfg))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion, authorisation))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, apiClientsGoDatasetClient))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, apiClientsGoDatasetClient))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, datasetAPISdkClient, rend, *cfg, apiRouterVersion))

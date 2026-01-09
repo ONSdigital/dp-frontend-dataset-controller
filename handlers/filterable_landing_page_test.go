@@ -8,6 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	authMock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
+	permissionsAPISDK "github.com/ONSdigital/dp-permissions-api/sdk"
+
 	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
@@ -48,6 +51,12 @@ func TestFilterableLandingPage(t *testing.T) {
 		AccessToken:          serviceAuthToken,
 	}
 
+	authorisationMock := &authMock.MiddlewareMock{
+		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
+			return &permissionsAPISDK.EntityData{}, nil
+		},
+	}
+
 	Convey("Test filterable landing page", t, func() {
 		Convey("Test filterableLanding returns 500 error if dataset is not found", func() {
 			// Dataset client `GetDataset()` will return an error if dataset is not found
@@ -61,7 +70,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s", datasetID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, apiRouterVersion))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, apiRouterVersion, authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -86,7 +95,7 @@ func TestFilterableLandingPage(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s", datasetID, editionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, apiRouterVersion))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, apiRouterVersion, authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -163,6 +172,12 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	}
 	mockGetVersionMetadataResponse := dpDatasetApiModels.Metadata{}
 
+	authorisationMock := &authMock.MiddlewareMock{
+		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
+			return &permissionsAPISDK.EntityData{}, nil
+		},
+	}
+
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockDatasetClient.EXPECT().GetDataset(
@@ -215,7 +230,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", "/datasets/12345", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -244,7 +259,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/5678", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -258,6 +273,12 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockPc := NewMockPopulationClient(mockCtrl)
 	mockTopicClient := NewMockTopicAPIClient(mockCtrl)
+
+	authorisationMock := &authMock.MiddlewareMock{
+		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
+			return &permissionsAPISDK.EntityData{}, nil
+		},
+	}
 
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
@@ -347,7 +368,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -419,7 +440,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -459,7 +480,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -509,7 +530,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=csv", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -554,7 +575,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=get-data&format=aFormat", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -599,7 +620,7 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345?f=blah-blah&format=bob", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1"))
+			router.HandleFunc("/datasets/{datasetID}", FilterableLanding(mockClient, mockPc, mockRend, mockZebedeeClient, mockTopicClient, mockConfig, "/v1", authorisationMock))
 
 			router.ServeHTTP(w, req)
 
@@ -681,6 +702,12 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 		UserAuthToken:    "",
 	}
 
+	authorisationMock := &authMock.MiddlewareMock{
+		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
+			return &permissionsAPISDK.EntityData{}, nil
+		},
+	}
+
 	Convey("test filterable landing page", t, func() {
 		Convey("test filterable landing page is successful, when it receives good dataset api responses", func() {
 			mockDatasetClient.EXPECT().GetDataset(
@@ -715,7 +742,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -730,7 +757,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s", datasetID, editionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -770,7 +797,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 
@@ -819,7 +846,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 			So(buf.String(), ShouldContainSubstring, "unable to get topic data for topic ID: 123")
@@ -871,7 +898,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 			mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 			router.ServeHTTP(mockRequestWriter, mockRequest)
 			So(mockRequestWriter.Code, ShouldEqual, http.StatusOK)
@@ -921,7 +948,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 				router.ServeHTTP(mockRequestWriter, mockRequest)
 				Convey("Then filterable landing page logs correct warning", func() {
@@ -975,7 +1002,7 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				mockRequest := httptest.NewRequest("GET", fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID), http.NoBody)
 
 				router := mux.NewRouter()
-				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, ""))
+				router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}", FilterableLanding(mockDatasetClient, mockPopulationClient, mockRenderClient, mockZebedeeClient, mockTopicClient, mockConfig, "", authorisationMock))
 
 				router.ServeHTTP(mockRequestWriter, mockRequest)
 

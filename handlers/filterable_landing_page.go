@@ -11,12 +11,14 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/permissions"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
@@ -25,16 +27,16 @@ import (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc TopicAPIClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, tc TopicAPIClient, cfg config.Config, apiRouterVersion string, authorisation auth.Middleware) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
+		filterableLanding(w, req, dc, pc, rend, zc, tc, cfg, collectionID, lang, apiRouterVersion, userAccessToken, authorisation)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
 func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient,
 	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, tc TopicAPIClient, cfg config.Config,
-	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
+	collectionID string, lang string, apiRouterVersion string, userAccessToken string, authorisation auth.Middleware) {
 	var bc []zebedee.Breadcrumb
 	var dims dpDatasetApiSdk.VersionDimensionsList
 	var displayOtherVersionsLink bool
@@ -67,9 +69,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 		ServiceAuthToken: serviceAuthToken,
 		UserAuthToken:    userAccessToken,
 	}
-
-	fmt.Println("SENDING HEADERS")
-	fmt.Println(headers)
 
 	// Fetch the dataset
 	datasetDetails, err := dc.GetDataset(ctx, headers, datasetID)
@@ -183,7 +182,17 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			topicObjectList = []dpTopicApiModels.Topic{}
 		}
 
-		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList, cfg.IsPublishing)
+		// Determine level of user access to display approval button if publishing
+		var enableApprovalButton bool
+		if cfg.IsPublishing {
+			enableApprovalButton, err = permissions.CheckIsAdmin(ctx, userAccessToken, authorisation)
+			if err != nil {
+				log.Error(ctx, "failed to check user permissions", err)
+				return
+			}
+		}
+
+		pageModel = mapper.CreateStaticOverviewPage(basePage, datasetDetails, version, allVersions, cfg.EnableMultivariate, topicObjectList, cfg.IsPublishing, enableApprovalButton)
 		templateName = DatasetTypeStatic
 	} else {
 		// Update dimensions based on dataset type
