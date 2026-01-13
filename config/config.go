@@ -35,7 +35,6 @@ type Config struct {
 	PprofToken                    string        `envconfig:"PPROF_TOKEN" json:"-"`
 	SiteDomain                    string        `envconfig:"SITE_DOMAIN"`
 	SupportedLanguages            []string      `envconfig:"SUPPORTED_LANGUAGES"`
-	EnablePermissionsAuth         bool          `envconfig:"ENABLE_PERMISSIONS_AUTH"`
 	AuthConfig                    *authorisation.Config
 }
 
@@ -82,7 +81,6 @@ func get() (*Config, error) {
 		SiteDomain:                    "localhost",
 		SupportedLanguages:            []string{"en", "cy"},
 		AuthConfig:                    authorisation.NewDefaultConfig(),
-		EnablePermissionsAuth:         false,
 	}
 
 	return cfg, envconfig.Process("", cfg)

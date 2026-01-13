@@ -2,21 +2,19 @@ package permissions
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"strings"
 
 	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
-
-	"github.com/ONSdigital/log.go/v2/log"
 )
 
 func CheckIsAdmin(ctx context.Context, token string, authorisation auth.Middleware) (bool, error) {
 	userToken := strings.ReplaceAll(token, "Bearer ", "")
 	entityData, err := authorisation.Parse(userToken)
 	if err != nil {
-		log.Error(ctx, "Cannot parse user JWT token", err)
-		return false, err
+		return false, fmt.Errorf("check admin: failed to parse user JWT token: %w", err)
 	}
 
 	if slices.Contains(entityData.Groups, "role-admin") {

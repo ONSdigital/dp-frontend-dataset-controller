@@ -145,13 +145,10 @@ func run(ctx context.Context) error {
 	fc.Version = "v1"
 
 	// Get Authorisation Middleware if publishing
-	var authorisation auth.Middleware
-	if cfg.EnablePermissionsAuth {
-		authorisation, err = auth.NewFeatureFlaggedMiddleware(ctx, cfg.AuthConfig, nil)
-		if err != nil {
-			log.Error(ctx, "could not instantiate authorisation middleware", err)
-			return err
-		}
+	authorisation, err := auth.NewFeatureFlaggedMiddleware(ctx, cfg.AuthConfig, nil)
+	if err != nil {
+		log.Error(ctx, "could not instantiate authorisation middleware", err)
+		return err
 	}
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
