@@ -4,11 +4,11 @@ go 1.24.0
 
 require (
 	github.com/ONSdigital/dis-design-system-go v1.4.0
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.270.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.273.0
 	github.com/ONSdigital/dp-authorisation/v2 v2.33.1
 	github.com/ONSdigital/dp-cache v0.6.1
 	github.com/ONSdigital/dp-cookies v0.7.1
-	github.com/ONSdigital/dp-dataset-api v1.93.0
+	github.com/ONSdigital/dp-dataset-api v1.95.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.9.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
@@ -27,8 +27,8 @@ require (
 	github.com/smartystreets/goconvey v1.8.1
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.64.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0
+	golang.org/x/crypto v0.47.0
 	golang.org/x/sync v0.19.0
-	golang.org/x/crypto v0.47.0 
 	golang.org/x/text v0.33.0
 )
 
@@ -77,8 +77,8 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260112192933-99fd39fd28a9 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260112192933-99fd39fd28a9 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260114163908-3f89685c29c3 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260114163908-3f89685c29c3 // indirect
 	google.golang.org/grpc v1.78.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
