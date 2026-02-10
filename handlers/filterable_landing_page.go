@@ -350,7 +350,7 @@ func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient
 }
 
 func sortedOpts(opts []dpDatasetApiSdk.VersionDimensionOptionsList) []dpDatasetApiSdk.VersionDimensionOptionsList {
-	sorted := []dpDatasetApiSdk.VersionDimensionOptionsList{}
+	sorted := make([]dpDatasetApiSdk.VersionDimensionOptionsList, 0, len(opts))
 	for _, opt := range opts {
 		sorted = append(sorted, dpDatasetApiSdk.VersionDimensionOptionsList{
 			Items: sortOptionsByCode(opt.Items),

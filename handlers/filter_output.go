@@ -218,7 +218,7 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 	getDimensionOptions := func(dim filter.ModelDimension) ([]string, int, error) {
 		dimensionCategory := dimensionCategoriesMap[dim.ID]
 
-		var options []string
+		options := make([]string, 0, len(dimensionCategory.Categories))
 		for _, opt := range sortCategoriesByID(dimensionCategory.Categories) {
 			options = append(options, opt.Label)
 		}

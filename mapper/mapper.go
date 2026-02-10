@@ -611,7 +611,7 @@ func FindVersion(versionList []zebedee.Dataset, versionURI string) zebedee.Datas
 }
 
 func MapDownloads(downloadsList []zebedee.Download, versionURI string) []datasetMdl.Download {
-	dl := []datasetMdl.Download{}
+	dl := make([]datasetMdl.Download, 0, len(downloadsList))
 	for _, d := range downloadsList {
 		dl = append(dl, datasetMdl.Download{
 			Extension:   filepath.Ext(d.File),
@@ -708,12 +708,11 @@ func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset) dpRendererMo
 }
 
 func CreateBreadcrumbsFromTopicList(topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
-	breadcrumbsObject := []dpRendererModel.TaxonomyNode{
-		{
-			Title: "Home",
-			URI:   "/",
-		},
-	}
+	breadcrumbsObject := make([]dpRendererModel.TaxonomyNode, 0, len(topicObjectList)+1)
+	breadcrumbsObject = append(breadcrumbsObject, dpRendererModel.TaxonomyNode{
+		Title: "Home",
+		URI:   "/",
+	})
 	path := ""
 
 	for _, topicObject := range topicObjectList {

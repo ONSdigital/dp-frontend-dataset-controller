@@ -88,7 +88,7 @@ func TestUnitHandlers(t *testing.T) {
 func TestSortOptionsByCode(t *testing.T) {
 	Convey("Population categories are sorted", t, func() {
 		getCategoryList := func(items []population.DimensionCategoryItem) []string {
-			results := []string{}
+			results := make([]string, 0, len(items))
 			for _, item := range items {
 				results = append(results, item.ID)
 			}

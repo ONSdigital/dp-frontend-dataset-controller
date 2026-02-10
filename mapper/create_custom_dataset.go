@@ -71,7 +71,7 @@ func CreateCustomDatasetPage(req *http.Request, basePage core.Page, populationTy
 
 // mapPopulationTypes maps population.PopulationType to createCensusDatasetPage.PopulationType
 func mapPopulationTypes(populationTypes []population.PopulationType) []custom.PopulationType {
-	mapped := []custom.PopulationType{}
+	mapped := make([]custom.PopulationType, 0, len(populationTypes))
 	for _, pop := range populationTypes {
 		model := custom.PopulationType{
 			Name:        pop.Name,

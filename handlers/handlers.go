@@ -147,7 +147,7 @@ func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter,
 
 // sorts options by code - numerically if possible, with negatives listed last
 func sortOptionsByCode(items []dpDatasetApiModels.PublicDimensionOption) []dpDatasetApiModels.PublicDimensionOption {
-	sorted := []dpDatasetApiModels.PublicDimensionOption{}
+	sorted := make([]dpDatasetApiModels.PublicDimensionOption, 0, len(items))
 	sorted = append(sorted, items...)
 
 	doNumericSort := func(items []dpDatasetApiModels.PublicDimensionOption) bool {
@@ -189,7 +189,7 @@ func mapDimensionCategories(dimCategories population.GetDimensionCategoriesRespo
 
 // sorts population.DimensionCategoryItems - numerically if possible, with negatives listed last
 func sortCategoriesByID(items []population.DimensionCategoryItem) []population.DimensionCategoryItem {
-	sorted := []population.DimensionCategoryItem{}
+	sorted := make([]population.DimensionCategoryItem, 0, len(items))
 	sorted = append(sorted, items...)
 
 	doNumericSort := func(items []population.DimensionCategoryItem) bool {
