@@ -11,7 +11,7 @@ import (
 
 func TestCreateStaticBasePage(t *testing.T) {
 	basePage := core.Page{}
-	dataset := dpDatasetApiModels.Dataset{}
+	dataset := dpDatasetApiModels.Dataset{Topics: []string{"topic1"}}
 	allVersions := []dpDatasetApiModels.Version{}
 	isEnableMultivariate := true
 	topicObjectList := []dpTopicApiModels.Topic{}

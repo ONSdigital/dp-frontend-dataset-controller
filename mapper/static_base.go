@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -57,7 +58,9 @@ func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, vers
 		hasOtherVersions = true
 	}
 
-	latestVersionURL := helpers.DatasetVersionURL(d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
+	// topicPrefix is used for constructing URLs for static datasets
+	topicPrefix := d.Topics[0]
+	latestVersionURL := helpers.DatasetVersionURLWithTopic(topicPrefix, d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
 
 	if d.NationalStatistic != nil {
 		isNationalStatistic = *d.NationalStatistic
@@ -86,14 +89,10 @@ func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, vers
 
 	// BREADCRUMBS
 	breadcrumbsObject := CreateBreadcrumbsFromTopicList(topicObjectList)
-
-	editionsListURL := "/datasets/" + d.ID + "/editions"
-
 	breadcrumbsObject = append(breadcrumbsObject, core.TaxonomyNode{
 		Title: d.Title,
-		URI:   editionsListURL,
+		URI:   fmt.Sprintf("/%s/datasets/%s/editions", topicPrefix, d.ID),
 	})
-
 	p.Breadcrumb = breadcrumbsObject
 
 	// ALERTS
@@ -125,7 +124,8 @@ func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, vers
 			var version sharedModel.Version
 			version.VersionNumber = allVersions[i].Version
 			version.ReleaseDate = allVersions[i].ReleaseDate
-			versionURL := helpers.DatasetVersionURL(
+			versionURL := helpers.DatasetVersionURLWithTopic(
+				topicPrefix,
 				allVersions[i].Links.Dataset.ID,
 				allVersions[i].Edition,
 				strconv.Itoa(allVersions[i].Version))

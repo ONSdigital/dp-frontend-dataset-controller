@@ -38,6 +38,13 @@ func TestDatasetVersionURL(t *testing.T) {
 	})
 }
 
+func TestDatasetVersionURLWithTopic(t *testing.T) {
+	Convey("The dataset version URL with topic is correctly constructed from the provided parameters", t, func() {
+		expectedURL := "/topic1/datasets/myDataset/editions/myEdition/versions/myVersion"
+		So(DatasetVersionURLWithTopic("topic1", "myDataset", "myEdition", "myVersion"), ShouldResemble, expectedURL)
+	})
+}
+
 func TestGetAPIRouterVersion(t *testing.T) {
 	Convey("The api router version is correctly extracted from a valid API Router URL", t, func() {
 		version, err := GetAPIRouterVersion("http://localhost:23200/v1")
