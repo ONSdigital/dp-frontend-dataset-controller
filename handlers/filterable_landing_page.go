@@ -122,7 +122,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	// Check if this is a download request and redirect to get file if so
-	if form == "get-data" {
+	if form == formQueryGetData {
 		fileDownloadURL := ""
 		// Try to get the download url based on dataset type. Static will be in distributions, otherwise downloads
 		if datasetDetails.Type == DatasetTypeStatic {

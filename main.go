@@ -199,6 +199,13 @@ func run(ctx context.Context) error {
 
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/metadata.txt").Methods("GET").HandlerFunc(handlers.MetadataText(datasetAPISdkClient, *cfg))
 
+	// Static landing page routes
+	router.Path("/{topic}/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.StaticEditionsList(datasetAPISdkClient, rend, zc, tc, *cfg, apiRouterVersion))
+	router.Path("/{topic}/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.StaticEditionsList(datasetAPISdkClient, rend, zc, tc, *cfg, apiRouterVersion))
+	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.StaticLanding(datasetAPISdkClient, rend, zc, tc, *cfg, authorisation))
+	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/versions").Methods("GET").HandlerFunc(handlers.StaticLanding(datasetAPISdkClient, rend, zc, tc, *cfg, authorisation))
+	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.StaticLanding(datasetAPISdkClient, rend, zc, tc, *cfg, authorisation))
+
 	if cfg.IsPublishing {
 		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve").Methods("GET").HandlerFunc(handlers.ApproveDatasetVersion(datasetAPISdkClient, *cfg))
 	}

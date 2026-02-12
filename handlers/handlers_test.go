@@ -82,6 +82,13 @@ func TestUnitHandlers(t *testing.T) {
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
+		Convey("test status code handles known errors with mapped status codes", func() {
+			w := httptest.NewRecorder()
+			err := errDatasetNotStatic // Known 404 error
+
+			setStatusCode(ctx, w, err)
+			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
 	})
 }
 

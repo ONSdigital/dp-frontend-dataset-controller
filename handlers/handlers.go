@@ -29,22 +29,30 @@ const (
 	maxAgeAndTimeOptions = 1000
 	homepagePath         = "/"
 	queryStrKey          = "showAll"
+	formQueryGetData     = "get-data"
 	DatasetTypeNomis     = "nomis"
 	DatasetTypeStatic    = "static"
+
+	// Template names
+	templateNameStatic             = "static"
+	templateNameStaticEditionsList = "edition-list-static"
 )
 
 var errTooManyOptions = errors.New("too many options in dimension")
 
 func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
+
 	if err == errTooManyOptions {
 		status = http.StatusRequestEntityTooLarge
 	}
+
 	if clientErr, ok := err.(ClientError); ok {
 		if clientErr.Code() == http.StatusNotFound {
 			status = clientErr.Code()
 		}
 	}
+
 	if datasetErr, ok := err.(dpDatasetApiModels.Error); ok {
 		errCode, atoiErr := strconv.Atoi(datasetErr.Code)
 		if atoiErr != nil {
@@ -53,6 +61,12 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 			status = errCode
 		}
 	}
+
+	// Check if the error is a known error with a mapped status code
+	if mappedStatusCode, exists := errorToStatusCodeMap[err]; exists {
+		status = mappedStatusCode
+	}
+
 	log.Error(ctx, "client error", err, log.Data{"setting-response-status": status})
 	w.WriteHeader(status)
 }

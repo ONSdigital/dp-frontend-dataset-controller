@@ -415,11 +415,11 @@ func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc
 		filterOutput.Downloads = make(map[string]filter.Download)
 	}
 
-	if form == "get-data" && format == "" {
+	if form == formQueryGetData && format == "" {
 		isValidationError = true
 	}
 
-	if form == "get-data" && format != "" {
+	if form == formQueryGetData && format != "" {
 		for ext, download := range filterOutput.Downloads {
 			if strings.EqualFold(ext, format) {
 				http.Redirect(w, req, download.URL, http.StatusFound)
