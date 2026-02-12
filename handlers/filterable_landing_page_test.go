@@ -656,8 +656,9 @@ func TestFilterableLandingPageStaticDataType(t *testing.T) {
 				HRef: "/datasets/1234/editions/5678/versions/2017",
 			},
 		},
-		Type: datasetType,
-		ID:   datasetID,
+		Topics: []string{"topic1"},
+		Type:   datasetType,
+		ID:     datasetID,
 	}
 	mockGetVersionsResponse := dpDatasetApiSdk.VersionsList{
 		Items: []dpDatasetApiModels.Version{
