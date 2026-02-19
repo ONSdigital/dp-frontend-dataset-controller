@@ -15,6 +15,7 @@ var RendererVersion = "v0.2.0"
 // Config represents service configuration for dp-frontend-dataset-controller
 type Config struct {
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
+	DatasetAPIURL                 string        `envconfig:"DATASET_API_URL"`
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
 	CacheNavigationUpdateInterval time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
 	Debug                         bool          `envconfig:"DEBUG"`
@@ -27,7 +28,7 @@ type Config struct {
 	HealthCheckCriticalTimeout    time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval           time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	IsPublishing                  bool          `envconfig:"IS_PUBLISHING"`
-	OTBatchTimeout                time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
+	OTBatchTimeout                time.Duration `envconfig:"OTEL_BATCH_TIMEOUT"`
 	OTServiceName                 string        `envconfig:"OTEL_SERVICE_NAME"`
 	OTExporterOTLPEndpoint        string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 	OtelEnabled                   bool          `envconfig:"OTEL_ENABLED"`
@@ -62,6 +63,7 @@ func get() (*Config, error) {
 
 	cfg = &Config{
 		APIRouterURL:                  "http://localhost:23200/v1",
+		DatasetAPIURL:                 "http://localhost:22000",
 		BindAddr:                      "localhost:20200",
 		CacheNavigationUpdateInterval: 10 * time.Second,
 		Debug:                         false,
