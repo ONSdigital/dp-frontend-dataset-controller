@@ -84,7 +84,7 @@ func TestUnitHandlers(t *testing.T) {
 		})
 		Convey("test status code handles known errors with mapped status codes", func() {
 			w := httptest.NewRecorder()
-			err := errDatasetNotStatic // Known 404 error
+			err := errDatasetTypeNotSupported // Known 404 error
 
 			setStatusCode(ctx, w, err)
 			So(w.Code, ShouldEqual, http.StatusNotFound)

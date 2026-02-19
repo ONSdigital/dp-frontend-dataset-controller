@@ -50,8 +50,8 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 	}
 
 	if dataset.Type != DatasetTypeStatic {
-		log.Error(ctx, "dataset is not of type static", errDatasetNotStatic, logData)
-		setStatusCode(ctx, w, errDatasetNotStatic)
+		log.Error(ctx, "dataset is not of type static", errDatasetTypeNotSupported, logData)
+		setStatusCode(ctx, w, errDatasetTypeNotSupported)
 		return
 	}
 
