@@ -187,11 +187,11 @@ func run(ctx context.Context) error {
 		router.Path("/datasets/create/filter-outputs/{filterOutputID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexIDFromOutput(f))
 	}
 
-	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, tc, rend, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, tc, rend, *cfg, apiRouterVersion))
-	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion, authorisation))
-	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(datasetAPISdkClient, zc, rend, *cfg))
-	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, tc, *cfg, apiRouterVersion, authorisation))
+	router.Path("/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, rend, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions").Methods("GET").HandlerFunc(handlers.EditionsList(datasetAPISdkClient, zc, rend, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{editionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, *cfg, apiRouterVersion))
+	router.Path("/datasets/{datasetID}/editions/{edition}/versions").Methods("GET").HandlerFunc(handlers.VersionsList(datasetAPISdkClient, zc, rend))
+	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.FilterableLanding(datasetAPISdkClient, pc, rend, zc, *cfg, apiRouterVersion))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("POST").HandlerFunc(handlers.CreateFilterFlexID(f, apiClientsGoDatasetClient))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter").Methods("POST").HandlerFunc(handlers.CreateFilterID(f, apiClientsGoDatasetClient))
 	router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/filter-outputs/{filterOutputID}").Methods("GET").HandlerFunc(handlers.FilterOutput(zc, f, pc, datasetAPISdkClient, rend, *cfg, apiRouterVersion))

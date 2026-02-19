@@ -9,7 +9,6 @@ import (
 	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,7 +30,6 @@ func TestVersionList(t *testing.T) {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 			mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
-			mockConfig := config.Config{}
 			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{}, nil)
 			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2017", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(dpDatasetApiSdk.VersionsList{Items: []dpDatasetApiModels.Version{}}, nil)
 			mockClient.EXPECT().GetEdition(ctx, headers, "12345", "2017").Return(dpDatasetApiModels.Edition{}, nil)
@@ -44,46 +42,43 @@ func TestVersionList(t *testing.T) {
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockZebedeeClient, mockRend, mockConfig))
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, mockZebedeeClient, mockRend))
 
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusOK)
 		})
 
+		Convey("test versions list returns status 404 when dataset type is static", func() {
+			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
+			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{
+				Type: DatasetTypeStatic,
+			}, nil)
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
+
+			router := mux.NewRouter()
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, nil))
+
+			router.ServeHTTP(w, req)
+
+			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+
 		Convey("test versions list returns status 500 when dataset client returns an error", func() {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
-			mockConfig := config.Config{}
 			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{}, errors.New("dataset client error"))
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, nil, mockConfig))
+			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, nil))
 
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-		Convey("test versions list returns status 302 when dataset type is static", func() {
-			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
-			mockConfig := config.Config{}
-			mockClient.EXPECT().GetDataset(ctx, headers, "12345").Return(dpDatasetApiModels.Dataset{
-				Type: DatasetTypeStatic,
-			}, nil)
-			mockClient.EXPECT().GetVersions(ctx, headers, "12345", "2017", &dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}).Return(dpDatasetApiSdk.VersionsList{Items: []dpDatasetApiModels.Version{}}, nil)
-
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions", http.NoBody)
-
-			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{edition}/versions", VersionsList(mockClient, nil, nil, mockConfig))
-
-			router.ServeHTTP(w, req)
-
-			So(w.Code, ShouldEqual, http.StatusFound)
-			So(w.Body.String(), ShouldEqual, "<a href=\"/datasets/12345/editions/2017/versions/1\">Found</a>.\n\n")
 		})
 	})
 }
