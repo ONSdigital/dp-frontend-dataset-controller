@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	dpHandlers "github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -59,7 +59,12 @@ func staticEditionsList(r *http.Request, w http.ResponseWriter, datasetAPIClient
 	// Redirect to the latest version of the dataset.
 	if editionID != "" {
 		log.Info(ctx, "editionID provided in URL, redirecting to latest version", logData)
-		redirectPath := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topic, datasetID, editionID, dataset.Links.LatestVersion.ID)
+		redirectPath, err := helpers.PrefixPathWithTopic(topic, dataset.Links.LatestVersion.HRef)
+		if err != nil {
+			log.Error(ctx, "failed to create redirect path for latest version", err, logData)
+			setStatusCode(ctx, w, err)
+			return
+		}
 		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
@@ -74,7 +79,12 @@ func staticEditionsList(r *http.Request, w http.ResponseWriter, datasetAPIClient
 	// Redirect to latest version if number of editions <= 1
 	if len(editions.Items) <= 1 {
 		log.Info(ctx, "only one edition exists, redirecting to latest version", logData)
-		redirectPath := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topic, datasetID, editions.Items[0].Edition, editions.Items[0].Links.LatestVersion.ID)
+		redirectPath, err := helpers.PrefixPathWithTopic(topic, dataset.Links.LatestVersion.HRef)
+		if err != nil {
+			log.Error(ctx, "failed to create redirect path for latest version", err, logData)
+			setStatusCode(ctx, w, err)
+			return
+		}
 		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}

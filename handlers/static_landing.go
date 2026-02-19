@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
@@ -67,7 +66,13 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 	// Redirect to the latest version of the dataset.
 	if versionID == "" {
 		log.Info(ctx, "versionID not provided in URL, redirecting to latest version", logData)
-		redirectPath := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topic, datasetID, editionID, dataset.Links.LatestVersion.ID)
+		redirectPath, err := helpers.PrefixPathWithTopic(topic, dataset.Links.LatestVersion.HRef)
+		if err != nil {
+			log.Error(ctx, "failed to create redirect path for latest version", err, logData)
+			setStatusCode(ctx, w, err)
+			return
+		}
+
 		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}

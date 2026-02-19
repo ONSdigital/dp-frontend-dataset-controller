@@ -62,7 +62,8 @@ func TestStaticLanding(t *testing.T) {
 		Topics: []string{"topic1", "topic2"},
 		Links: &datasetAPIModels.DatasetLinks{
 			LatestVersion: &datasetAPIModels.LinkObject{
-				ID: "2",
+				HRef: "/datasets/static-dataset/editions/2025/versions/2",
+				ID:   "2",
 			},
 		},
 	}
@@ -174,6 +175,35 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response status code should be 404 Not Found", func() {
 			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+	})
+
+	Convey("When versionID is not provided in the URL and the dataset has an invalid latest version link", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(datasetAPIModels.Dataset{
+				ID:     datasetID,
+				Type:   DatasetTypeStatic,
+				Topics: []string{"topic1", "topic2"},
+				Links: &datasetAPIModels.DatasetLinks{
+					LatestVersion: &datasetAPIModels.LinkObject{
+						HRef: "://invalid-url",
+						ID:   "2",
+					},
+				},
+			}, nil)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1", datasetID, editionID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1",
+			"datasetID": datasetID,
+			"editionID": editionID,
+		})
+
+		staticLanding(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, mockAuthMiddleware, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 

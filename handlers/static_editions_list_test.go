@@ -39,7 +39,8 @@ func TestStaticEditionsList(t *testing.T) {
 		Topics: []string{"topic1", "topic2"},
 		Links: &datasetAPIModels.DatasetLinks{
 			LatestVersion: &datasetAPIModels.LinkObject{
-				ID: "2",
+				HRef: "/datasets/static-dataset/editions/2024/versions/2",
+				ID:   "2",
 			},
 		},
 	}
@@ -151,6 +152,35 @@ func TestStaticEditionsList(t *testing.T) {
 		})
 	})
 
+	Convey("When the editionID is provided in the URL but the dataset has an invalid latest version link", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(datasetAPIModels.Dataset{
+				ID:     datasetID,
+				Type:   DatasetTypeStatic,
+				Topics: []string{"topic1", "topic2"},
+				Links: &datasetAPIModels.DatasetLinks{
+					LatestVersion: &datasetAPIModels.LinkObject{
+						HRef: "://invalid-url",
+						ID:   "2",
+					},
+				},
+			}, nil)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1", datasetID, editionID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1",
+			"datasetID": datasetID,
+			"editionID": editionID,
+		})
+
+		staticEditionsList(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, apiRouterVersion, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
 	Convey("When the editionID is provided in the URL, redirect to the latest", t, func() {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
@@ -177,6 +207,37 @@ func TestStaticEditionsList(t *testing.T) {
 
 		mockDatasetClient.EXPECT().GetEditions(ctx, testUserDatasetSDKHeaders, datasetID, &datasetAPISDK.QueryParams{Limit: 1000}).
 			Return(datasetAPISDK.EditionsList{}, errors.New("GetEditions failed"))
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s", "topic1", datasetID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1",
+			"datasetID": datasetID,
+		})
+
+		staticEditionsList(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, apiRouterVersion, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
+	Convey("When the number of editions is 1 but the dataset has an invalid latest version link", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(datasetAPIModels.Dataset{
+				ID:     datasetID,
+				Type:   DatasetTypeStatic,
+				Topics: []string{"topic1", "topic2"},
+				Links: &datasetAPIModels.DatasetLinks{
+					LatestVersion: &datasetAPIModels.LinkObject{
+						HRef: "://invalid-url",
+						ID:   "2",
+					},
+				},
+			}, nil)
+
+		mockDatasetClient.EXPECT().GetEditions(ctx, testUserDatasetSDKHeaders, datasetID, &datasetAPISDK.QueryParams{Limit: 1000}).
+			Return(datasetAPISDK.EditionsList{Items: []datasetAPIModels.Edition{edition}}, nil)
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s", "topic1", datasetID), http.NoBody)
