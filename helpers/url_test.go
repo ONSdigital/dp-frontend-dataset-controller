@@ -16,19 +16,25 @@ func TestPrefixPathWithTopic(t *testing.T) {
 		{
 			name:     "full URL",
 			topicID:  "topic",
-			rawURL:   "http://example.com/some/path",
+			rawURL:   "http://example.com/v1/some/path",
 			expected: "/topic/some/path",
 		},
 		{
 			name:     "relative URL",
 			topicID:  "topic",
-			rawURL:   "/some/path",
+			rawURL:   "/v1/some/path",
 			expected: "/topic/some/path",
 		},
 		{
 			name:     "relative URL without leading slash",
 			topicID:  "topic",
-			rawURL:   "some/path",
+			rawURL:   "v1/some/path",
+			expected: "/topic/some/path",
+		},
+		{
+			name:     "relative URL with multiple slashes",
+			topicID:  "topic",
+			rawURL:   "///v1/some///path///",
 			expected: "/topic/some/path",
 		},
 	}

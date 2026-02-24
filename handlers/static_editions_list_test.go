@@ -39,7 +39,7 @@ func TestStaticEditionsList(t *testing.T) {
 		Topics: []string{"topic1", "topic2"},
 		Links: &datasetAPIModels.DatasetLinks{
 			LatestVersion: &datasetAPIModels.LinkObject{
-				HRef: "/datasets/static-dataset/editions/2024/versions/2",
+				HRef: "/v1/datasets/static-dataset/editions/2024/versions/2",
 				ID:   "2",
 			},
 		},
