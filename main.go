@@ -138,7 +138,7 @@ func run(ctx context.Context) error {
 	f := filter.NewWithHealthClient(apiRouterCli)
 	zc := zebedee.NewWithHealthClient(apiRouterCli)
 	apiClientsGoDatasetClient := dataset.NewWithHealthClient(apiRouterCli)
-	datasetAPISdkClient := dpDatasetApiSdk.New(cfg.DatasetAPIURL)
+	datasetAPISdkClient := dpDatasetApiSdk.NewWithHealthClient(apiRouterCli)
 	fc := files.NewWithHealthClient(apiRouterCli)
 	tc := topic.NewWithHealthClient(apiRouterCli)
 	pc := populationClient

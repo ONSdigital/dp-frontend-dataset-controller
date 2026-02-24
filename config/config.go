@@ -15,7 +15,6 @@ var RendererVersion = "v0.2.0"
 // Config represents service configuration for dp-frontend-dataset-controller
 type Config struct {
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
-	DatasetAPIURL                 string        `envconfig:"DATASET_API_URL"`
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
 	CacheNavigationUpdateInterval time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
 	Debug                         bool          `envconfig:"DEBUG"`
@@ -63,7 +62,6 @@ func get() (*Config, error) {
 
 	cfg = &Config{
 		APIRouterURL:                  "http://localhost:23200/v1",
-		DatasetAPIURL:                 "http://localhost:22000",
 		BindAddr:                      "localhost:20200",
 		CacheNavigationUpdateInterval: 10 * time.Second,
 		Debug:                         false,

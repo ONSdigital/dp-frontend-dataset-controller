@@ -23,7 +23,6 @@ func TestConfig(t *testing.T) {
 				So(cfg.Debug, ShouldBeFalse)
 				So(cfg.EnableMultivariate, ShouldBeFalse)
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
-				So(cfg.DatasetAPIURL, ShouldEqual, "http://localhost:22000")
 				So(cfg.DownloadServiceURL, ShouldEqual, "http://localhost:23600")
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
 				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})
