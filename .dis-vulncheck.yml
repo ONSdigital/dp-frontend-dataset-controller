@@ -1,0 +1,3 @@
+ignore:
+  - id: GO-2026-4394
+    reason: "Indirect dependency of https://github.com/ONSdigital/dp-otel-go. Cannot be updated until dp-otel-go has a release that resolves the vulnerability."
