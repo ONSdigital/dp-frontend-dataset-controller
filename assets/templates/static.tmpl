@@ -32,7 +32,7 @@
         <p class="ons-hero__text"><a href="#version-history">See all versions</a></p>
         {{ end }}
       </div>
-      {{ if .IsNationalStatistic }}
+      {{ if or (eq .Version.QualityDesignation "official") (eq .Version.QualityDesignation "accredited-official") }}
         {{ template "partials/static/official-statistics-badge" }}
       {{ end }}
       <div class="ons-grid ons-grid--gutterless ons-u-mb-no ons-u-mt-s ons-u-mt-l@l">
