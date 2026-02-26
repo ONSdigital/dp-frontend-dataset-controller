@@ -29,10 +29,10 @@ func DatasetVersionURL(datasetID, edition, version string) string {
 	return fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, edition, version)
 }
 
-// DatasetVersionURLWithTopic constructs a dataset version URL with topic from the provided topicID, datasetID, edition and version values.
+// DatasetVersionURLWithTopic constructs a dataset version URL with topic from the provided topicSlug, datasetID, edition and version values.
 // This is used for static datasets as they require the topic prefix in the URL.
-func DatasetVersionURLWithTopic(topicID, datasetID, edition, version string) string {
-	return fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topicID, datasetID, edition, version)
+func DatasetVersionURLWithTopic(topicSlug, datasetID, edition, version string) string {
+	return fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topicSlug, datasetID, edition, version)
 }
 
 func GetLatestVersionID(versionsList dpDatasetApiSdk.VersionsList) int {

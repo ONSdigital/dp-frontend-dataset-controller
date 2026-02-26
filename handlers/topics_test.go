@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	testTopic1 = topicAPIModels.Topic{ID: "topic1"}
-	testTopic2 = topicAPIModels.Topic{ID: "topic2"}
+	testTopic1 = topicAPIModels.Topic{ID: "topic1", Slug: "topic1-slug"}
+	testTopic2 = topicAPIModels.Topic{ID: "topic2", Slug: "topic2-slug"}
 )
 
 func TestFetchTopics(t *testing.T) {
