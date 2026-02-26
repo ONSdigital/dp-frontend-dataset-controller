@@ -84,15 +84,16 @@ func TestStaticLanding(t *testing.T) {
 	Convey("Given a successful request to the static landing page handler as an admin", t, func() {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testAdminDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
-		mockDatasetClient.EXPECT().GetVersionV2(ctx, testAdminDatasetSDKHeaders, datasetID, editionID, versionID).
-			Return(version, nil)
-		mockDatasetClient.EXPECT().GetVersions(ctx, testAdminDatasetSDKHeaders, datasetID, editionID, &datasetAPISDK.QueryParams{Limit: 1000}).
-			Return(versionList, nil)
 
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testAdminAccessToken}, "topic1").
 			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testAdminAccessToken}, "topic2").
 			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
+		mockDatasetClient.EXPECT().GetVersionV2(ctx, testAdminDatasetSDKHeaders, datasetID, editionID, versionID).
+			Return(version, nil)
+		mockDatasetClient.EXPECT().GetVersions(ctx, testAdminDatasetSDKHeaders, datasetID, editionID, &datasetAPISDK.QueryParams{Limit: 1000}).
+			Return(versionList, nil)
 
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, testAdminAccessToken, collectionID, lang, homepagePath).
 			Return(zebedee.HomepageContent{}, nil)
@@ -103,9 +104,9 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("When the StaticLanding handler is called", func() {
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 			r = mux.SetURLVars(r, map[string]string{
-				"topic":     "topic1",
+				"topic":     "topic1-slug",
 				"datasetID": datasetID,
 				"editionID": editionID,
 				"versionID": versionID,
@@ -123,9 +124,9 @@ func TestStaticLanding(t *testing.T) {
 			Return(datasetAPIModels.Dataset{}, errors.New("GetDataset failed"))
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -143,9 +144,9 @@ func TestStaticLanding(t *testing.T) {
 			Return(datasetAPIModels.Dataset{Type: "filterable"}, nil)
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -162,10 +163,15 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "different-topic", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "different-topic-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "different-topic",
+			"topic":     "different-topic-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -192,10 +198,15 @@ func TestStaticLanding(t *testing.T) {
 				},
 			}, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1", datasetID, editionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1-slug", datasetID, editionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 		})
@@ -212,10 +223,15 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1", datasetID, editionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1-slug", datasetID, editionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 		})
@@ -224,7 +240,7 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response should be a redirect to the latest version", func() {
 			So(w.Code, ShouldEqual, http.StatusFound)
-			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, dataset.Links.LatestVersion.ID)
+			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, dataset.Links.LatestVersion.ID)
 			So(w.Header().Get("Location"), ShouldEqual, expectedLocation)
 		})
 	})
@@ -234,10 +250,15 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions", "topic1", datasetID, editionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions", "topic1-slug", datasetID, editionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 		})
@@ -246,7 +267,7 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response should be a redirect to the latest version", func() {
 			So(w.Code, ShouldEqual, http.StatusFound)
-			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, dataset.Links.LatestVersion.ID)
+			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, dataset.Links.LatestVersion.ID)
 			So(w.Header().Get("Location"), ShouldEqual, expectedLocation)
 		})
 	})
@@ -255,14 +276,19 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(datasetAPIModels.Version{}, errors.New("GetVersionV2 failed"))
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -280,16 +306,16 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(version, nil)
 
 		mockDatasetClient.EXPECT().GetVersions(ctx, testUserDatasetSDKHeaders, datasetID, editionID, &datasetAPISDK.QueryParams{Limit: 1000}).
 			Return(versionList, nil)
-
-		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
-			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
-		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
-			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
 
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, testUserAccessToken, collectionID, lang, homepagePath).
 			Return(zebedee.HomepageContent{}, nil)
@@ -299,9 +325,9 @@ func TestStaticLanding(t *testing.T) {
 		mockRenderClient.EXPECT().BuildPage(ctx, gomock.Any(), templateNameStatic)
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s?f=get-data", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s?f=get-data", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -318,13 +344,18 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(version, nil)
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s?f=get-data&format=csv", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s?f=get-data&format=csv", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -342,6 +373,11 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(version, nil)
 
@@ -352,9 +388,9 @@ func TestStaticLanding(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -371,6 +407,11 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(version, nil)
 
@@ -378,9 +419,9 @@ func TestStaticLanding(t *testing.T) {
 			Return(datasetAPISDK.VersionsList{}, errors.New("GetVersions failed"))
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,
@@ -397,17 +438,16 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
 		mockDatasetClient.EXPECT().GetVersionV2(ctx, testUserDatasetSDKHeaders, datasetID, editionID, versionID).
 			Return(version, nil)
 
 		mockDatasetClient.EXPECT().GetVersions(ctx, testUserDatasetSDKHeaders, datasetID, editionID, &datasetAPISDK.QueryParams{Limit: 1000}).
 			Return(versionList, nil)
-
-		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
-			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
-
-		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
-			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
 
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, testUserAccessToken, collectionID, lang, homepagePath).
 			Return(zebedee.HomepageContent{}, errors.New("GetHomepageContent failed"))
@@ -417,10 +457,10 @@ func TestStaticLanding(t *testing.T) {
 		mockRenderClient.EXPECT().BuildPage(ctx, gomock.Any(), templateNameStatic)
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1", datasetID, editionID, versionID), http.NoBody)
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
 
 		r = mux.SetURLVars(r, map[string]string{
-			"topic":     "topic1",
+			"topic":     "topic1-slug",
 			"datasetID": datasetID,
 			"editionID": editionID,
 			"versionID": versionID,

@@ -25,7 +25,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 	ctx := r.Context()
 
 	vars := mux.Vars(r)
-	topic := vars["topic"]
+	topicSlug := vars["topic"]
 	datasetID := vars["datasetID"]
 	editionID := vars["editionID"]
 	versionID := vars["versionID"]
@@ -34,7 +34,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 	formatQueryParam := r.URL.Query().Get("format")
 
 	logData := log.Data{
-		"topicID":   topic,
+		"topicSlug": topicSlug,
 		"datasetID": datasetID,
 		"editionID": editionID,
 		"versionID": versionID,
@@ -55,8 +55,10 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 		return
 	}
 
-	// Topics is a mandatory field but nil check is added to prevent potential panics
-	if len(dataset.Topics) == 0 || dataset.Topics[0] != topic {
+	topicList := fetchTopics(ctx, cfg, topicAPIClient, dataset.Topics, userAccessToken)
+
+	// Topics is a mandatory field but len checks are added to prevent potential panics
+	if len(dataset.Topics) == 0 || len(topicList) == 0 || topicList[0].Slug != topicSlug {
 		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
 		setStatusCode(ctx, w, errDatasetTopicMismatch)
 		return
@@ -66,7 +68,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 	// Redirect to the latest version of the dataset.
 	if versionID == "" {
 		log.Info(ctx, "versionID not provided in URL, redirecting to latest version", logData)
-		redirectPath, err := helpers.PrefixPathWithTopic(topic, dataset.Links.LatestVersion.HRef)
+		redirectPath, err := helpers.PrefixPathWithTopic(topicSlug, dataset.Links.LatestVersion.HRef)
 		if err != nil {
 			log.Error(ctx, "failed to create redirect path for latest version", err, logData)
 			setStatusCode(ctx, w, err)
@@ -119,8 +121,6 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 		setStatusCode(ctx, w, err)
 		return
 	}
-
-	topicList := fetchTopics(ctx, cfg, topicAPIClient, dataset.Topics, userAccessToken)
 
 	// Fetch homepage content
 	homepageContent, err := zebedeeClient.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)
