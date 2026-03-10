@@ -52,6 +52,8 @@ func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc 
 	}
 
 	responseWriter.Header().Set("Content-Type", "plain/text")
+
+	//nolint:gosec // data is returned from the dataset API which is trusted
 	_, err = responseWriter.Write(b)
 	if err != nil {
 		setStatusCode(ctx, responseWriter, errors.Wrap(err, "failed to write metadata text response"))

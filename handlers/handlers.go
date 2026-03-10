@@ -150,6 +150,8 @@ func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter,
 			setStatusCode(ctx, w, err)
 			return
 		}
+
+		//nolint:gosec // data from zebedee is trusted
 		_, err = w.Write(b)
 		if err != nil {
 			setStatusCode(ctx, w, errors.Wrap(err, "failed to write zebedee client get response"))
