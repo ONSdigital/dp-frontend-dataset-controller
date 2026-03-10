@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-frontend-dataset-controller
 
-go 1.24.0
+go 1.26
 
 require (
 	github.com/ONSdigital/dis-design-system-go v1.4.0
