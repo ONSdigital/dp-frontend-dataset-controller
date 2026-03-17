@@ -207,7 +207,7 @@ func run(ctx context.Context) error {
 	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}").Methods("GET").HandlerFunc(handlers.StaticLanding(datasetAPISdkClient, rend, zc, tc, *cfg, authorisation))
 
 	if cfg.IsPublishing {
-		router.Path("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve").Methods("GET").HandlerFunc(handlers.ApproveDatasetVersion(datasetAPISdkClient, *cfg))
+		router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve").Methods("GET").HandlerFunc(handlers.ApproveDatasetVersion(datasetAPISdkClient, *cfg))
 	}
 
 	router.PathPrefix("/dataset/").Methods("GET").Handler(http.StripPrefix("/dataset/", handlers.DatasetPage(zc, rend, fc, cacheList)))
