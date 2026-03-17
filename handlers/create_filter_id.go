@@ -14,6 +14,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const maxFormBytes = 8 * 1024 // 8KB as only one form value is expected
+
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
 func CreateFilterID(c FilterClient, dc APIClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
@@ -65,6 +67,7 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 		version := vars["versionID"]
 		ctx := req.Context()
 
+		req.Body = http.MaxBytesReader(w, req.Body, maxFormBytes)
 		if err := req.ParseForm(); err != nil {
 			log.Error(ctx, "unable to parse request form", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -116,6 +119,7 @@ func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
 		filterOutputID := vars["filterOutputID"]
 		ctx := req.Context()
 
+		req.Body = http.MaxBytesReader(w, req.Body, maxFormBytes)
 		if err := req.ParseForm(); err != nil {
 			log.Error(ctx, "unable to parse request form", err)
 			w.WriteHeader(http.StatusInternalServerError)
