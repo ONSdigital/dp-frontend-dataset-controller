@@ -14,25 +14,29 @@ import (
 // ApproveDatasetVersion handles the approve button click on static dataset version pages
 func ApproveDatasetVersion(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
-		approveDatasetVersion(w, req, dc, collectionID, userAccessToken, lang)
+		approveDatasetVersion(w, req, dc, userAccessToken)
 	})
 }
 
-func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClient, collectionID, userAccessToken, lang string) {
+func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClient, userAccessToken string) {
 	ctx := req.Context()
 
 	vars := mux.Vars(req)
+	topicSlug := vars["topic"]
 	datasetID := vars["datasetID"]
 	editionID := vars["editionID"]
 	versionID := vars["versionID"]
 
 	headers := dpDatasetApiSdk.Headers{
-		CollectionID:         collectionID,
-		DownloadServiceToken: "",
-		AccessToken:          userAccessToken,
+		AccessToken: userAccessToken,
 	}
 
-	logData := log.Data{"datasetID": datasetID, "editionID": editionID, "versionID": versionID}
+	logData := log.Data{
+		"topicSlug": topicSlug,
+		"datasetID": datasetID,
+		"editionID": editionID,
+		"versionID": versionID,
+	}
 
 	err := dc.PutVersionState(ctx, headers, datasetID, editionID, versionID, "approved")
 	if err != nil {
@@ -41,6 +45,6 @@ func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetA
 		log.Info(ctx, "dataset version approval successful", logData)
 	}
 
-	uri := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s", datasetID, editionID, versionID)
+	uri := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topicSlug, datasetID, editionID, versionID)
 	http.Redirect(w, req, uri, http.StatusTemporaryRedirect)
 }

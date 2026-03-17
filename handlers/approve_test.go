@@ -23,9 +23,7 @@ func TestApproveDatasetVersion(t *testing.T) {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 
 			headers := dpDatasetApiSdk.Headers{
-				CollectionID:         collectionID,
-				DownloadServiceToken: "",
-				AccessToken:          userAuthToken,
+				AccessToken: userAuthToken,
 			}
 
 			mockClient.
@@ -34,24 +32,22 @@ func TestApproveDatasetVersion(t *testing.T) {
 				Return(nil)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions/1/approve", http.NoBody)
+			req := httptest.NewRequest("GET", "/topicSlug/datasets/12345/editions/2017/versions/1/approve", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve", ApproveDatasetVersion(mockClient, config.Config{}))
+			router.HandleFunc("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve", ApproveDatasetVersion(mockClient, config.Config{}))
 
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusTemporaryRedirect)
-			So(w.Header().Get("Location"), ShouldEqual, "/datasets/12345/editions/2017/versions/1")
+			So(w.Header().Get("Location"), ShouldEqual, "/topicSlug/datasets/12345/editions/2017/versions/1")
 		})
 
 		Convey("logs error from dataset client but still redirects", func() {
 			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
 
 			headers := dpDatasetApiSdk.Headers{
-				CollectionID:         collectionID,
-				DownloadServiceToken: "",
-				AccessToken:          userAuthToken,
+				AccessToken: userAuthToken,
 			}
 
 			mockClient.
@@ -60,15 +56,15 @@ func TestApproveDatasetVersion(t *testing.T) {
 				Return(errors.New("approval failed"))
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/datasets/12345/editions/2017/versions/1/approve", http.NoBody)
+			req := httptest.NewRequest("GET", "/topicSlug/datasets/12345/editions/2017/versions/1/approve", http.NoBody)
 
 			router := mux.NewRouter()
-			router.HandleFunc("/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve", ApproveDatasetVersion(mockClient, config.Config{}))
+			router.HandleFunc("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/approve", ApproveDatasetVersion(mockClient, config.Config{}))
 
 			router.ServeHTTP(w, req)
 
 			So(w.Code, ShouldEqual, http.StatusTemporaryRedirect)
-			So(w.Header().Get("Location"), ShouldEqual, "/datasets/12345/editions/2017/versions/1")
+			So(w.Header().Get("Location"), ShouldEqual, "/topicSlug/datasets/12345/editions/2017/versions/1")
 		})
 	})
 }
