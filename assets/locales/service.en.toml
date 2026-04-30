@@ -453,3 +453,19 @@ one = "Privacy and data protection"
 [AccessibilityStatement]
 description = "Accessibility statement"
 one = "Accessibility statement"
+
+[Browsers]
+description = "Browsers"
+one = "Browsers"
+
+[FairUsePolicy]
+description = "Fair use policy"
+one = "Fair use policy"
+
+[PrivacyNotice]
+description = "Privacy notice"
+one = "Privacy notice"
+
+[AboutUs]
+description = "About us"
+one = "About us"
