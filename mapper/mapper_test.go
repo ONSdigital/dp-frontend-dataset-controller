@@ -74,6 +74,12 @@ func TestUnitMapper(t *testing.T) {
 		Type:    "nomis",
 	}
 
+	alert := dpDatasetApiModels.Alert{
+		Type:        dpDatasetApiModels.AlertTypeAlert,
+		Description: "Some alert",
+		Date:        "2026-04-25T16:00:00.000Z",
+	}
+
 	v := []dpDatasetApiModels.Version{
 		{
 			CollectionID: "abcdefg",
@@ -85,6 +91,7 @@ func TestUnitMapper(t *testing.T) {
 					HRef: "/datasets/83jd98fkflg/editions/124/versions/1",
 				},
 			},
+			Alerts: &[]dpDatasetApiModels.Alert{alert},
 			Dimensions: []dpDatasetApiModels.Dimension{
 				{
 					ID:    "city",
@@ -203,6 +210,9 @@ func TestUnitMapper(t *testing.T) {
 		So(p.DatasetLandingPage.Dimensions[1].Values, ShouldHaveLength, 1)
 		So(p.DatasetLandingPage.Dimensions[1].Title, ShouldEqual, "Time")
 		So(p.DatasetLandingPage.Dimensions[1].Values[0], ShouldEqual, "All months between January 2005 and February 2005")
+		So(p.DatasetLandingPage.Alerts[0].Type, ShouldEqual, "Alert")
+		So(p.DatasetLandingPage.Alerts[0].Description, ShouldEqual, "Some alert")
+		So(p.DatasetLandingPage.Alerts[0].Date, ShouldEqual, "2026-04-25T16:00:00.000Z")
 
 		v0 := p.DatasetLandingPage.Version
 		So(v0.Title, ShouldEqual, d.Title)

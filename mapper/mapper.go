@@ -229,6 +229,17 @@ func CreateFilterableLandingPage(ctx context.Context, basePage dpRendererModel.P
 		}
 	}
 
+	if ver.Alerts != nil {
+		fmt.Println(ver.Alerts)
+		for _, alert := range *ver.Alerts {
+			p.DatasetLandingPage.Alerts = append(p.DatasetLandingPage.Alerts, filterable.Alert{
+				Type:        cases.Title(language.Und, cases.NoLower).String(string(alert.Type)), // Casts the first letter to uppercase so it can be used in a label
+				Description: alert.Description,
+				Date:        alert.Date,
+			})
+		}
+	}
+
 	var v sharedModel.Version
 	v.Title = d.Title
 	v.Description = d.Description
