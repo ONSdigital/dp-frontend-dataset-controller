@@ -203,7 +203,6 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 				log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": taxonomyURL})
 			}
 		}
-
 		// filterable landing mapper
 		m := mapper.CreateFilterableLandingPage(ctx, basePage, datasetDetails, version, datasetID, opts,
 			dims, displayOtherVersionsLink, bc, latestVersionNumber, latestVersionURL, apiRouterVersion,
