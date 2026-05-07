@@ -6,6 +6,11 @@
                <span class="page-intro__type padding-top--0 padding-bottom--0">Dataset:</span>
                <strong>{{ .Metadata.Title }}{{ if .DatasetLandingPage.ShowEditionName }}: {{ .DatasetLandingPage.Edition }} {{ end }}</strong>
             </h1>
+            <section>
+               {{range .DatasetLandingPage.Alerts}}
+                  <div class="margin-bottom--4"><span class="dataset-alert">{{ .Type }} - {{dateFormat .Date }}: {{ .Description }}</span></div>
+               {{ end }}
+            </section>
             {{ template "partials/release-alert" . }}
          </div>
       </div>

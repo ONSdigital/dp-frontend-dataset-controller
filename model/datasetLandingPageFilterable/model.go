@@ -9,6 +9,15 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/staticlegacy"
 )
 
+// AlertType defines possible types of alerts
+type AlertType string
+
+// Define the possible values for the AlertType enum
+const (
+	AlertTypeAlert      AlertType = "alert"
+	AlertTypeCorrection AlertType = "correction"
+)
+
 // Page contains data re-used for each page type a Data struct for data specific to the page type
 type Page struct {
 	model.Page
@@ -38,6 +47,7 @@ type DatasetLandingPage struct {
 	Methodologies            []Methodology           `json:"methodology"`
 	NomisReferenceURL        string                  `json:"nomis_reference_url,omitempty"`
 	UsageNotes               []UsageNote             `json:"UsageNotes"`
+	Alerts                   []Alert                 `json:"alerts"`
 	OSRLogo                  osrlogo.OSRLogo         `json:"osr_logo"`
 }
 
@@ -45,6 +55,13 @@ type DatasetLandingPage struct {
 type UsageNote struct {
 	Note  string `json:"note,omitempty"`
 	Title string `json:"title,omitempty"`
+}
+
+// Alert represents data for a single alert
+type Alert struct {
+	Date        string `json:"date,omitempty"`
+	Description string `json:"description,omitempty"`
+	Type        string `json:"type,omitempty"`
 }
 
 // Publication represents the data for a single publication
