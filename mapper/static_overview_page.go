@@ -47,3 +47,12 @@ func CreateStaticOverviewPage(basePage core.Page, datasetDetails dpDatasetApiMod
 	p.DatasetLandingPage.QualityStatements = formatStaticPanels(p.DatasetLandingPage.QualityStatements)
 	return p
 }
+
+// formatPanels is a helper function given an array of panels will format the final panel with the appropriate css class
+func formatStaticPanels(panels []static.Panel) []static.Panel {
+	if len(panels) > 0 {
+		panelLen := len(panels)
+		panels[panelLen-1].CSSClasses = append(panels[panelLen-1].CSSClasses, "ons-u-mb-l")
+	}
+	return panels
+}
