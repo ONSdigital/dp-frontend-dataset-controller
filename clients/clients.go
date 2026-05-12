@@ -1,26 +1,26 @@
-package handlers
+package clients
 
 import (
 	"context"
-	io "io"
+	"io"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
-	"github.com/ONSdigital/dp-api-clients-go/v2/population"
-
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
-	core "github.com/ONSdigital/dis-design-system-go/model"
-	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
-	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
-	dpTopicApiSdk "github.com/ONSdigital/dp-topic-api/sdk"
-	dpTopicApiErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
+	"github.com/ONSdigital/dis-design-system-go/model"
+
+	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
+	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
+	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
+	topicAPIErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 )
 
-// To mock interfaces in this file
-//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=handlers github.com/ONSdigital/dp-frontend-dataset-controller/handlers FilterClient,APIClientsGoDatasetClient,DatasetAPISdkClient,RenderClient,TopicAPIClient
+//go:generate mockgen -source=clients.go -destination=mock_clients.go -package=clients github.com/ONSdigital/dp-frontend-dataset-controller/clients FilterClient,APIClientsGoDatasetClient,DatasetAPISdkClient,RenderClient,TopicAPIClient,ZebedeeClient
 
 // FilterClient is an interface with the methods required for a filter client
 type FilterClient interface {
@@ -47,23 +47,23 @@ type APIClientsGoDatasetClient interface {
 
 // Interface with methods required for a dp-dataset-api/sdk dataset client
 type DatasetAPISdkClient interface {
-	GetDataset(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string) (m dpDatasetApiModels.Dataset, err error)
-	GetDatasetByPath(ctx context.Context, headers dpDatasetApiSdk.Headers, path string) (m dpDatasetApiModels.Dataset, err error)
-	GetEditions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.EditionsList, err error)
-	GetEdition(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, edition string) (dpDatasetApiModels.Edition, error)
-	GetVersions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionsList, err error)
-	GetVersion(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Version, err error)
-	GetVersionV2(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Version, err error)
-	GetVersionMetadata(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiModels.Metadata, err error)
-	GetVersionDimensions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string) (m dpDatasetApiSdk.VersionDimensionsList, err error)
-	GetVersionDimensionOptions(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, dimensionID string, q *dpDatasetApiSdk.QueryParams) (m dpDatasetApiSdk.VersionDimensionOptionsList, err error)
-	PutVersionState(ctx context.Context, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID, state string) (err error)
+	GetDataset(ctx context.Context, headers datasetAPISDK.Headers, datasetID string) (m datasetAPIModels.Dataset, err error)
+	GetDatasetByPath(ctx context.Context, headers datasetAPISDK.Headers, path string) (m datasetAPIModels.Dataset, err error)
+	GetEditions(ctx context.Context, headers datasetAPISDK.Headers, datasetID string, q *datasetAPISDK.QueryParams) (m datasetAPISDK.EditionsList, err error)
+	GetEdition(ctx context.Context, headers datasetAPISDK.Headers, datasetID, edition string) (datasetAPIModels.Edition, error)
+	GetVersions(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID string, q *datasetAPISDK.QueryParams) (m datasetAPISDK.VersionsList, err error)
+	GetVersion(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID string) (m datasetAPIModels.Version, err error)
+	GetVersionV2(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID string) (m datasetAPIModels.Version, err error)
+	GetVersionMetadata(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID string) (m datasetAPIModels.Metadata, err error)
+	GetVersionDimensions(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID string) (m datasetAPISDK.VersionDimensionsList, err error)
+	GetVersionDimensionOptions(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID, dimensionID string, q *datasetAPISDK.QueryParams) (m datasetAPISDK.VersionDimensionOptionsList, err error)
+	PutVersionState(ctx context.Context, headers datasetAPISDK.Headers, datasetID, editionID, versionID, state string) (err error)
 }
 
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
 	BuildPage(w io.Writer, pageModel interface{}, templateName string)
-	NewBasePageModel() core.Page
+	NewBasePageModel() model.Page
 }
 
 // FilesAPIClient is an interface with methods required for getting metadata from Files API
@@ -86,8 +86,17 @@ type PopulationClient interface {
 
 // TopicClient is an interface with methods required for a topic client
 type TopicAPIClient interface {
-	GetTopicPublic(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.Topic, dpTopicApiErrors.Error)
-	GetTopicPrivate(ctx context.Context, headers dpTopicApiSdk.Headers, id string) (*dpTopicApiModels.TopicResponse, dpTopicApiErrors.Error)
+	GetTopicPublic(ctx context.Context, headers topicAPISDK.Headers, id string) (*topicAPIModels.Topic, topicAPIErrors.Error)
+	GetTopicPrivate(ctx context.Context, headers topicAPISDK.Headers, id string) (*topicAPIModels.TopicResponse, topicAPIErrors.Error)
+}
+
+// ZebedeeClient is an interface for a zebedee client
+type ZebedeeClient interface {
+	GetBreadcrumb(ctx context.Context, userAccessToken, collectionID, lang, path string) ([]zebedee.Breadcrumb, error)
+	Get(ctx context.Context, userAccessToken, path string) ([]byte, error)
+	GetDatasetLandingPage(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.DatasetLandingPage, error)
+	GetDataset(ctx context.Context, userAccessToken, collectionID, lang, path string) (zebedee.Dataset, error)
+	GetHomepageContent(ctx context.Context, userAccessToken, collectionID, lang, path string) (m zebedee.HomepageContent, err error)
 }
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
