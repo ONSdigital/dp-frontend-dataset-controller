@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -23,15 +24,15 @@ import (
 )
 
 // FilterableLanding will load a filterable landing page
-func FilterableLanding(dc DatasetAPISdkClient, pc PopulationClient, rend RenderClient, zc ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterableLanding(dc clients.DatasetAPISdkClient, pc clients.PopulationClient, rend clients.RenderClient, zc clients.ZebedeeClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterableLanding(w, req, dc, pc, rend, zc, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // In future the redirect part should be handled in a different file to reduce complexity
-func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient,
-	populationClient PopulationClient, renderClient RenderClient, zebedeeClient ZebedeeClient, cfg config.Config,
+func filterableLanding(responseWriter http.ResponseWriter, request *http.Request, dc clients.DatasetAPISdkClient,
+	populationClient clients.PopulationClient, renderClient clients.RenderClient, zebedeeClient clients.ZebedeeClient, cfg config.Config,
 	collectionID string, lang string, apiRouterVersion string, userAccessToken string) {
 	var bc []zebedee.Breadcrumb
 	var dims dpDatasetApiSdk.VersionDimensionsList
@@ -107,6 +108,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	// i.e. coming in from /datasets/{datasetID}/editions/{editionID}
 	if versionID == "" {
 		log.Info(ctx, "no version provided, therefore redirecting to latest version", log.Data{"latestVersionURL": latestVersionURL})
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 		http.Redirect(responseWriter, request, latestVersionURL, http.StatusFound)
 		return
 	}
@@ -125,6 +127,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 			isValidationError = true
 		} else {
 			// Otherwise redirect to valid file location
+			//nolint:gosec // false positive as downloadURL is from a trusted source (dataset API)
 			http.Redirect(responseWriter, request, fileDownloadURL, http.StatusFound)
 		}
 	}
@@ -256,7 +259,7 @@ func filterableLanding(responseWriter http.ResponseWriter, request *http.Request
 	renderClient.BuildPage(responseWriter, pageModel, templateName)
 }
 
-func getDimensionCategorisationCountMap(ctx context.Context, pc PopulationClient, userAccessToken, populationType string, dims []dpDatasetApiModels.Dimension) map[string]int {
+func getDimensionCategorisationCountMap(ctx context.Context, pc clients.PopulationClient, userAccessToken, populationType string, dims []dpDatasetApiModels.Dimension) map[string]int {
 	m := make(map[string]int)
 	var mutex sync.Mutex
 	var wg sync.WaitGroup

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/gorilla/mux"
@@ -11,13 +12,13 @@ import (
 )
 
 // MetadataText generates a metadata text file
-func MetadataText(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
+func MetadataText(dc clients.DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(responseWriter http.ResponseWriter, request *http.Request, lang, collectionID, userAccessToken string) {
 		metadataText(responseWriter, request, dc, cfg, userAccessToken, collectionID)
 	})
 }
 
-func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, cfg config.Config, userAccessToken, collectionID string) {
+func metadataText(responseWriter http.ResponseWriter, request *http.Request, dc clients.DatasetAPISdkClient, cfg config.Config, userAccessToken, collectionID string) {
 	downloadServiceAuthToken := ""
 
 	ctx := request.Context()

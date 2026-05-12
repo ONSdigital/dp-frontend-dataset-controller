@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -28,10 +29,10 @@ func TestCreateFilterID(t *testing.T) {
 
 	Convey("test CreateFilterID", t, func() {
 		Convey("test CreateFilterID handler, creates a filter id and redirects", func() {
-			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient := clients.NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", []string{"aggregate", "time"}).Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			dims := dataset.VersionDimensions{
 				Items: []dataset.VersionDimension{
 					{
@@ -58,10 +59,10 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterID returns 500 if unable to create a blueprint on filter api", func() {
-			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient := clients.NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "5678", "2017", gomock.Any()).Return("", "", errors.New("unable to create filter blueprint"))
 
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, "1234", "5678", "2017").Return(dataset.VersionDimensions{}, nil)
 
 			body := strings.NewReader("")
@@ -96,11 +97,11 @@ func TestCreateFilterID(t *testing.T) {
 					Name: "age",
 				},
 			}
-			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient := clients.NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -124,11 +125,11 @@ func TestCreateFilterID(t *testing.T) {
 					Name: "age",
 				},
 			}
-			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient := clients.NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -152,11 +153,11 @@ func TestCreateFilterID(t *testing.T) {
 					Name: "age",
 				},
 			}
-			mockClient := NewMockFilterClient(mockCtrl)
+			mockClient := clients.NewMockFilterClient(mockCtrl)
 			mockClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", mockDims, "Example").
 				Return("12345", "testETag", nil)
 
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").
 				Return(mockVersions.Items[1], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").
@@ -172,10 +173,10 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterFlexID returns 500 if unable to create a blueprint on filter api", func() {
-			mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
+			mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
 			mockDatasetClient.EXPECT().GetVersion(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1").Return(mockVersions.Items[0], nil)
 			mockDatasetClient.EXPECT().Get(ctx, userAuthToken, serviceAuthToken, collectionID, "1234").Return(dataset.DatasetDetails{IsBasedOn: &dataset.IsBasedOn{}}, nil)
-			mockFilterClient := NewMockFilterClient(mockCtrl)
+			mockFilterClient := clients.NewMockFilterClient(mockCtrl)
 			mockFilterClient.EXPECT().CreateFlexibleBlueprint(ctx, userAuthToken, serviceAuthToken, "", collectionID, "1234", "2021", "1", gomock.Any(), "").Return("", "", errors.New("unable to create filter blueprint"))
 			body := strings.NewReader("")
 
@@ -210,7 +211,7 @@ func TestCreateFilterID(t *testing.T) {
 		}
 
 		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect for multivariate", func() {
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -221,7 +222,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=change")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -230,7 +231,7 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect includes dimension name", func() {
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -241,7 +242,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=geography")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -276,7 +277,7 @@ func TestCreateFilterID(t *testing.T) {
 				Custom: helpers.ToBoolPtr(true),
 			}
 
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -293,7 +294,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil).MaxTimes(0)
 
 			body := strings.NewReader("dimension=change")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -302,7 +303,7 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput handler, creates a filter id and redirect for coverage appends to geography", func() {
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -313,7 +314,7 @@ func TestCreateFilterID(t *testing.T) {
 				Return("12345", "testETag", nil)
 
 			body := strings.NewReader("dimension=coverage")
-			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			w := testResponse(301, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 
 			location := w.Header().Get("Location")
 			So(location, ShouldNotBeEmpty)
@@ -322,18 +323,18 @@ func TestCreateFilterID(t *testing.T) {
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput returns 500 if unable to get filter record on filter api", func() {
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 				Return(filter.Model{}, errors.New("unable to get filter job"))
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 		})
 
 		Convey("test CreateFilterFlexIDFromOutput returns 500 if unable to create a blueprint on filter api", func() {
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				GetOutput(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -344,12 +345,12 @@ func TestCreateFilterID(t *testing.T) {
 				Return("", "", errors.New("unable to create filter blueprint"))
 			body := strings.NewReader("")
 
-			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
+			testResponse(500, body, "/datasets/1234/editions/2021/versions/1/filter-outputs/5678", mockFc, clients.NewMockAPIClientsGoDatasetClient(mockCtrl), FilterFlexOutput)
 		})
 	})
 }
 
-func testResponse(code int, body *strings.Reader, url string, fc FilterClient, dc APIClientsGoDatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
+func testResponse(code int, body *strings.Reader, url string, fc clients.FilterClient, dc clients.APIClientsGoDatasetClient, filterFlexRoute string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", url, body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 

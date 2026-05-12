@@ -12,6 +12,7 @@ import (
 	authMock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
 	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	permissionsAPISDK "github.com/ONSdigital/dp-permissions-api/sdk"
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
@@ -37,10 +38,10 @@ func TestStaticLanding(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatasetClient := NewMockDatasetAPISdkClient(ctrl)
-	mockRenderClient := NewMockRenderClient(ctrl)
-	mockZebedeeClient := NewMockZebedeeClient(ctrl)
-	mockTopicAPIClient := NewMockTopicAPIClient(ctrl)
+	mockDatasetClient := clients.NewMockDatasetAPISdkClient(ctrl)
+	mockRenderClient := clients.NewMockRenderClient(ctrl)
+	mockZebedeeClient := clients.NewMockZebedeeClient(ctrl)
+	mockTopicAPIClient := clients.NewMockTopicAPIClient(ctrl)
 	mockAuthMiddleware := &authMock.MiddlewareMock{
 		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
 			switch token {

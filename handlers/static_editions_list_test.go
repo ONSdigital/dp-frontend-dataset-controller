@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
 	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/gorilla/mux"
@@ -27,10 +28,10 @@ func TestStaticEditionsList(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatasetClient := NewMockDatasetAPISdkClient(ctrl)
-	mockRenderClient := NewMockRenderClient(ctrl)
-	mockZebedeeClient := NewMockZebedeeClient(ctrl)
-	mockTopicAPIClient := NewMockTopicAPIClient(ctrl)
+	mockDatasetClient := clients.NewMockDatasetAPISdkClient(ctrl)
+	mockRenderClient := clients.NewMockRenderClient(ctrl)
+	mockZebedeeClient := clients.NewMockZebedeeClient(ctrl)
+	mockTopicAPIClient := clients.NewMockTopicAPIClient(ctrl)
 
 	datasetID := "static-dataset"
 	dataset := datasetAPIModels.Dataset{

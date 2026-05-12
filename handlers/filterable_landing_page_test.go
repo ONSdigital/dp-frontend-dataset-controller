@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -23,10 +24,10 @@ func TestFilterableLandingPage(t *testing.T) {
 	mockConfig := initialiseMockConfig()
 	mockContext := gomock.Any()
 	mockController := gomock.NewController(t)
-	mockDatasetClient := NewMockDatasetAPISdkClient(mockController)
-	mockPopulationClient := NewMockPopulationClient(mockController)
-	mockRenderClient := NewMockRenderClient(mockController)
-	mockZebedeeClient := NewMockZebedeeClient(mockController)
+	mockDatasetClient := clients.NewMockDatasetAPISdkClient(mockController)
+	mockPopulationClient := clients.NewMockPopulationClient(mockController)
+	mockRenderClient := clients.NewMockRenderClient(mockController)
+	mockZebedeeClient := clients.NewMockZebedeeClient(mockController)
 
 	// Default test values
 	apiRouterVersion := "/v1"
@@ -109,10 +110,10 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 	mockConfig := initialiseMockConfig()
 	mockContext := gomock.Any()
 	mockController := gomock.NewController(t)
-	mockDatasetClient := NewMockDatasetAPISdkClient(mockController)
-	mockPopulationClient := NewMockPopulationClient(mockController)
-	mockRenderClient := NewMockRenderClient(mockController)
-	mockZebedeeClient := NewMockZebedeeClient(mockController)
+	mockDatasetClient := clients.NewMockDatasetAPISdkClient(mockController)
+	mockPopulationClient := clients.NewMockPopulationClient(mockController)
+	mockRenderClient := clients.NewMockRenderClient(mockController)
+	mockZebedeeClient := clients.NewMockZebedeeClient(mockController)
 
 	datasetID := "12345"
 	datasetType := "filterable"
@@ -231,7 +232,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 		})
 
 		Convey("test filterableLanding returns 302 and redirects to the correct url for edition level requests without version", func() {
-			mockZebedeeClient := NewMockZebedeeClient(mockController)
+			mockZebedeeClient := clients.NewMockZebedeeClient(mockController)
 			mockDatasetClient.EXPECT().GetDataset(mockContext, headers, "12345").Return(mockGetResponse, nil)
 			versions := dpDatasetApiSdk.VersionsList{
 				Items: []dpDatasetApiModels.Version{
@@ -264,7 +265,7 @@ func TestFilterableLandingPageFilterableDataType(t *testing.T) {
 
 func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
-	mockPc := NewMockPopulationClient(mockCtrl)
+	mockPc := clients.NewMockPopulationClient(mockCtrl)
 
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
@@ -289,10 +290,10 @@ func TestFilterableLandingPageCantabularDataTypes(t *testing.T) {
 	}
 
 	Convey("test census landing page", t, func() {
-		mockClient := NewMockDatasetAPISdkClient(mockCtrl)
-		mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
+		mockClient := clients.NewMockDatasetAPISdkClient(mockCtrl)
+		mockZebedeeClient := clients.NewMockZebedeeClient(mockCtrl)
 		mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
-		mockRend := NewMockRenderClient(mockCtrl)
+		mockRend := clients.NewMockRenderClient(mockCtrl)
 		mockGetVersionDimensionOptionsResponse := dpDatasetApiSdk.VersionDimensionOptionsList{
 			Items: []dpDatasetApiModels.PublicDimensionOption{
 				{

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,7 +32,7 @@ func TestPostCreateCustomDataset(t *testing.T) {
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 
 			// AND - a filter client mocked to return a happy response
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				CreateCustomFilter(ctx, gomock.Any(), gomock.Any(), "UR").
@@ -62,7 +63,7 @@ func TestPostCreateCustomDataset(t *testing.T) {
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 
 			// AND - a filter client mocked to expect no usage
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				CreateCustomFilter(ctx, gomock.Any(), gomock.Any(), gomock.Any()).
@@ -92,7 +93,7 @@ func TestPostCreateCustomDataset(t *testing.T) {
 			req.Header.Add("Content-Length", strconv.Itoa(len(encodedFormData)))
 
 			// BUT - a filter client mocked to return an error
-			mockFc := NewMockFilterClient(mockCtrl)
+			mockFc := clients.NewMockFilterClient(mockCtrl)
 			mockFc.
 				EXPECT().
 				CreateCustomFilter(ctx, gomock.Any(), gomock.Any(), gomock.Any()).

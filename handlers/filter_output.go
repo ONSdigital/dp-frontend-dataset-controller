@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -24,14 +25,14 @@ import (
 )
 
 // FilterOutput will load a filtered landing page
-func FilterOutput(zc ZebedeeClient, fc FilterClient, pc PopulationClient, dc DatasetAPISdkClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func FilterOutput(zc clients.ZebedeeClient, fc clients.FilterClient, pc clients.PopulationClient, dc clients.DatasetAPISdkClient, rend clients.RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		filterOutput(w, req, zc, dc, fc, pc, rend, cfg, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
 // nolint:gocognit,gocyclo // Legacy code
-func filterOutput(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, dc DatasetAPISdkClient, fc FilterClient, pc PopulationClient, rend RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func filterOutput(w http.ResponseWriter, req *http.Request, zc clients.ZebedeeClient, dc clients.DatasetAPISdkClient, fc clients.FilterClient, pc clients.PopulationClient, rend clients.RenderClient, cfg config.Config, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	var form = req.URL.Query().Get("f")
 	var format = req.URL.Query().Get("format")
 	var isValidationError bool

@@ -16,6 +16,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	dsp "github.com/ONSdigital/dp-frontend-dataset-controller/model/dataset"
@@ -41,9 +42,9 @@ func TestDatasetHandlers(t *testing.T) {
 	defer mockCtrl.Finish()
 	ctx := gomock.Any()
 
-	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
-	mockRend := NewMockRenderClient(mockCtrl)
+	mockZebedeeClient := clients.NewMockZebedeeClient(mockCtrl)
+	mockFilesAPIClient := clients.NewMockFilesAPIClient(mockCtrl)
+	mockRend := clients.NewMockRenderClient(mockCtrl)
 
 	Convey("DatasetPage handler with non /data endpoint", t, func() {
 		expectedDownloadFilename := "download_filename.csv"

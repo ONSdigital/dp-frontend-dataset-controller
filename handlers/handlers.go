@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
@@ -21,7 +22,7 @@ import (
 	dpTopicApiSdkErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 )
 
-// Constants...
+// Constants
 const (
 	dataEndpoint         = `\/data$`
 	numOptsSummary       = 50
@@ -30,8 +31,10 @@ const (
 	homepagePath         = "/"
 	queryStrKey          = "showAll"
 	formQueryGetData     = "get-data"
-	DatasetTypeNomis     = "nomis"
-	DatasetTypeStatic    = "static"
+
+	// Dataset types
+	DatasetTypeNomis  = "nomis"
+	DatasetTypeStatic = "static"
 
 	// Template names
 	templateNameStatic             = "static"
@@ -47,7 +50,7 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 		status = http.StatusRequestEntityTooLarge
 	}
 
-	if clientErr, ok := err.(ClientError); ok {
+	if clientErr, ok := err.(clients.ClientError); ok {
 		if clientErr.Code() == http.StatusNotFound {
 			status = clientErr.Code()
 		}
@@ -72,7 +75,7 @@ func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 }
 
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
-func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
+func getOptionsSummary(ctx context.Context, dc clients.DatasetAPISdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
 	headers := dpDatasetApiSdk.Headers{
 		CollectionID: collectionID,
 		AccessToken:  userAccessToken,
@@ -113,7 +116,7 @@ func getOptionsSummary(ctx context.Context, dc DatasetAPISdkClient, userAccessTo
 
 // getText gets a byte array containing the metadata content, based on options returned by dataset API.
 // If a dimension has more than maxMetadataOptions, an error will be returned
-func getText(ctx context.Context, dc DatasetAPISdkClient, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string,
+func getText(ctx context.Context, dc clients.DatasetAPISdkClient, headers dpDatasetApiSdk.Headers, datasetID, editionID, versionID string,
 	metadata dpDatasetApiModels.Metadata, dimensions dpDatasetApiSdk.VersionDimensionsList) ([]byte, error) {
 	var b bytes.Buffer
 
@@ -137,7 +140,7 @@ func getText(ctx context.Context, dc DatasetAPISdkClient, headers dpDatasetApiSd
 	return b.Bytes(), nil
 }
 
-func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, path, userAccessToken string) (wasZebedeeRequest bool) {
+func handleRequestForZebedeeJSONData(ctx context.Context, w http.ResponseWriter, zc clients.ZebedeeClient, path, userAccessToken string) (wasZebedeeRequest bool) {
 	wasZebedeeRequest = false
 	// Since MatchString will only error if the regex is invalid, and the regex is
 	// constant, don't capture the error
@@ -237,7 +240,7 @@ func sortCategoriesByID(items []population.DimensionCategoryItem) []population.D
 }
 
 func GetPublicOrPrivateTopics(
-	topicsClient TopicAPIClient,
+	topicsClient clients.TopicAPIClient,
 	cfg config.Config,
 	ctx context.Context,
 	topicHeaders dpTopicApiSdk.Headers,

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -12,13 +13,13 @@ import (
 )
 
 // ApproveDatasetVersion handles the approve button click on static dataset version pages
-func ApproveDatasetVersion(dc DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
+func ApproveDatasetVersion(dc clients.DatasetAPISdkClient, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		approveDatasetVersion(w, req, dc, userAccessToken)
 	})
 }
 
-func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClient, userAccessToken string) {
+func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc clients.DatasetAPISdkClient, userAccessToken string) {
 	ctx := req.Context()
 
 	vars := mux.Vars(req)
@@ -27,7 +28,7 @@ func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetA
 	editionID := vars["editionID"]
 	versionID := vars["versionID"]
 
-	headers := dpDatasetApiSdk.Headers{
+	headers := datasetAPISDK.Headers{
 		AccessToken: userAccessToken,
 	}
 
@@ -46,5 +47,6 @@ func approveDatasetVersion(w http.ResponseWriter, req *http.Request, dc DatasetA
 	}
 
 	uri := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", topicSlug, datasetID, editionID, versionID)
+	//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 	http.Redirect(w, req, uri, http.StatusTemporaryRedirect)
 }

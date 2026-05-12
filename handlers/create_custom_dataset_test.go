@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dis-design-system-go/helper"
 	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -21,9 +22,9 @@ func TestCreateCustomDatasetHandlers(t *testing.T) {
 	cfg := initialiseMockConfig()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
-	zc := NewMockZebedeeClient(mockCtrl)
-	pc := NewMockPopulationClient(mockCtrl)
-	rend := NewMockRenderClient(mockCtrl)
+	zc := clients.NewMockZebedeeClient(mockCtrl)
+	pc := clients.NewMockPopulationClient(mockCtrl)
+	rend := clients.NewMockRenderClient(mockCtrl)
 
 	mockPopulationTypes := population.GetPopulationTypesResponse{
 		Items: []population.PopulationType{

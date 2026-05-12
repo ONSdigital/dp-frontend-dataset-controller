@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -21,10 +22,10 @@ import (
 )
 
 type legacyLandingPage struct {
-	ZebedeeClient   ZebedeeClient
-	DatasetClient   APIClientsGoDatasetClient
-	FilesAPIClient  FilesAPIClient
-	RenderClient    RenderClient
+	ZebedeeClient   clients.ZebedeeClient
+	DatasetClient   clients.APIClientsGoDatasetClient
+	FilesAPIClient  clients.FilesAPIClient
+	RenderClient    clients.RenderClient
 	Language        string
 	CollectionID    string
 	UserAccessToken string
@@ -33,7 +34,7 @@ type legacyLandingPage struct {
 }
 
 // LegacyLanding will load a zebedee landing page
-func LegacyLanding(zc ZebedeeClient, dc APIClientsGoDatasetClient, fc FilesAPIClient, rend RenderClient, cacheList *cache.List, cfg config.Config) http.HandlerFunc {
+func LegacyLanding(zc clients.ZebedeeClient, dc clients.APIClientsGoDatasetClient, fc clients.FilesAPIClient, rend clients.RenderClient, cacheList *cache.List, cfg config.Config) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		lp := legacyLandingPage{
 			ZebedeeClient:   zc,
@@ -138,7 +139,7 @@ func (lp legacyLandingPage) getDatasets(ctx context.Context, dlp zebedee.Dataset
 	return datasets, errs.Wait()
 }
 
-func addFileSizesToDataset(ctx context.Context, fc FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
+func addFileSizesToDataset(ctx context.Context, fc clients.FilesAPIClient, d zebedee.Dataset, authToken string) (zebedee.Dataset, error) {
 	for i, download := range d.Downloads {
 		if download.URI != "" {
 			md, err := fc.GetFile(ctx, download.URI, authToken)
@@ -186,7 +187,7 @@ func (lp legacyLandingPage) getRelatedDatasetLinks(ctx context.Context, dlp *zeb
 	for i, relatedFilterableDataset := range dlp.RelatedFilterableDatasets {
 		wg.Add(1)
 
-		go func(ctx context.Context, i int, dc APIClientsGoDatasetClient, relatedFilterableDataset zebedee.Link) {
+		go func(ctx context.Context, i int, dc clients.APIClientsGoDatasetClient, relatedFilterableDataset zebedee.Link) {
 			defer wg.Done()
 
 			d, err := dc.GetByPath(ctx, lp.UserAccessToken, "", lp.CollectionID, relatedFilterableDataset.URI)

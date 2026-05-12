@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -11,16 +12,16 @@ import (
 )
 
 // VersionsList will load a list of versions for a filterable dataset
-func VersionsList(dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient) http.HandlerFunc {
+func VersionsList(dc clients.DatasetAPISdkClient, zc clients.ZebedeeClient, rend clients.RenderClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		versionsList(w, req, dc, zc, rend, collectionID, userAccessToken, lang)
 	})
 }
 
-func versionsList(responseWriter http.ResponseWriter, request *http.Request, dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient, collectionID, userAccessToken, lang string) {
+func versionsList(responseWriter http.ResponseWriter, request *http.Request, dc clients.DatasetAPISdkClient, zc clients.ZebedeeClient, rend clients.RenderClient, collectionID, userAccessToken, lang string) {
 	vars := mux.Vars(request)
 	datasetID := vars["datasetID"]
-	editionID := vars["edition"]
+	editionID := vars["editionID"]
 	ctx := request.Context()
 
 	headers := dpDatasetApiSdk.Headers{

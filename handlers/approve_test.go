@@ -6,7 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
@@ -20,9 +21,9 @@ func TestApproveDatasetVersion(t *testing.T) {
 
 	Convey("test ApproveDatasetVersion", t, func() {
 		Convey("approves version and redirects to version page", func() {
-			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
+			mockClient := clients.NewMockDatasetAPISdkClient(mockCtrl)
 
-			headers := dpDatasetApiSdk.Headers{
+			headers := datasetAPISDK.Headers{
 				AccessToken: userAuthToken,
 			}
 
@@ -44,9 +45,9 @@ func TestApproveDatasetVersion(t *testing.T) {
 		})
 
 		Convey("logs error from dataset client but still redirects", func() {
-			mockClient := NewMockDatasetAPISdkClient(mockCtrl)
+			mockClient := clients.NewMockDatasetAPISdkClient(mockCtrl)
 
-			headers := dpDatasetApiSdk.Headers{
+			headers := datasetAPISDK.Headers{
 				AccessToken: userAuthToken,
 			}
 

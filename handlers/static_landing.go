@@ -5,6 +5,7 @@ import (
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
@@ -15,13 +16,13 @@ import (
 )
 
 // StaticLanding handles requests for the landing page of static datasets
-func StaticLanding(datasetAPIClient DatasetAPISdkClient, renderClient RenderClient, zebedeeClient ZebedeeClient, topicAPIClient TopicAPIClient, cfg config.Config, authMiddleware authorisation.Middleware) http.HandlerFunc {
+func StaticLanding(datasetAPIClient clients.DatasetAPISdkClient, renderClient clients.RenderClient, zebedeeClient clients.ZebedeeClient, topicAPIClient clients.TopicAPIClient, cfg config.Config, authMiddleware authorisation.Middleware) http.HandlerFunc {
 	return dpHandlers.ControllerHandler(func(w http.ResponseWriter, r *http.Request, lang, collectionID, userAccessToken string) {
 		staticLanding(r, w, datasetAPIClient, renderClient, zebedeeClient, topicAPIClient, cfg, authMiddleware, userAccessToken, lang, collectionID)
 	})
 }
 
-func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient DatasetAPISdkClient, renderClient RenderClient, zebedeeClient ZebedeeClient, topicAPIClient TopicAPIClient, cfg config.Config, authMiddleware authorisation.Middleware, userAccessToken, lang, collectionID string) {
+func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient clients.DatasetAPISdkClient, renderClient clients.RenderClient, zebedeeClient clients.ZebedeeClient, topicAPIClient clients.TopicAPIClient, cfg config.Config, authMiddleware authorisation.Middleware, userAccessToken, lang, collectionID string) {
 	ctx := r.Context()
 
 	vars := mux.Vars(r)
@@ -75,6 +76,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 			return
 		}
 
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
@@ -99,6 +101,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient Data
 			isValidationError = true
 		} else {
 			log.Info(ctx, "redirecting to download URL for requested format", logData)
+			//nolint:gosec // false positive as downloadURL is from a trusted source (dataset API)
 			http.Redirect(w, r, downloadURL, http.StatusFound)
 			return
 		}

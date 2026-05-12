@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/filter"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -17,7 +18,7 @@ import (
 const maxFormBytes = 8 * 1024 // 8KB as only one form value is expected
 
 // CreateFilterID controls the creating of a filter idea when a new user journey is requested
-func CreateFilterID(c FilterClient, dc APIClientsGoDatasetClient) http.HandlerFunc {
+func CreateFilterID(c clients.FilterClient, dc clients.APIClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -54,12 +55,13 @@ func CreateFilterID(c FilterClient, dc APIClientsGoDatasetClient) http.HandlerFu
 		}
 
 		log.Info(ctx, "created filter id", log.Data{"filter_id": fid})
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 		http.Redirect(w, req, "/filters/"+fid+"/dimensions", http.StatusMovedPermanently)
 	})
 }
 
 // CreateFilterFlexID creates a new filter ID for filter flex journeys
-func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.HandlerFunc {
+func CreateFilterFlexID(fc clients.FilterClient, dc clients.APIClientsGoDatasetClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		datasetID := vars["datasetID"]
@@ -113,7 +115,7 @@ func CreateFilterFlexID(fc FilterClient, dc APIClientsGoDatasetClient) http.Hand
 }
 
 // CreateFilterFlexIDFromOutput creates a new filter ID for filter flex journeys from the user's filter output
-func CreateFilterFlexIDFromOutput(fc FilterClient) http.HandlerFunc {
+func CreateFilterFlexIDFromOutput(fc clients.FilterClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		vars := mux.Vars(req)
 		filterOutputID := vars["filterOutputID"]

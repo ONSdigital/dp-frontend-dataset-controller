@@ -6,6 +6,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/dp-net/v3/request"
@@ -13,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, collectionID, lang, userAccessToken string, cacheList *cache.List) {
+func datasetPage(w http.ResponseWriter, req *http.Request, zc clients.ZebedeeClient, rend clients.RenderClient, fac clients.FilesAPIClient, collectionID, lang, userAccessToken string, cacheList *cache.List) {
 	path := req.URL.Path
 	ctx := req.Context()
 
@@ -85,7 +86,7 @@ func datasetPage(w http.ResponseWriter, req *http.Request, zc ZebedeeClient, ren
 }
 
 // DatasetPage will load a legacy dataset page
-func DatasetPage(zc ZebedeeClient, rend RenderClient, fac FilesAPIClient, cacheList *cache.List) http.HandlerFunc {
+func DatasetPage(zc clients.ZebedeeClient, rend clients.RenderClient, fac clients.FilesAPIClient, cacheList *cache.List) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		datasetPage(w, req, zc, rend, fac, collectionID, lang, userAccessToken, cacheList)
 	})

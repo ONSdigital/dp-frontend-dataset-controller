@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-net/v3/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // PostCreateCustomDataset controls creating a custom dataset using a population type
-func PostCreateCustomDataset(fc FilterClient) http.HandlerFunc {
+func PostCreateCustomDataset(fc clients.FilterClient) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		postCreateCustomDataset(w, req, fc, lang, collectionID, userAccessToken)
 	})
 }
 
-func postCreateCustomDataset(w http.ResponseWriter, req *http.Request, fc FilterClient, lang, collectionID, userAccessToken string) {
+func postCreateCustomDataset(w http.ResponseWriter, req *http.Request, fc clients.FilterClient, lang, collectionID, userAccessToken string) {
 	ctx := req.Context()
 
 	form, err := parseChangeDimensionForm(req)

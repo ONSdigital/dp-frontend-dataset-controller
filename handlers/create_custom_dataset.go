@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
@@ -11,13 +12,13 @@ import (
 )
 
 // CreateCustomDataset will load the create custom dataset page
-func CreateCustomDataset(pc PopulationClient, zc ZebedeeClient, rend RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
+func CreateCustomDataset(pc clients.PopulationClient, zc clients.ZebedeeClient, rend clients.RenderClient, cfg config.Config, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		createCustomDataset(w, req, pc, zc, rend, collectionID, lang, userAccessToken)
 	})
 }
 
-func createCustomDataset(w http.ResponseWriter, req *http.Request, pc PopulationClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, userAccessToken string) {
+func createCustomDataset(w http.ResponseWriter, req *http.Request, pc clients.PopulationClient, zc clients.ZebedeeClient, rend clients.RenderClient, collectionID, lang, userAccessToken string) {
 	ctx := req.Context()
 
 	homepageContent, err := zc.GetHomepageContent(ctx, userAccessToken, collectionID, lang, homepagePath)

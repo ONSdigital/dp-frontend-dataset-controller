@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/ONSdigital/dp-net/v3/handlers"
@@ -12,13 +13,13 @@ import (
 )
 
 // EditionsList will load a list of editions for a filterable dataset
-func EditionsList(dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient, apiRouterVersion string) http.HandlerFunc {
+func EditionsList(dc clients.DatasetAPISdkClient, zc clients.ZebedeeClient, rend clients.RenderClient, apiRouterVersion string) http.HandlerFunc {
 	return handlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, userAccessToken string) {
 		editionsList(w, req, dc, zc, rend, collectionID, lang, apiRouterVersion, userAccessToken)
 	})
 }
 
-func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClient, zc ZebedeeClient, rend RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
+func editionsList(w http.ResponseWriter, req *http.Request, dc clients.DatasetAPISdkClient, zc clients.ZebedeeClient, rend clients.RenderClient, collectionID, lang, apiRouterVersion, userAccessToken string) {
 	vars := mux.Vars(req)
 	datasetID := vars["datasetID"]
 	ctx := req.Context()
@@ -43,7 +44,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 	queryParams := dpDatasetApiSdk.QueryParams{Offset: 0, Limit: 1000}
 	datasetEditions, err := dc.GetEditions(ctx, headers, datasetID, &queryParams)
 	if err != nil {
-		if err, ok := err.(ClientError); ok {
+		if err, ok := err.(clients.ClientError); ok {
 			if err.Code() != http.StatusNotFound {
 				setStatusCode(ctx, w, err)
 				return
@@ -56,6 +57,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 	if numberOfEditions == 1 {
 		latestVersionPath := helpers.DatasetVersionURL(datasetID, datasetEditions.Items[0].Edition, datasetEditions.Items[0].Links.LatestVersion.ID)
 		log.Info(ctx, "only one edition, therefore redirecting to latest version", log.Data{"latestVersionPath": latestVersionPath})
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 		http.Redirect(w, req, latestVersionPath, http.StatusFound)
 		return
 	}
@@ -71,7 +73,7 @@ func editionsList(w http.ResponseWriter, req *http.Request, dc DatasetAPISdkClie
 	// Update basePage common parameters
 	mapper.UpdateBasePage(&basePage, datasetDetails, homepageContent, false, lang, req)
 
-	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, userAccessToken, collectionID, datasetDetails.Links.Taxonomy.HRef)
+	bc, err := zc.GetBreadcrumb(ctx, userAccessToken, collectionID, lang, datasetDetails.Links.Taxonomy.HRef)
 	if err != nil {
 		log.Warn(ctx, "unable to get breadcrumb for dataset uri", log.FormatErrors([]error{err}), log.Data{"taxonomy_url": datasetDetails.Links.Taxonomy.HRef})
 	}

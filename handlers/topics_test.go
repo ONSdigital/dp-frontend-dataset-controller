@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
@@ -26,7 +27,7 @@ func TestFetchTopics(t *testing.T) {
 		defer ctrl.Finish()
 
 		ctx := context.Background()
-		mockTopicAPIClient := NewMockTopicAPIClient(ctrl)
+		mockTopicAPIClient := clients.NewMockTopicAPIClient(ctrl)
 		cfg := config.Config{IsPublishing: true}
 		userAccessToken := "testAccessToken"
 

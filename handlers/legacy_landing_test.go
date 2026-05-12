@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/files"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
+	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"
 	"github.com/golang/mock/gomock"
@@ -25,9 +26,9 @@ func TestLegacyLanding(t *testing.T) {
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
 
-	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-	mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
-	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
+	mockZebedeeClient := clients.NewMockZebedeeClient(mockCtrl)
+	mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
+	mockFilesAPIClient := clients.NewMockFilesAPIClient(mockCtrl)
 
 	Convey("test /path/to/something/data endpoint", t, func() {
 		path := "/path/to/something"
@@ -60,7 +61,7 @@ func TestLegacyLanding(t *testing.T) {
 			mockZebedeeClient.EXPECT().GetDataset(ctx, userAuthToken, collectionID, locale, "dataset.com")
 			mockZebedeeClient.EXPECT().GetHomepageContent(ctx, userAuthToken, collectionID, locale, "/")
 
-			mockRend := NewMockRenderClient(mockCtrl)
+			mockRend := clients.NewMockRenderClient(mockCtrl)
 			mockRend.EXPECT().NewBasePageModel().Return(core.NewPage(cfg.PatternLibraryAssetsPath, cfg.SiteDomain))
 			mockRend.EXPECT().BuildPage(gomock.Any(), gomock.Any(), "static-legacy")
 
@@ -117,7 +118,7 @@ func TestLegacyLanding(t *testing.T) {
 	})
 }
 
-func setupMockClients(ctx gomock.Matcher, mockZebedeeClient *MockZebedeeClient, mockRend *MockRenderClient, legacyURL string, dlp zebedee.DatasetLandingPage, authToken string, cfg config.Config) {
+func setupMockClients(ctx gomock.Matcher, mockZebedeeClient *clients.MockZebedeeClient, mockRend *clients.MockRenderClient, legacyURL string, dlp zebedee.DatasetLandingPage, authToken string, cfg config.Config) {
 	mockZebedeeClient.EXPECT().GetDatasetLandingPage(ctx, authToken, collectionID, locale, legacyURL).Return(dlp, nil)
 	mockZebedeeClient.EXPECT().GetBreadcrumb(ctx, authToken, collectionID, locale, dlp.URI)
 	mockZebedeeClient.EXPECT().GetHomepageContent(ctx, authToken, collectionID, locale, "/")
@@ -131,10 +132,10 @@ func TestHandlersFilesAPI(t *testing.T) {
 	ctx := gomock.Any()
 	cfg := initialiseMockConfig()
 
-	mockZebedeeClient := NewMockZebedeeClient(mockCtrl)
-	mockDatasetClient := NewMockAPIClientsGoDatasetClient(mockCtrl)
-	mockRend := NewMockRenderClient(mockCtrl)
-	mockFilesAPIClient := NewMockFilesAPIClient(mockCtrl)
+	mockZebedeeClient := clients.NewMockZebedeeClient(mockCtrl)
+	mockDatasetClient := clients.NewMockAPIClientsGoDatasetClient(mockCtrl)
+	mockRend := clients.NewMockRenderClient(mockCtrl)
+	mockFilesAPIClient := clients.NewMockFilesAPIClient(mockCtrl)
 
 	landingPageURI := "https://helloworld.com"
 	dataSetURI := "dataset.com"
