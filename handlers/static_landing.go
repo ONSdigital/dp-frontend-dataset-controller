@@ -56,10 +56,14 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient clie
 		return
 	}
 
-	topicList := fetchTopics(ctx, cfg, topicAPIClient, dataset.Topics, userAccessToken)
+	topicList, err := clients.FetchTopics(ctx, topicAPIClient, dataset.Topics, cfg.IsPublishing, userAccessToken)
+	if err != nil {
+		log.Error(ctx, "failed to fetch topics", err, logData)
+		setStatusCode(ctx, w, err)
+		return
+	}
 
-	// Topics is a mandatory field but len checks are added to prevent potential panics
-	if len(dataset.Topics) == 0 || len(topicList) == 0 || topicList[0].Slug != topicSlug {
+	if topicList[0].Slug != topicSlug {
 		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
 		setStatusCode(ctx, w, errDatasetTopicMismatch)
 		return

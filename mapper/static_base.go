@@ -18,7 +18,7 @@ import (
 
 // CreateCensusBasePage builds a base datasetLandingPageCensus.Page with shared functionality between Dataset Landing Pages and Filter Output pages
 func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version,
-	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []dpTopicApiModels.Topic,
+	allVersions []dpDatasetApiModels.Version, isEnableMultivariate bool, topicObjectList []*dpTopicApiModels.Topic,
 ) static.Page {
 	var editionStr string
 

@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
+	topicAPISDKErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	"github.com/gorilla/mux"
 
 	"github.com/golang/mock/gomock"
@@ -133,6 +134,27 @@ func TestStaticEditionsList(t *testing.T) {
 
 		Convey("Then the response status code should be 404 Not Found", func() {
 			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+	})
+
+	Convey("When fetch topics fails", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(dataset, nil)
+
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(nil, topicAPISDKErrors.StatusError{Code: http.StatusInternalServerError, Err: errors.New("GetTopicPrivate failed")})
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s", "topic1-slug", datasetID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1-slug",
+			"datasetID": datasetID,
+		})
+
+		staticEditionsList(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, apiRouterVersion, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 

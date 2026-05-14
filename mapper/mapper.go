@@ -389,7 +389,7 @@ func CreateEditionsList(ctx context.Context, basePage dpRendererModel.Page, req 
 }
 
 // CreateEditionsListForStaticDatasetType creates an editions list page when dataset type is static, based on api model responses
-func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID, apiRouterVersion string, topicObjectList []dpTopicApiModels.Topic) edition.Page {
+func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRendererModel.Page, req *http.Request, d dpDatasetApiModels.Dataset, editions dpDatasetApiSdk.EditionsList, datasetID, apiRouterVersion string, topicObjectList []*dpTopicApiModels.Topic) edition.Page {
 	p := edition.Page{
 		Page: basePage,
 	}
@@ -717,7 +717,7 @@ func buildEditionsListTableOfContents(d dpDatasetApiModels.Dataset) dpRendererMo
 	return tableOfContents
 }
 
-func CreateBreadcrumbsFromTopicList(topicObjectList []dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
+func CreateBreadcrumbsFromTopicList(topicObjectList []*dpTopicApiModels.Topic) []dpRendererModel.TaxonomyNode {
 	breadcrumbsObject := make([]dpRendererModel.TaxonomyNode, 0, len(topicObjectList)+1)
 	breadcrumbsObject = append(breadcrumbsObject, dpRendererModel.TaxonomyNode{
 		Title: "Home",

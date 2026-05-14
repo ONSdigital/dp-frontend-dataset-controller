@@ -16,6 +16,7 @@ import (
 	permissionsAPISDK "github.com/ONSdigital/dp-permissions-api/sdk"
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
+	topicAPISDKErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	"github.com/gorilla/mux"
 
 	"github.com/golang/mock/gomock"
@@ -28,6 +29,9 @@ var (
 
 	testAdminDatasetSDKHeaders = datasetAPISDK.Headers{AccessToken: testAdminAccessToken}
 	testUserDatasetSDKHeaders  = datasetAPISDK.Headers{AccessToken: testUserAccessToken}
+
+	testTopic1 = topicAPIModels.Topic{ID: "topic1", Slug: "topic1-slug"}
+	testTopic2 = topicAPIModels.Topic{ID: "topic2", Slug: "topic2-slug"}
 )
 
 func TestStaticLanding(t *testing.T) {
@@ -157,6 +161,29 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response status code should be 404 Not Found", func() {
 			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+	})
+
+	Convey("When fetch topics fails", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(dataset, nil)
+
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(nil, topicAPISDKErrors.StatusError{Code: http.StatusInternalServerError, Err: errors.New("GetTopicPrivate failed")})
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1-slug",
+			"datasetID": datasetID,
+			"editionID": editionID,
+			"versionID": versionID,
+		})
+
+		staticLanding(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, mockAuthMiddleware, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
 	})
 

@@ -662,7 +662,7 @@ func getTestServiceMessage() string {
 
 func TestCreateBreadcrumbsFromTopicList(t *testing.T) {
 	Convey("Given a topicObjectList with two topics", t, func() {
-		topicObjectList := []dpTopicApiModels.Topic{
+		topicObjectList := []*dpTopicApiModels.Topic{
 			{Title: "Topic One", Slug: "slug1"},
 			{Title: "Topic Two", Slug: "slug2"},
 		}
