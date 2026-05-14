@@ -63,7 +63,7 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient clie
 		return
 	}
 
-	if topicList[0].Slug != topicSlug {
+	if len(topicList) == 0 || topicList[0].Slug != topicSlug {
 		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
 		setStatusCode(ctx, w, errDatasetTopicMismatch)
 		return

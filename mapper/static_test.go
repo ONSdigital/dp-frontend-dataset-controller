@@ -70,6 +70,16 @@ func TestMapStaticDatasetToZebedee(t *testing.T) {
 			})
 		})
 
+		Convey("When no topic slugs are provided", func() {
+			result, err := MapStaticDatasetToZebedee(ctx, dataset, []string{})
+
+			Convey("Then an error should be returned indicating at least one topic slug is required", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, "at least one topic slug is required to map a static dataset to zebedee format")
+				So(result, ShouldBeNil)
+			})
+		})
+
 		Convey("When the dataset QMI URL is invalid", func() {
 			datasetWithInvalidQMI := dataset
 			datasetWithInvalidQMI.QMI.HRef = "://invalid-url"

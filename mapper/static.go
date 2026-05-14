@@ -11,6 +11,10 @@ import (
 
 // MapStaticDatasetToZebedee maps a dataset of type static from the dataset API to the equivalent zebedee format.
 func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dataset, topicSlugs []string) (*zebedee.DatasetLandingPage, error) {
+	if len(topicSlugs) == 0 {
+		return nil, fmt.Errorf("at least one topic slug is required to map a static dataset to zebedee format")
+	}
+
 	zebedeeDataset := &zebedee.DatasetLandingPage{
 		Description: zebedee.Description{
 			DatasetID:       dataset.ID,
@@ -42,12 +46,13 @@ func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dat
 
 	zebedeeDataset.URI = fmt.Sprintf("/%s/datasets/%s", topicSlugs[0], dataset.ID)
 
-	// Contacts is a mandatory field so dataset.Contacts[0] should always exist.
 	// The dataset API supports multiple contacts but zebedee only supports a single contact, so the first contact is used here.
-	zebedeeDataset.Description.Contact = zebedee.Contact{
-		Name:      dataset.Contacts[0].Name,
-		Email:     dataset.Contacts[0].Email,
-		Telephone: dataset.Contacts[0].Telephone,
+	if len(dataset.Contacts) > 0 {
+		zebedeeDataset.Description.Contact = zebedee.Contact{
+			Name:      dataset.Contacts[0].Name,
+			Email:     dataset.Contacts[0].Email,
+			Telephone: dataset.Contacts[0].Telephone,
+		}
 	}
 
 	return zebedeeDataset, nil

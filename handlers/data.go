@@ -55,7 +55,7 @@ func datasetData(r *http.Request, w http.ResponseWriter, datasetAPIClient client
 	}
 
 	topicSlugs := helpers.ExtractTopicSlugs(topicList)
-	if topicSlugs[0] != topicSlug {
+	if len(topicSlugs) == 0 || topicSlugs[0] != topicSlug {
 		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
 		setStatusCode(ctx, w, errDatasetTopicMismatch)
 		return

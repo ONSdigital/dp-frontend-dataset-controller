@@ -56,7 +56,7 @@ func staticEditionsList(r *http.Request, w http.ResponseWriter, datasetAPIClient
 		return
 	}
 
-	if topicList[0].Slug != topicSlug {
+	if len(topicList) == 0 || topicList[0].Slug != topicSlug {
 		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
 		setStatusCode(ctx, w, errDatasetTopicMismatch)
 		return
