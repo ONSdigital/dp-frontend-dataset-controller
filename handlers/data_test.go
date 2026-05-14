@@ -22,7 +22,8 @@ import (
 func TestDatasetData(t *testing.T) {
 	ctx := gomock.Any()
 	accessToken := "test-access-token"
-	headers := datasetAPISDK.Headers{AccessToken: accessToken}
+	datasetHeaders := datasetAPISDK.Headers{AccessToken: accessToken}
+	topicHeaders := topicAPISDK.Headers{UserAuthToken: accessToken}
 
 	datasetID := "dataset-123"
 
@@ -76,23 +77,20 @@ func TestDatasetData(t *testing.T) {
 
 	Convey("Given datasetData handler", t, func() {
 		Convey("When dataset is static and topic matches", func() {
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
 				Return(dataset, nil)
 
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID).
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID).
 				Return(&topicAPIModels.Topic{ID: topicID, Slug: topicSlug}, nil)
 
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID).
-				Return(&topicAPIModels.Topic{ID: topicID, Slug: topicSlug}, nil)
-
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID2).
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID2).
 				Return(&topicAPIModels.Topic{ID: topicID2, Slug: topicSlug2}, nil)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
 			r = mux.SetURLVars(r, urlVars)
 
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
 
 			Convey("Then the response status code should be 200 with the expected JSON body", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -106,14 +104,14 @@ func TestDatasetData(t *testing.T) {
 		})
 
 		Convey("When GetDataset fails", func() {
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
 				Return(datasetAPIModels.Dataset{}, errors.New("failed to fetch dataset"))
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
 			r = mux.SetURLVars(r, urlVars)
 
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
 
 			Convey("Then the response status code should be 500 Internal Server Error", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -121,32 +119,14 @@ func TestDatasetData(t *testing.T) {
 		})
 
 		Convey("When dataset type is not static", func() {
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
 				Return(datasetAPIModels.Dataset{ID: datasetID, Type: "filterable"}, nil)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
 			r = mux.SetURLVars(r, urlVars)
 
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
-
-			Convey("Then the response status code should be 404 Not Found", func() {
-				So(w.Code, ShouldEqual, http.StatusNotFound)
-			})
-		})
-
-		Convey("When canonical topic does not match topic slug in URL", func() {
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
-				Return(dataset, nil)
-
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID).
-				Return(&topicAPIModels.Topic{ID: topicID, Slug: "different-topic"}, nil)
-
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
-			r = mux.SetURLVars(r, urlVars)
-
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
 
 			Convey("Then the response status code should be 404 Not Found", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -154,20 +134,41 @@ func TestDatasetData(t *testing.T) {
 		})
 
 		Convey("When topic client fails", func() {
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
 				Return(dataset, nil)
 
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID).
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID).
 				Return(nil, topicAPISDKErrors.StatusError{Code: http.StatusInternalServerError, Err: errors.New("topic API error")})
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
 			r = mux.SetURLVars(r, urlVars)
 
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
 
 			Convey("Then the response status code should be 500 Internal Server Error", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
+		Convey("When canonical topic does not match topic slug in URL", func() {
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
+				Return(dataset, nil)
+
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID).
+				Return(&topicAPIModels.Topic{ID: topicID, Slug: "different-topic"}, nil)
+
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID2).
+				Return(&topicAPIModels.Topic{ID: topicID2, Slug: topicSlug2}, nil)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
+			r = mux.SetURLVars(r, urlVars)
+
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
+
+			Convey("Then the response status code should be 404 Not Found", func() {
+				So(w.Code, ShouldEqual, http.StatusNotFound)
 			})
 		})
 
@@ -179,17 +180,20 @@ func TestDatasetData(t *testing.T) {
 				HRef:        "https://[invalid:url",
 			}
 
-			mockDatasetClient.EXPECT().GetDataset(ctx, headers, datasetID).
+			mockDatasetClient.EXPECT().GetDataset(ctx, datasetHeaders, datasetID).
 				Return(datasetWithInvalidQMI, nil)
 
-			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID).
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID).
 				Return(&topicAPIModels.Topic{ID: topicID, Slug: topicSlug}, nil)
+
+			mockTopicClient.EXPECT().GetTopicPublic(ctx, topicHeaders, topicID2).
+				Return(&topicAPIModels.Topic{ID: topicID2, Slug: topicSlug2}, nil)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
 			r = mux.SetURLVars(r, urlVars)
 
-			datasetData(r, w, mockDatasetClient, mockTopicClient, accessToken)
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, accessToken)
 
 			Convey("Then the response status code should be 500 Internal Server Error", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)

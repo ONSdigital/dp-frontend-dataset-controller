@@ -7,12 +7,10 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
-	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
 )
 
 // MapStaticDatasetToZebedee maps a dataset of type static from the dataset API to the equivalent zebedee format.
-func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dataset, topicAPIClient clients.TopicAPIClient) (*zebedee.DatasetLandingPage, error) {
+func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dataset, topicSlugs []string) (*zebedee.DatasetLandingPage, error) {
 	zebedeeDataset := &zebedee.DatasetLandingPage{
 		Description: zebedee.Description{
 			DatasetID:       dataset.ID,
@@ -38,16 +36,6 @@ func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dat
 				URI:     parsedQMIURL.Path,
 			},
 		}
-	}
-
-	// The dataset API returns a list of topic IDs, but zebedee requires a list of topic slugs
-	topicSlugs := make([]string, len(dataset.Topics))
-	for i, topicID := range dataset.Topics {
-		topic, err := topicAPIClient.GetTopicPublic(ctx, topicAPISDK.Headers{}, topicID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get topic with ID %s: %w", topicID, err)
-		}
-		topicSlugs[i] = topic.Slug
 	}
 
 	zebedeeDataset.Description.Topics = topicSlugs

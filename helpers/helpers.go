@@ -11,6 +11,7 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/contact"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
+	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // ExtractDatasetInfoFromPath gets the datasetID, edition and version from a given path
@@ -223,4 +224,15 @@ func GetContactDetails(d dpDatasetApiModels.Dataset) (contact.Details, bool) {
 	}
 
 	return details, hasContactDetails
+}
+
+// ExtractTopicSlugs takes a list of topic objects and returns a list of their corresponding slugs
+func ExtractTopicSlugs(topics []*topicAPIModels.Topic) []string {
+	slugs := make([]string, 0, len(topics))
+	for _, topic := range topics {
+		if topic != nil {
+			slugs = append(slugs, topic.Slug)
+		}
+	}
+	return slugs
 }

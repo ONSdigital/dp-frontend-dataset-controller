@@ -2,28 +2,17 @@ package mapper
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
-	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
-	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
-	topicAPISDK "github.com/ONSdigital/dp-topic-api/sdk"
-	topicAPISDKErrors "github.com/ONSdigital/dp-topic-api/sdk/errors"
-	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMapStaticDatasetToZebedee(t *testing.T) {
 	ctx := context.Background()
 
-	Convey("Given a static dataset and a topic API client", t, func() {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockTopicClient := clients.NewMockTopicAPIClient(ctrl)
-
+	Convey("Given a static dataset and a list of topic slugs", t, func() {
 		dataset := datasetAPIModels.Dataset{
 			ID:          "dataset-123",
 			Title:       "Producer price inflation (MM22)",
@@ -44,19 +33,10 @@ func TestMapStaticDatasetToZebedee(t *testing.T) {
 				HRef:        "https://www.ons.gov.uk/economy/inflationandpriceindices/qmis/producerpriceindicesqmi",
 			},
 		}
+		topicSlugs := []string{"economy", "inflation"}
 
 		Convey("When MapStaticDatasetToZebedee is called", func() {
-			mockTopicClient.EXPECT().
-				GetTopicPublic(ctx, topicAPISDK.Headers{}, "economy").
-				Return(&topicAPIModels.Topic{ID: "economy", Slug: "economy"}, nil).
-				Times(1)
-
-			mockTopicClient.EXPECT().
-				GetTopicPublic(ctx, topicAPISDK.Headers{}, "inflation").
-				Return(&topicAPIModels.Topic{ID: "inflation", Slug: "inflation"}, nil).
-				Times(1)
-
-			result, err := MapStaticDatasetToZebedee(ctx, dataset, mockTopicClient)
+			result, err := MapStaticDatasetToZebedee(ctx, dataset, topicSlugs)
 
 			Convey("Then the result should be the expected zebedee dataset and no error should be returned", func() {
 				expected := &zebedee.DatasetLandingPage{
@@ -93,26 +73,11 @@ func TestMapStaticDatasetToZebedee(t *testing.T) {
 			datasetWithInvalidQMI := dataset
 			datasetWithInvalidQMI.QMI.HRef = "://invalid-url"
 
-			result, err := MapStaticDatasetToZebedee(ctx, datasetWithInvalidQMI, mockTopicClient)
+			result, err := MapStaticDatasetToZebedee(ctx, datasetWithInvalidQMI, topicSlugs)
 
 			Convey("Then an error should be returned indicating the QMI URL is invalid", func() {
 				So(err, ShouldNotBeNil)
 				So(err.Error(), ShouldContainSubstring, "failed to parse QMI URL")
-				So(result, ShouldBeNil)
-			})
-		})
-
-		Convey("When the topic API client returns an error", func() {
-			mockTopicClient.EXPECT().
-				GetTopicPublic(ctx, topicAPISDK.Headers{}, "economy").
-				Return(nil, topicAPISDKErrors.StatusError{Code: 500, Err: errors.New("topic API error")}).
-				Times(1)
-
-			result, err := MapStaticDatasetToZebedee(ctx, dataset, mockTopicClient)
-
-			Convey("Then an error should be returned indicating the topic could not be fetched", func() {
-				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldContainSubstring, "failed to get topic with ID economy")
 				So(result, ShouldBeNil)
 			})
 		})

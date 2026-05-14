@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/osrlogo"
+	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -347,5 +348,27 @@ func TestMapVersionDownloads(t *testing.T) {
 		So(sharedModelVersion.Downloads[0].Extension, ShouldEqual, "xls")
 		So(sharedModelVersion.Downloads[0].Size, ShouldEqual, xlsSize)
 		So(sharedModelVersion.Downloads[0].URI, ShouldEqual, xlsHref)
+	})
+}
+
+func TestExtractTopicSlugs(t *testing.T) {
+	Convey("ExtractTopicSlugs returns correct slugs for a list of topics", t, func() {
+		topic1 := &topicAPIModels.Topic{Slug: "economy"}
+		topic2 := &topicAPIModels.Topic{Slug: "population"}
+		topics := []*topicAPIModels.Topic{topic1, topic2}
+		slugs := ExtractTopicSlugs(topics)
+		So(slugs, ShouldResemble, []string{"economy", "population"})
+	})
+
+	Convey("ExtractTopicSlugs skips nil topics", t, func() {
+		topic1 := &topicAPIModels.Topic{Slug: "health"}
+		topics := []*topicAPIModels.Topic{topic1, nil}
+		slugs := ExtractTopicSlugs(topics)
+		So(slugs, ShouldResemble, []string{"health"})
+	})
+
+	Convey("ExtractTopicSlugs returns empty slice for empty input", t, func() {
+		slugs := ExtractTopicSlugs([]*topicAPIModels.Topic{})
+		So(slugs, ShouldBeEmpty)
 	})
 }
