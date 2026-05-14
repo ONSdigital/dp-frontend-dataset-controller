@@ -15,32 +15,38 @@ type TopicAPIClient interface {
 	GetTopicPrivate(ctx context.Context, headers topicAPISDK.Headers, id string) (*topicAPIModels.TopicResponse, topicAPIErrors.Error)
 }
 
+// FetchTopic retrieves a single topic from the topic API.
+// The userAccessToken is only required when isPublishing is true.
+func FetchTopic(ctx context.Context, topicAPIClient TopicAPIClient, topicID string, isPublishing bool, userAccessToken string) (*topicAPIModels.Topic, error) {
+	headers := topicAPISDK.Headers{
+		UserAuthToken: userAccessToken,
+	}
+
+	if isPublishing {
+		resp, err := topicAPIClient.GetTopicPrivate(ctx, headers, topicID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch topic with id %s: %w", topicID, err)
+		}
+		return resp.Current, nil
+	}
+
+	topic, err := topicAPIClient.GetTopicPublic(ctx, headers, topicID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch topic with id %s: %w", topicID, err)
+	}
+	return topic, nil
+}
+
 // FetchTopics retrieves a list of topics from the topic API for the given topic IDs.
 // The userAccessToken is only required when isPublishing is true.
 func FetchTopics(ctx context.Context, topicAPIClient TopicAPIClient, topicIDs []string, isPublishing bool, userAccessToken string) ([]*topicAPIModels.Topic, error) {
 	fetchedTopics := make([]*topicAPIModels.Topic, 0, len(topicIDs))
 
-	headers := topicAPISDK.Headers{
-		UserAuthToken: userAccessToken,
-	}
-
 	for _, topicID := range topicIDs {
-		var topic *topicAPIModels.Topic
-		var err error
-
-		if isPublishing {
-			resp, err := topicAPIClient.GetTopicPrivate(ctx, headers, topicID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to fetch topic with id %s: %w", topicID, err)
-			}
-			topic = resp.Current
-		} else {
-			topic, err = topicAPIClient.GetTopicPublic(ctx, headers, topicID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to fetch topic with id %s: %w", topicID, err)
-			}
+		topic, err := FetchTopic(ctx, topicAPIClient, topicID, isPublishing, userAccessToken)
+		if err != nil {
+			return nil, err
 		}
-
 		fetchedTopics = append(fetchedTopics, topic)
 	}
 

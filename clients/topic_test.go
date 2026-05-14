@@ -18,6 +18,65 @@ var (
 	testTopic2 = topicAPIModels.Topic{ID: "topic2", Slug: "topic2-slug"}
 )
 
+func TestFetchTopic(t *testing.T) {
+	Convey("Given a topic ID, topicAPIClient, and userAccessToken", t, func() {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		ctx := context.Background()
+		mockTopicAPIClient := NewMockTopicAPIClient(ctrl)
+		userAccessToken := "testAccessToken"
+
+		Convey("When FetchTopic is called successfully in publishing mode", func() {
+			mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: userAccessToken}, "topic1").
+				Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+
+			topic, err := FetchTopic(ctx, mockTopicAPIClient, "topic1", true, userAccessToken)
+
+			Convey("Then the correct topic is returned and error is nil", func() {
+				So(err, ShouldBeNil)
+				So(topic, ShouldResemble, &testTopic1)
+			})
+		})
+
+		Convey("When FetchTopic is called successfully in web mode", func() {
+			mockTopicAPIClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{UserAuthToken: userAccessToken}, "topic1").
+				Return(&testTopic1, nil)
+
+			topic, err := FetchTopic(ctx, mockTopicAPIClient, "topic1", false, userAccessToken)
+
+			Convey("Then the correct topic is returned and error is nil", func() {
+				So(err, ShouldBeNil)
+				So(topic, ShouldResemble, &testTopic1)
+			})
+		})
+
+		Convey("When FetchTopic fails in publishing mode", func() {
+			mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: userAccessToken}, "topic1").
+				Return(nil, topicAPISDKErrors.StatusError{Code: http.StatusInternalServerError, Err: errors.New("something failed")})
+
+			topic, err := FetchTopic(ctx, mockTopicAPIClient, "topic1", true, userAccessToken)
+
+			Convey("Then an error is returned and topic is nil", func() {
+				So(err, ShouldNotBeNil)
+				So(topic, ShouldBeNil)
+			})
+		})
+
+		Convey("When FetchTopic fails in web mode", func() {
+			mockTopicAPIClient.EXPECT().GetTopicPublic(ctx, topicAPISDK.Headers{UserAuthToken: userAccessToken}, "topic1").
+				Return(nil, topicAPISDKErrors.StatusError{Code: http.StatusInternalServerError, Err: errors.New("something failed")})
+
+			topic, err := FetchTopic(ctx, mockTopicAPIClient, "topic1", false, userAccessToken)
+
+			Convey("Then an error is returned and topic is nil", func() {
+				So(err, ShouldNotBeNil)
+				So(topic, ShouldBeNil)
+			})
+		})
+	})
+}
+
 func TestFetchTopics(t *testing.T) {
 	Convey("Given a list of topic IDs, topicAPIClient, and userAccessToken", t, func() {
 		ctrl := gomock.NewController(t)
