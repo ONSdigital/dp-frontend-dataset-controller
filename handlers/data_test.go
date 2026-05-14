@@ -42,6 +42,7 @@ func TestDatasetData(t *testing.T) {
 		Description: "Dataset summary",
 		Keywords:    []string{"producer prices", "input prices"},
 		Topics:      []string{topicID, topicID2},
+		NextRelease: "To be announced",
 		Contacts: []datasetAPIModels.ContactDetails{
 			{
 				Name:      "Business Prices team",
@@ -60,7 +61,9 @@ func TestDatasetData(t *testing.T) {
 			Summary:         "Dataset summary",
 			MetaDescription: "Dataset summary",
 			Keywords:        []string{"producer prices", "input prices"},
-			Topics:          []string{topicSlug, topicSlug2},
+			NextRelease:     "To be announced",
+			CanonicalTopic:  topicSlug,
+			Topics:          []string{topicSlug2},
 			Contact: zebedee.Contact{
 				Name:      "Business Prices team",
 				Email:     "business.prices@ons.gov.uk",

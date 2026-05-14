@@ -19,6 +19,8 @@ func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dat
 			MetaDescription: dataset.Description,
 			Keywords:        dataset.Keywords,
 			NextRelease:     dataset.NextRelease,
+			CanonicalTopic:  topicSlugs[0],
+			Topics:          topicSlugs[1:],
 		},
 		Type: zebedee.PageTypeDatasetLandingPage, // "dataset_landing_page" is the zebedee equivalent for a "dataset" in the dataset API
 	}
@@ -38,7 +40,6 @@ func MapStaticDatasetToZebedee(ctx context.Context, dataset datasetAPIModels.Dat
 		}
 	}
 
-	zebedeeDataset.Description.Topics = topicSlugs
 	zebedeeDataset.URI = fmt.Sprintf("/%s/datasets/%s", topicSlugs[0], dataset.ID)
 
 	// Contacts is a mandatory field so dataset.Contacts[0] should always exist.

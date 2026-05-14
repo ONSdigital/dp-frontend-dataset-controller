@@ -49,7 +49,8 @@ func TestMapStaticDatasetToZebedee(t *testing.T) {
 						MetaDescription: "UK price index data at manufacturing, aggregated industry and product group levels. Data supplied from individual manufacturers, importers and exporters. Monthly and annual data.",
 						Keywords:        []string{"manufacturing", "input prices", "output prices", "producer prices"},
 						NextRelease:     "To be announced",
-						Topics:          []string{"economy", "inflation"},
+						CanonicalTopic:  "economy",
+						Topics:          []string{"inflation"},
 						Contact: zebedee.Contact{
 							Name:      "Business Prices team",
 							Email:     "business.prices@ons.gov.uk",
