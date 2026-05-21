@@ -299,37 +299,37 @@ func getTestDatasetLandingPage() zebedee.DatasetLandingPage {
 		Section: zebedee.Section{
 			Markdown: "markdown",
 		},
-		Datasets: []zebedee.Related{
+		Datasets: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",
 			},
 		},
-		RelatedLinks: []zebedee.Related{
+		RelatedLinks: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",
 			},
 		},
-		RelatedDatasets: []zebedee.Related{
+		RelatedDatasets: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",
 			},
 		},
-		RelatedDocuments: []zebedee.Related{
+		RelatedDocuments: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",
 			},
 		},
-		RelatedMethodology: []zebedee.Related{
+		RelatedMethodology: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",
 			},
 		},
-		RelatedMethodologyArticle: []zebedee.Related{
+		RelatedMethodologyArticle: []zebedee.Link{
 			{
 				Title: "google",
 				URI:   "google.com",

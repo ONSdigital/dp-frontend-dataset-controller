@@ -82,27 +82,27 @@ func TestCreateDatasetPage(t *testing.T) {
 		Section: zebedee.Section{
 			Markdown: "The interactive Personal Inflation Calculator, which could be used by people to calculate their personal inflation based on their spending patterns, has currently been removed from the website. The facility was used by a very small number of people.",
 		},
-		RelatedFilterableDatasets: []zebedee.Related{
+		RelatedFilterableDatasets: []zebedee.Link{
 			{
 				URI: "/datasets/cpih01",
 			},
 		},
 
-		RelatedDatasets: []zebedee.Related{},
-		RelatedDocuments: []zebedee.Related{
+		RelatedDatasets: []zebedee.Link{},
+		RelatedDocuments: []zebedee.Link{
 			{
 				URI: "/economy/inflationandpriceindices/bulletins/consumerpriceinflation/latest",
 			},
 		},
-		Datasets: []zebedee.Related{
+		Datasets: []zebedee.Link{
 			{
 				URI: "/economy/inflationandpriceindices/datasets/consumerpriceinflation/current",
 			},
 		},
-		RelatedLinks:              []zebedee.Related{},
+		RelatedLinks:              []zebedee.Link{},
 		Alerts:                    []zebedee.Alert{},
-		RelatedMethodology:        []zebedee.Related{},
-		RelatedMethodologyArticle: []zebedee.Related{},
+		RelatedMethodology:        []zebedee.Link{},
+		RelatedMethodologyArticle: []zebedee.Link{},
 		Type:                      "dataset_landing_page",
 		URI:                       "/economy/inflationandpriceindices/datasets/consumerpriceinflation",
 		Description: zebedee.Description{
