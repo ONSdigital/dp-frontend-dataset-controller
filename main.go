@@ -201,6 +201,8 @@ func run(ctx context.Context) error {
 
 	// "/data" endpoints for static datasets
 	router.Path("/{topic}/datasets/{datasetID}/data").Methods("GET").HandlerFunc(handlers.DatasetData(datasetAPISdkClient, tc, cfg.IsPublishing))
+	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/data").Methods("GET").HandlerFunc(handlers.EditionData(datasetAPISdkClient, tc, cfg.IsPublishing))
+	router.Path("/{topic}/datasets/{datasetID}/editions/{editionID}/versions/{versionID}/data").Methods("GET").HandlerFunc(handlers.VersionData(datasetAPISdkClient, tc, cfg.IsPublishing))
 
 	// Static landing page routes
 	router.Path("/{topic}/datasets/{datasetID}").Methods("GET").HandlerFunc(handlers.StaticEditionsList(datasetAPISdkClient, rend, zc, tc, *cfg, apiRouterVersion))
