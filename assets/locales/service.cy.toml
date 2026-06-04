@@ -488,3 +488,35 @@ one = "Privacy notice"
 [AboutUs]
 description = "About us"
 one = "About us"
+
+[QualityAndMethodologyInformation]
+description = "Quality and methodology information"
+one = "Quality and methodology information"
+
+[QMIIncludes]
+description = "Includes heading for QMI section"
+one = "Includes:"
+
+[QMIDataSource]
+description = "Where the data comes from (source)"
+one = "Where the data comes from (source)"
+
+[QMIAccuracy]
+description = "The accuracy and reliability of the data"
+one = "The accuracy and reliability of the data"
+
+[QMIRelevance]
+description = "The relevance of the data to certain application or uses"
+one = "The relevance of the data to certain application or uses"
+
+[QMIReadFullPrefix]
+description = "QMI read full link prefix"
+one = "Read the full"
+
+[QMILinkText]
+description = "QMI link text"
+one = "Quality and methodology information (QMI)"
+
+[QMIReadFullSuffix]
+description = "QMI read full link suffix"
+one = "for this dataset."

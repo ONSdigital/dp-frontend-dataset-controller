@@ -87,6 +87,9 @@
     </div>
     <div class="ons-grid__col ons-col-8@m ons-u-pl-no">
       {{ template "partials/static/get-data" . }}
+      {{ if .DatasetLandingPage.QMIURL }}
+      {{ template "partials/static/quality-and-methodology-information" . }}
+      {{ end }}
       {{ if .UsageNotes}}
       {{ template "partials/static/usage-notes" . }}
       {{ end }}

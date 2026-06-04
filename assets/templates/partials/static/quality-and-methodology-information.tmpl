@@ -1,0 +1,13 @@
+<section id="quality-and-methodology-information" aria-label="{{ localise "QualityAndMethodologyInformation" .Language 1 }}">
+    <h2 class="ons-u-mt-xl ons-u-pb-no ons-u-pt-no">{{ localise "QualityAndMethodologyInformation" .Language 1 }}</h2>
+
+    <p>{{ localise "QMIIncludes" .Language 1 }}</p>
+    <ul class="ons-list">
+        <li class="ons-list__item">{{ localise "QMIDataSource" .Language 1 }}</li>
+        <li class="ons-list__item">{{ localise "QMIAccuracy" .Language 1 }}</li>
+        <li class="ons-list__item">{{ localise "QMIRelevance" .Language 1 }}</li>
+    </ul>
+    <p class="ons-u-mt-m">{{ localise "QMIReadFullPrefix" .Language 1 }} <a href="{{ .DatasetLandingPage.QMIURL }}">{{ localise "QMILinkText" .Language 1 }}</a> {{ localise "QMIReadFullSuffix" .Language 1 }}</p>
+
+    {{ template "partials/census/back-to-contents" . }}
+</section>
