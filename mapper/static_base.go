@@ -85,6 +85,10 @@ func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, vers
 	p.DatasetLandingPage.OSRLogo = helpers.GetOSRLogoDetails(basePage.Language)
 	p.DatasetLandingPage.NextRelease = d.NextRelease
 
+	if d.QMI != nil {
+		p.DatasetLandingPage.QMIURL = d.QMI.HRef
+	}
+
 	// CENSUS BRANDING
 	p.ShowCensusBranding = false
 
@@ -221,6 +225,16 @@ func buildStaticTableOfContents(p static.Page, d dpDatasetApiModels.Dataset, has
 		},
 	}
 	displayOrder = append(displayOrder, "get-data")
+
+	if p.DatasetLandingPage.QMIURL != "" {
+		sections["quality-and-methodology-information"] = core.ContentSection{
+			Title: core.Localisation{
+				LocaleKey: "QualityAndMethodologyInformation",
+				Plural:    1,
+			},
+		}
+		displayOrder = append(displayOrder, "quality-and-methodology-information")
+	}
 
 	if len(p.UsageNotes) > 0 {
 		sections["usage-notes"] = core.ContentSection{

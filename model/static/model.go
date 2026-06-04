@@ -43,6 +43,7 @@ type DatasetLandingPage struct {
 	NextRelease         string                           `json:"next_release"`
 	OSRLogo             osrlogo.OSRLogo                  `json:"osr_logo"`
 	Panels              []Panel                          `json:"panels"`
+	QMIURL              string                           `json:"qmi_url"`
 	QualityStatements   []Panel                          `json:"quality_statements"`
 	RelatedContentItems []sharedModel.RelatedContentItem `json:"related_content_items"`
 	SDC                 []Panel                          `json:"sdc"`

@@ -51,4 +51,18 @@ func TestCreateStaticBasePage(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("If dataset has QMI details", t, func() {
+		datasetWithQMI := dataset
+		datasetWithQMI.QMI = &dpDatasetApiModels.GeneralDetails{HRef: "https://example.com/qmi"}
+		version := dpDatasetApiModels.Version{}
+
+		Convey("When CreateStaticBasePage is called", func() {
+			staticPage := CreateStaticBasePage(basePage, datasetWithQMI, version, allVersions, isEnableMultivariate, topicObjectList)
+
+			Convey("Then the resulting static.Page should include QMI URL", func() {
+				So(staticPage.DatasetLandingPage.QMIURL, ShouldEqual, "https://example.com/qmi")
+			})
+		})
+	})
 }
