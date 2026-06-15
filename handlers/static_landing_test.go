@@ -187,6 +187,31 @@ func TestStaticLanding(t *testing.T) {
 		})
 	})
 
+	Convey("When no topics are returned for the dataset", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(datasetAPIModels.Dataset{
+				ID:     datasetID,
+				Type:   DatasetTypeStatic,
+				Topics: []string{},
+				Links:  dataset.Links,
+			}, nil)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, versionID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1-slug",
+			"datasetID": datasetID,
+			"editionID": editionID,
+			"versionID": versionID,
+		})
+
+		staticLanding(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, mockAuthMiddleware, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
 	Convey("When the first topic in the dataset does not match the topic in the URL", t, func() {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
@@ -207,8 +232,9 @@ func TestStaticLanding(t *testing.T) {
 
 		staticLanding(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, mockAuthMiddleware, testUserAccessToken, lang, collectionID)
 
-		Convey("Then the response status code should be 404 Not Found", func() {
-			So(w.Code, ShouldEqual, http.StatusNotFound)
+		Convey("Then the response status code should be 302 Found and redirect to correct topic", func() {
+			So(w.Code, ShouldEqual, http.StatusFound)
+			So(w.Header().Get("Location"), ShouldEqual, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", testTopic1.Slug, datasetID, editionID, versionID))
 		})
 	})
 

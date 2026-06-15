@@ -58,9 +58,22 @@ func datasetData(r *http.Request, w http.ResponseWriter, datasetAPIClient client
 	}
 
 	topicSlugs := helpers.ExtractTopicSlugs(topicList)
-	if len(topicSlugs) == 0 || topicSlugs[0] != topicSlug {
-		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
-		setStatusCode(ctx, w, errDatasetTopicMismatch)
+	if len(topicSlugs) == 0 {
+		log.Error(ctx, "no topics found for dataset", errDatasetHasNoTopics, logData)
+		setStatusCode(ctx, w, errDatasetHasNoTopics)
+		return
+	}
+
+	expectedTopicSlug := topicSlugs[0]
+	if expectedTopicSlug != topicSlug {
+		logData["providedTopicSlug"] = topicSlug
+		logData["expectedTopicSlug"] = expectedTopicSlug
+		log.Info(ctx, "incorrect topic slug provided, redirecting to correct topic", logData)
+
+		redirectPath := helpers.ReplaceFirstPathSegment(r.URL.Path, expectedTopicSlug)
+
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
 
@@ -122,9 +135,22 @@ func editionData(r *http.Request, w http.ResponseWriter, datasetAPIClient client
 	}
 
 	topicSlugs := helpers.ExtractTopicSlugs(topicList)
-	if len(topicSlugs) == 0 || topicSlugs[0] != topicSlug {
-		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
-		setStatusCode(ctx, w, errDatasetTopicMismatch)
+	if len(topicSlugs) == 0 {
+		log.Error(ctx, "no topics found for dataset", errDatasetHasNoTopics, logData)
+		setStatusCode(ctx, w, errDatasetHasNoTopics)
+		return
+	}
+
+	expectedTopicSlug := topicSlugs[0]
+	if expectedTopicSlug != topicSlug {
+		logData["providedTopicSlug"] = topicSlug
+		logData["expectedTopicSlug"] = expectedTopicSlug
+		log.Info(ctx, "incorrect topic slug provided, redirecting to correct topic", logData)
+
+		redirectPath := helpers.ReplaceFirstPathSegment(r.URL.Path, expectedTopicSlug)
+
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
 
@@ -206,9 +232,22 @@ func versionData(r *http.Request, w http.ResponseWriter, datasetAPIClient client
 	}
 
 	topicSlugs := helpers.ExtractTopicSlugs(topicList)
-	if len(topicSlugs) == 0 || topicSlugs[0] != topicSlug {
-		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
-		setStatusCode(ctx, w, errDatasetTopicMismatch)
+	if len(topicSlugs) == 0 {
+		log.Error(ctx, "no topics found for dataset", errDatasetHasNoTopics, logData)
+		setStatusCode(ctx, w, errDatasetHasNoTopics)
+		return
+	}
+
+	expectedTopicSlug := topicSlugs[0]
+	if expectedTopicSlug != topicSlug {
+		logData["providedTopicSlug"] = topicSlug
+		logData["expectedTopicSlug"] = expectedTopicSlug
+		log.Info(ctx, "incorrect topic slug provided, redirecting to correct topic", logData)
+
+		redirectPath := helpers.ReplaceFirstPathSegment(r.URL.Path, expectedTopicSlug)
+
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
 

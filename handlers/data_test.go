@@ -219,6 +219,24 @@ func TestDatasetData(t *testing.T) {
 			})
 		})
 
+		Convey("When no topics are returned for the dataset", func() {
+			datasetWithNoTopics := dataset
+			datasetWithNoTopics.Topics = []string{}
+
+			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
+				Return(datasetWithNoTopics, nil)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
+			r = mux.SetURLVars(r, urlVars)
+
+			datasetData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
+
+			Convey("Then the response status code should be 500 Internal Server Error", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
 		Convey("When canonical topic does not match topic slug in URL", func() {
 			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
 				Return(dataset, nil)
@@ -235,8 +253,9 @@ func TestDatasetData(t *testing.T) {
 
 			datasetData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
 
-			Convey("Then the response status code should be 404 Not Found", func() {
-				So(w.Code, ShouldEqual, http.StatusNotFound)
+			Convey("Then the response status code should be 302 Found and redirect to correct topic", func() {
+				So(w.Code, ShouldEqual, http.StatusFound)
+				So(w.Header().Get("Location"), ShouldEqual, fmt.Sprintf("/%s/datasets/%s/data", "different-topic", datasetID))
 			})
 		})
 
@@ -405,6 +424,24 @@ func TestEditionData(t *testing.T) {
 			})
 		})
 
+		Convey("When no topics are returned for the dataset", func() {
+			datasetWithNoTopics := dataset
+			datasetWithNoTopics.Topics = []string{}
+
+			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
+				Return(datasetWithNoTopics, nil)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
+			r = mux.SetURLVars(r, urlVars)
+
+			editionData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
+
+			Convey("Then the response status code should be 500 Internal Server Error", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
 		Convey("When canonical topic does not match topic slug in URL", func() {
 			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
 				Return(dataset, nil)
@@ -421,8 +458,9 @@ func TestEditionData(t *testing.T) {
 
 			editionData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
 
-			Convey("Then the response status code should be 404 Not Found", func() {
-				So(w.Code, ShouldEqual, http.StatusNotFound)
+			Convey("Then the response status code should be 302 Found and redirect to correct topic", func() {
+				So(w.Code, ShouldEqual, http.StatusFound)
+				So(w.Header().Get("Location"), ShouldEqual, fmt.Sprintf("/%s/datasets/%s/editions/%s/data", "different-topic", datasetID, editionID))
 			})
 		})
 
@@ -623,6 +661,24 @@ func TestVersionData(t *testing.T) {
 			})
 		})
 
+		Convey("When no topics are returned for the dataset", func() {
+			datasetWithNoTopics := dataset
+			datasetWithNoTopics.Topics = []string{}
+
+			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
+				Return(datasetWithNoTopics, nil)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, requestPath, http.NoBody)
+			r = mux.SetURLVars(r, urlVars)
+
+			versionData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
+
+			Convey("Then the response status code should be 500 Internal Server Error", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+			})
+		})
+
 		Convey("When canonical topic does not match topic slug in URL", func() {
 			mockDatasetClient.EXPECT().GetDataset(ctx, testDatasetHeaders, datasetID).
 				Return(dataset, nil)
@@ -639,8 +695,9 @@ func TestVersionData(t *testing.T) {
 
 			versionData(r, w, mockDatasetClient, mockTopicClient, false, testUserAccessToken)
 
-			Convey("Then the response status code should be 404 Not Found", func() {
-				So(w.Code, ShouldEqual, http.StatusNotFound)
+			Convey("Then the response status code should be 302 Found and redirect to correct topic", func() {
+				So(w.Code, ShouldEqual, http.StatusFound)
+				So(w.Header().Get("Location"), ShouldEqual, fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s/data", "different-topic", datasetID, editionID, versionID))
 			})
 		})
 

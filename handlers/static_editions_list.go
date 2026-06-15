@@ -56,9 +56,25 @@ func staticEditionsList(r *http.Request, w http.ResponseWriter, datasetAPIClient
 		return
 	}
 
-	if len(topicList) == 0 || topicList[0].Slug != topicSlug {
-		log.Error(ctx, "dataset topic does not match URL topic", errDatasetTopicMismatch, logData)
-		setStatusCode(ctx, w, errDatasetTopicMismatch)
+	if len(topicList) == 0 {
+		log.Error(ctx, "no topics found for dataset", errDatasetHasNoTopics, logData)
+		setStatusCode(ctx, w, errDatasetHasNoTopics)
+		return
+	}
+
+	expectedTopicSlug := topicList[0].Slug
+
+	// If the URL topic slug doesn't match the dataset's primary topic slug, redirect to the expected one
+	if expectedTopicSlug != topicSlug {
+		logData["providedTopicSlug"] = topicSlug
+		logData["expectedTopicSlug"] = expectedTopicSlug
+		log.Info(ctx, "incorrect topic slug provided, redirecting to correct topic", logData)
+
+		// Reconstruct the request path with the expected topic slug
+		redirectPath := helpers.ReplaceFirstPathSegment(r.URL.Path, expectedTopicSlug)
+
+		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
+		http.Redirect(w, r, redirectPath, http.StatusFound)
 		return
 	}
 
