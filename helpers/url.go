@@ -7,6 +7,20 @@ import (
 	"strings"
 )
 
+// ReplaceFirstPathSegment returns a path where the first segment is replaced
+// by the provided segment.
+func ReplaceFirstPathSegment(oldPath, newSegment string) string {
+	trimmed := strings.Trim(oldPath, "/")
+	if trimmed == "" {
+		return "/" + newSegment
+	}
+
+	parts := strings.Split(trimmed, "/")
+	parts[0] = newSegment
+
+	return "/" + strings.Join(parts, "/")
+}
+
 // PrefixPathWithTopic returns the path of rawURL prefixed with topicID.
 // The first path segment (assumed to be the API Router version) is always removed
 // because frontend routes do not include the API version prefix.

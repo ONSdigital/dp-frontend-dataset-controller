@@ -60,3 +60,44 @@ func TestPrefixPathWithTopic(t *testing.T) {
 		})
 	})
 }
+
+func TestReplaceFirstPathSegment(t *testing.T) {
+	testCases := []struct {
+		name        string
+		rawPath     string
+		replaceWith string
+		expected    string
+	}{
+		{
+			name:        "path with multiple segments",
+			rawPath:     "/path/with/multiple/segments",
+			replaceWith: "new",
+			expected:    "/new/with/multiple/segments",
+		},
+		{
+			name:        "path without leading slash",
+			rawPath:     "path/without/leading/slash",
+			replaceWith: "new",
+			expected:    "/new/without/leading/slash",
+		},
+		{
+			name:        "root path",
+			rawPath:     "/",
+			replaceWith: "new",
+			expected:    "/new",
+		},
+		{
+			name:        "empty path",
+			rawPath:     "",
+			replaceWith: "new",
+			expected:    "/new",
+		},
+	}
+
+	for _, tc := range testCases {
+		Convey(tc.name, t, func() {
+			result := ReplaceFirstPathSegment(tc.rawPath, tc.replaceWith)
+			So(result, ShouldEqual, tc.expected)
+		})
+	}
+}
