@@ -3,12 +3,14 @@ package mapper
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
@@ -40,8 +42,10 @@ func CreateStaticOverviewPage(basePage core.Page, datasetDetails dpDatasetApiMod
 	// ANALYTICS
 	p.PreGTMJavaScript = append(
 		p.PreGTMJavaScript,
-		getDataLayerJavaScript(getAnalytics(p.DatasetLandingPage.Dimensions)),
+		getDataLayerJavaScript(setGTMDataLayerValuesForStaticDatasets(datasetDetails, version)),
 	)
+
+	spew.Dump(p.PreGTMJavaScript)
 
 	// FINAL FORMATTING
 	p.DatasetLandingPage.QualityStatements = formatStaticPanels(p.DatasetLandingPage.QualityStatements)
@@ -55,4 +59,38 @@ func formatStaticPanels(panels []static.Panel) []static.Panel {
 		panels[panelLen-1].CSSClasses = append(panels[panelLen-1].CSSClasses, "ons-u-mb-l")
 	}
 	return panels
+}
+
+// setGTMDataLayerValuesForStaticDatasets returns a map to add to the data layer which will be used on file download
+func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version) map[string]string {
+	dataLayer := make(map[string]string, 5)
+	dataLayer["product"] = "dataset-catalogue"
+	dataLayer["contentType"] = "datasets"
+	dataLayer["contentSubtype"] = "versions"
+
+	if len(datasetDetails.Topics) > 0 {
+		dataLayer["contentGroup"] = datasetDetails.Topics[0]
+	}
+
+	dataLayer["contentTheme"] = "TBC"
+	dataLayer["contentTitle"] = datasetDetails.Title + ": " + version.EditionTitle
+	dataLayer["outputSeries"] = datasetDetails.ID
+	dataLayer["outputEdition"] = version.Edition
+	dataLayer["outputVersion"] = strconv.Itoa(version.Version)
+	if len(version.ReleaseDate) > 0 {
+		relDate, err := time.Parse("2006-01-02T15:04:05Z07:00", version.ReleaseDate)
+		if err == nil {
+			dataLayer["releaseDate"] = relDate.Format("20060102")
+		}
+	}
+
+	dataLayer["lastUpdateDate"] = version.LastUpdated.Format("20060102")
+
+	isLatestRelease := false
+	if datasetDetails.Links.LatestVersion.ID == strconv.Itoa(version.Version) {
+		isLatestRelease = true
+	}
+	dataLayer["latestRelease"] = strconv.FormatBool(isLatestRelease)
+
+	return dataLayer
 }
