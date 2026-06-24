@@ -10,7 +10,6 @@ import (
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/model/static"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
-	"github.com/davecgh/go-spew/spew"
 )
 
 // CreateStaticLandingPage creates a static-overview page based on api model responses
@@ -44,8 +43,6 @@ func CreateStaticOverviewPage(basePage core.Page, datasetDetails dpDatasetApiMod
 		p.PreGTMJavaScript,
 		getDataLayerJavaScript(setGTMDataLayerValuesForStaticDatasets(datasetDetails, version)),
 	)
-
-	spew.Dump(p.PreGTMJavaScript)
 
 	// FINAL FORMATTING
 	p.DatasetLandingPage.QualityStatements = formatStaticPanels(p.DatasetLandingPage.QualityStatements)
