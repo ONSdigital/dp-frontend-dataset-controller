@@ -73,7 +73,7 @@ func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Da
 	dataLayer["outputSeries"] = datasetDetails.ID
 	dataLayer["outputEdition"] = version.Edition
 	dataLayer["outputVersion"] = strconv.Itoa(version.Version)
-	if len(version.ReleaseDate) > 0 {
+	if version.ReleaseDate != "" {
 		relDate, err := time.Parse("2006-01-02T15:04:05Z07:00", version.ReleaseDate)
 		if err == nil {
 			dataLayer["releaseDate"] = relDate.Format("20060102")
