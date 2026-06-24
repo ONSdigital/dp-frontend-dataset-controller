@@ -86,11 +86,12 @@ func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Da
 
 	dataLayer["lastUpdateDate"] = version.LastUpdated.Format("20060102")
 
-	isLatestRelease := false
+	// "yes" / "no" were requested by analytics team rather than true / false
+	isLatestRelease := "no"
 	if datasetDetails.Links.LatestVersion.ID == strconv.Itoa(version.Version) {
-		isLatestRelease = true
+		isLatestRelease = "yes"
 	}
-	dataLayer["latestRelease"] = strconv.FormatBool(isLatestRelease)
+	dataLayer["latestRelease"] = isLatestRelease
 
 	return dataLayer
 }
