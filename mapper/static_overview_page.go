@@ -72,7 +72,6 @@ func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Da
 		dataLayer["contentGroup"] = datasetDetails.Topics[0]
 	}
 
-	dataLayer["contentTheme"] = "TBC"
 	dataLayer["contentTitle"] = datasetDetails.Title + ": " + version.EditionTitle
 	dataLayer["outputSeries"] = datasetDetails.ID
 	dataLayer["outputEdition"] = version.Edition
