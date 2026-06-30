@@ -1,14 +1,18 @@
 package mapper
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
+	ctx := context.Background()
+
 	Convey("Given a static dataset and version with full details", t, func() {
 		lastUpdated := time.Date(2025, 6, 10, 12, 0, 0, 0, time.UTC)
 		dataset := dpDatasetApiModels.Dataset{
@@ -26,16 +30,19 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			ReleaseDate:  "2025-01-15T00:00:00.000Z",
 			LastUpdated:  lastUpdated,
 		}
+		topics := []*dpTopicApiModels.Topic{
+			{ID: "topic-economy-id", Title: "Economy"},
+		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
-			dataLayer := setGTMDataLayerValuesForStaticDatasets(dataset, version)
+			dataLayer := setGTMDataLayerValuesForStaticDatasets(ctx, dataset, version, topics)
 
 			Convey("Then the data layer should contain the expected analytics values", func() {
 				So(dataLayer, ShouldResemble, map[string]string{
 					"product":        "dataset-catalogue",
 					"contentType":    "datasets",
 					"contentSubtype": "versions",
-					"contentGroup":   "topic-economy-id",
+					"contentGroup":   "Economy",
 					"contentTitle":   "Producer price inflation (MM22): 2025 edition",
 					"outputSeries":   "dataset-123",
 					"outputEdition":  "2025",
@@ -61,9 +68,12 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			Edition:      "2024",
 			EditionTitle: "2024 edition",
 		}
+		topics := []*dpTopicApiModels.Topic{
+			{ID: "topic-economy-id", Title: "Economy"},
+		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
-			dataLayer := setGTMDataLayerValuesForStaticDatasets(dataset, version)
+			dataLayer := setGTMDataLayerValuesForStaticDatasets(ctx, dataset, version, topics)
 
 			Convey("Then latestRelease should be no", func() {
 				So(dataLayer["latestRelease"], ShouldEqual, "no")
@@ -71,7 +81,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 		})
 	})
 
-	Convey("Given a dataset with no topics", t, func() {
+	Convey("Given no topics", t, func() {
 		dataset := dpDatasetApiModels.Dataset{
 			ID:    "dataset-123",
 			Title: "Producer price inflation (MM22)",
@@ -84,9 +94,10 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			Edition:      "2025",
 			EditionTitle: "2025 edition",
 		}
+		topics := []*dpTopicApiModels.Topic{}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
-			dataLayer := setGTMDataLayerValuesForStaticDatasets(dataset, version)
+			dataLayer := setGTMDataLayerValuesForStaticDatasets(ctx, dataset, version, topics)
 
 			Convey("Then contentGroup should not be set", func() {
 				_, ok := dataLayer["contentGroup"]
@@ -109,9 +120,12 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			EditionTitle: "2025 edition",
 			ReleaseDate:  "",
 		}
+		topics := []*dpTopicApiModels.Topic{
+			{ID: "topic-economy-id", Title: "Economy"},
+		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
-			dataLayer := setGTMDataLayerValuesForStaticDatasets(dataset, version)
+			dataLayer := setGTMDataLayerValuesForStaticDatasets(ctx, dataset, version, topics)
 
 			Convey("Then releaseDate should not be set", func() {
 				_, ok := dataLayer["releaseDate"]
@@ -134,9 +148,12 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			EditionTitle: "2025 edition",
 			ReleaseDate:  "not-a-date",
 		}
+		topics := []*dpTopicApiModels.Topic{
+			{ID: "topic-economy-id", Title: "Economy"},
+		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
-			dataLayer := setGTMDataLayerValuesForStaticDatasets(dataset, version)
+			dataLayer := setGTMDataLayerValuesForStaticDatasets(ctx, dataset, version, topics)
 
 			Convey("Then releaseDate should not be set", func() {
 				_, ok := dataLayer["releaseDate"]
