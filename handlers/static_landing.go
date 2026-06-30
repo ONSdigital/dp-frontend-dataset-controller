@@ -155,6 +155,6 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient clie
 	// Build and render the page
 	basePage := renderClient.NewBasePageModel()
 	mapper.UpdateBasePage(&basePage, dataset, homepageContent, isValidationError, lang, r)
-	pageModel := mapper.CreateStaticOverviewPage(basePage, dataset, version, fullVersionsList.Items, cfg.EnableMultivariate, topicList, cfg.IsPublishing, enableApprovalButton)
+	pageModel := mapper.CreateStaticOverviewPage(ctx, basePage, dataset, version, fullVersionsList.Items, cfg.EnableMultivariate, topicList, cfg.IsPublishing, enableApprovalButton)
 	renderClient.BuildPage(w, pageModel, templateNameStatic)
 }
