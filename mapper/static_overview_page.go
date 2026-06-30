@@ -41,7 +41,7 @@ func CreateStaticOverviewPage(basePage core.Page, datasetDetails dpDatasetApiMod
 	// ANALYTICS
 	p.PreGTMJavaScript = append(
 		p.PreGTMJavaScript,
-		getDataLayerJavaScript(setGTMDataLayerValuesForStaticDatasets(datasetDetails, version)),
+		getDataLayerJavaScript(setGTMDataLayerValuesForStaticDatasets(datasetDetails, version, topicObjectList)),
 	)
 
 	// FINAL FORMATTING
@@ -59,14 +59,14 @@ func formatStaticPanels(panels []static.Panel) []static.Panel {
 }
 
 // setGTMDataLayerValuesForStaticDatasets returns a map to add to the data layer which will be used on file download
-func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version) map[string]string {
+func setGTMDataLayerValuesForStaticDatasets(datasetDetails dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version, topics []*dpTopicApiModels.Topic) map[string]string {
 	dataLayer := make(map[string]string, 11)
 	dataLayer["product"] = "dataset-catalogue"
 	dataLayer["contentType"] = "datasets"
 	dataLayer["contentSubtype"] = "versions"
 
-	if len(datasetDetails.Topics) > 0 {
-		dataLayer["contentGroup"] = datasetDetails.Topics[0]
+	if len(topics) > 0 {
+		dataLayer["contentGroup"] = topics[0].Title
 	}
 
 	dataLayer["contentTitle"] = datasetDetails.Title + ": " + version.EditionTitle
