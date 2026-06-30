@@ -88,7 +88,7 @@ func setGTMDataLayerValuesForStaticDatasets(ctx context.Context, datasetDetails 
 
 	// "yes" / "no" were requested by analytics team rather than true / false
 	isLatestRelease := "no"
-	if datasetDetails.Links.LatestVersion.ID == strconv.Itoa(version.Version) {
+	if datasetDetails.Links != nil && datasetDetails.Links.LatestVersion != nil && datasetDetails.Links.LatestVersion.ID == strconv.Itoa(version.Version) {
 		isLatestRelease = "yes"
 	}
 	dataLayer["latestRelease"] = isLatestRelease
