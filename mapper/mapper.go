@@ -426,7 +426,31 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	// Prepares table of components object for use in dis-design-system-go
 	p.TableOfContents = buildEditionsListTableOfContents(d)
 
+	// ANALYTICS
+	p.PreGTMJavaScript = append(
+		p.PreGTMJavaScript,
+		getDataLayerJavaScript(setGTMDataLayerValuesForStaticEditionList(d, topicObjectList)),
+	)
+
 	return p
+}
+
+// setGTMDataLayerValuesForStaticEditionList returns a map to add to the data layer which will be used on static editions list page
+func setGTMDataLayerValuesForStaticEditionList(datasetDetails dpDatasetApiModels.Dataset, topics []*dpTopicApiModels.Topic) map[string]string {
+	dataLayer := make(map[string]string, 11)
+	dataLayer["product"] = "dataset-catalogue"
+	dataLayer["contentType"] = "datasets"
+	dataLayer["contentSubtype"] = "editions"
+
+	if len(topics) > 0 {
+		dataLayer["contentGroup"] = topics[0].Title
+	}
+
+	dataLayer["contentTitle"] = datasetDetails.Title
+	dataLayer["outputSeries"] = datasetDetails.ID
+	dataLayer["lastUpdateDate"] = datasetDetails.LastUpdated.Format("20060102")
+
+	return dataLayer
 }
 
 func mapCorrectionAlert(ver *dpDatasetApiModels.Version, model *sharedModel.Version) {
