@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	dpRendererModel "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -678,6 +679,53 @@ func TestCreateBreadcrumbsFromTopicList(t *testing.T) {
 				So(breadcrumbObject[1].URI, ShouldEqual, "/slug1")
 				So(breadcrumbObject[2].Title, ShouldEqual, "Topic Two")
 				So(breadcrumbObject[2].URI, ShouldEqual, "/slug1/slug2")
+			})
+		})
+	})
+}
+
+func TestSetGTMDataLayerValuesForStaticEditionList(t *testing.T) {
+	Convey("Given a static dataset with a topic", t, func() {
+		dataset := dpDatasetApiModels.Dataset{
+			ID:          "dataset-123",
+			Title:       "Producer price inflation (MM22)",
+			LastUpdated: time.Date(2025, 6, 10, 12, 0, 0, 0, time.UTC),
+		}
+		topics := []*dpTopicApiModels.Topic{
+			{ID: "topic-economy-id", Title: "Economy"},
+		}
+
+		Convey("When setGTMDataLayerValuesForStaticEditionList is called", func() {
+			dataLayer := setGTMDataLayerValuesForStaticEditionList(dataset, topics)
+
+			Convey("Then the data layer should contain the expected analytics values", func() {
+				So(dataLayer, ShouldResemble, map[string]string{
+					"product":        "dataset-catalogue",
+					"contentType":    "datasets",
+					"contentSubtype": "editions",
+					"contentGroup":   "Economy",
+					"contentTitle":   "Producer price inflation (MM22)",
+					"outputSeries":   "dataset-123",
+					"lastUpdateDate": "20250610",
+				})
+			})
+		})
+	})
+
+	Convey("Given a static dataset with no topics", t, func() {
+		dataset := dpDatasetApiModels.Dataset{
+			ID:          "dataset-123",
+			Title:       "Producer price inflation (MM22)",
+			LastUpdated: time.Date(2025, 6, 10, 12, 0, 0, 0, time.UTC),
+		}
+		topics := []*dpTopicApiModels.Topic{}
+
+		Convey("When setGTMDataLayerValuesForStaticEditionList is called", func() {
+			dataLayer := setGTMDataLayerValuesForStaticEditionList(dataset, topics)
+
+			Convey("Then contentGroup should not be set", func() {
+				_, ok := dataLayer["contentGroup"]
+				So(ok, ShouldBeFalse)
 			})
 		})
 	})
