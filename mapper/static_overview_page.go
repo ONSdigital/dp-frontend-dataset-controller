@@ -68,7 +68,7 @@ func setGTMDataLayerValuesForStaticDatasets(ctx context.Context, datasetDetails 
 	dataLayer["contentSubtype"] = "versions"
 
 	if len(topics) > 0 {
-		dataLayer["contentGroup"] = topics[0].Title
+		dataLayer["contentGroup"] = topics[0].Slug
 	}
 
 	dataLayer["contentTitle"] = datasetDetails.Title + ": " + version.EditionTitle

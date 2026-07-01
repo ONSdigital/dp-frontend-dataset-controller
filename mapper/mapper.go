@@ -437,13 +437,13 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 
 // setGTMDataLayerValuesForStaticEditionList returns a map to add to the data layer which will be used on static editions list page
 func setGTMDataLayerValuesForStaticEditionList(datasetDetails dpDatasetApiModels.Dataset, topics []*dpTopicApiModels.Topic) map[string]string {
-	dataLayer := make(map[string]string, 11)
+	dataLayer := make(map[string]string, 7)
 	dataLayer["product"] = "dataset-catalogue"
 	dataLayer["contentType"] = "datasets"
 	dataLayer["contentSubtype"] = "editions"
 
 	if len(topics) > 0 {
-		dataLayer["contentGroup"] = topics[0].Title
+		dataLayer["contentGroup"] = topics[0].Slug
 	}
 
 	dataLayer["contentTitle"] = datasetDetails.Title
