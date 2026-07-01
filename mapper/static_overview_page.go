@@ -60,7 +60,7 @@ func formatStaticPanels(panels []static.Panel) []static.Panel {
 	return panels
 }
 
-// setGTMDataLayerValuesForStaticDatasets returns a map to add to the data layer which will be used on file download
+// setGTMDataLayerValuesForStaticDatasets returns a map to add to the data layer which will be used on static dataset version page
 func setGTMDataLayerValuesForStaticDatasets(ctx context.Context, datasetDetails dpDatasetApiModels.Dataset, version dpDatasetApiModels.Version, topics []*dpTopicApiModels.Topic) map[string]string {
 	dataLayer := make(map[string]string, 11)
 	dataLayer["product"] = "dataset-catalogue"
