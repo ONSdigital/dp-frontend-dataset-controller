@@ -31,7 +31,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			LastUpdated:  lastUpdated,
 		}
 		topics := []*dpTopicApiModels.Topic{
-			{ID: "topic-economy-id", Title: "Economy"},
+			{ID: "topic-economy-id", Slug: "economy", Title: "Economy"},
 		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
@@ -42,7 +42,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 					"product":        "dataset-catalogue",
 					"contentType":    "datasets",
 					"contentSubtype": "versions",
-					"contentGroup":   "Economy",
+					"contentGroup":   "economy",
 					"contentTitle":   "Producer price inflation (MM22): 2025 edition",
 					"outputSeries":   "dataset-123",
 					"outputEdition":  "2025",
@@ -69,7 +69,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			EditionTitle: "2024 edition",
 		}
 		topics := []*dpTopicApiModels.Topic{
-			{ID: "topic-economy-id", Title: "Economy"},
+			{ID: "topic-economy-id", Slug: "economy", Title: "Economy"},
 		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
@@ -121,7 +121,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			ReleaseDate:  "",
 		}
 		topics := []*dpTopicApiModels.Topic{
-			{ID: "topic-economy-id", Title: "Economy"},
+			{ID: "topic-economy-id", Slug: "economy", Title: "Economy"},
 		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {
@@ -149,7 +149,7 @@ func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 			ReleaseDate:  "not-a-date",
 		}
 		topics := []*dpTopicApiModels.Topic{
-			{ID: "topic-economy-id", Title: "Economy"},
+			{ID: "topic-economy-id", Slug: "economy", Title: "Economy"},
 		}
 
 		Convey("When setGTMDataLayerValuesForStaticDatasets is called", func() {

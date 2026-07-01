@@ -692,7 +692,7 @@ func TestSetGTMDataLayerValuesForStaticEditionList(t *testing.T) {
 			LastUpdated: time.Date(2025, 6, 10, 12, 0, 0, 0, time.UTC),
 		}
 		topics := []*dpTopicApiModels.Topic{
-			{ID: "topic-economy-id", Title: "Economy"},
+			{ID: "topic-economy-id", Slug: "economy", Title: "Economy"},
 		}
 
 		Convey("When setGTMDataLayerValuesForStaticEditionList is called", func() {
@@ -703,7 +703,7 @@ func TestSetGTMDataLayerValuesForStaticEditionList(t *testing.T) {
 					"product":        "dataset-catalogue",
 					"contentType":    "datasets",
 					"contentSubtype": "editions",
-					"contentGroup":   "Economy",
+					"contentGroup":   "economy",
 					"contentTitle":   "Producer price inflation (MM22)",
 					"outputSeries":   "dataset-123",
 					"lastUpdateDate": "20250610",
