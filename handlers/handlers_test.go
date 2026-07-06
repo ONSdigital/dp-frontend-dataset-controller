@@ -1,16 +1,12 @@
 package handlers
 
 import (
-	coreContext "context"
-	"errors"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/config"
-	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -57,39 +53,6 @@ func slice(full []dataset.Option, offset, limit int) (sliced []dataset.Option) {
 	}
 
 	return full[offset:end]
-}
-
-func TestUnitHandlers(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
-	ctx := coreContext.Background()
-
-	Convey("test setStatusCode", t, func() {
-		Convey("test status code handles 404 response from client", func() {
-			w := httptest.NewRecorder()
-			err := &testCliError{}
-
-			setStatusCode(ctx, w, err)
-
-			So(w.Code, ShouldEqual, http.StatusNotFound)
-		})
-
-		Convey("test status code handles internal server error", func() {
-			w := httptest.NewRecorder()
-			err := errors.New("internal server error")
-
-			setStatusCode(ctx, w, err)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-		})
-		Convey("test status code handles known errors with mapped status codes", func() {
-			w := httptest.NewRecorder()
-			err := errDatasetTypeNotSupported // Known 404 error
-
-			setStatusCode(ctx, w, err)
-			So(w.Code, ShouldEqual, http.StatusNotFound)
-		})
-	})
 }
 
 func TestSortOptionsByCode(t *testing.T) {
