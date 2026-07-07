@@ -23,6 +23,7 @@ var (
 // Map of errors to HTTP status codes
 var errorToStatusCodeMap = map[error]int{
 	errDatasetTypeNotSupported:  http.StatusNotFound,
+	errTooManyOptions:           http.StatusRequestEntityTooLarge,
 	errDatasetHasNoTopics:       http.StatusInternalServerError,
 	errMissingLatestVersionLink: http.StatusInternalServerError,
 }
@@ -45,10 +46,6 @@ var datasetAPINotFoundErrors = []error{
 // setStatusCode sets the appropriate HTTP status code based on the error type.
 func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
-
-	if err == errTooManyOptions {
-		status = http.StatusRequestEntityTooLarge
-	}
 
 	if clientErr, ok := err.(clients.ClientError); ok {
 		if clientErr.Code() == http.StatusNotFound {
