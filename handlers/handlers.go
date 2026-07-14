@@ -37,39 +37,6 @@ const (
 	templateNameStaticEditionsList = "edition-list-static"
 )
 
-var errTooManyOptions = errors.New("too many options in dimension")
-
-func setStatusCode(ctx context.Context, w http.ResponseWriter, err error) {
-	status := http.StatusInternalServerError
-
-	if err == errTooManyOptions {
-		status = http.StatusRequestEntityTooLarge
-	}
-
-	if clientErr, ok := err.(clients.ClientError); ok {
-		if clientErr.Code() == http.StatusNotFound {
-			status = clientErr.Code()
-		}
-	}
-
-	if datasetErr, ok := err.(dpDatasetApiModels.Error); ok {
-		errCode, atoiErr := strconv.Atoi(datasetErr.Code)
-		if atoiErr != nil {
-			log.Error(ctx, "failed to convert error code to int", atoiErr, log.Data{"code": datasetErr.Code})
-		} else if errCode == http.StatusNotFound {
-			status = errCode
-		}
-	}
-
-	// Check if the error is a known error with a mapped status code
-	if mappedStatusCode, exists := errorToStatusCodeMap[err]; exists {
-		status = mappedStatusCode
-	}
-
-	log.Error(ctx, "client error", err, log.Data{"setting-response-status": status})
-	w.WriteHeader(status)
-}
-
 // getOptionsSummary requests a maximum of numOpts for each dimension, and returns the array of Options structs for each dimension, each one containing up to numOpts options.
 func getOptionsSummary(ctx context.Context, dc clients.DatasetAPISdkClient, userAccessToken, collectionID, datasetID, edition, version string, dimensions dpDatasetApiSdk.VersionDimensionsList, numOpts int) (opts []dpDatasetApiSdk.VersionDimensionOptionsList, err error) {
 	headers := dpDatasetApiSdk.Headers{
