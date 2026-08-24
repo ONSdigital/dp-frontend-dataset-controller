@@ -417,7 +417,7 @@ func CreateEditionsListForStaticDatasetType(ctx context.Context, basePage dpRend
 	if len(editionItems) > 0 {
 		for i := range editionItems {
 			var el edition.List
-			el.Title = editionItems[i].Edition
+			el.Title = editionItems[i].EditionTitle
 			el.LatestVersionURL = helpers.DatasetVersionURLWithTopic(topicObjectList[0].Slug, datasetID, editionItems[i].Edition, editionItems[i].Links.LatestVersion.ID)
 			p.Editions = append(p.Editions, el)
 		}
