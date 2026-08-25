@@ -86,15 +86,24 @@ func staticLanding(r *http.Request, w http.ResponseWriter, datasetAPIClient clie
 	}
 
 	// If versionID is missing then request came from /{topic}/datasets/{datasetID}/editions/{editionID} or /{topic}/datasets/{datasetID}/editions/{editionID}/versions.
-	// Redirect to the latest version of the dataset.
+	// Redirect to the latest version of the requested edition.
 	if versionID == "" {
 		log.Info(ctx, "versionID not provided in URL, redirecting to latest version", logData)
-		redirectPath, err := helpers.PrefixPathWithTopic(topicSlug, dataset.Links.LatestVersion.HRef)
+
+		edition, err := datasetAPIClient.GetEdition(ctx, datasetAPIClientHeaders, datasetID, editionID)
 		if err != nil {
-			log.Error(ctx, "failed to create redirect path for latest version", err, logData)
+			log.Error(ctx, "failed to fetch edition", err, logData)
 			setStatusCode(ctx, w, err)
 			return
 		}
+
+		if edition.Links == nil || edition.Links.LatestVersion == nil || edition.Links.LatestVersion.ID == "" {
+			log.Error(ctx, "edition does not have a latest version link", errMissingLatestVersionLink, logData)
+			setStatusCode(ctx, w, errMissingLatestVersionLink)
+			return
+		}
+
+		redirectPath := helpers.DatasetVersionURLWithTopic(topicSlug, datasetID, editionID, edition.Links.LatestVersion.ID)
 
 		//nolint:gosec // false positive as this is a relative URL which can only redirect to the same host
 		http.Redirect(w, r, redirectPath, http.StatusFound)

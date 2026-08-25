@@ -67,12 +67,21 @@ func TestStaticLanding(t *testing.T) {
 		Topics: []string{"topic1", "topic2"},
 		Links: &datasetAPIModels.DatasetLinks{
 			LatestVersion: &datasetAPIModels.LinkObject{
+				HRef: "/v1/datasets/static-dataset/editions/2026/versions/9",
+				ID:   "9",
+			},
+		},
+	}
+	editionID := "2025"
+	edition := datasetAPIModels.Edition{
+		Edition: editionID,
+		Links: &datasetAPIModels.EditionUpdateLinks{
+			LatestVersion: &datasetAPIModels.LinkObject{
 				HRef: "/v1/datasets/static-dataset/editions/2025/versions/2",
 				ID:   "2",
 			},
 		},
 	}
-	editionID := "2025"
 	versionID := "1"
 	version := datasetAPIModels.Version{
 		Distributions: &[]datasetAPIModels.Distribution{
@@ -238,19 +247,39 @@ func TestStaticLanding(t *testing.T) {
 		})
 	})
 
-	Convey("When versionID is not provided in the URL and the dataset has an invalid latest version link", t, func() {
+	Convey("When versionID is not provided in the URL and the edition has no latest version link", t, func() {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
-			Return(datasetAPIModels.Dataset{
-				ID:     datasetID,
-				Type:   DatasetTypeStatic,
-				Topics: []string{"topic1", "topic2"},
-				Links: &datasetAPIModels.DatasetLinks{
-					LatestVersion: &datasetAPIModels.LinkObject{
-						HRef: "://invalid-url",
-						ID:   "2",
-					},
-				},
-			}, nil)
+			Return(dataset, nil)
+
+		mockDatasetClient.EXPECT().GetEdition(ctx, testUserDatasetSDKHeaders, datasetID, editionID).
+			Return(datasetAPIModels.Edition{Edition: editionID, Links: &datasetAPIModels.EditionUpdateLinks{}}, nil)
+
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
+		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
+			Return(&topicAPIModels.TopicResponse{Current: &testTopic2}, nil)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s/datasets/%s/editions/%s", "topic1-slug", datasetID, editionID), http.NoBody)
+		r = mux.SetURLVars(r, map[string]string{
+			"topic":     "topic1-slug",
+			"datasetID": datasetID,
+			"editionID": editionID,
+		})
+
+		staticLanding(r, w, mockDatasetClient, mockRenderClient, mockZebedeeClient, mockTopicAPIClient, cfg, mockAuthMiddleware, testUserAccessToken, lang, collectionID)
+
+		Convey("Then the response status code should be 500 Internal Server Error", func() {
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
+	Convey("When versionID is not provided in the URL and GetEdition fails", t, func() {
+		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
+			Return(dataset, nil)
+
+		mockDatasetClient.EXPECT().GetEdition(ctx, testUserDatasetSDKHeaders, datasetID, editionID).
+			Return(datasetAPIModels.Edition{}, errors.New("GetEdition failed"))
 
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
 			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
@@ -277,6 +306,9 @@ func TestStaticLanding(t *testing.T) {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
 
+		mockDatasetClient.EXPECT().GetEdition(ctx, testUserDatasetSDKHeaders, datasetID, editionID).
+			Return(edition, nil)
+
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
 			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic2").
@@ -294,7 +326,7 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response should be a redirect to the latest version", func() {
 			So(w.Code, ShouldEqual, http.StatusFound)
-			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, dataset.Links.LatestVersion.ID)
+			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, edition.Links.LatestVersion.ID)
 			So(w.Header().Get("Location"), ShouldEqual, expectedLocation)
 		})
 	})
@@ -303,6 +335,9 @@ func TestStaticLanding(t *testing.T) {
 	Convey("When versionID not provided in the URL, redirect to latest version", t, func() {
 		mockDatasetClient.EXPECT().GetDataset(ctx, testUserDatasetSDKHeaders, datasetID).
 			Return(dataset, nil)
+
+		mockDatasetClient.EXPECT().GetEdition(ctx, testUserDatasetSDKHeaders, datasetID, editionID).
+			Return(edition, nil)
 
 		mockTopicAPIClient.EXPECT().GetTopicPrivate(ctx, topicAPISDK.Headers{UserAuthToken: testUserAccessToken}, "topic1").
 			Return(&topicAPIModels.TopicResponse{Current: &testTopic1}, nil)
@@ -321,7 +356,7 @@ func TestStaticLanding(t *testing.T) {
 
 		Convey("Then the response should be a redirect to the latest version", func() {
 			So(w.Code, ShouldEqual, http.StatusFound)
-			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, dataset.Links.LatestVersion.ID)
+			expectedLocation := fmt.Sprintf("/%s/datasets/%s/editions/%s/versions/%s", "topic1-slug", datasetID, editionID, edition.Links.LatestVersion.ID)
 			So(w.Header().Get("Location"), ShouldEqual, expectedLocation)
 		})
 	})
