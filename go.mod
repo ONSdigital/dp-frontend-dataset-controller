@@ -8,7 +8,7 @@ require (
 	github.com/ONSdigital/dp-authorisation/v2 v2.34.0
 	github.com/ONSdigital/dp-cache v0.6.1
 	github.com/ONSdigital/dp-cookies v0.7.1
-	github.com/ONSdigital/dp-dataset-api v1.106.0
+	github.com/ONSdigital/dp-dataset-api v1.119.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.11.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
