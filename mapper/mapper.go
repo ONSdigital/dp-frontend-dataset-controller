@@ -754,7 +754,6 @@ func CreateBreadcrumbsFromTopicList(topicObjectList []*dpTopicApiModels.Topic) [
 		path += "/" + topicObject.Slug
 		breadcrumbsObject = append(breadcrumbsObject, dpRendererModel.TaxonomyNode{
 			Title: topicObject.Title,
-			URI:   path,
 		})
 	}
 	return breadcrumbsObject
