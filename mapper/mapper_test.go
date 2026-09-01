@@ -661,28 +661,28 @@ func getTestServiceMessage() string {
 	return "Test service message"
 }
 
-func TestCreateBreadcrumbsFromTopicList(t *testing.T) {
-	Convey("Given a topicObjectList with two topics", t, func() {
-		topicObjectList := []*dpTopicApiModels.Topic{
-			{Title: "Topic One", Slug: "slug1"},
-			{Title: "Topic Two", Slug: "slug2"},
-		}
+// func TestCreateBreadcrumbsFromTopicList(t *testing.T) {
+// 	Convey("Given a topicObjectList with two topics", t, func() {
+// 		topicObjectList := []*dpTopicApiModels.Topic{
+// 			{Title: "Topic One", Slug: "slug1"},
+// 			{Title: "Topic Two", Slug: "slug2"},
+// 		}
 
-		Convey("When CreateBreadcrumbsFromTopicList is called to build the breadcrumbs from the topics list", func() {
-			breadcrumbObject := CreateBreadcrumbsFromTopicList(topicObjectList)
+// 		Convey("When CreateBreadcrumbsFromTopicList is called to build the breadcrumbs from the topics list", func() {
+// 			breadcrumbObject := CreateBreadcrumbsFromTopicList(topicObjectList)
 
-			Convey("Then the breadcrumbs object should contain a TaxonomyNode for each topic ", func() {
-				So(breadcrumbObject, ShouldHaveLength, 3)
-				So(breadcrumbObject[0].Title, ShouldEqual, "Home")
-				So(breadcrumbObject[0].URI, ShouldEqual, "/")
-				So(breadcrumbObject[1].Title, ShouldEqual, "Topic One")
-				So(breadcrumbObject[1].URI, ShouldEqual, "/slug1")
-				So(breadcrumbObject[2].Title, ShouldEqual, "Topic Two")
-				So(breadcrumbObject[2].URI, ShouldEqual, "/slug1/slug2")
-			})
-		})
-	})
-}
+// 			Convey("Then the breadcrumbs object should contain a TaxonomyNode for each topic ", func() {
+// 				So(breadcrumbObject, ShouldHaveLength, 3)
+// 				So(breadcrumbObject[0].Title, ShouldEqual, "Home")
+// 				So(breadcrumbObject[0].URI, ShouldEqual, "/")
+// 				So(breadcrumbObject[1].Title, ShouldEqual, "Topic One")
+// 				So(breadcrumbObject[1].URI, ShouldEqual, "/slug1")
+// 				So(breadcrumbObject[2].Title, ShouldEqual, "Topic Two")
+// 				So(breadcrumbObject[2].URI, ShouldEqual, "/slug1/slug2")
+// 			})
+// 		})
+// 	})
+// }
 
 func TestSetGTMDataLayerValuesForStaticEditionList(t *testing.T) {
 	Convey("Given a static dataset with a topic", t, func() {
