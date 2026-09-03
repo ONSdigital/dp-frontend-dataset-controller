@@ -8,18 +8,23 @@
         <nav class="ons-breadcrumbs ons-u-pt-no"
           aria-label="Breadcrumbs">
           <ol class="ons-breadcrumb__items ons-u-fs-s">
-            {{ range $i, $b := $bc }}
-              <li class="ons-breadcrumb__item ons-u-p-no">
-                {{ if $b.URI }}
+            {{- range $i, $b := $bc -}}
+              <li class="ons-breadcrumb__item ons-u-p-no static-breadcrumbs-fix">
+                {{- if $b.URI -}}
                   <a class="ons-breadcrumb__link" href="{{ $b.URI }}">{{ $b.Title }}</a>
-                {{ else }}
+                {{- else -}}
                   {{ $b.Title }}
-                {{ end }}
-                {{ template "icons/chevron-right" }}
+                {{- end -}}
+                {{- template "icons/chevron-right" -}}
               </li>
-            {{ end }}
+            {{- end -}}
           </ol>
         </nav>
+        <style>
+          .static-breadcrumbs-fix .ons-svg-icon {
+            margin: 0 0.25rem;
+          }
+        </style>
       {{ end }}
 
       {{/*  Hero  */}}
