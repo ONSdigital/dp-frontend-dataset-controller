@@ -51,7 +51,7 @@
                     </ul>
                 </div>
                 <!-- Full footer columns -->
-                <div class="ons-grid__col ons-col-4@m ons-u-mt-l@2xs@m">
+                <div class="ons-grid__col ons-col-4@m ons-u-mt-l@2xs@m static-footer-spacing-fix">
                     <h2 class="ons-footer__heading ons-u-fs-r--b">{{ localise "ConnectWithUs" .Language 1 }}</h2>
                     <ul class="ons-list ons-u-mb-no ons-list--bare">
                         <li class="ons-list__item">
@@ -80,6 +80,11 @@
                 <div class="ons-grid__col ons-u-mb-l">
                     <hr class="ons-footer__hr">
                 </div>
+                <style>
+                    .static-footer-spacing-fix  {
+                        margin-bottom: 0.5rem;
+                    }
+                </style>
             </div>
             <div class="ons-grid ons-grid-flex--vertical-top ons-grid-flex--between">
                 <div class="ons-grid__col">
