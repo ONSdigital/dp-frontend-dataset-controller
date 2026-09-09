@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 )
 
 // Constants

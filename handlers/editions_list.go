@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/helpers"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/mapper"

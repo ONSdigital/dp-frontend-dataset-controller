@@ -8,7 +8,7 @@ import (
 
 	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"

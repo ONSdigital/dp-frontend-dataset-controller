@@ -18,7 +18,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/assets"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/cache"
 	cachePublic "github.com/ONSdigital/dp-frontend-dataset-controller/cache/public"
