@@ -334,6 +334,10 @@ one = "Supporting information"
 description = "Machine readable"
 one = "Machine readable"
 
+[CompressedArchive]
+description = "Compressed archive"
+one = "Compressed archive"
+
 [Download]
 description = "Download"
 one = "download,"
