@@ -6,7 +6,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
-	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk/go"
 )
 
 // Interface with methods required for a dp-api-clients-go dataset client

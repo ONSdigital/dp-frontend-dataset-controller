@@ -11,7 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	authMock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 	datasetAPIModels "github.com/ONSdigital/dp-dataset-api/models"
-	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk"
+	datasetAPISDK "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	"github.com/ONSdigital/dp-frontend-dataset-controller/clients"
 	permissionsAPISDK "github.com/ONSdigital/dp-permissions-api/sdk"
 	topicAPIModels "github.com/ONSdigital/dp-topic-api/models"

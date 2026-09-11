@@ -17,7 +17,7 @@ import (
 	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
 	zebedee "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	models "github.com/ONSdigital/dp-dataset-api/models"
-	sdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	sdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	models0 "github.com/ONSdigital/dp-topic-api/models"
 	sdk0 "github.com/ONSdigital/dp-topic-api/sdk"
 	errors "github.com/ONSdigital/dp-topic-api/sdk/errors"

@@ -12,7 +12,7 @@ import (
 	dpRendererModel "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
-	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk"
+	dpDatasetApiSdk "github.com/ONSdigital/dp-dataset-api/sdk/go"
 	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"

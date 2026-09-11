@@ -312,6 +312,10 @@ func TestMapDistributionsToDownloads(t *testing.T) {
 					Title:       "file.xls",
 					DownloadURL: "http://localhost:23600/downloads/file.xls",
 				},
+				{
+					Title:       "file.zip",
+					DownloadURL: "http://localhost:23600/downloads/file.zip",
+				},
 			}
 
 			result := mapDistributionsToDownloads(distributions)
@@ -325,6 +329,10 @@ func TestMapDistributionsToDownloads(t *testing.T) {
 					{
 						File: "file.xls",
 						URI:  "http://localhost:23600/downloads/file.xls",
+					},
+					{
+						File: "file.zip",
+						URI:  "http://localhost:23600/downloads/file.zip",
 					},
 				}
 
