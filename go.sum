@@ -32,6 +32,8 @@ github.com/ONSdigital/dp-dataset-api v1.22.0/go.mod h1:ZtItZop61hXmUUg447eFvibxY
 github.com/ONSdigital/dp-dataset-api v1.119.0/go.mod h1:DMEWSTkzaDwACnhAvCtyxq/b19ASp75gcMSonpvAspk=
 github.com/ONSdigital/dp-dataset-api v1.122.0 h1:OL5Ive7MY5GuNAt+d1KMi4xhe/EpuKgUL3GeCnnc94k=
 github.com/ONSdigital/dp-dataset-api v1.122.0/go.mod h1:7n58xlgH6WFJ7ciJYdTfbFnjx37dcVqaefb1tVpKyOc=
+github.com/ONSdigital/dp-dataset-api v1.124.0 h1:N4YGvXLysIRhNOs5FL3kNjSJ5oYgtzuMMxdiu+nF8XI=
+github.com/ONSdigital/dp-dataset-api v1.124.0/go.mod h1:7n58xlgH6WFJ7ciJYdTfbFnjx37dcVqaefb1tVpKyOc=
 github.com/ONSdigital/dp-files-api v1.29.0 h1:WTC7j7GRVNdTDOmTVqIAiEh8SsgnkNtn9DBW1RfS++w=
 github.com/ONSdigital/dp-files-api v1.29.0/go.mod h1:L8sSz/cOmejgfoxRXflXIvr+eIaJXGhf9gsinUn+58Q=
 github.com/ONSdigital/dp-frontend-models v1.1.0/go.mod h1:TT96P7Mi69N3Tc/jFNdbjiwG4GAaMjP26HLotFQ6BPw=
