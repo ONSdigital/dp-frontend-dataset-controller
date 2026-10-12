@@ -73,6 +73,10 @@ linters:
         path: _test.go
         text: dot-imports
         source: github.com/smartystreets/goconvey/convey
+      # TODO: Replace with dp-dataset-api SDK. Out of scope as new dis-frontend-dataset-controller is being developed.
+      - linters:
+          - staticcheck
+        text: 'github.com/ONSdigital/dp-api-clients-go/v2/dataset is deprecated'
 issues:
   new: false
 formatters:
