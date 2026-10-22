@@ -331,8 +331,8 @@ description = "Supporting information"
 one = "Supporting information"
 
 [MachineReadable]
-description = "Machine readable"
-one = "Machine readable"
+description = "Machine-readable"
+one = "Machine-readable"
 
 [CompressedArchive]
 description = "Compressed archive"
