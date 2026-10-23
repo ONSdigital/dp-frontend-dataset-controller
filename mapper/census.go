@@ -26,8 +26,8 @@ const (
 
 // orderDownloads orders a set of sharedModel.Downloads using a hardcoded download order
 func orderDownloads(downloads []sharedModel.Download) []sharedModel.Download {
-	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw", "zip"}
-	mapped := make(map[string]sharedModel.Download, 5)
+	downloadOrder := []string{"xls", "xlsx", "csv", "txt", "csvw", "zip", "json", "xml"}
+	mapped := make(map[string]sharedModel.Download, len(downloads))
 	for _, download := range downloads {
 		mapped[download.Extension] = download
 	}
