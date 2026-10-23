@@ -2,6 +2,8 @@ github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/ONSdigital/dis-design-system-go v1.7.1 h1:GDKEoz9Hbf1GWHmOppTbDk4Fe2eCPGxEZ1Z/O98O7qU=
 github.com/ONSdigital/dis-design-system-go v1.7.1/go.mod h1:DoqpWWJL0PczZLkAIKOR29q8JXvVFHf7H/739krUGg4=
+github.com/ONSdigital/dis-design-system-go v1.8.0 h1:FLzbrT+UHJBhP6RXJm6RrLghSE7YqyaM6/vsNjEHwDY=
+github.com/ONSdigital/dis-design-system-go v1.8.0/go.mod h1:DoqpWWJL0PczZLkAIKOR29q8JXvVFHf7H/739krUGg4=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.287.0 h1:TfENmX3gnaNtdmFD//aQMiVN80qSVWgTm7SH9nOkYbc=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.287.0/go.mod h1:vniCZ0iYfIQ5llsBigUS2khr8cSN1eXEsOKGYlopWHI=
 github.com/ONSdigital/dp-authorisation/v2 v2.34.0 h1:Zc096gAh5S7PFG1LlbM/siZDvyzd7fU11dMK8X6m98k=
@@ -18,6 +20,10 @@ github.com/ONSdigital/dp-mocking v0.11.0 h1:laln6e2JD4vtsYbg0cTw9ur1Xf390AUYdd85
 github.com/ONSdigital/dp-mocking v0.11.0/go.mod h1:oHkuukWnURnK7epY5TD5oYVkOwldR2La1D5LQBTxY0A=
 github.com/ONSdigital/dp-net/v3 v3.15.0 h1:Q0lGoeogoGrK8+e6WWPspuG8YuZ1PTgk7tefXN1C75c=
 github.com/ONSdigital/dp-net/v3 v3.15.0/go.mod h1:FyZAmEN07s8XsF96tU0Q8sFCapJe9NC3ZKqstXegZjg=
+github.com/ONSdigital/dp-net/v3 v3.16.0 h1:LYQ7cmnw+tJpdJp7xiR/0DmDxejCVdr6Im4GE6RG5Ko=
+github.com/ONSdigital/dp-net/v3 v3.16.0/go.mod h1:8e+ARajx6g9XQb+v4/u9EB9ehPhy/7BsrO2a2pcMX9E=
+github.com/ONSdigital/dp-net/v3 v3.17.0 h1:NH89PoL9xLBR0TmTu22Zr1wcB9+ppw9L8Ng34Sjlvpw=
+github.com/ONSdigital/dp-net/v3 v3.17.0/go.mod h1:8e+ARajx6g9XQb+v4/u9EB9ehPhy/7BsrO2a2pcMX9E=
 github.com/ONSdigital/dp-otel-go v0.0.9 h1:EOAokKSZmIbus001yHkqksfza7200zRs7JRw+5PX9Gw=
 github.com/ONSdigital/dp-otel-go v0.0.9/go.mod h1:Eb74zgPrTwTnqfaz8G2tx3vdLo1UBst2OJYNBGhiDKQ=
 github.com/ONSdigital/dp-permissions-api v1.10.1 h1:dOyPtS94CpBgS0Y1oZJy84UcKZOHkmDK+Zdg5OClEXs=
