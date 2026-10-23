@@ -4,6 +4,8 @@ github.com/ONSdigital/dis-design-system-go v1.7.1 h1:GDKEoz9Hbf1GWHmOppTbDk4Fe2e
 github.com/ONSdigital/dis-design-system-go v1.7.1/go.mod h1:DoqpWWJL0PczZLkAIKOR29q8JXvVFHf7H/739krUGg4=
 github.com/ONSdigital/dis-design-system-go v1.8.0 h1:FLzbrT+UHJBhP6RXJm6RrLghSE7YqyaM6/vsNjEHwDY=
 github.com/ONSdigital/dis-design-system-go v1.8.0/go.mod h1:DoqpWWJL0PczZLkAIKOR29q8JXvVFHf7H/739krUGg4=
+github.com/ONSdigital/dis-design-system-go v1.9.0 h1:nmydOf1uk6SWk+G6VlR9RCvau/WDjAD20N8azDt3HD0=
+github.com/ONSdigital/dis-design-system-go v1.9.0/go.mod h1:DoqpWWJL0PczZLkAIKOR29q8JXvVFHf7H/739krUGg4=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.287.0 h1:TfENmX3gnaNtdmFD//aQMiVN80qSVWgTm7SH9nOkYbc=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.287.0/go.mod h1:vniCZ0iYfIQ5llsBigUS2khr8cSN1eXEsOKGYlopWHI=
 github.com/ONSdigital/dp-authorisation/v2 v2.34.0 h1:Zc096gAh5S7PFG1LlbM/siZDvyzd7fU11dMK8X6m98k=
