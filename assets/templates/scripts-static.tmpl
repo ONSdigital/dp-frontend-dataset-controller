@@ -16,6 +16,23 @@
 
             document.body.appendChild(e);
         }
+
+        var supportsPromises = typeof window.Promise !== "undefined";
+        var supportsFetch = typeof window.fetch !== "undefined";
+        var supportsCSSGrid = typeof window.CSS !== "undefined" && typeof window.CSS.supports === "function" && window.CSS.supports("display", "grid");
+        var supportsAsyncAwait = false;
+        try {
+            supportsAsyncAwait = typeof Function("return async () => {}") === "function";
+        } catch (e) {
+            supportsAsyncAwait = false;
+        }
+
+        if (!supportsPromises || !supportsFetch || !supportsCSSGrid || !supportsAsyncAwait) {
+            var banner = document.querySelector('.ons-browser-banner');
+            if (banner) {
+                banner.style.display = 'block';
+            }
+        }
     })();
 </script>
 <script src="https://cdn.ons.gov.uk/sdc/design-system/72.4.0/scripts/main.js"></script>
