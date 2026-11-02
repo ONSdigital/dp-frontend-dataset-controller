@@ -62,6 +62,7 @@ func CreateStaticBasePage(basePage core.Page, d dpDatasetApiModels.Dataset, vers
 	// topicSlug is used for constructing URLs for static datasets
 	topicSlug := topicObjectList[0].Slug
 	latestVersionURL := helpers.DatasetVersionURLWithTopic(topicSlug, d.ID, version.Edition, strconv.Itoa(latestVersionNumber))
+	p.SearchNoIndexEnabled = latestVersionNumber != version.Version
 
 	if d.NationalStatistic != nil {
 		isNationalStatistic = *d.NationalStatistic
