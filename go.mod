@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/ONSdigital/dis-design-system-go v1.9.2
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.287.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.288.0
 	github.com/ONSdigital/dp-authorisation/v2 v2.34.0
 	github.com/ONSdigital/dp-cache v0.6.1
 	github.com/ONSdigital/dp-cookies v0.7.1
