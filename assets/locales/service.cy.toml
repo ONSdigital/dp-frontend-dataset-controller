@@ -120,7 +120,7 @@ one = "View all data related to"
 
 [ContactUs]
 description = "Contact us"
-one = "Contact us"
+one = "Cysylltwch â ni"
 
 [DatasetContactDetails]
 description = "Contact details for this dataset"
@@ -475,23 +475,23 @@ one = "Privacy and data protection"
 
 [AccessibilityStatement]
 description = "Accessibility statement"
-one = "Accessibility statement"
+one = "Datganiad hygyrchedd"
 
 [Browsers]
 description = "Browsers"
-one = "Browsers"
+one = "Porwyr"
 
 [FairUsePolicy]
 description = "Fair use policy"
-one = "Fair use policy"
+one = "Polisi defnydd teg"
 
 [PrivacyNotice]
 description = "Privacy notice"
-one = "Privacy notice"
+one = "Hysbysiad preifatrwydd"
 
 [AboutUs]
 description = "About us"
-one = "About us"
+one = "Amdanom ni"
 
 [QualityAndMethodologyInformation]
 description = "Quality and methodology information"
