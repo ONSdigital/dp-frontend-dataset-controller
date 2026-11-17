@@ -5,10 +5,64 @@ import (
 	"testing"
 	"time"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	dpDatasetApiModels "github.com/ONSdigital/dp-dataset-api/models"
+	sharedModel "github.com/ONSdigital/dp-frontend-dataset-controller/model"
 	dpTopicApiModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+func TestCreateStaticOverviewPageRelatedContent(t *testing.T) {
+	Convey("Given a dataset with related content", t, func() {
+		dataset := dpDatasetApiModels.Dataset{
+			RelatedContent: []dpDatasetApiModels.GeneralDetails{
+				{Title: "Dataset content", HRef: "/dataset-content", Description: "Dataset description"},
+			},
+		}
+		version := dpDatasetApiModels.Version{}
+		topics := []*dpTopicApiModels.Topic{{Slug: "economy"}}
+		expected := []sharedModel.RelatedContentItem{
+			{Title: "Dataset content", Link: "/dataset-content", Text: "Dataset description"},
+		}
+
+		Convey("When the version has related content", func() {
+			relatedContent := []dpDatasetApiModels.GeneralDetails{
+				{Title: "First version content", HRef: "/version-content-1", Description: "First version description"},
+				{Title: "Second version content", HRef: "/version-content-2", Description: "Second version description"},
+			}
+			version.RelatedContent = &relatedContent
+
+			page := CreateStaticOverviewPage(context.Background(), core.Page{}, dataset, version, nil, false, topics, false, false)
+
+			Convey("Then version items are mapped and appended after dataset content in order", func() {
+				expected = append(expected,
+					sharedModel.RelatedContentItem{Title: "First version content", Link: "/version-content-1", Text: "First version description"},
+					sharedModel.RelatedContentItem{Title: "Second version content", Link: "/version-content-2", Text: "Second version description"},
+				)
+				So(page.DatasetLandingPage.RelatedContentItems, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When version related content is nil", func() {
+			page := CreateStaticOverviewPage(context.Background(), core.Page{}, dataset, version, nil, false, topics, false, false)
+
+			Convey("Then dataset related content is preserved", func() {
+				So(page.DatasetLandingPage.RelatedContentItems, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When version related content points to an empty slice", func() {
+			relatedContent := []dpDatasetApiModels.GeneralDetails{}
+			version.RelatedContent = &relatedContent
+
+			page := CreateStaticOverviewPage(context.Background(), core.Page{}, dataset, version, nil, false, topics, false, false)
+
+			Convey("Then dataset related content is preserved", func() {
+				So(page.DatasetLandingPage.RelatedContentItems, ShouldResemble, expected)
+			})
+		})
+	})
+}
 
 func TestSetGTMDataLayerValuesForStaticDatasets(t *testing.T) {
 	ctx := context.Background()

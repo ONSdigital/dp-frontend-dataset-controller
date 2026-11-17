@@ -40,6 +40,19 @@ func CreateStaticOverviewPage(ctx context.Context, basePage core.Page, datasetDe
 		p.DatasetLandingPage.HasDownloads = true
 	}
 
+	if version.RelatedContent != nil {
+		for _, content := range *version.RelatedContent {
+			p.DatasetLandingPage.RelatedContentItems = append(
+				p.DatasetLandingPage.RelatedContentItems,
+				sharedModel.RelatedContentItem{
+					Title: content.Title,
+					Link:  content.HRef,
+					Text:  content.Description,
+				},
+			)
+		}
+	}
+
 	// ANALYTICS
 	p.PreGTMJavaScript = append(
 		p.PreGTMJavaScript,
