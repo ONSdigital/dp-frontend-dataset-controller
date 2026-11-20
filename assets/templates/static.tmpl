@@ -2,20 +2,28 @@
   <div class="ons-hero__container ons-hero__container--has-details ons-container">
     <div class="ons-hero__details ons-grid__col ons-col-12@m col-10@s@m ons-u-pt-no">
       <h2 class="ons-hero--topic">Dataset</h2>
-      <div class="ons-hero__title-container">
-        <header>
-          <h1 class="ons-hero__title ons-u-fs-3xl">{{ .Metadata.Title }}{{if .Version.Edition }}: {{ .Version.Edition }}{{ end }}</h1>
-        </header>
-        {{ range .DatasetLandingPage.Description }}
-        <p class="ons-hero__text">{{ . }}</p>
-        {{ end }}
-        {{ if .DatasetLandingPage.HasOtherVersions }}
-        <p class="ons-hero__text"><a href="#version-history">See all versions</a></p>
+      <div
+        class="ons-grid ons-grid--gutterless ons-grid-flex ons-grid-flex--vertical-center"
+      >
+        <div class="ons-grid__col ons-col-10@m">
+          <div class="ons-hero__title-container">
+            <header>
+              <h1 class="ons-hero__title ons-u-fs-3xl">{{ .Metadata.Title }}{{if .Version.Edition }}: {{ .Version.Edition }}{{ end }}</h1>
+            </header>
+            {{ range .DatasetLandingPage.Description }}
+            <p class="ons-hero__text">{{ . }}</p>
+            {{ end }}
+            {{ if .DatasetLandingPage.HasOtherVersions }}
+            <p class="ons-hero__text"><a href="#version-history">See all versions</a></p>
+            {{ end }}
+          </div>
+        </div>
+        {{ if or (eq .Version.QualityDesignation "official") (eq .Version.QualityDesignation "accredited-official") }}
+          <div class="ons-grid__col ons-col-2@m">
+            {{ template "partials/static/official-statistics-badge" }}
+          </div>
         {{ end }}
       </div>
-      {{ if or (eq .Version.QualityDesignation "official") (eq .Version.QualityDesignation "accredited-official") }}
-        {{ template "partials/static/official-statistics-badge" }}
-      {{ end }}
       <div class="ons-grid ons-grid--gutterless ons-u-mb-no ons-u-mt-s ons-u-mt-l@l">
         <div class="ons-grid__col ons-col-4@m ons-u-mt-xs">
           <div class="ons-metadata__item">

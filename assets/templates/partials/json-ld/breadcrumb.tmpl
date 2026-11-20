@@ -1,0 +1,18 @@
+{{ if .Breadcrumb }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {{ range $i, $breadcrumb := .Breadcrumb }}
+    {
+      "@type": "ListItem",
+      "position": {{ add $i 1 }},
+      "name": {{ $breadcrumb.Title }},
+      "item": {{ if $breadcrumb.URI }}{{ domainSetLang $.SiteDomain $breadcrumb.URI $.Language }}{{ else }}""{{ end }}
+    }{{ if notLastItem (len $.Breadcrumb) $i }},{{ end }}
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}

@@ -1,6 +1,9 @@
+{{ template "partials/json-ld/breadcrumb" . }}
 <script>
+  document.body.classList.add("ons-js-enabled");
+
   (function () {
-    var s = ["https://cdn.ons.gov.uk/sdc/design-system/72.4.0/scripts/main.js"],
+    var s = ["https://cdn.ons.gov.uk/sdc/design-system/74.0.0/scripts/main.js"],
       c = document.createElement("script");
 
     if (!("noModule" in c)) {
@@ -35,4 +38,3 @@
     }
   })();
 </script>
-<script src="https://cdn.ons.gov.uk/sdc/design-system/72.4.0/scripts/main.js"></script>
